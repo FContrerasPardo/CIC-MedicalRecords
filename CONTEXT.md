@@ -205,3 +205,9 @@ IDP, ECM, Agentes IA, Automate, Case Management y Knowledge Discovery operan int
 ---
 
 *Confidencial — Uso interno Hyland*
+
+## Nota de avance del proyecto
+
+Como primer avance de implementación y alineación visual, ya se validó la integración con Stitch MCP y se exportó un lote inicial de interfaces de referencia para las líneas de trabajo de armado de cuentas y gestión de convenios.
+
+Los artefactos de referencia quedaron organizados en `UI design/`, con versiones HTML y PNG por pantalla, para servir como insumo de diseño en las siguientes iteraciones de la Custom UI.

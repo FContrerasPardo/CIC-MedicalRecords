@@ -45,3 +45,13 @@ Este archivo concentra el contexto operativo para asistentes de IA que colaboren
 
 ## Objetivo de corto plazo
 Consolidar una base estable para iterar la interfaz personalizada de Automate y alinear progresivamente la UI con el caso de uso de cuentas médicas.
+## Primer cambio registrado
+- Se validó la integración con Stitch MCP para este repositorio.
+- Se asoció el proyecto de Stitch `6370733408280832092`, con referencia local en `.stitch-project.json`.
+- Se exportó un primer lote de pantallas de referencia y se organizó en `UI design/`.
+- Estructura actual de diseño:
+  1. `UI design/armado-de-cuentas/`
+  2. `UI design/gestion-de-convenios/`
+  3. `UI design/_residuales-stitch/`
+- Cada referencia visual se conservó en HTML y PNG para facilitar futuras iteraciones de UI.
+- Estos artefactos deben tratarse como base de diseño y alineación funcional, no como implementación final del producto.

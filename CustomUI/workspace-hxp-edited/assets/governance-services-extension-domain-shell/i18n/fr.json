@@ -1,0 +1,243 @@
+{
+    "GOVERNANCE": {
+        "SIDENAV": {
+            "TITLE": "Gouvernance"
+        },
+        "HEADER": {
+            "TITLE": "Gouvernance"
+        },
+        "TABS": {
+            "RECORDS": "Gestion des documents d'archives",
+            "LEGAL_HOLD": "Gestion de la conservation légale"
+        },
+        "LEGAL_HOLD": {
+            "TITLE": "Gestion de la conservation légale",
+            "HEADER": "Dossiers de conservation légale",
+            "TABLE": {
+                "COLUMNS": {
+                    "CASE_NAME": "Dossier de conservation légale",
+                    "REASON_FOR_HOLD": "Motif de conservation",
+                    "TOTAL_RECORDS_HELD": "Nombre total de documents d'archives conservés",
+                    "DATE_OF_CREATION": "Date de création",
+                    "CREATOR": "Créateur"
+                },
+                "NO_RECORDS_FOUND": "Vous n'avez pas encore de dossier de conservation légale.",
+                "NO_RECORDS_FOUND_FILTERED": "Aucun dossier de conservation légale ne correspond à votre filtre de recherche."
+            },
+            "CREATE_BUTTON": "Créer un dossier de conservation légale",
+            "SEARCH_PLACEHOLDER": "Rechercher le nom d'un dossier de conservation légale",
+            "CLEAR_ALL": "Effacer tout",
+            "SELECTED": "Sélectionné"
+        },
+        "SEARCH": {
+            "FILTERS": {
+                "ARIA-LABEL": {
+                    "CLEAR_INPUT": "Effacer l'entrée",
+                    "CLEAR_SEARCH": "Effacer la recherche",
+                    "FILTERS_LIST": "Liste des filtres",
+                    "REMOVE": "Supprimer le filtre"
+                },
+                "SELECTED": "{{selected}} sélectionné",
+                "RESULTS_FOUND_PLURAL": "{{count}} résultats trouvés",
+                "RESULTS_FOUND_SINGLE": "{{count}} résultat trouvé",
+                "CATEGORY": {
+                    "LABEL": "Catégorie"
+                },
+                "CREATOR": {
+                    "LABEL": "Créateur"
+                },
+                "DATA_SOURCE": {
+                    "LABEL": "Source de données"
+                },
+                "MODIFIER": {
+                    "LABEL": "Modificateur"
+                },
+                "STATUS": {
+                    "LABEL": "Statut"
+                },
+                "NO_SEARCH_RESULTS": {
+                    "MESSAGE": "Aucun résultat correspondant trouvé"
+                },
+                "PLACEHOLDER": "Rechercher",
+                "CUTOFF": {
+                    "LABEL": "Limite"
+                },
+                "DISPOSITION": {
+                    "LABEL": "Date de disposition"
+                },
+                "DATE": {
+                    "ARIA-LABEL": {
+                        "DEFAULT_OPTIONS_LIST": "Liste des options de date disponibles"
+                    },
+                    "OPTIONS": {
+                        "TOMORROW": "Demain",
+                        "NEXT_WEEK": "Semaine prochaine",
+                        "NEXT_MONTH": "Mois prochain",
+                        "NEXT_YEAR": "Année prochaine",
+                        "CUSTOM_DATE": {
+                            "LABEL": "Date personnalisée",
+                            "VALUES": {
+                                "AFTER": "Après",
+                                "BEFORE": "Avant",
+                                "SINCE_TO_DATE": "Depuis le {{afterDate}} jusqu'au {{beforeDate}}",
+                                "SINCE_TO_TODAY": "Depuis le {{date}} jusqu'à aujourd'hui",
+                                "UNTIL_DATE": "Jusqu'au {{date}}"
+                            }
+                        },
+                        "BUTTON": {
+                            "CLEAR": {
+                                "ARIA_LABEL": {
+                                    "AFTER": "Effacer après la date",
+                                    "BEFORE": "Effacer avant la date"
+                                }
+                            }
+                        },
+                        "ERRORS": {
+                            "BEFORE_DATE_TOO_EARLY": "« Avant la date » ne peut pas être antérieur à « Après la date »",
+                            "AFTER_DATE_TOO_LATE": "« Après la date » ne peut pas être postérieur à « Avant la date »",
+                            "INVALID_DATE_FORMAT": "Veuillez saisir un format de date valide JJ/MM/AAAA"
+                        }
+                    }
+                }
+            },
+            "TOOLBAR": {
+                "BUTTONS": {
+                    "DELETE": "Supprimer les documents d'archives sélectionnés",
+                    "LEGAL_HOLD_CASE": "Ajouter les documents d'archives sélectionnés à une conservation légale",
+                    "PROPERTY_PANE_OPEN": "Afficher la propriété",
+                    "PROPERTY_PANE_CLOSE": "Masquer la propriété",
+                    "EDIT_LEGAL_HOLD_CASE": "Modifier un dossier de conservation légale"
+                }
+            }
+        },
+        "SEARCH_RESULTS": {
+            "BUTTONS": {
+                "RESET": {
+                    "LABEL": "Réinitialiser"
+                },
+                "SEARCH": {
+                    "LABEL": "Rechercher"
+                },
+                "SELECT_ALL": {
+                    "LABEL": "Tout sélectionner"
+                },
+                "UNSELECT_ALL": {
+                    "LABEL": "Désélectionner tout"
+                }
+            },
+            "INITIAL_STATE": {
+                "LABEL": "Rechercher des enregistrements à l’aide du filtrage avancé",
+                "ICON": "Rechercher des enregistrements à l’aide du filtrage avancé"
+            },
+            "NO_RESULTS": {
+                "ICON": "Aucun enregistrement trouvé pour les filtres sélectionnés. Ajustez vos critères de recherche et réessayez.",
+                "LABEL": "Aucun enregistrement trouvé pour les filtres sélectionnés. Ajustez vos critères de recherche et réessayez."
+            },
+            "RESULTS_LIST": {
+                "COUNT_PLURAL": "{{count}} résultats trouvés",
+                "COUNT_SINGLE": "{{count}} résultat trouvé",
+                "COLUMNS": {
+                    "NAME": "Nom de l’enregistrement",
+                    "DATA_SOURCE": "Source de données",
+                    "CATEGORY": "Catégorie",
+                    "CUTOFF_DATE": "Date limite",
+                    "DISPOSITION_DATE": "Date de destruction",
+                    "DISPOSITION": "Disposition",
+                    "STATUS": "Statut"
+                },
+                "ITEMS_PER_PAGE": "Éléments par page :"
+            },
+            "SELECTED_RESULTS_COUNT": "{{selected}} sélectionné"
+        },
+        "SEARCH_FILTERS": {
+            "CONTENT_ID": {
+                "LABEL": "ID du contenu",
+                "PLACEHOLDER": "Entrer l’ID de contenu",
+                "ERROR": "Veuillez entrer un ID de contenu valide."
+            },
+            "RECORD_NAME": {
+                "LABEL": "Nom du document d'archives",
+                "PLACEHOLDER": "Entrer un nom de document d'archives",
+                "ERROR": "Veuillez entrer un nom de document d'archives valide."
+            }
+        },
+        "SIDEBAR": {
+            "EDIT_TITLE": "Modifier les propriétés de l’enregistrement",
+            "TABS": {
+                "PROPERTIES": "Propriétés"
+            },
+            "SECTIONS": {
+                "RECORD_PROPERTIES": "Propriétés de l’enregistrement"
+            },
+            "BUTTONS": {
+                "EDIT": "Modifier",
+                "CANCEL": "Annuler",
+                "SAVE": "Enregistrer",
+                "CLEAR": "Effacer",
+                "CLOSE": "Fermer la barre latérale",
+                "TOGGLE": "Développer/Réduire"
+            },
+            "FIELDS": {
+                "CUTOFF_DATE": "Date limite",
+                "INCOMPLETE": "Incomplet"
+            },
+            "DATEPICKER": {
+                "CLEAR": "Effacer",
+                "CANCEL": "Annuler",
+                "APPLY": "OK"
+            }
+        },
+        "DELETE_DIALOG": {
+            "TITLE": "Confirmer la suppression",
+            "CONTENT": "Souhaitez-vous vraiment supprimer les enregistrements sélectionnés ?",
+            "CANCEL": "Annuler",
+            "DELETE": "Supprimer"
+        },
+        "LEGAL_DIALOG": {
+            "TITLE": "Dossiers de conservation légale",
+            "CANCEL": "Annuler",
+            "ASSIGN": "Ajouter des documents d'archives à la sélection",
+            "INFO_ADD_RECORDS": "{{count}} fichier sera ajouté à la conservation légale sélectionnée",
+            "INFO_ADD_RECORDS_plural": "{{count}} fichiers seront ajoutés à la conservation légale sélectionnée"
+        },
+        "CREATE_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Créer un dossier de conservation légale",
+            "NAME": "Nom",
+            "REASON": "Motif",
+            "DESCRIPTION": "Description",
+            "CANCEL": "Annuler",
+            "CREATE": "Créer un dossier de conservation légale",
+            "ERRORS": {
+                "MAX_LENGTH_EXCEEDED": "Longueur maximale de {{max}} caractères dépassée."
+            }
+        },
+        "EDIT_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Modifier un dossier de conservation légale",
+            "EDIT": "Modifier un dossier de conservation légale"
+        },
+        "UNSAVED_CHANGES_DIALOG": {
+            "TITLE": "Modifications non enregistrées",
+            "CONTENT": "Certaines de vos modifications n'ont pas été enregistrées. Pour les réviser et les enregistrer, cliquez sur « Continuer l'édition ». Pour ignorer les modifications, cliquez sur « Fermer sans enregistrer ».",
+            "DISCARD": "Fermer sans enregistrer",
+            "KEEP": "Continuer l'édition"
+        },
+        "NOTIFICATIONS": {
+            "RECORD_DELETE_SUCCESS": "Enregistrement(s) supprimé(s) avec succès !",
+            "RECORD_DELETE_ERROR": "Impossible de supprimer la propriété. Veuillez réessayer.",
+            "RECORD_DELETE_PARTIAL": "{{successCount}} documents d'archives supprimés, {{failureCount}} échec(s).",
+            "PROPERTY_UPDATE_SUCCESS": "La propriété a bien été mise à jour !",
+            "PROPERTY_UPDATE_ERROR": "Impossible de mettre à jour la propriété. Veuillez réessayer.",
+            "LEGAL_HOLD_CASE_CREATE_SUCCESS": "Dossier de conservation légale créé avec succès",
+            "LEGAL_HOLD_CASE_CREATE_ERROR": "Échec de la création du dossier de conservation légale. Veuillez réessayer.",
+            "LEGAL_HOLD_CASE_NAME_EXISTS": "Un dossier de conservation légale portant ce nom existe déjà.",
+            "LEGAL_HOLD_ASSIGNMENT_ERROR": "Échec de l'affectation des documents d'archives à une conservation légale. Veuillez réessayer.",
+            "LEGAL_HOLD_ASSIGNMENT_SUCCESS": "Documents d'archives affectés avec succès à la conservation légale.",
+            "LEGAL_HOLD_CASE_EDIT_SUCCESS": "Dossier de conservation légale mis à jour avec succès",
+            "LEGAL_HOLD_CASE_EDIT_ERROR": "Échec de la mise à jour du dossier de conservation légale. Veuillez réessayer."
+        },
+        "SEARCH_INPUT": {
+            "SEARCH": "Rechercher",
+            "CLEAR": "Effacer"
+        }
+    }
+}

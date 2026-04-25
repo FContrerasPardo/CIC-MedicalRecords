@@ -1,0 +1,77 @@
+{
+    "EXTRACTION": {
+        "VERIFICATION": {
+            "TASK_HEADER": {
+                "TITLE": "Przejrzyj wartości pól wyodrębnione z dokumentu",
+                "REMAINING_ISSUES": "problemy do rozwiązania",
+                "ALL_RESOLVED": "Wszystkie rozwiązane",
+                "BACK_LABEL": "Powrót do zadań",
+                "TASK_NAME": "Nazwa zadania",
+                "TASK_NAME_VALUE": "Weryfikacja dokumentu",
+                "DOCUMENT_CLASSES": "Klasy dokumentów",
+                "TOTAL_DOCUMENTS": "Łączna liczba dokumentów",
+                "TOTAL_PAGES": "Łączna liczba stron",
+                "CONTENT_TYPE": "Typ zawartości"
+            },
+            "SUBMIT_BUTTON": "Prześlij",
+            "SUBMIT_WITH_ISSUE_BUTTON": "Prześlij z problemem",
+            "METADATA_PANEL": {
+                "TITLE": "Metadane"
+            },
+            "FIELD_IGNORED_FOR_AUTO": "To pole jest wyłączone z automatycznego pobierania danych.",
+            "METADATA_TABLE": {
+                "ADD_TABLE": "Dodaj tabelę",
+                "TABLE_NOT_FOUND": "Nie znaleziono tabeli"
+            },
+            "TABLE_ISSUES": {
+                "SHOW_ENTIRE_TABLE": "Pokaż całą tabelę"
+            },
+            "METADATA_FIELD_VALIDATOR": {
+                "REQUIRED": "Pole jest wymagane",
+                "INVALID_INTEGER": "Pole musi być liczbą"
+            },
+            "EXTRACTION_RESULT": {
+                "EXTRACTION_ISSUE": "Problem podczas ekstrakcji",
+                "EXTRACTED_SUCCESSFULLY": "Ekstrakcja przebiegła pomyślnie",
+                "VERIFIED": "Zweryfikowano",
+                "NOT_VERIFIED": "Nie zweryfikowano"
+            },
+            "EXTRACTION_TABLE": {
+                "TABLE_NOT_EXTRACTED": "Nie można pomyślnie wyodrębnić danych tabeli.",
+                "INSERT_ROW_ABOVE": "Wstaw wiersz powyżej",
+                "INSERT_ROW_BELOW": "Wstaw wiersz poniżej",
+                "CLEAR_ROW": "Wyczyść ten wiersz",
+                "DELETE_ROW": "Usuń ten wiersz",
+                "CLEAR_COLUMN": "Wyczyść tę kolumnę",
+                "DELETE_TABLE": "Usuń tabelę"
+            },
+            "NOTIFICATIONS": {
+                "SCREEN_INIT_ERROR": "Nie udało się zainicjować ekranu",
+                "SCREEN_INIT_ERROR_NOT_CLAIMABLE": "Nie można przyjąć zadania",
+                "SCREEN_INIT_ERROR_ASSIGNEE": "Wystąpił błąd podczas pobierania osoby przypisanej do zadania",
+                "SCREEN_LOAD_ERROR": "Nie udało się załadować danych ekranu",
+                "TASK_ACTION_ERROR": "Nie udało się zapisać lub przesłać zadania",
+                "TASK_SAVE_ERROR": "Nie udało się zapisać zadania",
+                "TASK_COMPLETE_ERROR": "Nie udało się ukończyć zadania",
+                "TASK_CLAIM_ERROR": "Nie udało się przejąć zadania",
+                "TASK_UNCLAIM_ERROR": "Nie udało się cofnąć przejęcia zadania"
+            },
+            "TASK_ACTIONS": {
+                "SAVE": "Zapisz",
+                "SUBMIT": "Prześlij",
+                "OPEN_NEXT_TASK": "Automatycznie otwórz następne zadanie"
+            },
+            "SHORTCUTS": {
+                "NAVIGATE_NEXT_FIELD": "Przejdź do następnego pola",
+                "SELECT_ROW": "Select Row",
+                "SELECT_COLUMN": "Select Column",
+                "SELECT_TABLE": "Select Table",
+                "NAVIGATE_PREVIOUS_TABLE_COLUMN": "Przejdź do poprzedniej kolumny tabeli",
+                "NAVIGATE_NEXT_TABLE_COLUMN": "Przejdź do następnej kolumny tabeli",
+                "NAVIGATE_PREVIOUS_TABLE_ROW": "Przejdź do poprzedniego wiersza tabeli",
+                "NAVIGATE_NEXT_TABLE_ROW": "Przejdź do następnego wiersza tabeli",
+                "TABLE_CONTEXT_MENU": "Open table context menu"
+            }
+        }
+    }
+}

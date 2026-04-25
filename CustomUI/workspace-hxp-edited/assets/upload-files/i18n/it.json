@@ -1,0 +1,162 @@
+{
+    "HXP_FILE_UPLOAD": {
+        "BUTTON": {
+            "MINIMIZE": "Riduci",
+            "MAXIMIZE": "Ingrandisci",
+            "CLOSE": "Chiudi",
+            "STOP_ALL": "Arresta caricamenti",
+            "STOP_FILE": "Arresta caricamento",
+            "UPLOAD_SUCCESSFUL": "Caricamento completato"
+        },
+        "STATUS": {
+            "FILE_CANCELED_STATUS": "Annullato",
+            "FILE_DONE_STATUS": "Caricato"
+        },
+        "CONFIRMATION": {
+            "BUTTON": {
+                "CANCEL": "Sì",
+                "CONTINUE": "No"
+            },
+            "MESSAGE": {
+                "TITLE": "Arresta caricamento",
+                "TEXT": "Arrestare e annullare tutti i caricamenti in corso e in sospeso."
+            }
+        },
+        "ARIA-LABEL": {
+            "VERSION": "Versione file {{ version }}",
+            "DIALOG": "Elenco di caricamento",
+            "DIALOG_MAXIMIZE": "Ingrandisci la finestra di dialogo di caricamento",
+            "DIALOG_MINIMIZE": "Riduci la finestra di dialogo di caricamento",
+            "DIALOG_CLOSE": "Chiudi la finestra di dialogo di caricamento",
+            "STOP_ALL": "Arresta caricamenti",
+            "UPLOAD_SUCCESSFUL": "Caricamento del file {{ file }} completato",
+            "STOP_FILE": "Arresta file {{ file }}",
+            "STOP_FILE_UPLOAD": "Arresta caricamento file {{ file }}",
+            "UPLOAD_FILE_ERROR": "Errore di caricamento {{ error }}",
+            "CONFIRMATION": {
+                "CANCEL": "Conferma annulla",
+                "CONTINUE": "Continua caricamento"
+            }
+        }
+    },
+    "FILE_UPLOAD": {
+        "BUTTON": {
+            "UPLOAD_FILE": "Carica file",
+            "UPLOAD_FOLDER": "Carica cartella",
+            "PERMISSION_CHECK_ERROR": "Errore durante la verifica dell'autorizzazione."
+        },
+        "VERSION": {
+            "MESSAGES": {
+                "NO_ACCEPTED_FILE_TYPES": "Prego notare che l'impostazione di \"acceptedFilesType\" non ha effetto per i nuovi caricamenti di versione. Il tipo di file sarà uguale a quello del file originale.",
+                "INCOMPATIBLE_VERSION": "È possibile caricare come nuova versione solo un file dello stesso tipo."
+            }
+        },
+        "MESSAGES": {
+            "UPLOAD_CANCELED": "Caricamento annullato",
+            "UPLOAD_PROGRESS": "Caricato {{ completed }} / {{ total }}",
+            "UPLOAD_ERROR": "{{ total }} caricamento non riuscito",
+            "UPLOAD_ERRORS": "{{ total }} caricamenti non riusciti",
+            "PROGRESS": "Caricamento in corso...",
+            "FOLDER_ALREADY_EXIST": "Cartella {0} già esistente",
+            "FOLDER_NOT_SUPPORTED": "Il caricamento della cartella non è supportato dal browser in uso. Provare con un altro browser",
+            "REMOVE_FILE_ERROR": "Impossibile rimuovere {{ fileName }}, riprovare o verificare con il team IT.",
+            "REMOVE_FILES_ERROR": "Impossibile rimuovere {{ total }} file, riprovare o verificare con il team IT.",
+            "EXCEED_MAX_FILE_SIZE": "Le dimensioni del file {{ fileName }} sono maggiori di quelle consentite"
+        },
+        "ACTION": {
+            "UNDO": "Annulla"
+        },
+        "ERRORS": {
+            "GENERIC": "Caricamento non riuscito. Contattare il supporto IT se il problema persiste",
+            "500": "Errore interno del server, riprovare o contattare il supporto IT [500]",
+            "504": "Timeout del server. Riprovare o contattare il supporto IT [504]",
+            "403": "Autorizzazioni insufficienti per il caricamento in questa posizione [403]",
+            "404": "La posizione di caricamento non esiste più [404]",
+            "409": "Esiste già un file con questo nome [409]"
+        },
+        "ARIA-LABEL": {
+            "ERROR": "Errore di caricamento"
+        }
+    },
+    "PROCESS_CLOUD_EXTENSION": {
+        "SETTINGS": {
+            "PSC_AVAILABILITY_HEADER": "Estensioni: Process Automation",
+            "PSC_AVAILABILITY_TITLE": "Abilita estensioni Process Automation"
+        },
+        "BREADCRUMB": {
+            "ROOT": "Gestione dei processi",
+            "START_PROCESS_CLOUD": "Avvia processo",
+            "TASK_LIST_CLOUD": "Elenco compiti",
+            "ACTIONS": {
+                "INFO-TOOLTIP": "Visualizza dettagli",
+                "CLOSE-TOOLTIP": "Chiudi",
+                "PRINT": "Stampa modulo"
+            }
+        },
+        "MENU": {
+            "CREATE_NEW_PROCESS": "Avvia processo",
+            "CREATE_PROCESS_NOT_ALLOWED": "Impossibile creare nuovo processo"
+        },
+        "ERROR": {
+            "NO_FORM": "La definizione del processo non ha un modulo definito",
+            "CAN_NOT_ATTACH": "Impossibile allegare il contenuto selezionato"
+        },
+        "SNACKBAR": {
+            "PROCESS-CREATED": "Creato il processo '{{ processName }}'",
+            "BACKEND_SERVICE_ERROR": "Errore di rete sconosciuto. Le funzioni relative a Process Automation sono disabilitate."
+        },
+        "SIDE_NAV_TITLE": "Gestione dei processi",
+        "TASK_LIST": {
+            "TASKS": "Compiti",
+            "ACTIONS": {
+                "TASK_DETAILS": "Visualizza dettagli",
+                "PROCESS_HISTORY": "Cronologia dei processi"
+            }
+        },
+        "TASK_DETAILS": {
+            "ASSIGNEE": {
+                "TITLE": "Cambia assegnatario",
+                "CLOSE": "Chiudi",
+                "ASSIGN": "Assegna",
+                "SUCCESS": "L'assegnatario del compito è stato cambiato correttamente",
+                "FAILED": "Si è verificato un problema durante l'assegnazione dell'utente. Riprovare ad assegnare l'utente."
+            },
+            "INFO_DRAWER_TAB_DETAILS_TITLE": "Dettagli"
+        },
+        "PROCESS_LIST": {
+            "PROCESSES": "Processi",
+            "ACTIONS": {
+                "PROCESS_DETAILS": "Visualizza dettagli",
+                "CANCEL_MESSAGE": "Il processo è stato annullato",
+                "CANCEL_ERROR_MESSAGE": "Impossibile annullare il processo. Riprovare.",
+                "CANCEL_TOOLTIP": "Annulla processo"
+            },
+            "PROPERTIES": {
+                "STARTED_BY": "Avviato da"
+            }
+        },
+        "PROCESS_FILTER": {
+            "FILTER_SAVED": "Il filtro è stato salvato",
+            "FILTER_DELETED": "Il filtro è stato eliminato"
+        },
+        "TASK_FORM": {
+            "FORM_COMPLETED": "Compito completato",
+            "FORM_SAVED": "Il modulo è stato salvato",
+            "FORM_ACTION": "Azione '{{ outcome }}'"
+        },
+        "TASK_FILTER": {
+            "FILTER_SAVED": "Il filtro è stato salvato",
+            "FILTER_DELETED": "Il filtro è stato eliminato"
+        },
+        "DIALOG": {
+            "PROCESS": {
+                "TITLE": "Annulla processo",
+                "MESSAGE": "Annullare questo processo?"
+            },
+            "NEW_PROCESS": "Nuovo processo",
+            "CONFIRM": "Conferma",
+            "CLOSE": "Chiudi",
+            "ERROR": "Impossibile caricare le definizioni di processo, verificare di disporre dell'accesso."
+        }
+    }
+}

@@ -1,0 +1,162 @@
+{
+    "HXP_FILE_UPLOAD": {
+        "BUTTON": {
+            "MINIMIZE": "Minimizar",
+            "MAXIMIZE": "Maximizar",
+            "CLOSE": "Fechar",
+            "STOP_ALL": "Parar carregamentos",
+            "STOP_FILE": "Parar carregamento",
+            "UPLOAD_SUCCESSFUL": "Carregamento bem sucedido"
+        },
+        "STATUS": {
+            "FILE_CANCELED_STATUS": "Cancelado",
+            "FILE_DONE_STATUS": "Carregamento realizado"
+        },
+        "CONFIRMATION": {
+            "BUTTON": {
+                "CANCEL": "Sim",
+                "CONTINUE": "Não"
+            },
+            "MESSAGE": {
+                "TITLE": "Parar carregamento",
+                "TEXT": "Pára e cancela todos os carregamentos em curso e pendentes."
+            }
+        },
+        "ARIA-LABEL": {
+            "VERSION": "Versão do ficheiro {{ version }}",
+            "DIALOG": "Lista de carregamento",
+            "DIALOG_MAXIMIZE": "Maximizar caixa de diálogo de carregamento",
+            "DIALOG_MINIMIZE": "Minimizar caixa de diálogo de carregamento",
+            "DIALOG_CLOSE": "Fechar a caixa de diálogo de carregamento",
+            "STOP_ALL": "Parar carregamentos",
+            "UPLOAD_SUCCESSFUL": "Ficheiro carregado com sucesso {{ file }}",
+            "STOP_FILE": "Parar ficheiro {{ file }}",
+            "STOP_FILE_UPLOAD": "Parar carregamento do ficheiro {{ file }}",
+            "UPLOAD_FILE_ERROR": "Erro de carregamento {{ error }}",
+            "CONFIRMATION": {
+                "CANCEL": "Confirmar cancelamento",
+                "CONTINUE": "Continuar carregamento"
+            }
+        }
+    },
+    "FILE_UPLOAD": {
+        "BUTTON": {
+            "UPLOAD_FILE": "Carregar ficheiro",
+            "UPLOAD_FOLDER": "Carregar pasta",
+            "PERMISSION_CHECK_ERROR": "Erro ao verificar a permissão."
+        },
+        "VERSION": {
+            "MESSAGES": {
+                "NO_ACCEPTED_FILE_TYPES": "Tenha em atenção que a definição de \"acceptedFilesType\" não tem efeito para carregamentos de novas versões. O tipo de ficheiro será o mesmo que o do ficheiro original.",
+                "INCOMPATIBLE_VERSION": "Apenas um ficheiro do mesmo tipo pode ser carregado como uma nova versão."
+            }
+        },
+        "MESSAGES": {
+            "UPLOAD_CANCELED": "Carregamento cancelado",
+            "UPLOAD_PROGRESS": "Carregado {{ completed }} / {{ total }}",
+            "UPLOAD_ERROR": "{{ total }} carregamento sem sucesso",
+            "UPLOAD_ERRORS": "{{ total }} carregamentos sem sucesso",
+            "PROGRESS": "Carregamento em curso...",
+            "FOLDER_ALREADY_EXIST": "A pasta {0} já existe",
+            "FOLDER_NOT_SUPPORTED": "O carregamento da pasta não é suportado pelo seu navegador, experimente um navegador diferente",
+            "REMOVE_FILE_ERROR": "Não foi possível remover {{ fileName }} tente novamente ou verifique com a sua equipa de TI.",
+            "REMOVE_FILES_ERROR": "Não foi possível remover os ficheiros {{ total }} tente novamente ou contacte a sua equipa de TI.",
+            "EXCEED_MAX_FILE_SIZE": "O ficheiro {{ fileName }} é maior do que o tamanho de ficheiro permitido"
+        },
+        "ACTION": {
+            "UNDO": "Anular"
+        },
+        "ERRORS": {
+            "GENERIC": "Carregamento mal sucedido. Contacte TI se o problema persistir",
+            "500": "Erro interno do servidor, tente novamente ou o serviço de assistência TI [500]",
+            "504": "O servidor atingiu o tempo limite, tente novamente ou entre em contato com o serviço de assistência TI [504]",
+            "403": "Permissões insuficientes para carregar neste local [403]",
+            "404": "A localização da transferência já não existe [404]",
+            "409": "Já existe um ficheiro com o mesmo nome [409]"
+        },
+        "ARIA-LABEL": {
+            "ERROR": "Erro de carregamento"
+        }
+    },
+    "PROCESS_CLOUD_EXTENSION": {
+        "SETTINGS": {
+            "PSC_AVAILABILITY_HEADER": "Extensões: Automatização de processos",
+            "PSC_AVAILABILITY_TITLE": "Ativar as extensões de automatização de processos"
+        },
+        "BREADCRUMB": {
+            "ROOT": "Gestão do processo",
+            "START_PROCESS_CLOUD": "Iniciar processo",
+            "TASK_LIST_CLOUD": "Lista de tarefas",
+            "ACTIONS": {
+                "INFO-TOOLTIP": "Ver detalhes",
+                "CLOSE-TOOLTIP": "Fechar",
+                "PRINT": "Imprimir formulário"
+            }
+        },
+        "MENU": {
+            "CREATE_NEW_PROCESS": "Iniciar processo",
+            "CREATE_PROCESS_NOT_ALLOWED": "Não é possível criar um novo processo"
+        },
+        "ERROR": {
+            "NO_FORM": "A definição do processo não tem nenhum formulário definido",
+            "CAN_NOT_ATTACH": "Não é possível anexar o conteúdo selecionado"
+        },
+        "SNACKBAR": {
+            "PROCESS-CREATED": "Processo criado '{{ processName }}'",
+            "BACKEND_SERVICE_ERROR": "Ocorreu um erro de rede desconhecido. As funcionalidades relacionadas com a automatização de processos estão desativadas."
+        },
+        "SIDE_NAV_TITLE": "Gestão do processo",
+        "TASK_LIST": {
+            "TASKS": "Tarefas",
+            "ACTIONS": {
+                "TASK_DETAILS": "Ver detalhes",
+                "PROCESS_HISTORY": "Histórico do processo"
+            }
+        },
+        "TASK_DETAILS": {
+            "ASSIGNEE": {
+                "TITLE": "Alterar Destinatário",
+                "CLOSE": "Fechar",
+                "ASSIGN": "Atribuir",
+                "SUCCESS": "Destinatário da tarefa alterado com sucesso",
+                "FAILED": "Tivemos um problema ao atribuir o utilizador. Tente atribuir o utilizador novamente."
+            },
+            "INFO_DRAWER_TAB_DETAILS_TITLE": "Detalhes"
+        },
+        "PROCESS_LIST": {
+            "PROCESSES": "Processos",
+            "ACTIONS": {
+                "PROCESS_DETAILS": "Ver detalhes",
+                "CANCEL_MESSAGE": "O processo foi cancelado",
+                "CANCEL_ERROR_MESSAGE": "Não foi possível cancelar o processo. Tente novamente",
+                "CANCEL_TOOLTIP": "Cancelar processo"
+            },
+            "PROPERTIES": {
+                "STARTED_BY": "Iniciado por"
+            }
+        },
+        "PROCESS_FILTER": {
+            "FILTER_SAVED": "O filtro foi guardado",
+            "FILTER_DELETED": "O filtro foi eliminado"
+        },
+        "TASK_FORM": {
+            "FORM_COMPLETED": "A tarefa foi concluída",
+            "FORM_SAVED": "O formulário foi guardado",
+            "FORM_ACTION": "Ação '{{ outcome }}'"
+        },
+        "TASK_FILTER": {
+            "FILTER_SAVED": "O filtro foi guardado",
+            "FILTER_DELETED": "O filtro foi eliminado"
+        },
+        "DIALOG": {
+            "PROCESS": {
+                "TITLE": "Cancelar processo",
+                "MESSAGE": "Tem a certeza de que pretende cancelar este processo?"
+            },
+            "NEW_PROCESS": "Novo processo",
+            "CONFIRM": "Confirmar",
+            "CLOSE": "Fechar",
+            "ERROR": "Não foi possível carregar as definições do processo, verifique se tem acesso."
+        }
+    }
+}

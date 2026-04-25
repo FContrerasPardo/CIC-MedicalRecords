@@ -1,0 +1,17 @@
+{
+  "platform-nav": {
+    "expand": "Expand navigation",
+    "collapse": "Collapse navigation",
+    "environment-switcher": {
+      "trigger-title": "Environment Switcher trigger",
+      "trigger-label": "Environment",
+      "trigger-tooltip-prefix": "Environment: "
+    }
+  },
+  "home": "Home",
+  "logout": "Log out",
+  "breadcrumbs": {
+    "breadcrumbs": "Breadcrumbs",
+    "overflow": "Overflow"
+  }
+}

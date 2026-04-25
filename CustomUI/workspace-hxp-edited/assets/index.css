@@ -1,0 +1,77 @@
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 700;
+  src: url('woff2/NotoSans-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 700;
+  font-style: italic;
+  src: url('woff2/NotoSans-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 500;
+  src: url('woff2/NotoSans-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: 500;
+  font-style: italic;
+  src: url('woff2/NotoSans-MediumItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: normal;
+  src: url('woff2/NotoSans-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-weight: normal;
+  font-style: italic;
+  src: url('woff2/NotoSans-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: 700;
+  src: url('woff2/Figtree-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: 700;
+  font-style: italic;
+  src: url('woff2/Figtree-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: 500;
+  src: url('woff2/Figtree-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: 500;
+  font-style: italic;
+  src: url('woff2/Figtree-MediumItalic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: normal;
+  src: url('woff2/Figtree-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Figtree';
+  font-weight: normal;
+  font-style: italic;
+  src: url('woff2/Figtree-Italic.woff2') format('woff2');
+}

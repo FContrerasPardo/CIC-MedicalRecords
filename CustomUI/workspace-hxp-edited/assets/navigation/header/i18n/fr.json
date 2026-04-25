@@ -1,0 +1,11 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "PARAMÈTRES",
+        "ACTIONS": {
+            "LANGUAGE": "Langue",
+            "FEATURE_FLAGS": "Indicateurs de fonctionnalité",
+            "HELP": "Aide"
+        }
+    }
+}

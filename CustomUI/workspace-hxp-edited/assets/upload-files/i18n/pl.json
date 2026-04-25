@@ -1,0 +1,162 @@
+{
+    "HXP_FILE_UPLOAD": {
+        "BUTTON": {
+            "MINIMIZE": "Minimalizuj",
+            "MAXIMIZE": "Maksymalizuj",
+            "CLOSE": "Zamknij",
+            "STOP_ALL": "Zatrzymaj przesyłanie",
+            "STOP_FILE": "Zatrzymaj przesyłanie",
+            "UPLOAD_SUCCESSFUL": "Przesyłanie powiodło się"
+        },
+        "STATUS": {
+            "FILE_CANCELED_STATUS": "Anulowano",
+            "FILE_DONE_STATUS": "Przesłano"
+        },
+        "CONFIRMATION": {
+            "BUTTON": {
+                "CANCEL": "Tak",
+                "CONTINUE": "Nie"
+            },
+            "MESSAGE": {
+                "TITLE": "Zatrzymaj przesyłanie",
+                "TEXT": "Zatrzymaj i anuluj wszystkie trwające i oczekujące operacje przesyłania."
+            }
+        },
+        "ARIA-LABEL": {
+            "VERSION": "Wersja pliku {{ version }}",
+            "DIALOG": "Prześlij listę",
+            "DIALOG_MAXIMIZE": "Maksymalizuj okno dialogowe przesyłania",
+            "DIALOG_MINIMIZE": "Minimalizuj okno dialogowe przesyłania",
+            "DIALOG_CLOSE": "Zamknij okno dialogowe przesyłania",
+            "STOP_ALL": "Zatrzymaj przesyłanie",
+            "UPLOAD_SUCCESSFUL": "Przesłano plik {{ file }}",
+            "STOP_FILE": "Zatrzymaj plik {{ file }}",
+            "STOP_FILE_UPLOAD": "Zatrzymaj przesyłanie pliku {{ file }}",
+            "UPLOAD_FILE_ERROR": "Błąd przesyłania {{ error }}",
+            "CONFIRMATION": {
+                "CANCEL": "Potwierdź anulowanie",
+                "CONTINUE": "Kontynuuj przesyłanie"
+            }
+        }
+    },
+    "FILE_UPLOAD": {
+        "BUTTON": {
+            "UPLOAD_FILE": "Prześlij plik",
+            "UPLOAD_FOLDER": "Prześlij folder",
+            "PERMISSION_CHECK_ERROR": "Błąd podczas sprawdzania uprawnień."
+        },
+        "VERSION": {
+            "MESSAGES": {
+                "NO_ACCEPTED_FILE_TYPES": "Należy pamiętać, że ustawienie „acceptedFilesType” nie ma wpływu na przesyłanie nowych wersji. Typ pliku będzie taki sam jak plik oryginalny.",
+                "INCOMPATIBLE_VERSION": "Jako nową wersję można przesłać tylko plik tego samego typu."
+            }
+        },
+        "MESSAGES": {
+            "UPLOAD_CANCELED": "Anulowano przesyłanie",
+            "UPLOAD_PROGRESS": "Przesłano {{ completed }} / {{ total }}",
+            "UPLOAD_ERROR": "Nie udało się przesłać {{ total }}",
+            "UPLOAD_ERRORS": "Nie udało się przesłać {{ total }}",
+            "PROGRESS": "Przesyłanie w toku...",
+            "FOLDER_ALREADY_EXIST": "Folder {0} już istnieje",
+            "FOLDER_NOT_SUPPORTED": "Przesyłanie folderu nie jest obsługiwane przez tą przeglądarkę. Spróbuj użyć innej",
+            "REMOVE_FILE_ERROR": "Nie można usunąć {{ fileName }} – spróbuj ponownie lub skontaktuj się z zespołem IT.",
+            "REMOVE_FILES_ERROR": "Nie można usunąć {{ total }} pliku(-ów), spróbuj ponownie lub skontaktuj się z zespołem IT.",
+            "EXCEED_MAX_FILE_SIZE": "Plik {{ fileName }} przekracza dozwolony rozmiar"
+        },
+        "ACTION": {
+            "UNDO": "Cofnij"
+        },
+        "ERRORS": {
+            "GENERIC": "Przesyłanie nie powiodło się. Skontaktuj się z działem IT, jeśli ten problem będzie nadal występował",
+            "500": "Błąd wewnętrzny serwera, spróbuj ponownie lub skontaktuj się z działem IT [500]",
+            "504": "Upłynął limit czasu serwera, spróbuj ponownie lub skontaktuj się z działem IT [504]",
+            "403": "Niewystarczające uprawnienia do przesłania w tej lokalizacji [403]",
+            "404": "Lokalizacja przesyłania już nie istnieje [404]",
+            "409": "Plik o tej samej nazwie już istnieje [409]"
+        },
+        "ARIA-LABEL": {
+            "ERROR": "Błąd przesyłania"
+        }
+    },
+    "PROCESS_CLOUD_EXTENSION": {
+        "SETTINGS": {
+            "PSC_AVAILABILITY_HEADER": "Rozszerzenia: Process Automation",
+            "PSC_AVAILABILITY_TITLE": "Uruchom rozszerzenia Process Automation"
+        },
+        "BREADCRUMB": {
+            "ROOT": "Zarządzanie procesami",
+            "START_PROCESS_CLOUD": "Rozpocznij proces",
+            "TASK_LIST_CLOUD": "Lista zadań",
+            "ACTIONS": {
+                "INFO-TOOLTIP": "Wyświetl szczegóły",
+                "CLOSE-TOOLTIP": "Zamknij",
+                "PRINT": "Wydrukuj formularz"
+            }
+        },
+        "MENU": {
+            "CREATE_NEW_PROCESS": "Rozpocznij proces",
+            "CREATE_PROCESS_NOT_ALLOWED": "Nie można utworzyć nowego procesu"
+        },
+        "ERROR": {
+            "NO_FORM": "Definicja procesu nie zawiera zdefiniowanego formularza",
+            "CAN_NOT_ATTACH": "Nie można dołączyć wybranego dokumentu"
+        },
+        "SNACKBAR": {
+            "PROCESS-CREATED": "Utworzono proces „{{ file }}”",
+            "BACKEND_SERVICE_ERROR": "Wystąpił nieznany błąd sieci. Funkcje związane z aplikacją Process Automation są wyłączone."
+        },
+        "SIDE_NAV_TITLE": "Zarządzanie procesami",
+        "TASK_LIST": {
+            "TASKS": "Zadania",
+            "ACTIONS": {
+                "TASK_DETAILS": "Wyświetl szczegóły",
+                "PROCESS_HISTORY": "Historia procesu"
+            }
+        },
+        "TASK_DETAILS": {
+            "ASSIGNEE": {
+                "TITLE": "Zmień osobę przypisaną",
+                "CLOSE": "Zamknij",
+                "ASSIGN": "Przypisz",
+                "SUCCESS": "Osoba przypisana do zadania została zmieniona",
+                "FAILED": "Wystąpił problem podczas przypisywania użytkownika. Spróbuj przypisać użytkownika ponownie."
+            },
+            "INFO_DRAWER_TAB_DETAILS_TITLE": "Szczegóły"
+        },
+        "PROCESS_LIST": {
+            "PROCESSES": "Procesy",
+            "ACTIONS": {
+                "PROCESS_DETAILS": "Wyświetl szczegóły",
+                "CANCEL_MESSAGE": "Proces został anulowany",
+                "CANCEL_ERROR_MESSAGE": "Nie udało się anulować procesu. Spróbuj ponownie",
+                "CANCEL_TOOLTIP": "Anuluj proces"
+            },
+            "PROPERTIES": {
+                "STARTED_BY": "Uruchomione przez"
+            }
+        },
+        "PROCESS_FILTER": {
+            "FILTER_SAVED": "Filtr został zapisany",
+            "FILTER_DELETED": "Filtr został usunięty"
+        },
+        "TASK_FORM": {
+            "FORM_COMPLETED": "Zadanie zostało ukończone",
+            "FORM_SAVED": "Formularz został zapisany",
+            "FORM_ACTION": "Czynność „{{ error }}”"
+        },
+        "TASK_FILTER": {
+            "FILTER_SAVED": "Filtr został zapisany",
+            "FILTER_DELETED": "Filtr został usunięty"
+        },
+        "DIALOG": {
+            "PROCESS": {
+                "TITLE": "Anuluj proces",
+                "MESSAGE": "Czy na pewno chcesz anulować ten proces?"
+            },
+            "NEW_PROCESS": "Nowy proces",
+            "CONFIRM": "Potwierdź",
+            "CLOSE": "Zamknij",
+            "ERROR": "Nie można wczytać definicji procesu. Sprawdź, czy masz dostęp."
+        }
+    }
+}

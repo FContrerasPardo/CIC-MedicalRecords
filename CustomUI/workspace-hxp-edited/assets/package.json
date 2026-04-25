@@ -1,0 +1,12 @@
+{
+    "name": "@hylandsoftware/satori-fonts",
+    "version": "2.0.0",
+    "description": "Source of fonts used in the Satori ecosystem",
+    "scripts": {
+        "compress": "node compress.mjs"
+    },
+    "main": "index.css",
+    "dependencies": {
+        "woff2-encoder": "^2.0.0"
+    }
+}

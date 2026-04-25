@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hyland Cuentas M&eacute;dicas - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#005eb8",
+                        "primary-container": "#eff4ff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#006a64",
+                        "error": "#ba1a1a",
+                        "background": "#f8f9ff",
+                        "surface": "#ffffff",
+                        "on-surface": "#001b3d",
+                        "on-surface-variant": "#43474e",
+                        "outline-variant": "#c4c6d0"
+                    },
+                    fontFamily: {
+                        "sans": ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        'none': '0',
+                        'sm': '0.125rem',
+                        DEFAULT: '8px',
+                        'md': '0.375rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                        'full': '9999px',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; overflow-x: hidden; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 24px rgba(0, 94, 184, 0.04);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.03);
+        }
+        .chart-bar-gradient {
+            background: linear-gradient(180deg, #005EB8 0%, rgba(0, 94, 184, 0.2) 100%);
+        }
+        .chart-bar-gradient-alt {
+            background: linear-gradient(180deg, #34d399 0%, rgba(52, 211, 153, 0.2) 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            font-style: normal;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen text-sm">
+<div class="max-w-[1440px] mx-auto px-8 py-8">
+<div class="flex justify-between items-center mb-8">
+<div class="flex items-center gap-4">
+<span class="text-xl font-extrabold tracking-tighter text-primary">Hyland Cuentas M&eacute;dicas</span>
+<div class="hidden md:flex gap-2 ml-4">
+<a class="px-3 py-1.5 rounded-lg hover:bg-white/50 text-on-surface-variant font-medium transition-colors text-sm" href="#">Configuraci&oacute;n de Convenios</a>
+<a class="px-3 py-1.5 rounded-lg hover:bg-white/50 text-on-surface-variant font-medium transition-colors text-sm" href="#">Anal&iacute;tica de Procesos</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/50 transition-colors text-primary flex items-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-white/50 transition-colors text-primary flex items-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="px-5 py-2.5 rounded-xl border-[1.5px] border-primary/20 text-primary font-semibold hover:bg-white/50 transition-colors bg-white/30 backdrop-blur-sm">Export Report</button>
+<button class="px-5 py-2.5 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors">New Intake</button>
+</div>
+</div>
+<div class="mb-10">
+<h1 class="text-2xl font-extrabold mb-4 text-on-surface tracking-tight">Process Overview Dashboard</h1>
+<div class="glass-panel rounded-full p-1.5 flex items-center overflow-x-auto hide-scrollbar">
+<div class="flex items-center w-full justify-between px-1 min-w-max">
+<a class="px-8 py-2.5 rounded-full bg-white text-primary font-bold shadow-sm border border-primary/10 text-center flex-1" href="#">Overview</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Intake</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Analysis</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Approval</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Execution</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Review</a>
+<span class="material-symbols-outlined text-outline-variant text-[18px] mx-3">chevron_right</span>
+<a class="px-8 py-2.5 rounded-full hover:bg-white/40 text-on-surface-variant font-medium transition-all text-center flex-1" href="#">Completed</a>
+</div>
+</div>
+</div>
+<div class="mb-10">
+<h2 class="text-xl font-bold mb-4 text-on-surface">Insights</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="rounded-[2.5rem] p-8 bg-gradient-to-br from-[#f0f9ff] to-[#e0f2fe] border border-white shadow-[0_12px_40px_rgba(0,0,0,0.02)] relative overflow-hidden flex flex-col justify-between">
+<div class="flex justify-between items-start z-10">
+<h3 class="text-lg font-bold text-sky-900">Total Recovery Rate</h3>
+<div class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-sky-600 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">trending_up</span>
+</div>
+</div>
+<div class="mt-8 z-10">
+<div class="flex items-baseline gap-2 mb-2">
+<span class="text-6xl font-extrabold text-sky-950 tracking-tighter">87.4%</span>
+</div>
+<p class="text-sky-800/70 font-medium leading-relaxed max-w-[240px]">
+                        Target: 90% by Q3. Showing a 2.1% increase from last month.
+                    </p>
+</div>
+<div class="absolute -right-8 -bottom-8 w-48 h-48 bg-sky-200/30 rounded-full blur-3xl"></div>
+</div>
+<div class="rounded-[2.5rem] p-8 bg-white border border-white shadow-[0_12px_40px_rgba(0,0,0,0.02)] flex flex-col min-h-[300px] relative overflow-hidden">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-lg font-bold text-on-surface">Productivity by Hour</h3>
+<p class="text-xs text-on-surface-variant/70 font-medium">Daily processing volume</p>
+</div>
+<div class="flex gap-1 bg-background p-1 rounded-xl">
+<button class="px-3 py-1 bg-white shadow-sm rounded-lg text-xs text-on-surface font-bold">Today</button>
+<button class="px-3 py-1 text-on-surface-variant/70 text-xs font-semibold hover:text-on-surface transition-colors">Week</button>
+</div>
+</div>
+<div class="flex-grow flex items-end gap-3 px-1 mb-2">
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 35%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 25%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 55%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 45%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 75%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 85%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 60%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 95%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 70%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 50%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient-alt rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 30%"></div></div>
+<div class="flex-1 flex flex-col justify-end group cursor-pointer h-full"><div class="w-full chart-bar-gradient rounded-t-full transition-all duration-500 group-hover:brightness-110" style="height: 20%"></div></div>
+</div>
+<div class="flex justify-between mt-4 px-2 text-[10px] font-bold text-on-surface-variant/40 tracking-wider">
+<span>12am</span><span>4am</span><span>8am</span><span>12pm</span><span>4pm</span><span>8pm</span>
+</div>
+</div>
+<div class="rounded-[2.5rem] p-8 bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7] border border-white shadow-[0_12px_40px_rgba(0,0,0,0.02)] relative overflow-hidden flex flex-col justify-between">
+<div class="flex justify-between items-start z-10">
+<h3 class="text-lg font-bold text-emerald-900">Process Completion</h3>
+<div class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-emerald-600 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+</div>
+<div class="mt-8 z-10">
+<div class="flex items-baseline gap-2 mb-2">
+<span class="text-6xl font-extrabold text-emerald-950 tracking-tighter">95%</span>
+</div>
+<p class="text-emerald-800/70 font-medium leading-relaxed max-w-[240px]">
+                        Projected 98% efficiency based on current automation rates.
+                    </p>
+</div>
+<div class="absolute -right-8 -bottom-8 w-48 h-48 bg-emerald-200/30 rounded-full blur-3xl"></div>
+</div>
+</div>
+</div>
+<div class="mb-10">
+<h2 class="text-xl font-bold mb-4 text-on-surface">Performance Metrics</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Total Processes</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">1,245</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">arrow_outward</span> 3.4% Increase</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Completed</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">980</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">arrow_outward</span> 2.1% Increase</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Pending</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">215</span></div>
+<div class="text-[12px] text-error font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">south_east</span> 1.5% Decrease</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Error Rate</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">4.2%</span></div>
+<div class="text-[12px] text-error font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">arrow_outward</span> 0.8% Increase</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">User Activity</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">8,950</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">arrow_outward</span> 5.2% Increase</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">SLA Compliance</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">92%</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">arrow_outward</span> 1.2% Increase</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Avg Days to Pmt</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">42</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">south_east</span> 3d Improvement</div>
+</div>
+<div class="glass-card rounded-3xl p-6 border border-white/60">
+<div class="text-[12px] font-bold text-on-surface-variant/60 mb-3 uppercase tracking-wide">Execution Queue</div>
+<div class="flex items-baseline gap-2 mb-3"><span class="text-3xl font-extrabold text-on-surface tracking-tight">120</span></div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">south_east</span> 2% Decrease</div>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-4 mb-6">
+<h2 class="text-xl font-bold text-on-surface">Attention Required</h2>
+<span class="bg-error/10 text-error text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">3 Critical</span>
+</div>
+<div class="flex gap-3 mb-6">
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant text-[20px]">search</span>
+<input class="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-white shadow-sm focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-on-surface-variant/40" placeholder="Search accounts..." type="text"/>
+</div>
+<button class="px-6 py-3 rounded-2xl bg-white text-on-surface font-bold shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">tune</span> Filter
+            </button>
+</div>
+<div class="space-y-4">
+<div class="glass-card rounded-2xl p-5 flex items-center gap-5 hover:bg-white transition-all cursor-pointer group border border-transparent hover:border-primary/10">
+<div class="w-12 h-12 rounded-2xl bg-error/10 flex items-center justify-center text-error shrink-0"><span class="material-symbols-outlined text-[24px]">description</span></div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface group-hover:text-primary transition-colors text-base">ACT-8921-A - Secondary Auth Missing</h4>
+<div class="flex items-center gap-3"><span class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider">Analysis Phase • 4 Days</span><div class="w-2.5 h-2.5 rounded-full bg-error"></div></div>
+</div>
+<p class="text-sm text-on-surface-variant mt-1">Missing secondary payer authorization documents. Payer: BlueCross.</p>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-5 flex items-center gap-5 hover:bg-white transition-all cursor-pointer group border border-transparent hover:border-primary/10">
+<div class="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0"><span class="material-symbols-outlined text-[24px]">receipt_long</span></div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface group-hover:text-primary transition-colors text-base">ACT-4410-B - Coding Mismatch</h4>
+<div class="flex items-center gap-3"><span class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider">Review Phase • 1 Day</span><div class="w-2.5 h-2.5 rounded-full bg-orange-500"></div></div>
+</div>
+<p class="text-sm text-on-surface-variant mt-1">Coding mismatch identified during review. Needs specialist validation.</p>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-5 flex items-center gap-5 hover:bg-white transition-all cursor-pointer group border border-transparent hover:border-primary/10">
+<div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0"><span class="material-symbols-outlined text-[24px]">gavel</span></div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface group-hover:text-primary transition-colors text-base">ACT-9002-C - Manual Sign-off</h4>
+<div class="flex items-center gap-3"><span class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider">Approval Phase • 2 Hours</span><div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div></div>
+</div>
+<p class="text-sm text-on-surface-variant mt-1">Unusual high value charge requires manual sign-off by director.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

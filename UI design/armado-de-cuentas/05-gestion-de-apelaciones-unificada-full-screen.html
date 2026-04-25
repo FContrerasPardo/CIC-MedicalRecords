@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hyland Cuentas Médicas - Unified Appeals Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#727783",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-background": "#0b1c30",
+                    "tertiary-fixed": "#e1e0ff",
+                    "surface-tint": "#005db6",
+                    "on-secondary-fixed": "#00201e",
+                    "secondary-container": "#6ef4ea",
+                    "on-primary-fixed": "#001b3d",
+                    "primary-container": "#005eb8",
+                    "primary": "#00478d",
+                    "on-secondary-fixed-variant": "#00504b",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-fixed-dim": "#50dad1",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "secondary": "#006a64",
+                    "tertiary": "#302fbf",
+                    "surface-variant": "#d3e4fe",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#4a4cd7",
+                    "surface": "#f8f9ff",
+                    "outline-variant": "#c2c6d4",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "inverse-primary": "#a9c7ff",
+                    "surface-bright": "#f8f9ff",
+                    "inverse-surface": "#213145",
+                    "on-primary-fixed-variant": "#00468c",
+                    "on-surface": "#0b1c30",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "on-tertiary-container": "#d8d7ff",
+                    "primary-fixed": "#d6e3ff",
+                    "surface-container-low": "#eff4ff",
+                    "secondary-fixed": "#72f7ed",
+                    "on-secondary-container": "#006f69",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#c8daff",
+                    "surface-dim": "#cbdbf5",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#a9c7ff",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-surface-variant": "#424752"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "64px",
+                    "gutter": "24px",
+                    "xs": "8px",
+                    "md": "24px",
+                    "sm": "16px",
+                    "margin": "32px",
+                    "lg": "40px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "title-sm": [
+                            "Manrope"
+                    ],
+                    "label-caps": [
+                            "Manrope"
+                    ],
+                    "display-lg": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "body-sm": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "title-sm": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden">
+<!-- TopNavBar Component -->
+<nav class="fixed top-0 w-full z-50 border-b border-slate-200/50 bg-white/70 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,94,184,0.08)]">
+<div class="flex items-center justify-between px-8 h-20 w-full mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
+<div class="text-xl font-extrabold tracking-tighter text-blue-700">Hyland Cuentas Médicas</div>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex h-full items-end gap-md">
+<a class="text-slate-500 pb-5 font-['Manrope'] text-sm font-medium tracking-wide hover:text-blue-600 transition-all duration-300" href="#">Intake</a>
+<a class="text-slate-500 pb-5 font-['Manrope'] text-sm font-medium tracking-wide hover:text-blue-600 transition-all duration-300" href="#">Analysis</a>
+<a class="text-slate-500 pb-5 font-['Manrope'] text-sm font-medium tracking-wide hover:text-blue-600 transition-all duration-300" href="#">Approval</a>
+<a class="text-blue-700 border-b-2 border-blue-600 pb-5 translate-y-[1px] font-['Manrope'] text-sm font-medium tracking-wide" href="#">Execution</a>
+<a class="text-slate-500 pb-5 font-['Manrope'] text-sm font-medium tracking-wide hover:text-blue-600 transition-all duration-300" href="#">Review</a>
+<a class="text-slate-500 pb-5 font-['Manrope'] text-sm font-medium tracking-wide hover:text-blue-600 transition-all duration-300" href="#">Completed</a>
+</div>
+<!-- Trailing Icons -->
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-blue-700 hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-blue-700 hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-blue-700 hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-[104px] pb-margin px-margin w-full h-full flex flex-col">
+<!-- Header Section -->
+<div class="flex items-center justify-between mb-md shrink-0">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-background">Unified Appeals Management</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-base">Review and generate clinical justifications for denied claims.</p>
+</div>
+<div class="flex gap-sm">
+<button class="h-10 px-sm flex items-center gap-xs rounded-DEFAULT border-[1.5px] border-outline-variant text-primary font-body-sm hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                    Filter Appeals
+                </button>
+<button class="h-10 px-sm flex items-center gap-xs rounded-DEFAULT bg-primary-container text-on-primary font-body-sm shadow-sm hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Batch AI Generate
+                </button>
+</div>
+</div>
+<!-- Layout Grid -->
+<div class="grid grid-cols-12 gap-gutter flex-1 min-h-0">
+<!-- Left Panel: Pending Appeals List -->
+<div class="col-span-3 flex flex-col gap-sm pr-xs">
+<div class="sticky top-0 bg-background z-10 pb-xs flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Pending Appeals (12)</span>
+<span class="material-symbols-outlined text-outline-variant text-[16px] cursor-pointer hover:text-primary">sort</span>
+</div>
+<!-- Active Appeal Item -->
+<div class="p-sm rounded-lg border border-primary-container bg-surface-container-low shadow-[0_4px_20px_rgba(0,94,184,0.05)] cursor-pointer">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-caps text-label-caps text-primary uppercase">Claim #INV-8892</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-[10px] uppercase">Denied</span>
+</div>
+<div class="font-title-sm text-title-sm text-on-background mb-xs line-clamp-1">Complex Cardiac Catheterization</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-sm text-body-sm text-outline">$12,450.00</span>
+<span class="font-body-sm text-[12px] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 2 hrs left</span>
+</div>
+</div>
+<!-- Inactive Appeal Items -->
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest hover:border-outline transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Claim #INV-8871</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-[10px] uppercase">Denied</span>
+</div>
+<div class="font-title-sm text-title-sm text-on-background mb-xs line-clamp-1">MRI Spine W/O Contrast</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-sm text-body-sm text-outline">$1,850.00</span>
+<span class="font-body-sm text-[12px] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 1 day left</span>
+</div>
+</div>
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest hover:border-outline transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Claim #INV-8865</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-[10px] uppercase">Denied</span>
+</div>
+<div class="font-title-sm text-title-sm text-on-background mb-xs line-clamp-1">Outpatient Physical Therapy Session</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-sm text-body-sm text-outline">$250.00</span>
+<span class="font-body-sm text-[12px] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 2 days left</span>
+</div>
+</div>
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest hover:border-outline transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Claim #INV-8850</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-[10px] uppercase">Denied</span>
+</div>
+<div class="font-title-sm text-title-sm text-on-background mb-xs line-clamp-1">Endoscopic Biopsy Procedure</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-body-sm text-body-sm text-outline">$3,200.00</span>
+<span class="font-body-sm text-[12px] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 3 days left</span>
+</div>
+</div>
+</div>
+<!-- Center Panel: AI Appeal Justification -->
+<div class="col-span-6 flex flex-col gap-sm">
+<!-- Denial Context Summary -->
+<div class="p-sm rounded-xl border border-outline-variant bg-surface-container-lowest shadow-[0_8px_30px_rgba(0,94,184,0.04)] flex gap-md items-center">
+<div class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-error-container">warning</span>
+</div>
+<div class="flex-1">
+<div class="font-label-caps text-label-caps text-error uppercase mb-base">Denial Reason: Medical Necessity Not Met (Code CO-50)</div>
+<div class="font-body-sm text-body-sm text-on-background">Payer indicates that the submitted documentation does not support the medical necessity of the complex cardiac catheterization prior to attempting conservative management.</div>
+</div>
+</div>
+<!-- Main AI Editor Card -->
+<div class="flex-1 rounded-xl border border-outline-variant bg-surface-container-lowest shadow-[0_8px_30px_rgba(0,94,184,0.04)] flex flex-col overflow-hidden">
+<!-- Card Header -->
+<div class="px-md py-sm border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-xs text-primary-container">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-title-sm text-title-sm">AI Appeal Justification</span>
+</div>
+<div class="flex gap-xs">
+<button class="p-1.5 rounded hover:bg-surface-container-low text-outline-variant hover:text-primary transition-colors" title="Regenerate">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-low text-outline-variant hover:text-primary transition-colors" title="Copy to Clipboard">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Editor Area -->
+<div class="flex-1 p-md bg-surface-container-lowest relative">
+<!-- Simulated Editor Content -->
+<div class="font-body-md text-body-md text-on-background leading-relaxed outline-none" contenteditable="true">
+<p class="mb-4">To Whom It May Concern,</p>
+<p class="mb-4">I am writing to formally appeal the denial of claim <strong class="text-primary">#INV-8892</strong> for patient John Doe, regarding the Complex Cardiac Catheterization performed on October 24, 2023.</p>
+<p class="mb-4">The denial cites a lack of medical necessity (Code CO-50), specifically suggesting conservative management was not attempted. However, as documented in the patient's clinical records, <span class="bg-tertiary-fixed text-on-tertiary-fixed px-1 rounded">the patient presented with acute, unstable angina that was refractory to maximum medical therapy (including sublingual nitroglycerin and beta-blockers)</span> over a 48-hour observation period.</p>
+<p class="mb-4">Given the high risk of imminent myocardial infarction indicated by the escalating troponin levels and ischemic ECG changes noted in the attending physician's notes on 10/23, an immediate catheterization was clinically indicated and standard of care, bypassing further conservative steps.</p>
+<p>Please review the attached clinical records emphasizing these acute findings. We request a reversal of this denial and prompt processing of the claim.</p>
+</div>
+</div>
+<!-- Card Footer Actions -->
+<div class="p-md border-t border-outline-variant bg-surface-bright flex justify-between items-center">
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+                            Confidence Score: High (94%)
+                        </div>
+<div class="flex gap-sm">
+<button class="h-10 px-md rounded-DEFAULT border-[1.5px] border-outline-variant text-primary font-body-sm hover:bg-surface-container-low transition-colors">
+                                Save Draft
+                            </button>
+<button class="h-10 px-md rounded-DEFAULT bg-primary-container text-on-primary font-body-sm shadow-sm hover:bg-primary transition-colors flex items-center gap-xs">
+                                Submit Appeal
+                                <span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Precedents & Knowledge Discovery -->
+<div class="col-span-3 flex flex-col gap-sm pl-xs border-l border-outline-variant/50">
+<div class="sticky top-0 bg-background z-10 pb-xs flex items-center gap-xs text-secondary">
+<span class="material-symbols-outlined text-[20px]">library_books</span>
+<span class="font-label-caps text-label-caps uppercase">Precedents Found</span>
+</div>
+<!-- Precedent Cards -->
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-xs">
+<span class="px-2 py-0.5 rounded bg-secondary-container/30 text-secondary font-label-caps text-[10px] uppercase">Internal Policy</span>
+<span class="font-body-sm text-[12px] text-outline">Match: 98%</span>
+</div>
+<div class="font-title-sm text-[14px] text-on-background mb-xs font-semibold">Acute Coronary Syndrome Protocol</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant line-clamp-3 mb-xs">
+                        Catheterization is deemed medically necessary without prior conservative management if patient exhibits unstable angina refractory to medication.
+                    </p>
+<button class="text-primary text-[12px] font-semibold hover:underline flex items-center gap-1">
+                        View Source <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-xs">
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed-dim/30 text-tertiary font-label-caps text-[10px] uppercase">Past Success</span>
+<span class="font-body-sm text-[12px] text-outline">Match: 85%</span>
+</div>
+<div class="font-title-sm text-[14px] text-on-background mb-xs font-semibold">Appeal #INV-7102 (Aetna)</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant line-clamp-3 mb-xs">
+                        Successfully overturned CO-50 denial for cardiac cath by citing escalating troponin levels documented in the ER notes.
+                    </p>
+<button class="text-primary text-[12px] font-semibold hover:underline flex items-center gap-1">
+                        Insert Citation <span class="material-symbols-outlined text-[14px]">add_circle</span>
+</button>
+</div>
+<div class="p-sm rounded-lg border border-outline-variant bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-xs">
+<span class="px-2 py-0.5 rounded bg-surface-dim text-on-surface font-label-caps text-[10px] uppercase">Clinical Guideline</span>
+<span class="font-body-sm text-[12px] text-outline">Match: 72%</span>
+</div>
+<div class="font-title-sm text-[14px] text-on-background mb-xs font-semibold">AHA/ACC 2021 Guidelines</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant line-clamp-3 mb-xs">
+                        Recommendations for revascularization in NSTE-ACS patients highlighting early invasive strategies for refractory cases.
+                    </p>
+<button class="text-primary text-[12px] font-semibold hover:underline flex items-center gap-1">
+                        View Source <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<!-- Supporting Documents Card -->
+<div class="mt-md p-sm rounded-xl border border-outline-variant bg-surface-container-lowest shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">folder</span>
+<h3 class="font-title-sm text-on-background leading-tight">Supporting<br/>Documents</h3>
+</div>
+<div class="flex flex-col gap-md mb-md">
+<!-- Document Item 1 -->
+<div class="flex items-center gap-sm group cursor-pointer">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-body-sm text-[13px] text-on-background truncate">Clinical_Notes_DrEva...</span>
+</div>
+<!-- Document Item 2 -->
+<div class="flex items-center gap-sm group cursor-pointer">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-body-sm text-[13px] text-on-background truncate">PT_Flowsheet_Aug_...</span>
+</div>
+<!-- Document Item 3 -->
+<div class="flex items-center gap-sm group cursor-pointer">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-body-sm text-[13px] text-on-background truncate">Payer_CPG_104_Extr...</span>
+</div>
+</div>
+<!-- Add Document Button -->
+<button class="w-full py-2.5 border-2 border-dashed border-outline-variant rounded-lg text-primary font-medium text-sm hover:bg-surface-container-low transition-all flex items-center justify-center gap-1">
+<span class="text-lg">+</span> Add Document
+  </button>
+</div></div>
+</div>
+</main>
+</body></html>

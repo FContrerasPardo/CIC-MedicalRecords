@@ -1,0 +1,29 @@
+{
+    "name": "workspace-hxp-feature-flag",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/workspace-hxp/feature-flag/src",
+    "prefix": "hxp",
+    "projectType": "library",
+    "tags": ["scope:workspace-hxp-feature-flag"],
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+            "options": {
+                "project": "libs/workspace-hxp/feature-flag/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/workspace-hxp/feature-flag/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/workspace-hxp/feature-flag/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/workspace-hxp/feature-flag/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        }
+    }
+}

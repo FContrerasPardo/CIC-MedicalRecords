@@ -1,0 +1,41 @@
+@let datasourcePages = (pages$ | async) || [];
+@let datasourcePlaceholder = dragPlaceholderMetadata$ | async;
+
+<mat-card class="idp-page-list-container">
+    <mat-card-content class="idp-page-list-content">
+        <mat-list
+            class="idp-page-list"
+            tabindex="0"
+            data-automation-id="idp-page-list"
+            (keydown)="onContainerKeyDown(datasourcePages, $event)"
+        >
+            @for (item of datasourcePages; track pageUniquenessFn($index, item); let pageIndex = $index) {
+                @if (datasourcePlaceholder && shouldInsertTopPlaceholder(datasourcePlaceholder, pageIndex)) {
+                    <div class="idp-drag-page-placeholder"></div>
+                }
+                <hyland-idp-page
+                    [page]="item"
+                    [pageIndex]="pageIndex"
+                    [isIssue]="isIssue"
+                    [dragPlaceholderMetadata]="datasourcePlaceholder"
+                    [draggingPages]="draggingPages"
+                    [canCutPages]="canCutPages"
+                    [canInsertPages]="canInsertPages$ | async"
+                    (pageMouseDown)="onItemMouseDown($event.page, $event.event)"
+                    (pageMouseUp)="onItemMouseUp($event.page, $event.event)"
+                    (pageKeyDown)="onItemKeyDown($event.page, $event.event)"
+                    (pageMouseDoubleClick)="onDoubleClick()"
+                    (pageMouseEnter)="onMouseEnter($event)"
+                    (pageDragStarted)="onDragStarted()"
+                    (pageDragStopped)="onDragStopped()"
+                    (pagesCut)="onPagesCut()"
+                    (pagesInsertedAbove)="onPagesInsertAbove($event)"
+                    (pagesInsertedBelow)="onPagesInsertBelow($event)"
+                />
+                @if (datasourcePlaceholder && shouldInsertBottomPlaceholder(datasourcePlaceholder, pageIndex)) {
+                    <div class="idp-drag-page-placeholder"></div>
+                }
+            }
+        </mat-list>
+    </mat-card-content>
+</mat-card>

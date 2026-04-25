@@ -1,0 +1,52 @@
+<div class="satorized-container hxp-full-height">
+    <mat-card class="hxp-widget">
+        <div class="hxp-widget-header">
+            <div class="hxp-widget-titles">
+                <div class="hxp-title">{{ heading() }}</div>
+                @if (subtitle()) {
+                    <div class="hxp-subtitle">{{ subtitle() }}</div>
+                }
+            </div>
+
+            <div class="hxp-widget-controls">
+                @for (key of controlKeys(); track key) {
+                    @switch (key) {
+                        @case (WIDGET_CONTROL_KEY.Category) {
+                            <hxp-governance-search-category-filter />
+                        }
+                        @case (WIDGET_CONTROL_KEY.Month) {
+                            <hxp-month-picker-control
+                                [selectedMonth]="selectedMonth()"
+                                [widgetId]="widgetId()!"
+                                (monthChange)="monthChange.emit($event)"
+                            />
+                        }
+                        @case (WIDGET_CONTROL_KEY.LegalCase) {
+                            @if (legalCaseItems().length > 0) {
+                                <hxp-governance-legal-case-name-filter [legalCaseItems]="legalCaseItems()" />
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <div
+            class="hxp-widget-body"
+            [class.hxp-widget-body-loading]="loading()"
+        >
+            @if (loading()) {
+                <div class="hxp-widget-loading">
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="32"
+                        color="primary"
+                        [attr.aria-label]="'GOVERNANCE.DASHBOARD.LOADING_WIDGET_DATA' | translate"
+                    />
+                </div>
+            } @else {
+                <ng-content />
+            }
+        </div>
+    </mat-card>
+</div>

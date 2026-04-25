@@ -1,0 +1,17 @@
+{
+  "APP": {
+    "HEADER": {
+      "SIGN_OUT": "Déconnexion",
+      "HELP": "Aide",
+      "LANGUAGE": "Langue"
+    },
+    "TOOLBAR": {
+      "SELECTED": "Sélectionné",
+      "CLEAR_ALL": "Effacer tout"
+    }
+  },
+  "PAGINATION": {
+    "PAGE_SIZE": "Éléments par page",
+    "PAGE_NUMBER": "{{startIndex}} - {{endIndex}} of {{totalPages}}"
+  }
+}

@@ -1,0 +1,14 @@
+<div
+    class="hxp-permission-dialog-title"
+    mat-dialog-title
+>
+    <div class="hxp-permissions-title">
+        <span class="hxp-permission-document-title mat-title-large">
+            {{ title }}
+        </span>
+        <div role="button"><ng-content select="[close-button]" /></div>
+    </div>
+    <div class="hxp-permission-dialog-sub-title mat-title-medium">
+        {{ 'PERMISSIONS_MANAGEMENT_ACTION.DIALOG.MANAGE_PERMISSION' | translate }}
+    </div>
+</div>

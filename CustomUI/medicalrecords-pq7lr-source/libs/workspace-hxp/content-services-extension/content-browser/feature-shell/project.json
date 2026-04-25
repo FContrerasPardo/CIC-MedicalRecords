@@ -1,0 +1,32 @@
+{
+    "name": "workspace-hxp-content-services-extension-content-browser-feature-shell",
+    "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/workspace-hxp/content-services-extension/content-browser/feature-shell/src",
+    "prefix": "hxp",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": [
+                "{workspaceRoot}/dist/libs/workspace-hxp/content-services-extension/content-browser/feature-shell"
+            ],
+            "options": {
+                "project": "libs/workspace-hxp/content-services-extension/content-browser/feature-shell/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/workspace-hxp/content-services-extension/content-browser/feature-shell/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/workspace-hxp/content-services-extension/content-browser/feature-shell/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/workspace-hxp/content-services-extension/content-browser/feature-shell/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "stylelint": {}
+    },
+    "tags": ["scope:workspace-hxp-content-services-extension-content-browser-feature-shell", "category:workspace-hxp"]
+}

@@ -1,0 +1,118 @@
+{
+    "EXTRACTION": {
+        "VERIFICATION": {
+            "TASK_HEADER": {
+                "TITLE": "Vérifier les valeurs de champs extraites du document",
+                "REMAINING_ISSUES": "problèmes à résoudre",
+                "ALL_RESOLVED": "Tous résolus",
+                "BACK_LABEL": "Retourner aux tâches",
+                "TASK_NAME": "Nom de la tâche",
+                "TASK_NAME_VALUE": "Vérification du document",
+                "DOCUMENT_CLASSES": "Classes de documents",
+                "TOTAL_DOCUMENTS": "Nombre total de documents",
+                "TOTAL_PAGES": "Nombre total de pages",
+                "CONTENT_TYPE": "Type de contenu",
+                "SET_DOCUMENT_FLAG_BUTTON": "Marquer le document",
+                "REVIEW_DOCUMENT_FLAG_BUTTON": "Révision du document marqué"
+            },
+            "SUBMIT_BUTTON": "Envoyer",
+            "SUBMIT_WITH_ISSUE_BUTTON": "Envoyer avec problème",
+            "METADATA_PANEL": {
+                "TITLE": "Métadonnées",
+                "VALIDATING_FIELDS": "Validation des champs"
+            },
+            "FIELD_IGNORED_FOR_AUTO": "Ce champ est exclu de l'extraction automatique.",
+            "METADATA_TABLE": {
+                "ADD_TABLE": "Ajouter un tableau",
+                "ADD_TABLE_TOOLTIP": "Add Table",
+                "TABLE_ROWS_FOUND_SINGULAR": "ligne trouvée",
+                "TABLE_ROWS_FOUND_PLURAL": "lignes trouvées",
+                "TABLE_NOT_FOUND": "Tableau introuvable",
+                "TABLE_ICON_ALT": "Table type field"
+            },
+            "TABLE_ISSUES": {
+                "SHOW_ENTIRE_TABLE": "Afficher le tableau entier"
+            },
+            "METADATA_FIELD_VALIDATOR": {
+                "REQUIRED": "Le champ est obligatoire",
+                "INVALID_INTEGER": "Le champ doit être un nombre"
+            },
+            "EXTRACTION_RESULT": {
+                "EXTRACTION_ISSUE": "Problème d'extraction",
+                "EXTRACTED_SUCCESSFULLY": "Extraction réussie",
+                "VERIFIED": "Vérifié",
+                "NOT_VERIFIED": "Non vérifié",
+                "INVALID_VALUE": "Valeur non valide"
+            },
+            "EXTRACTION_TABLE": {
+                "TABLE_NOT_EXTRACTED": "Les données du tableau n'ont pas pu être extraites correctement.",
+                "INSERT_ROW_ABOVE": "Insérer une ligne au-dessus",
+                "INSERT_ROW_BELOW": "Insérer une ligne en dessous",
+                "CLEAR_ROW": "Effacer cette ligne",
+                "DELETE_ROW": "Supprimer cette ligne",
+                "CLEAR_COLUMN": "Effacer cette colonne",
+                "DELETE_TABLE": "Supprimer le tableau",
+                "ADD_TABLE_INSTRUCTIONS": "Cliquez sur le bouton 'Ajouter un tableau' ou appuyez sur ALT-T pour générer un nouveau tableau.",
+                "RESET_ALL_COLUMN_WIDTHS": "Réinitialiser la largeur de toutes les colonnes",
+                "RESET_COLUMN_WIDTH": "Réinitialiser la largeur de la colonne",
+                "RESIZE_COLUMN_TOOLTIP": "Redimensionner la colonne",
+                "REQUIRED_FIELD_ERROR_MESSAGE": "Ce champ est obligatoire",
+                "MINIMUM_LENGTH_ERROR_MESSAGE": "La longueur minimale est de {{minFieldLength}} caractères",
+                "MAXIMUM_LENGTH_ERROR_MESSAGE": "La longueur maximale est de {{maxFieldLength}} caractères",
+                "INVALID_FORMAT_ERROR_MESSAGE": "Format non valide",
+                "CELL_MENU_CUT": "Cut",
+                "CELL_MENU_COPY": "Copy",
+                "CELL_MENU_PASTE": "Paste",
+                "CELL_MENU_FILL_ALL_ABOVE": "Fill-All Above",
+                "CELL_MENU_FILL_TO_ABOVE": "Fill-To Above",
+                "CELL_MENU_FILL_ALL_BELOW": "Fill-All Below",
+                "CELL_MENU_FILL_TO_BELOW": "Fill-To Below"
+            },
+            "NOTIFICATIONS": {
+                "SCREEN_INIT_ERROR": "Échec de l'initialisation de l'écran",
+                "SCREEN_INIT_ERROR_NOT_CLAIMABLE": "La tâche ne peut pas être réclamée",
+                "SCREEN_INIT_ERROR_ASSIGNEE": "Une erreur s'est produite lors de l'obtention de la personne assignée à la tâche",
+                "SCREEN_LOAD_ERROR": "Échec du chargement des données de l’écran",
+                "TASK_ACTION_ERROR": "Failed to perform action",
+                "TASK_SAVE_ERROR": "Échec de l'enregistrement de la tâche",
+                "TASK_COMPLETE_ERROR": "Échec de l'achèvement de la tâche",
+                "TASK_CLAIM_ERROR": "Échec de la réclamation de la tâche",
+                "TASK_UNCLAIM_SUCCESS": "Successfully released task",
+                "TASK_UNCLAIM_ERROR": "Échec de la non-réclamation de la tâche",
+                "VALIDATION_PROCESS_ERROR": "Échec de l'exécution du processus"
+            },
+            "TASK_ACTIONS": {
+                "SAVE": "Enregistrer",
+                "SUBMIT": "Soumettre",
+                "OPEN_NEXT_TASK": "Ouvrir la tâche suivante automatiquement",
+                "UNCLAIM": "Release"
+            },
+            "SHORTCUTS": {
+                "NAVIGATE_NEXT_FIELD": "Accéder au champ suivant",
+                "SELECT_ROW": "Sélectionner une ligne",
+                "SELECT_COLUMN": "Sélectionner une colonne",
+                "SELECT_TABLE": "Sélectionner le tableau",
+                "NAVIGATE_PREVIOUS_TABLE_COLUMN": "Accéder à la colonne précédente du tableau",
+                "NAVIGATE_NEXT_TABLE_COLUMN": "Accéder à la colonne suivante du tableau",
+                "NAVIGATE_PREVIOUS_TABLE_ROW": "Navigate to cell or row above",
+                "NAVIGATE_NEXT_TABLE_ROW": "Navigate to cell or row below",
+                "TABLE_CONTEXT_MENU": "Ouvrir le menu contextuel du tableau",
+                "TABLE_CREATE_MISSING": "Créer un tableau manquant",
+                "TABLE_CELL_FILL_ALL_ABOVE": "Fill-All Above - Fill all cells above with this value",
+                "TABLE_CELL_FILL_TO_ABOVE": "Fill-To Above - Fill upward until the next non‑blank cell",
+                "TABLE_CELL_FILL_TO_BELOW": "Fill-To Below - Fill downward until the next non‑blank cell",
+                "TABLE_CELL_FILL_ALL_BELOW": "Fill-All Below - Fill all cells below with this value",
+                "GROW_COLUMN": "Augmenter la largeur de la colonne",
+                "SHRINK_COLUMN": "Réduire la largeur de la colonne",
+                "RESIZE_COLUMN_CANCEL": "Annuler le redimensionnement de la colonne",
+                "VIEWER_TOGGLE_THUMBNAIL": "Basculement de la visionneuse de miniatures",
+                "VIEWER_ZOOM_IN": "Zoom avant",
+                "VIEWER_ZOOM_OUT": "Zoom arrière",
+                "VIEWER_ROTATE": "Faire pivoter dans le sens des aiguilles d'une montre",
+                "VIEWER_FULLSCREEN": "Activer/Désactiver l'affichage en plein écran",
+                "ZOOM_IMAGE": "Zoomer sur l'image",
+                "ZOOM_TEXT": "Zoomer sur le texte"
+            }
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@hxp/workspace-hxp/shared/testing",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@hylandsoftware/hxcs-js-client": ">=2.0.1",
+    "axe-core": ">=4.10.3"
+  }
+}

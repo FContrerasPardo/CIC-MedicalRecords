@@ -1,0 +1,75 @@
+/*
+ * Copyright 2005-2026 Hyland Software, Inc. and its affiliates. All rights reserved.
+ * License rights for this program may be obtained from Hyland Software, Inc. and its affiliates.
+ * pursuant to a written agreement and any use of this program without such an
+ * agreement is prohibited.
+ */
+@use '@angular/material' as mat;
+
+:host {
+    display: block;
+    margin-bottom: 24px;
+}
+
+.hxp-governance-toolbar {
+    @include mat.toolbar-overrides(
+        (
+            container-background-color: color-mix(in srgb, var(--mat-sys-primary-fixed-dim) 16%, transparent),
+            container-text-color: var(--mat-sys-on-surface),
+        )
+    );
+}
+
+.hxp-governance-toolbar-selected {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    line-height: 1;
+    white-space: nowrap;
+    margin: 0;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 0 16px;
+    letter-spacing: 0.25px;
+}
+
+.hxp-governance-toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+.hxp-governance-toolbar-divider {
+    margin: 0 8px;
+    align-self: center;
+    height: 24px;
+}
+
+mat-toolbar-row,
+.hxp-governance-toolbar-selected,
+button[mat-icon-button] {
+    white-space: nowrap;
+}
+
+.hxp-governance-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1 1 auto;
+
+    @include mat.divider-overrides(
+        (
+            color: var(--mat-sys-on-primary),
+        )
+    );
+}
+
+.hxp-governance-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.hxp-governance-toolbar-selected-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}

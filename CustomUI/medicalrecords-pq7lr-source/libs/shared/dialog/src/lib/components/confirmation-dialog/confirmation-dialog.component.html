@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>{{ title | translate }}</h2>
+
+<mat-dialog-content class="studio-confirmation-dialog-content">
+    @if (subtitle) {
+        <p>{{ subtitle | translate }}</p>
+    }
+    @if (message) {
+        <span>
+            {{ message | translate }}
+        </span>
+    }
+    @if (htmlContent) {
+        <span
+            [innerHTML]="htmlContent"
+            data-automation-id="confirm-dialog-html-content"
+        ></span>
+    }
+    @if (messages.length && !isValidationErrors) {
+        <ul>
+            @for (message of messages; track message; let index = $index) {
+                <li [attr.data-automation-id]="'confirm-dialog-message-list-item-' + index">
+                    {{ message | translate }}
+                </li>
+            }
+        </ul>
+    }
+    @if (destructiveOptions.confirmationText) {
+        <p
+            class="studio-confirmation-name-text"
+            [innerHTML]="'APP.DIALOGS.CONFIRM.TYPE_NAME_TO_CONFIRM' | translate: { name: destructiveOptions.confirmationText }"
+            data-automation-id="destructive-name-confirmation-message"
+        ></p>
+
+        <mat-form-field
+            class="studio-confirmation-name-input"
+            appearance="outline"
+        >
+            <mat-label>{{ destructiveOptions.confirmationTextInputLabel || 'APP.DIALOGS.CONFIRM.DEFAULT_NAME_LABEL' | translate }}</mat-label>
+
+            <input
+                matInput
+                [formControl]="nameConfirmationControl"
+                data-automation-id="destructive-name-confirmation-input"
+            />
+        </mat-form-field>
+    }
+
+    @if (isValidationErrors) {
+        <ul [attr.data-automation-id]="'confirm-dialog-error-message-list'">
+            @for (message of messageGroups; track message; let index = $index) {
+                <li [attr.data-automation-id]="'confirm-dialog-error-message-list-item-' + index">
+                    {{ message.key ? (message.key | translate: message.params) : message.description }}
+                </li>
+            }
+        </ul>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <span class="adf-fill-remaining-space"></span>
+
+    <button
+        mat-button
+        mat-dialog-close
+        [color]="cancelButton.theme"
+        [attr.data-automation-id]="'dialog-close'"
+        (click)="choose(false)"
+    >
+        {{ cancelButton.label | translate }}
+    </button>
+
+    <button
+        [class.hxp-primary-warn-button]="isWarning(data?.actionType)"
+        mat-flat-button
+        [attr.data-automation-id]="'dialog-confirm'"
+        [disabled]="confirmButton.disabled || nameConfirmationControl.invalid"
+        (click)="choose(true)"
+    >
+        {{ printLabel() }}
+    </button>
+</mat-dialog-actions>

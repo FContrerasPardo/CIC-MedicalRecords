@@ -1,0 +1,52 @@
+<div class="idp-header-toolbar">
+    <div class="idp-header-toolbar__sort">
+        <mat-form-field
+            class="idp-header-toolbar__sort-select"
+            appearance="outline"
+            data-automation-id="idp-header-toolbar-sort"
+        >
+            <mat-label>{{ 'IDP_CLASS_VERIFICATION.CLASS_LIST_HEADER.SORT_SELECTOR.TITLE' | translate }}</mat-label>
+            <mat-select
+                [(value)]="selectedSortOption"
+                (selectionChange)="onSortChanged($event)"
+            >
+                @for (item of sortOptions; track item.value) {
+                    <mat-option
+                        [attr.data-automation-id]="'idp-toolbar-sort-' + item.value"
+                        [value]="item.value"
+                        >{{ item.label | translate }}</mat-option
+                    >
+                }
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div class="idp-header-toolbar__issues">
+        <mat-slide-toggle
+            data-automation-id="show-issue-toggle"
+            #issueFilter
+            [checked]="isIssuesOnlyView"
+            [labelPosition]="'before'"
+            [matTooltip]="issuesOnlyFilterTooltip"
+            (change)="onIssuesFilterChange($event.checked)"
+            >{{ 'IDP_CLASS_VERIFICATION.CLASS_LIST_HEADER.SHOW_ISSUES_LABEL' | translate }}</mat-slide-toggle
+        >
+    </div>
+    <div class="idp-header-toolbar__actions">
+        @for (item of (toolbarActionItems$ | async) ?? []; track item.action) {
+            @if (showToolbarActionItem(item)) {
+                <button
+                    mat-icon-button
+                    [attr.data-automation-id]="getToolbarActionButtonDataAutomationId(item)"
+                    [class.idp-disabled]="item.disabled"
+                    [disabled]="item.disabled"
+                    [matTooltip]="item.tooltip"
+                    (click)="item.onClick$.next()"
+                    matRipple
+                    [matRippleDisabled]="item.disabled"
+                >
+                    <mat-icon [svgIcon]="item.icon" />
+                </button>
+            }
+        }
+    </div>
+</div>

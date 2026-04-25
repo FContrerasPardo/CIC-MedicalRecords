@@ -1,0 +1,33 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "SETTINGS",
+        "ACTIONS": {
+            "LANGUAGE": "Language",
+            "FEATURE_FLAGS": "Feature Flags",
+            "HELP": "Help",
+            "THEME_SWITCH": {
+                "DARK": "Dark theme",
+                "DARK_LABEL": "Switch to dark theme",
+                "LIGHT": "Light theme",
+                "LIGHT_LABEL": "Switch to light theme"
+            }
+        },
+        "UNIFIED_UI": {
+            "TOGGLE_LABEL": "Try the new UI",
+            "TOOLTIP": "To return to the classic UI, come back to this page.",
+            "BANNER": {
+                "MESSAGE": "We've redesigned the experience. Preview it today...",
+                "NAVIGATE_BACK_MESSAGE": "To return to the classic UI, come back to the project list page of Studio",
+                "TRY_NEW_UI": "Try the new UI",
+                "UNDERSTOOD": "Understood",
+                "CLOSE": "Close"
+            },
+            "SNACKBAR": {
+                "ACTIVATED": "You are trying the new project UI and you will see the difference when opening the project. You can switch off the toggle on top of your screen to go back to the classic UI.",
+                "DEACTIVATED": "You deactivated the new Project UI. You will be using now the classic UI.",
+                "ACTION": "Understood"
+            }
+        }
+    }
+}

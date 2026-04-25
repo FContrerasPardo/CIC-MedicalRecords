@@ -1,0 +1,6 @@
+{
+  "name": "@hxp/workspace-hxp/feature-flag",
+  "version": "0.0.1",
+  "peerDependencies": {},
+  "sideEffects": false
+}

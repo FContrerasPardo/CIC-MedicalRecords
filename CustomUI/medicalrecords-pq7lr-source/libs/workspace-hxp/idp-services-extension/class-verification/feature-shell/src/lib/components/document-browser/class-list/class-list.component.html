@@ -1,0 +1,197 @@
+@let datasourceClasses = (classesData$ | async) || [];
+@let datasourcePlaceholder = dragPlaceholderMetadata$ | async;
+@let datasourceIsDragging = (isDragging$ | async) || false;
+@let datasourceSortOption = sortOption$ | async;
+@let datasourceRejectedClass = rejectedClass$ | async;
+
+<div class="idp-classification-list-host">
+    <div>
+        <hyland-idp-class-list-header-toolbar />
+    </div>
+    <mat-card class="idp-classification-list-container">
+        <mat-card-content class="idp-classification-list-content">
+            @if (datasourceSortOption === SortOption.Classes) {
+                <mat-list
+                    class="idp-classification-list"
+                    tabindex="0"
+                    [id]="globalDropListId"
+                    (keydown)="onContainerKeyDown(datasourceClasses, $event)"
+                    cdkDropList
+                    cdkDropListOrientation="vertical"
+                    (cdkDropListDropped)="onDrop($event)"
+                    [cdkDropListConnectedTo]="allDropLists"
+                >
+                    @for (item of datasourceClasses; track classUniquenessFn($index, item); let classIndex = $index) {
+                        <hyland-idp-list-item
+                            class="idp-list-item"
+                            [id]="item.id"
+                            [attr.selected]="item.id === selectedClass?.id"
+                            (mouseenter)="onMouseEnter(item, datasourceIsDragging)"
+                            (mouseleave)="onMouseLeave()"
+                            [disabled]="
+                                item.disabled && !(datasourcePlaceholder && datasourcePlaceholder.isDocumentDragging && isHoveredWithDrag(item))
+                            "
+                            [isSelected]="item.id === selectedClass?.id"
+                            [index]="classIndex"
+                            [attr.data-automation-id]="'idp-list-item-class__' + classIndex"
+                            (keydown)="onItemKeyDown(item, $event)"
+                            (click)="onItemClicked(item, $event)"
+                        >
+                            <div
+                                class="idp-list-item-content"
+                                [class.idp-disabled]="item.disabled && !datasourceIsDragging"
+                            >
+                                @if (item.id === selectedClass?.id) {
+                                    <mat-icon svgIcon="pencil" />
+                                }
+                                @if (!item.isSpecialClass && item.issuesCount <= 0 && item.id !== selectedClass?.id) {
+                                    <mat-icon
+                                        svgIcon="circle_check"
+                                        class="idp-success"
+                                    />
+                                }
+                                @if (item.issuesCount > 0 && item.id !== selectedClass?.id) {
+                                    <mat-icon
+                                        svgIcon="critical"
+                                        class="idp-issue"
+                                    />
+                                }
+                                @if (item.isSpecialClass && item.issuesCount === 0 && item.id !== selectedClass?.id && item.name === 'Rejected') {
+                                    <mat-icon svgIcon="block" />
+                                }
+                                @if (item.isSpecialClass && item.issuesCount === 0 && item.id !== selectedClass?.id && item.name === 'Unclassified') {
+                                    <mat-icon
+                                        svgIcon="circle_check"
+                                        class="idp-success"
+                                    />
+                                }
+                                <span
+                                    class="idp-display-name"
+                                    data-automation-id="idp-class-name"
+                                    [matTooltip]="item.name"
+                                    >{{ item.name }}
+                                    @if (item.ignoreForAuto) {
+                                        <mat-icon
+                                            svgIcon="lock"
+                                            class="idp-ignored-class-icon"
+                                            [matTooltip]="'IDP_CLASS_VERIFICATION.CLASS_LIST.IGNORED_FOR_AUTO_CLASSIFICATION' | translate"
+                                        />
+                                    }
+                                </span>
+                                <span class="idp-right-align">
+                                    <span [class.idp-issue]="item.issuesCount > 0">{{ item.issuesCount }}</span>
+                                    /{{ item.documentsCount }}
+                                </span>
+                                <div>
+                                    <button
+                                        mat-icon-button
+                                        class="idp-list-item-toggle-button"
+                                        data-automation-id="idp-class-list-dropdown"
+                                        (click)="onItemClicked(item, $event); $event.stopImmediatePropagation()"
+                                    >
+                                        @if (!item.isExpanded && !item.isPreviewed) {
+                                            <mat-icon svgIcon="chevron_down" />
+                                        } @else {
+                                            <mat-icon svgIcon="chevron_up" />
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </hyland-idp-list-item>
+                        @if (item.isExpanded || item.isPreviewed) {
+                            <hyland-idp-class-document-list
+                                [previewMode]="item.isPreviewed"
+                                class="idp-list-item"
+                                [classId]="item.id"
+                                (collapseContainer)="onDocumentCollapseRequest(item)"
+                            />
+                        }
+                        @if (item.id === selectedClass?.id && item.isExpanded) {
+                            <hyland-idp-floating-toolbar />
+                        }
+                        <mat-divider class="idp-special-item-divider" />
+                    }
+                </mat-list>
+            } @else {
+                <mat-list
+                    class="idp-classification-list"
+                    tabindex="0"
+                    [id]="globalDropListId"
+                    (keydown)="onContainerKeyDown(datasourceClasses, $event)"
+                    cdkDropList
+                    cdkDropListOrientation="vertical"
+                    (cdkDropListDropped)="onDrop($event)"
+                    [cdkDropListConnectedTo]="allDropLists"
+                >
+                    @if (datasourceRejectedClass) {
+                        <hyland-idp-list-item
+                            class="idp-list-item"
+                            [id]="datasourceRejectedClass.id"
+                            (mouseenter)="onMouseEnter(datasourceRejectedClass, datasourceIsDragging)"
+                            (mouseleave)="onMouseLeave()"
+                            [disabled]="
+                                datasourceRejectedClass.disabled &&
+                                !(datasourcePlaceholder && datasourcePlaceholder.isDocumentDragging && isHoveredWithDrag(datasourceRejectedClass))
+                            "
+                            [isSelected]="datasourceRejectedClass.id === selectedClass?.id"
+                            [index]="0"
+                            (keydown)="onItemKeyDown(datasourceRejectedClass, $event)"
+                            (click)="onItemClicked(datasourceRejectedClass, $event)"
+                        >
+                            <div
+                                class="idp-list-item-content"
+                                [ngClass]="{ 'idp-disabled': datasourceRejectedClass.disabled && !datasourceIsDragging }"
+                            >
+                                @if (datasourceRejectedClass.id === selectedClass?.id) {
+                                    <mat-icon svgIcon="pencil" />
+                                }
+                                @if (datasourceRejectedClass.issuesCount === 0 && datasourceRejectedClass.id !== selectedClass?.id) {
+                                    <mat-icon svgIcon="block" />
+                                }
+                                <span
+                                    class="idp-display-name"
+                                    data-automation-id="idp-class-name"
+                                    [matTooltip]="datasourceRejectedClass.name"
+                                    >{{ datasourceRejectedClass.name }}</span
+                                >
+                                <span class="idp-right-align"
+                                    ><span [class.idp-issue]="datasourceRejectedClass.issuesCount > 0">{{
+                                        datasourceRejectedClass.issuesCount
+                                    }}</span
+                                    >/{{ datasourceRejectedClass.documentsCount }}</span
+                                >
+                                <div>
+                                    <button
+                                        mat-icon-button
+                                        class="idp-list-item-toggle-button"
+                                        data-automation-id="idp-class-list-dropdown"
+                                        (click)="onItemClicked(datasourceRejectedClass, $event); $event.stopImmediatePropagation()"
+                                    >
+                                        @if (!datasourceRejectedClass.isExpanded && !datasourceRejectedClass.isPreviewed) {
+                                            <mat-icon svgIcon="chevron_down" />
+                                        } @else {
+                                            <mat-icon svgIcon="chevron_up" />
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </hyland-idp-list-item>
+                    }
+                    @if (datasourceRejectedClass && (datasourceRejectedClass.isExpanded || datasourceRejectedClass.isPreviewed)) {
+                        <hyland-idp-class-document-list
+                            [previewMode]="datasourceRejectedClass.isPreviewed"
+                            class="idp-list-item"
+                            [classId]="datasourceRejectedClass.id"
+                            (collapseContainer)="onDocumentCollapseRequest(datasourceRejectedClass)"
+                        />
+                    }
+                    <mat-divider class="idp-special-item-divider" />
+                    <hyland-idp-unsorted-document-list />
+                    @if (isAnyDocumentSelected$ | async) {
+                        <hyland-idp-floating-toolbar />
+                    }
+                </mat-list>
+            }
+        </mat-card-content>
+    </mat-card>
+</div>

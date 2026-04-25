@@ -1,0 +1,99 @@
+<ng-container>
+    <hyland-idp-list-item
+        class="idp-list-item-document"
+        [class.idp-document-hover-disabled]="dragPlaceholderMetadata?.isDocumentDragging"
+        [class.idp-cut]="document.isCut"
+        [attr.selected]="(document.isSelected || false) && document.allPagesSelected"
+        [attr.data-automation-id]="'idp-list-item-document__' + documentIndex"
+        [isSelected]="(document.isSelected || false) && document.allPagesSelected"
+        [id]="document.id"
+        [index]="documentIndex"
+        (keydown)="onItemKeyDown(document, $event)"
+        (mousedown)="onItemMouseDown(document, $event, 'select')"
+        (mouseup)="onItemMouseUp(document, $event)"
+        (dblclick)="onDoubleClick(document)"
+        (mouseenter)="onMouseEnter(document)"
+        cdkDrag
+        [cdkDragData]="{ document }"
+        (cdkDragStarted)="onDragStarted()"
+        (cdkDragReleased)="onDragStopped()"
+        (contextmenu)="onContextMenu($event)"
+    >
+        <div
+            class="idp-list-item-content"
+            [class.idp-item-selected]="document.isSelected"
+            [class.invalid]="document.hasIssue"
+        >
+            <div
+                *cdkDragPreview
+                matBadge="{{ draggingDocuments.length }}"
+                class="idp-drag-preview-ext"
+                [ngStyle]="{ width: 'auto' }"
+            >
+                <mat-icon [svgIcon]="draggingDocuments.length > 1 ? 'copy' : 'document'" />
+            </div>
+
+            <mat-icon
+                [svgIcon]="document.pages.length > 1 ? 'copy' : 'document'"
+                [class.idp-issue]="document.hasIssue"
+            />
+
+            <span
+                #documentDisplayName
+                class="idp-display-name"
+                data-automation-id="idp-document-name"
+                [matTooltip]="document.name"
+                [matTooltipDisabled]="isElementContained(documentDisplayName)"
+            >
+                {{ formatDocumentName(document) }}
+            </span>
+
+            <span class="idp-right-align">{{ document.pages.length }} {{ document.pages.length === 1 ? 'page' : 'pages' }}</span>
+            <ng-container *adfForFeatures="idpClassificationSettingsFeature">
+                @if (document.classificationConfidence > 0) {
+                    <span
+                        class="idp-classification-confidence-tag"
+                        data-automation-id="idp-classification-confidence-tag"
+                        [class]="'idp-classification-confidence-tag-' + getClassificationConfidenceTagColor(document)"
+                    >
+                        {{ document.classificationConfidence | floorPercent }}
+                    </span>
+                }
+            </ng-container>
+            @if (document.pages.length > 0) {
+                <button
+                    mat-icon-button
+                    class="idp-list-item-toggle-button"
+                    data-automation-id="idp-list-item-document-toggle-button"
+                    (mousedown)="onItemMouseDown(document, $event, 'toggle'); $event.stopImmediatePropagation()"
+                >
+                    @if (!document.isExpanded) {
+                        <mat-icon svgIcon="chevron_down" />
+                    } @else {
+                        <mat-icon svgIcon="chevron_up" />
+                    }
+                </button>
+            }
+        </div>
+
+        <ng-container *adfForFeatures="idpCutInsertFeature">
+            <hyland-idp-page-context-menu
+                #pageContextMenu
+                [canCut]="canCutPages"
+                (pagesCut)="onPagesCut()"
+                (menuClosed)="onPageContextMenuClosed()"
+            />
+        </ng-container>
+    </hyland-idp-list-item>
+
+    @if ((document.isExpanded || document.isPreviewed) && !document.isDragging) {
+        <hyland-idp-page-list
+            class="idp-list-item"
+            data-automation-id="idp-page-list__component"
+            [documentId]="document.id"
+            [isIssue]="document.hasIssue || false"
+            [canCutPages]="canCutPages"
+            (collapseContainer)="onPageCollapseRequest(document)"
+        />
+    }
+</ng-container>

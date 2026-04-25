@@ -1,0 +1,53 @@
+@let contextApps = appListService.globalApps$ | contextApps | async;
+@if (contextApps) {
+    <sat-platform-nav-container>
+        @let currentEnv = (appEnvService.selectedEnv$ | async) || (contextApps | initialEnv);
+        @if (!hideChromeBar()) {
+            <sat-platform-nav [neutralTheme]="currentEnv | neutralTheme">
+                @let contextEnvs = contextApps | contextEnvs;
+                @if (contextEnvs.length > 1) {
+                    <sat-platform-nav-switcher
+                        [value]="currentEnv.id"
+                        [environments]="contextEnvs | navEnvs"
+                        (environmentChange)="appEnvService.onEnvChange($event)"
+                    />
+                }
+
+                @for (app of contextApps | envApps: currentEnv; track app.id) {
+                    @let navigationItem = getNavigationItemFromContextApp(app);
+                    <sat-platform-nav-list-item
+                        [active]="navigationItem.active"
+                        (click)="navigationService.goTo(app.launchUrl)"
+                    >
+                        <sat-platform-nav-avatar [item]="navigationItem">
+                            {{ navigationItem.label | satPlatformNavInitials }}
+                        </sat-platform-nav-avatar>
+                        {{ navigationItem.label | translate }}
+                    </sat-platform-nav-list-item>
+                }
+
+                <sat-platform-nav-user>
+                    <sat-platform-nav-user-profile [matMenuTriggerFor]="userMenu">
+                        {{ userInfoService.displayName }}
+                    </sat-platform-nav-user-profile>
+                    <mat-menu
+                        #userMenu="matMenu"
+                        satPlatformNavUserMenu
+                    >
+                        <button
+                            mat-menu-item
+                            data-automation-id="sign-out"
+                            adf-logout
+                        >
+                            <mat-icon svgIcon="logout" />
+                            {{ 'APP_CHROME.USER_MENU.SIGN_OUT' | translate }}
+                        </button>
+                    </mat-menu>
+                </sat-platform-nav-user>
+            </sat-platform-nav>
+        }
+        <sat-platform-nav-main-content>
+            <ng-content />
+        </sat-platform-nav-main-content>
+    </sat-platform-nav-container>
+}

@@ -1,0 +1,33 @@
+{
+    "IDP": {
+        "REJECT_DIALOG": {
+            "TITLE": "Contrassegna documento",
+            "DESCRIPTION": "Questo documento non verrà incluso nel processo di estrazione del batch se viene rifiutato. Verificare di volerlo fare.\n\nMotivare il rifiuto",
+            "REASON_LABEL": "Motivo del rifiuto",
+            "CANCEL_BUTTON": "Annulla",
+            "REMOVE_BUTTON": "Rimuovi flag",
+            "REJECT_BUTTON": "Salva",
+            "SEARCH_PLACEHOLDER": "Cerca un motivo...",
+            "REJECT_NOTE": {
+                "LABEL": "Flag note",
+                "PLACEHOLDER": "Inserisci una nota di rifiuto...",
+                "ARIA_LABEL": "Inserisci una nota di rifiuto",
+                "HINT": "Massimo {{max}} caratteri"
+            }
+        },
+        "SHORTCUT_DIALOG": {
+            "TITLE": "Tasti di scelta rapida",
+            "SEARCH_PLACEHOLDER": "Cerca collegamento...",
+            "NO_RESULTS": "Nessun risultato trovato"
+        },
+        "DISCARD_DIALOG": {
+            "TITLE": "Annulla modifiche",
+            "DESCRIPTION": "Sono presenti modifiche non salvate. Se si esce da questa pagina, le modifiche non salvate andranno perse.",
+            "CANCEL_BUTTON": "Annulla",
+            "DISCARD_BUTTON": "Annulla modifiche"
+        },
+        "FILTERABLE_SELECTION_LIST": {
+            "SEARCH_ARIA_LABEL": "Search"
+        }
+    }
+}

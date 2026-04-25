@@ -1,0 +1,10 @@
+{
+    "name": "workspace-hxp-process-services-cloud-extension-process-form-data-access",
+    "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/workspace-hxp/process-services-cloud-extension/process-form/data-access/src",
+    "prefix": "alfresco-dbp",
+    "targets": {
+    },
+    "tags": ["scope:workspace-hxp-process-services-cloud-extension-process-form-data-access"]
+}

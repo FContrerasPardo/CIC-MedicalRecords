@@ -1,0 +1,14 @@
+{
+  "name": "@alfresco-dbp/shared/dialog",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/material": ">=19.2.19",
+    "@angular/cdk": ">=19.2.19",
+    "@angular/platform-browser": ">=19.2.18",
+    "@angular/common": ">=19.2.18",
+    "@ngx-translate/core": ">=17.0.0",
+    "@alfresco-dbp/shared-core": ">=0.0.1",
+    "rxjs": ">=7.8.2",
+    "@angular/core": ">=19.2.18"
+  }
+}

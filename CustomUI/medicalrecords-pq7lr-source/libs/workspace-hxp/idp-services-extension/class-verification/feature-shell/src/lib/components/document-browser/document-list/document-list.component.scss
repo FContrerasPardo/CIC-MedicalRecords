@@ -1,0 +1,29 @@
+.idp-document-list-container {
+    height: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    border-radius: 0;
+    overflow-y: hidden;
+    box-shadow: var(--mat-sys-level0);
+    background-color: var(--mat-sys-surface-container-lowest);
+
+    .idp-document-list-content {
+        flex: 1 1 100%;
+        margin-bottom: 0;
+        padding: 0;
+        overflow-y: hidden;
+    }
+
+    .idp-document-list {
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+
+        .idp-special-item-divider:not(:last-of-type) {
+            display: none;
+        }
+    }
+}

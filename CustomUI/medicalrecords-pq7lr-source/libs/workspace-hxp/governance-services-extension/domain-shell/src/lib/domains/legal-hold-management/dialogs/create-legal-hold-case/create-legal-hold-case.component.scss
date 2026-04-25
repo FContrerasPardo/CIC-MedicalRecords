@@ -1,0 +1,28 @@
+.hxp-cic-gov-create-legal-hold-case-dialog {
+    display: flex;
+    flex-direction: column;
+
+    .hxp-cic-gov-create-legal-form-holder {
+        padding-top: 24px;
+    }
+
+    .hxp-create-legal-hold-case-form {
+        display: flex;
+        margin-top: 12px;
+    }
+}
+
+.hxp-cic-gov-create-legal--hold-case-dialog-actions {
+    padding-top: 16px;
+
+    button {
+        justify-content: center;
+        border: 0;
+    }
+
+    .hxp-create-legal--hold-case-btn-label {
+        display: flex;
+        column-gap: 2px;
+        align-items: center;
+    }
+}

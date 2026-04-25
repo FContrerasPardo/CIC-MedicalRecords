@@ -1,0 +1,17 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "CONFIGURAÇÕES",
+        "ACTIONS": {
+            "LANGUAGE": "Idioma",
+            "FEATURE_FLAGS": "Sinalizadores de funcionalidades",
+            "HELP": "Ajuda",
+            "THEME_SWITCH": {
+                "DARK": "Tema escuro",
+                "DARK_LABEL": "Mudar para tema escuro",
+                "LIGHT": "Tema claro",
+                "LIGHT_LABEL": "Mudar para tema claro"
+            }
+        }
+    }
+}

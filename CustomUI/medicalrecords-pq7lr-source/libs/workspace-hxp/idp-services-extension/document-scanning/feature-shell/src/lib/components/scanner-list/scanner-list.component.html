@@ -1,0 +1,86 @@
+<!--
+  ~ Copyright © 2005 - 2021 Alfresco Software, Ltd. All rights reserved.
+  ~
+  ~ License rights for this program may be obtained from Alfresco Software, Ltd.
+  ~ pursuant to a written agreement and any use of this program without such an
+  ~ agreement is prohibited.
+  -->
+<div class="idp-scanner-list">
+    @let clientState = scanClientState();
+
+    @if (clientState && clientState.status === 'failed') {
+        <div class="idp-scanner-option-row">
+            <mat-icon
+                class="idp-scanner-option-icon"
+                svgIcon="printer"
+            />
+            <sat-status-tag
+                data-automation-id="idp-scanning-service-status"
+                status="important-loud"
+                [matTooltip]="scanClientErrorMessage()"
+            >
+                {{ 'IDP_DOCUMENT_SCANNING.HEADER.SCANNING_SERVICE_UNAVAILABLE' | translate }}
+            </sat-status-tag>
+        </div>
+    } @else if (clientState?.status === 'disconnected' || clientState?.status === 'connecting') {
+        <mat-progress-spinner
+            style="max-height: 40px"
+            mode="indeterminate"
+        />
+    }
+
+    @let allScanners = scanners();
+    @if (allScanners.length > 0 || clientState?.status === 'connected') {
+        <mat-select
+            data-automation-id="idp-scanner-dropdown"
+            [value]="selectedScanner()"
+            (valueChange)="selectedScanner.set($event)"
+            [compareWith]="compareScanners"
+            [placeholder]="
+                (allScanners.length > 0 ? 'IDP_DOCUMENT_SCANNING.HEADER.SELECT_SCANNER' : 'IDP_DOCUMENT_SCANNING.HEADER.NO_SCANNER') | translate
+            "
+        >
+            <mat-select-trigger>
+                @if (selectedScanner(); as scanner) {
+                    <div class="idp-scanner-option-row">
+                        <ng-container *ngTemplateOutlet="scannerOptionRow; context: { $implicit: scanner }" />
+                    </div>
+                }
+            </mat-select-trigger>
+            <mat-option
+                *ngFor="let scanner of allScanners"
+                [value]="scanner"
+                class="idp-scanner-option"
+                [attr.data-automation-id]="'idp-scanner-option-' + scanner.name"
+            >
+                <div class="idp-scanner-option-row">
+                    <ng-container *ngTemplateOutlet="scannerOptionRow; context: { $implicit: scanner }" />
+                </div>
+            </mat-option>
+        </mat-select>
+    }
+</div>
+
+<ng-template
+    #scannerOptionRow
+    let-scanner
+>
+    <mat-icon
+        class="idp-scanner-option-icon"
+        svgIcon="printer"
+    />
+    <div class="idp-scanner-option-text">
+        <span class="idp-scanner-name">{{ scanner.name }}</span>
+        <div
+            class="idp-scanner-status"
+            [class.idp-connected]="true"
+            [class.idp-disconnected]="false"
+        >
+            <mat-icon
+                class="idp-scanner-status-icon"
+                svgIcon="oval"
+            />
+            <span class="idp-scanner-status-text">{{ 'IDP_DOCUMENT_SCANNING.HEADER.CONNECTED' | translate }}</span>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,384 @@
+{
+    "GOVERNANCE": {
+        "SIDENAV": {
+            "TITLE": "Zarządzanie",
+            "ARIA_LABEL": "Governance navigation menu"
+        },
+        "HEADER": {
+            "TITLE": "Zarządzanie"
+        },
+        "TABS": {
+            "RECORDS": "Zarządzanie dokumentami",
+            "LEGAL_HOLD": "Zarządzanie dokumentami objętymi obowiązkiem przechowywania",
+            "DASHBOARD": "Pulpit"
+        },
+        "LEGAL_HOLD": {
+            "TITLE": "Zarządzanie dokumentami objętymi obowiązkiem przechowywania",
+            "HEADER": "Sprawy związane z dokumentami objętymi obowiązkiem przechowywania",
+            "TABLE": {
+                "COLUMNS": {
+                    "CASE_NAME": "Sprawa związana z dokumentami objętymi obowiązkiem przechowywania",
+                    "REASON_FOR_HOLD": "Powód przechowywania dokumentów objętych obowiązkiem przechowywania",
+                    "TOTAL_RECORDS_HELD": "Wszystkie przechowywane dokumenty",
+                    "DATE_OF_CREATION": "Data utworzenia",
+                    "CREATOR": "Twórca"
+                },
+                "NO_RECORDS_FOUND": "Nie masz jeszcze spraw związanych z dokumentami objętymi obowiązkiem przechowywania.",
+                "NO_RECORDS_FOUND_FILTERED": "Żadna sprawa związana z dokumentami objętymi obowiązkiem przechowywania nie pasuje do zadanych kryteriów wyszukiwania."
+            },
+            "CREATE_BUTTON": "Utwórz sprawę związaną z dokumentami objętymi obowiązkiem przechowywania",
+            "SEARCH_PLACEHOLDER": "Wyszukaj nazwę sprawy związanej z dokumentami objętymi obowiązkiem przechowywania",
+            "CLEAR_ALL": "Wyczyść wszystko",
+            "SELECTED": "Zaznaczone"
+        },
+        "LEGAL_RECORDS": {
+            "NO_RECORDS_FOUND": "Brak dokumentacji prawnej do wyświetlenia.",
+            "NO_RECORDS_FOUND_FILTERED": "Żaden dokument prawny nie pasuje do zadanych kryteriów wyszukiwania.",
+            "SEARCH_RECORDS_PLACEHOLDER": "Wyszukaj dokumentację",
+            "BACK": "Powrót do spraw związanych z dokumentami objętymi obowiązkiem przechowywania"
+        },
+        "SEARCH": {
+            "FILTERS": {
+                "ARIA-LABEL": {
+                    "CLEAR_INPUT": "Wyczyść dane wejściowe",
+                    "CLEAR_SEARCH": "Wyczyść wyszukiwanie",
+                    "FILTERS_LIST": "Lista filtrów",
+                    "REMOVE": "Usuń filtr"
+                },
+                "SELECTED": "Zaznaczono {{selected}}",
+                "RESULTS_FOUND_PLURAL": "Znaleziono {{count}} wyniki/wyników",
+                "RESULTS_FOUND_SINGLE": "Znaleziono {{count}} wynik",
+                "CATEGORY": {
+                    "LABEL": "Kategoria"
+                },
+                "CREATOR": {
+                    "LABEL": "Twórca"
+                },
+                "DATA_SOURCE": {
+                    "LABEL": "Źródło danych"
+                },
+                "MODIFIER": {
+                    "LABEL": "Modyfikator"
+                },
+                "STATUS": {
+                    "LABEL": "Status"
+                },
+                "LEGAL_CASE": {
+                    "LABEL": "Legal Case"
+                },
+                "NO_SEARCH_RESULTS": {
+                    "MESSAGE": "Nie znaleziono pasujących wyników"
+                },
+                "PLACEHOLDER": "Szukaj",
+                "CUTOFF": {
+                    "LABEL": "Granica"
+                },
+                "DISPOSITION": {
+                    "LABEL": "Data dyspozycji"
+                },
+                "DATE": {
+                    "ARIA-LABEL": {
+                        "DEFAULT_OPTIONS_LIST": "Lista dostępnych opcji daty"
+                    },
+                    "OPTIONS": {
+                        "TOMORROW": "Jutro",
+                        "NEXT_WEEK": "Następny tydzień",
+                        "NEXT_MONTH": "Następny miesiąc",
+                        "NEXT_YEAR": "Następny rok",
+                        "CUSTOM_DATE": {
+                            "LABEL": "Data niestandardowa",
+                            "VALUES": {
+                                "AFTER": "Po",
+                                "BEFORE": "Przed",
+                                "SINCE_TO_DATE": "Od {{afterDate}} do {{beforeDate}}",
+                                "SINCE_TO_TODAY": "Od {{date}} do dzisiaj",
+                                "UNTIL_DATE": "Do {{date}}"
+                            }
+                        },
+                        "BUTTON": {
+                            "CLEAR": {
+                                "ARIA_LABEL": {
+                                    "AFTER": "Wyczyść datę Po",
+                                    "BEFORE": "Wyczyść datę Przed"
+                                }
+                            }
+                        },
+                        "ERRORS": {
+                            "BEFORE_DATE_TOO_EARLY": "Data Przed nie może być wcześniejsza niż data Po",
+                            "AFTER_DATE_TOO_LATE": "Data Po nie może być późniejsza niż data Przed",
+                            "INVALID_DATE_FORMAT": "Wprowadź datę w prawidłowym formacie MM/DD/RRRR"
+                        }
+                    }
+                }
+            },
+            "TOOLBAR": {
+                "BUTTONS": {
+                    "DELETE": "Usuń zaznaczone rekordy",
+                    "LEGAL_HOLD_CASE": "Dodaj wybrane dokumenty do dokumentu objętego obowiązkiem przechowywania",
+                    "PROPERTY_PANE_OPEN": "Wyświetl właściwość",
+                    "PROPERTY_PANE_CLOSE": "Ukryj właściwość",
+                    "EDIT_LEGAL_HOLD_CASE": "Edytuj sprawę związaną z dokumentami objętymi obowiązkiem przechowywania"
+                }
+            }
+        },
+        "SEARCH_RESULTS": {
+            "BUTTONS": {
+                "RESET": {
+                    "LABEL": "Resetuj"
+                },
+                "SEARCH": {
+                    "LABEL": "Szukaj"
+                },
+                "SELECT_ALL": {
+                    "LABEL": "Wybierz wszystko"
+                },
+                "UNSELECT_ALL": {
+                    "LABEL": "Odznacz wszystko"
+                },
+                "SELECT_ROW": {
+                    "LABEL": "Zaznacz wiersz"
+                },
+                "SELECT_ROW_WITH_ID": {
+                    "LABEL": "Wybierz wiersz z identyfikatorem {{id}}"
+                }
+            },
+            "INITIAL_STATE": {
+                "LABEL": "Wyszukaj rekordy przy użyciu filtrowania zaawansowanego",
+                "ICON": "Wyszukaj rekordy przy użyciu filtrowania zaawansowanego"
+            },
+            "NO_RESULTS": {
+                "ICON": "Nie znaleziono rekordów dla wybranych filtrów. Dostosuj kryteria wyszukiwania i spróbuj ponownie.",
+                "LABEL": "Nie znaleziono rekordów dla wybranych filtrów. Dostosuj kryteria wyszukiwania i spróbuj ponownie."
+            },
+            "RESULTS_LIST": {
+                "COUNT_PLURAL": "Znaleziono {{count}} wyniki/wyników",
+                "COUNT_SINGLE": "Znaleziono {{count}} wynik",
+                "WAITING_FOR_ADJUSTMENT": "Oczekiwanie na dostosowanie",
+                "INDEFINITE": "Nieokreślony",
+                "COLUMNS": {
+                    "NAME": "Nazwa rekordu",
+                    "DATA_SOURCE": "Źródło danych",
+                    "CATEGORY": "Kategoria",
+                    "CUTOFF_DATE": "Data graniczna",
+                    "DISPOSITION_DATE": "Data dyspozycji",
+                    "DISPOSITION": "Dyspozycja",
+                    "STATUS": "Status",
+                    "ADDED_ON": "Data dodania",
+                    "ADDED_BY": "Dodane przez"
+                },
+                "ITEMS_PER_PAGE": "Elementów na stronie:",
+                "NEXT_PAGE": "Następna strona",
+                "PREVIOUS_PAGE": "Poprzednia strona"
+            },
+            "SELECTED_RESULTS_COUNT": "Zaznaczono {{selected}}",
+            "ERROR": {
+                "TITLE": "Coś poszło nie tak",
+                "LABEL": "Jeśli problem będzie się powtarzać, sprawdź połączenie lub skontaktuj się z administratorem",
+                "RETRY": "Ponów próbę",
+                "BUTTON_ARIA_LABEL": "Ponów próbę"
+            }
+        },
+        "SEARCH_FILTERS": {
+            "CONTENT_ID": {
+                "LABEL": "Identyfikator treści",
+                "PLACEHOLDER": "Wprowadź identyfikator treści",
+                "ERROR": "Wprowadź prawidłowy identyfikator treści."
+            },
+            "RECORD_NAME": {
+                "LABEL": "Nazwa rekordu",
+                "PLACEHOLDER": "Wprowadź nazwę dokumentu",
+                "ERROR": "Wprowadź prawidłową nazwę dokumentu."
+            }
+        },
+        "SIDEBAR": {
+            "EDIT_TITLE": "Edytuj właściwości rekordu",
+            "TABS": {
+                "PROPERTIES": "Właściwości"
+            },
+            "SECTIONS": {
+                "RECORD_PROPERTIES": "Właściwości rekordu"
+            },
+            "BUTTONS": {
+                "EDIT": "Edytuj",
+                "CANCEL": "Anuluj",
+                "SAVE": "Zapisz",
+                "CLEAR": "Wyczyść",
+                "CLOSE": "Zamknij pasek boczny",
+                "TOGGLE": "Rozwiń/Zwiń"
+            },
+            "FIELDS": {
+                "CUTOFF_DATE": "Data graniczna",
+                "INCOMPLETE": "Nieukończone"
+            },
+            "DATEPICKER": {
+                "CLEAR": "Wyczyść",
+                "CANCEL": "Anuluj",
+                "APPLY": "OK"
+            },
+            "LINKED_CASE": "Połączone sprawy związane z dokumentami objętymi obowiązkiem przechowywania"
+        },
+        "DELETE_DIALOG": {
+            "TITLE": "Potwierdź usunięcie",
+            "CONTENT": "Czy na pewno chcesz usunąć zaznaczone rekordy?",
+            "CANCEL": "Anuluj",
+            "DELETE": "Usuń"
+        },
+        "LEGAL_DIALOG": {
+            "TITLE": "Sprawy związane z dokumentami objętymi obowiązkiem przechowywania",
+            "CANCEL": "Anuluj",
+            "ASSIGN": "Dodaj dokumenty do wybranych elementów",
+            "INFO_ADD_RECORDS": "{{count}} plik zostanie dodany do dokumentów objętych obowiązkiem przechowywania",
+            "INFO_ADD_RECORDS_plural": "{{count}} pliki(-ów) zostaną(-anie) dodane(-ych) do dokumentów objętych obowiązkiem przechowywania",
+            "BACK": "Back"
+        },
+        "CREATE_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Utwórz sprawę związaną z dokumentami objętymi obowiązkiem przechowywania",
+            "NAME": "Nazwa",
+            "REASON": "Powód",
+            "DESCRIPTION": "Opis",
+            "CANCEL": "Anuluj",
+            "CREATE": "Utwórz sprawę związaną z dokumentami objętymi obowiązkiem przechowywania",
+            "ERRORS": {
+                "MAX_LENGTH_EXCEEDED": "Przekroczono maksymalną liczbę znaków {{max}}."
+            }
+        },
+        "EDIT_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Edytuj sprawę związaną z dokumentami objętymi obowiązkiem przechowywania",
+            "EDIT": "Edytuj sprawę związaną z dokumentami objętymi obowiązkiem przechowywania"
+        },
+        "UNSAVED_CHANGES_DIALOG": {
+            "TITLE": "Niezapisane zmiany",
+            "CONTENT": "Masz niezapisane zmiany. Aby je przejrzeć i zapisać, kliknij przycisk „Zachowaj edycję”. Aby odrzucić zmiany, kliknij przycisk „Zamknij bez zapisywania”.",
+            "DISCARD": "Zamknij bez zapisywania",
+            "KEEP": "Zachowaj edycję"
+        },
+        "NOTIFICATIONS": {
+            "RECORD_DELETE_SUCCESS": "Rekordy zostały usunięte.",
+            "RECORD_DELETE_ERROR": "Nie udało się usunąć właściwości. Spróbuj ponownie.",
+            "RECORD_DELETE_PARTIAL": "Usunięto {{successCount}} dokumenty(-ów), usunięcie {{failureCount}} dokumentów nie powiodło się.",
+            "PROPERTY_UPDATE_SUCCESS": "Właściwość została zaktualizowana!",
+            "PROPERTY_UPDATE_ERROR": "Nie udało się zaktualizować właściwości. Spróbuj ponownie.",
+            "LEGAL_HOLD_CASE_CREATE_SUCCESS": "Sprawa związana z dokumentami objętymi obowiązkiem przechowywania została utworzona",
+            "LEGAL_HOLD_CASE_CREATE_ERROR": "Nie udało się utworzyć sprawy związanej z dokumentami objętymi obowiązkiem przechowywania. Spróbuj ponownie.",
+            "LEGAL_HOLD_CASE_NAME_EXISTS": "Sprawa związana z dokumentami objętymi obowiązkiem przechowywania o tej nazwie już istnieje.",
+            "LEGAL_HOLD_ASSIGNMENT_ERROR": "Nie udało się przypisać dokumentów do dokumentów objętych obowiązkiem przechowywania. Spróbuj ponownie.",
+            "LEGAL_HOLD_ASSIGNMENT_SUCCESS": "Dokumenty przypisano do dokumentów objętych obowiązkiem przechowywania. Proces rozpoczął się i może zająć trochę czasu.",
+            "LEGAL_HOLD_CASE_EDIT_SUCCESS": "Sprawa związana z dokumentami objętymi obowiązkiem przechowywania została zaktualizowana",
+            "LEGAL_HOLD_CASE_EDIT_ERROR": "Nie udało się zaktualizować sprawy związanej z dokumentami objętymi obowiązkiem przechowywania. Spróbuj ponownie.",
+            "PROPERTY_UPDATE_TIMEOUT": "Przekroczono czas: aktualizacja właściwości rekordu jest nadal przetwarzana. Kliknij odśwież lub sprawdź właściwość za kilka chwili.",
+            "STATUS_UPDATE_SUCCESS": "Status rekordu zaktualizowano pomyślnie.",
+            "STATUS_UPDATE_ERROR": "Nie udało się zaktualizować statusu rekordu.",
+            "STATUS_UPDATE_TIMEOUT": "Przekroczono czas: rekordy nadal są dodawane do wybranej sprawy związanej z dokumentami objętymi obowiązkiem przechowywania. Odśwież stronę lub sprawdź status rekordów za chwilę.",
+            "RETENTION_ADJUSTMENT_SUCCESS": "Twoja prośba o dostosowanie zatrzymania została pomyślnie przesłana. Proces rozpoczął się i może zająć trochę czasu."
+        },
+        "SEARCH_INPUT": {
+            "SEARCH": "Szukaj",
+            "CLEAR": "Wyczyść"
+        },
+        "DASHBOARD": {
+            "LAST_REFRESH": "Ostatnie odświeżenie",
+            "REFRESH": "Odśwież",
+            "EXPORT_PPT": "Eksportuj",
+            "RECORD_HEALTH": "Stan rekordu",
+            "RECORD_HEALTH_SUBTITLE": "Całościowy wgląd w stany rekordów",
+            "TOTAL": "Razem",
+            "TOTAL_RECORDS": "Łączna liczba rekordów",
+            "VIEW_RECORDS": "Kliknij tutaj, aby wyświetlić rekordy",
+            "RECORDS_BY_STATUS": "Rekordy według statusu",
+            "ACTIVE_RETENTION_STATUS": "Aktywny status przechowywania",
+            "ACTIVE_RETENTION_SUBTITLE": "Monitoruj przechowywanie treści we wszystkich kategoriach",
+            "INCOMPLETE_RECORD": "Niekompletny rekord",
+            "INCOMPLETE_SUBTITLE": "Śledź i usuwaj niekompletne rekordy we wszystkich kategoriach",
+            "CUTOFF_TRACKER": "Program śledzenia granicy",
+            "CUTOFF_SUBTITLE": "Rekordy z ustaloną granicą w wybranym miesiącu",
+            "DISPOSITION_TRACKER": "Program śledzenia dyspozycji",
+            "DISPOSITION_SUBTITLE": "Rekordy z ustaloną dyspozycją w wybranym miesiącu",
+            "UNDER_RETENTION": "Podlegające przechowywaniu",
+            "MISSING_PROPERTY": "Brak właściwości",
+            "READY_TO_CUTOFF": "Gotowe dla ustalenia granicy",
+            "DUE_FOR_DISPOSITION": "Z ustaloną dyspozycją",
+            "ALL_CATEGORIES": "Wszystkie kategorie",
+            "ALL_STATUS": "Wszystkie statusy",
+            "ALL_MONTHS": "Wszystkie miesiące",
+            "NO_DATA": "Brak dostępnych danych",
+            "SELECT_CATEGORY": "Wybierz kategorię",
+            "SEARCH_PLACEHOLDER": "Szukaj...",
+            "LOADING": "Ładowanie",
+            "NO_RESULTS_FOUND": "Nie znaleziono wyników",
+            "SELECT_MONTH": "Wybierz miesiąc",
+            "THIS_MONTH": "W tym miesiącu",
+            "SORT_HIGH_TO_LOW": "Od wysokiego do niskiego",
+            "SORT_LOW_TO_HIGH": "Od niskiego do wysokiego",
+            "NEXT_PAGE": "Następna strona",
+            "PREVIOUS_PAGE": "Poprzednia strona",
+            "LEGAL_HOLD_SUMMARY": "Active Legal Hold Cases",
+            "LEGAL_HOLD_SUBTITLE": "Overview of records on legal hold",
+            "LEGAL_HOLD_TOOLTIP": "On Hold Records",
+            "EMPTY": {
+                "RECORD_HEALTH": "Brak rekordów do śledzenia",
+                "ACTIVE_RETENTION": "Brak rekordów podlegających przechowywaniu",
+                "MISSING_PROPERTIES": "Brak rekordów z brakującymi właściwościami",
+                "CUTOFF_TRACKER": "Brak rekordów w stanie Gotowe dla ustalenia granicy",
+                "DISPOSITION_TRACKER": "Brak rekordów w stanie Osiągnięto dyspozycję",
+                "LEGAL_HOLD_SUMMARY": "No Records on Legal Hold"
+            },
+            "PPT": {
+                "INTRO": {
+                    "TITLE": "Podsumowanie pulpitu nawigacyjnego zarządzania",
+                    "REPORTING_DATE": "Data raportu",
+                    "PRODUCT_LINE": "Zarządzanie zawartością i rekordami"
+                },
+                "RECORD_HEALTH": {
+                    "TITLE": "Przegląd stanu rekordów",
+                    "SUB_TITLE": "Całościowy wgląd w stany rekordów we wszystkich kategoriach",
+                    "TOTAL_RECORDS": "Łączna liczba rekordów",
+                    "RECORDS_BY_STATUS": "Rekordy według statusu",
+                    "DONUT_SERIES_LABEL": "Rekordy"
+                },
+                "COMMON": {
+                    "CATEGORY_OVERVIEW": "Przegląd kategorii",
+                    "TABLE": {
+                        "CATEGORY": "Kategoria",
+                        "TOTAL_RECORDS": "Łączna liczba rekordów",
+                        "LEGAL_CASE_NAME": "Legal Case Name"
+                    },
+                    "LEGEND": {
+                        "TOTAL": "Razem"
+                    }
+                },
+                "WIDGETS": {
+                    "ACTIVE_RETENTION": {
+                        "TITLE": "Aktywny status przechowywania",
+                        "SUB_TITLE": "Monitoruj przechowywanie treści we wszystkich kategoriach",
+                        "CAPTION": "10 kategorii z największą liczbą rekordów podlegających przechowywaniu",
+                        "VALUE_LABEL": "Podlegające przechowywaniu"
+                    },
+                    "MISSING_PROPERTIES": {
+                        "TITLE": "Niekompletne rekordy",
+                        "SUB_TITLE": "Kategorie z brakującymi obowiązkowymi właściwościami",
+                        "CAPTION": "10 kategorii z największą liczbą nieukończonych rekordów",
+                        "VALUE_LABEL": "Nieukończone"
+                    },
+                    "CUTOFF_TRACKER": {
+                        "TITLE": "Program śledzenia granicy",
+                        "SUB_TITLE": "Rekordy zbliżające się do dat ustalenia granicy",
+                        "CAPTION": "10 kategorii z największą liczbą rekordów gotowych do ustalenia granicy",
+                        "VALUE_LABEL": "Gotowe do ustalenia granicy"
+                    },
+                    "DISPOSITION_TRACKER": {
+                        "TITLE": "Program śledzenia dyspozycji",
+                        "SUB_TITLE": "Rekordy z ustaloną dyspozycją",
+                        "CAPTION": "10 kategorii z największą liczbą rekordów z ustaloną dyspozycją",
+                        "VALUE_LABEL": "Z ustaloną dyspozycją"
+                    },
+                    "LEGAL_HOLD_SUMMARY": {
+                        "TITLE": "Legal Hold Summary",
+                        "SUB_TITLE": "Overview of records on legal hold",
+                        "CAPTION": "Shows records currently on hold by legal case",
+                        "VALUE_LABEL": "Wstrzymane"
+                    }
+                }
+            }
+        }
+    }
+}

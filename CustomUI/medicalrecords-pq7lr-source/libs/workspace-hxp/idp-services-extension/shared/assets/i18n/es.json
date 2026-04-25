@@ -1,0 +1,33 @@
+{
+    "IDP": {
+        "REJECT_DIALOG": {
+            "TITLE": "Marcar documento",
+            "DESCRIPTION": "Este documento no se incluirá en el proceso de extracción del lote si se rechaza. Verifique que realmente desea rechazarlo.\n\nJustifique su rechazo.",
+            "REASON_LABEL": "Motivo del rechazo",
+            "CANCEL_BUTTON": "Cancelar",
+            "REMOVE_BUTTON": "Eliminar marcador",
+            "REJECT_BUTTON": "Guardar",
+            "SEARCH_PLACEHOLDER": "Buscar una razón...",
+            "REJECT_NOTE": {
+                "LABEL": "Flag note",
+                "PLACEHOLDER": "Indicar una nota de rechazo...",
+                "ARIA_LABEL": "Indicar una nota de rechazo",
+                "HINT": "Máximo de {{max}} caracteres"
+            }
+        },
+        "SHORTCUT_DIALOG": {
+            "TITLE": "Atajos de teclado",
+            "SEARCH_PLACEHOLDER": "Buscar un atajo...",
+            "NO_RESULTS": "No se han encontrado resultados"
+        },
+        "DISCARD_DIALOG": {
+            "TITLE": "Descartar cambios",
+            "DESCRIPTION": "Tiene cambios no guardados. Los cambios no guardados se perderán si abandona esta página.",
+            "CANCEL_BUTTON": "Cancelar",
+            "DISCARD_BUTTON": "Descartar cambios"
+        },
+        "FILTERABLE_SELECTION_LIST": {
+            "SEARCH_ARIA_LABEL": "Search"
+        }
+    }
+}

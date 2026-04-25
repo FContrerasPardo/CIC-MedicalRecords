@@ -1,0 +1,13 @@
+<div class="hxp-inheritance-toggle-container">
+    <mat-slide-toggle
+        [disableRipple]="true"
+        [disabledInteractive]="true"
+        [checked]="isInheritanceEnabled"
+        (change)="onToggleChange($event.checked)"
+        [hideIcon]="true"
+        [labelPosition]="'before'"
+        class="hxp-slide-toggle-inheritance"
+    >
+        {{ 'PERMISSIONS_MANAGEMENT_ACTION.BLOCK_INHERITANCE.TITLE' | translate }}
+    </mat-slide-toggle>
+</div>

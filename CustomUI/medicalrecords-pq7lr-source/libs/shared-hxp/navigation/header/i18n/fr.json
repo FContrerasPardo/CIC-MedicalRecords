@@ -1,0 +1,17 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "PARAMÈTRES",
+        "ACTIONS": {
+            "LANGUAGE": "Langue",
+            "FEATURE_FLAGS": "Indicateurs de fonctionnalités",
+            "HELP": "Aide",
+            "THEME_SWITCH": {
+                "DARK": "Thème sombre",
+                "DARK_LABEL": "Basculer vers le thème sombre",
+                "LIGHT": "Thème clair",
+                "LIGHT_LABEL": "Basculer vers le thème clair"
+            }
+        }
+    }
+}

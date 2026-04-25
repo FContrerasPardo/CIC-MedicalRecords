@@ -1,0 +1,52 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.hxp-document-list-container {
+    flex: 1;
+    height: calc(100% - 65px);
+}
+
+adf-datatable {
+    overflow: hidden;
+}
+
+::ng-deep {
+    .adf-ellipsis-cell {
+        .adf-cell-value {
+            display: block !important;
+            min-height: auto !important;
+            text-overflow: ellipsis;
+            overflow: clip visible;
+            .adf-datatable-content-cell {
+                position: relative !important;
+            }
+
+            & > div,
+            & > span {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            & > span {
+                display: block;
+                max-width: fit-content;
+            }
+        }
+    }
+
+    .adf-datatable-list {
+        .adf-datatable-cell--text {
+            max-width: 320px !important;
+        }
+    }
+
+    .adf-datatable-checkbox {
+        label {
+            display: none;
+        }
+    }
+}

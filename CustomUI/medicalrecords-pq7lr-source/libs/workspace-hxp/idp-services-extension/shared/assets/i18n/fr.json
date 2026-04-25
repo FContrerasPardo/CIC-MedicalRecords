@@ -1,0 +1,33 @@
+{
+    "IDP": {
+        "REJECT_DIALOG": {
+            "TITLE": "Marquer le document",
+            "DESCRIPTION": "Ce document ne sera pas inclus dans le processus d’extraction du lot s’il est marqué. Vérifiez que vous souhaitez vraiment procéder ainsi.\n\nVeuillez fournir une justification pour le marquage.",
+            "REASON_LABEL": "Raison du marquage",
+            "CANCEL_BUTTON": "Annuler",
+            "REMOVE_BUTTON": "Supprimer le marquage",
+            "REJECT_BUTTON": "Enregistrer",
+            "SEARCH_PLACEHOLDER": "Rechercher une raison…",
+            "REJECT_NOTE": {
+                "LABEL": "Note de marquage",
+                "PLACEHOLDER": "Saisissez une note de marquage...",
+                "ARIA_LABEL": "Saisissez une note de marquage",
+                "HINT": "{{max}} caractères au maximum"
+            }
+        },
+        "SHORTCUT_DIALOG": {
+            "TITLE": "Raccourcis clavier",
+            "SEARCH_PLACEHOLDER": "Rechercher un raccourci...",
+            "NO_RESULTS": "Aucun résultat trouvé"
+        },
+        "DISCARD_DIALOG": {
+            "TITLE": "Rejeter les modifications",
+            "DESCRIPTION": "Certaines de vos modifications ne sont pas enregistrées. Les modifications non enregistrées seront perdues si vous quittez cette page.",
+            "CANCEL_BUTTON": "Annuler",
+            "DISCARD_BUTTON": "Rejeter les modifications"
+        },
+        "FILTERABLE_SELECTION_LIST": {
+            "SEARCH_ARIA_LABEL": "Search"
+        }
+    }
+}

@@ -1,0 +1,39 @@
+<h1 mat-dialog-title>{{ 'DOCUMENT_SHARE.DIALOGS.SHARE.SHARED_ITEM' | translate }}</h1>
+<div mat-dialog-content>
+    <form [formGroup]="shareDocumentForm">
+        <mat-form-field
+            class="hxp-share-dialog-form-field"
+            hideRequiredMarker
+        >
+            <mat-label>{{ 'DOCUMENT_SHARE.DIALOGS.SHARE.LINK' | translate }}</mat-label>
+            <input
+                #sharedLinkInput
+                matInput
+                [attr.aria-label]="'DOCUMENT_SHARE.DIALOGS.SHARE.LINK' | translate"
+                formControlName="shared_link"
+                type="text"
+                readonly
+                md-select-on-focus
+            />
+            <button
+                mat-icon-button
+                matSuffix
+                data-automation-id="hxp-share-link-copy-button"
+                (click)="onCopy()"
+            >
+                <mat-icon
+                    aria-hidden="true"
+                    svgIcon="copy"
+                />
+            </button>
+        </mat-form-field>
+    </form>
+</div>
+<mat-dialog-actions [align]="'end'">
+    <button
+        mat-button
+        mat-dialog-close
+    >
+        {{ 'DOCUMENT_SHARE.DIALOGS.BUTTON.CLOSE.LABEL' | translate }}
+    </button>
+</mat-dialog-actions>

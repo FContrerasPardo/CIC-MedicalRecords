@@ -1,0 +1,15 @@
+{
+  "name": "@hxp/shared-hxp/navigation/application-chrome",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "rxjs": ">=7.8.0",
+    "@hylandsoftware/satori-ui": ">=0.1.0",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@alfresco/adf-process-services-cloud": ">=8.5.0-0",
+    "@ngx-translate/core": ">=17.0.0",
+    "@angular/material": ">=19.2.19",
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18"
+  },
+  "sideEffects": false
+}

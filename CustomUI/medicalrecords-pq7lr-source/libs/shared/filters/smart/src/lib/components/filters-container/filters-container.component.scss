@@ -1,0 +1,31 @@
+.hxp-filters-container {
+    padding: 8px 24px 0;
+
+    &__saved-filters-field {
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    &__expansion-panel {
+        box-shadow: none;
+        border: 1px solid var(--mat-sys-surface-variant);
+
+        &.hxp-expanded-with-saved-filters {
+            padding-top: 16px;
+        }
+    }
+
+    &__description {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+    }
+
+    &__more-button {
+        margin-left: 0.5rem;
+    }
+
+    &__menu-icon {
+        color: var(--mat-sys-on-surface-variant, var(--adf-filter-chip-text-color));
+    }
+}

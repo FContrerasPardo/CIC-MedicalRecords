@@ -1,0 +1,50 @@
+@let activeItem = (activeItem$ | async) || undefined;
+<div class="idp-reject-document-dialog" data-automation-id="idp-reject-document-dialog"
+    (keydown.enter)="handleKeyEnter($event, activeItem)"
+>
+    <div class="idp-reject-document-dialog__title">{{ 'IDP.REJECT_DIALOG.TITLE' | translate }}</div>
+    <div class="idp-reject-document-dialog__description">{{ 'IDP.REJECT_DIALOG.DESCRIPTION' | translate }}</div>
+    <mat-dialog-content class="idp-reject-document-dialog__content">
+        <form [formGroup]="rejectForm" class="idp-reject-document-dialog__reasons-form">
+            <div class="idp-reject-document-dialog__reasons">
+                <hyland-idp-filterable-selection-list [items]="(items$ | async) || []"
+                    [selectedItemId]="selectedRejectReasonId"
+                    [searchPlaceholderKey]="'IDP.REJECT_DIALOG.SEARCH_PLACEHOLDER'"
+                    (activeItemChanged)="onActiveItemChanged($event)" />
+            </div>
+            <div class="idp-reject-document-dialog__note">
+                <mat-form-field class="idp-reject-document-dialog__note-field" appearance="outline"
+                    [hintLabel]="'IDP.REJECT_DIALOG.REJECT_NOTE.HINT' | translate: { max: rejectNoteMaxLength }"
+                >
+                    <mat-label>{{ 'IDP.REJECT_DIALOG.REJECT_NOTE.LABEL' | translate }}</mat-label>
+                    <textarea matInput #rejectNoteInput class="idp-reject-document-dialog__note-text"
+                        formControlName="rejectNote"
+                        data-automation-id="idp-reject-dialog__input__reject-note"
+                        [attr.aria-label]="'IDP.REJECT_DIALOG.REJECT_NOTE.ARIA_LABEL' | translate"
+                        [placeholder]="'IDP.REJECT_DIALOG.REJECT_NOTE.PLACEHOLDER' | translate"
+                        [maxlength]="rejectNoteMaxLength">
+                    </textarea>
+                    <mat-hint align="end">{{rejectNoteInput.value.length}}/{{rejectNoteMaxLength}}</mat-hint>
+                </mat-form-field>
+            </div>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions class="idp-reject-document-dialog__footer">
+        <div>
+            <button mat-button mat-dialog-close data-automation-id="idp-reject-dialog__cancel-button"
+            >{{ 'IDP.REJECT_DIALOG.CANCEL_BUTTON' | translate }}</button>
+        </div>
+        <div>
+            @if (isRejected) {
+                <button mat-stroked-button data-automation-id="idp-reject-dialog__remove-button"
+                    class="idp-reject-document-dialog__remove-button"
+                    [mat-dialog-close]="{ shouldRemoveFlag: true }"
+                >{{ 'IDP.REJECT_DIALOG.REMOVE_BUTTON' | translate }}</button>
+            }
+            <button mat-flat-button data-automation-id="idp-reject-dialog__save-button"
+                [disabled]="!activeItem"
+                [mat-dialog-close]="{ rejectReason: activeItem, rejectNote: sanitizedRejectNote }"
+            >{{ 'IDP.REJECT_DIALOG.REJECT_BUTTON' | translate }}</button>
+        </div>
+    </mat-dialog-actions>
+</div>

@@ -1,0 +1,122 @@
+<div class="idp-scanning-view satorized-container">
+    <hyland-idp-scanning-header />
+    <div class="idp-scanning-content">
+        <div
+            #splitLeft
+            [style.width.%]="leftPanelWidth"
+            class="idp-scanning-panel-left"
+        >
+            @let batch = scanSession.batch();
+            @if (batch.documents.length === 0) {
+                <div
+                    class="idp-scanning-results-pending"
+                    data-automation-id="idp-scanning-splitter-pane-results"
+                >
+                    <img
+                        class="idp-scanning-results-pending-image"
+                        src="assets/idp-services-extension-document-scanning/images/scan_results_small.png"
+                        alt="Stack of Documents"
+                    />
+                    {{ 'IDP_DOCUMENT_SCANNING.SCANNING_RESULTS.MESSAGE' | translate }}
+                </div>
+            } @else {
+                <sat-action-bar class="idp-scanning-thumbnail-header-container">
+                    <div class="idp-scanning-thumbnail-header">
+                        <mat-icon svgIcon="check" />
+                        @let pageCount = scanSession.pageCount();
+                        <span class="idp-scanning-thumbnail-header-scanned-page-count">{{
+                            `IDP_DOCUMENT_SCANNING.SCANNING_RESULTS.${pageCount === 1 ? 'PAGE_SCANNED' : 'PAGES_SCANNED'}`
+                                | translate: { count: pageCount }
+                        }}</span>
+                        <div
+                            class="idp-scanning-thumbnail-header-tags"
+                            *ngIf="false"
+                        >
+                            <sat-status-tag
+                                data-automation-id="idp-scanning-thumbnail-header-issue-tag"
+                                status="important-loud"
+                            >
+                                2 Issues
+                            </sat-status-tag>
+                            <sat-category-tag
+                                category="purple"
+                                data-automation-id="idp-scanning-thumbnail-header-autofix-tag"
+                            >
+                                <mat-icon svgIcon="ai" />
+                                4 Auto-Fixed
+                            </sat-category-tag>
+                        </div>
+                    </div>
+                </sat-action-bar>
+
+                @for (document of batch.documents; track document.id) {
+                    <div class="idp-scanning-document-container">
+                        {{ 'IDP_DOCUMENT_SCANNING.SCANNING_RESULTS.DOCUMENT_TITLE' | translate: { index: $index + 1 } }}
+                        <div
+                            class="idp-scanning-thumbnail-grid"
+                            data-automation-id="idp-scanning-thumbnail-grid"
+                        >
+                            @for (page of document.pages; track page.id) {
+                                <div class="idp-scanning-thumbnail-wrapper">
+                                    <img
+                                        [src]="page.url"
+                                        alt="Page"
+                                        [attr.data-automation-id]="'idp-scanning-thumbnail-' + page.id"
+                                        (click)="onPageClick(page.id, $event)"
+                                        [ngClass]="{ 'idp-page-selected': scanSession.selectedPageIds().has(page.id), 'idp-page-active': scanSession.activePageId() === page.id }"
+                                    />
+                                    <sat-category-tag
+                                        *ngIf="false"
+                                        category="purple"
+                                        data-automation-id="idp-scanning-thumbnail-img-autofix-tag"
+                                        class="idp-scanning-thumbnail-img-tag"
+                                    >
+                                        <mat-icon svgIcon="ai" />
+                                        Auto-Crop
+                                    </sat-category-tag>
+                                    <sat-status-tag
+                                        *ngIf="false"
+                                        data-automation-id="idp-scanning-thumbnail-img-issue-tag"
+                                        class="idp-scanning-thumbnail-img-tag"
+                                        status="important-loud"
+                                    >
+                                        Issue #1
+                                    </sat-status-tag>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div
+            #splitRight
+            [style.width.%]="rightPanelWidth"
+            class="idp-scanning-panel-right"
+            data-automation-id="idp-scanning-splitter-pane-viewer"
+        >
+            <hyland-idp-viewer
+                class="idp-viewer"
+                [configuration]="viewerConfiguration"
+                [datasource]="viewerDatasource()"
+                (viewerEvent)="viewerEvent$.next($event)"
+            >
+                <!-- shortcut browser not yet supported -->
+                <!--
+                <ng-container ngProjectAs="hyland-idp-viewer-sticky-action">
+                    <hyland-idp-viewer-sticky-action class="idp-viewer-sticky-action" [align]="'right'">
+                    <button class="idp-viewer-sticky-action__shortcuts_button"
+                            data-automation-id="idp-shortcut-sticky-button"
+                            [attr.aria-label]="'IDP_CLASS_VERIFICATION.VIEWER.STICKY_ACTION.OPEN_SHORTCUT_BROWSER_BUTTON_TOOLTIP' | translate"
+                            [matTooltip]="'IDP_CLASS_VERIFICATION.VIEWER.STICKY_ACTION.OPEN_SHORTCUT_BROWSER_BUTTON_TOOLTIP' | translate"
+                            (click)="onShortcutBrowserClick()" (keydown.enter)="onShortcutBrowserClick()">
+                        <mat-icon class="material-icons-outlined" svgIcon="keyboard" />
+                    </button>
+                    </hyland-idp-viewer-sticky-action>
+                </ng-container>
+                -->
+            </hyland-idp-viewer>
+        </div>
+    </div>
+</div>

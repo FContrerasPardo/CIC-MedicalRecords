@@ -1,0 +1,10 @@
+{
+    "name": "workspace-hxp-idp-services-extension-shared",
+    "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/workspace-hxp/idp-services-extension/shared/src",
+    "prefix": "hxp",
+    "targets": {
+    },
+    "tags": ["scope:workspace-hxp-idp-services-extension-shared", "category:workspace-hxp", "scope:idp"]
+}

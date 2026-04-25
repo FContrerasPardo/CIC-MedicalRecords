@@ -1,0 +1,56 @@
+<div
+    class="hxp-document-location-picker"
+    (window:resize)="onResize()"
+>
+    <mat-form-field>
+        <mat-label
+            id="hxp-document-location-picker-label"
+            [class.hxp-document-location-picker-required]="required()"
+        >
+            {{ 'DOCUMENT_LOCATION_PICKER.LABEL' | translate }}
+        </mat-label>
+        <div class="hxp-document-location-picker-input-container">
+            <div class="hxp-document-location-picker-folder-icon">
+                <hxp-mime-type-icon [mimeType]="'folder'" />
+            </div>
+            <input
+                id="hxp-document-location-picker-input"
+                type="text"
+                matInput
+                [placeholder]="currentLocation"
+                aria-labelledby="hxp-document-location-picker-label"
+                readonly
+                cdkOverlayOrigin
+                #originOverlay="cdkOverlayOrigin"
+            />
+            @if (!(showDropdown$ | async)) {
+                <mat-icon
+                    matSuffix
+                    aria-hidden="true"
+                    svgIcon="location_picker_pencil_icon"
+                    class="hxp-document-location-picker-pencil-icon"
+                />
+            }
+        </div>
+    </mat-form-field>
+</div>
+
+<ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="originOverlay"
+    [cdkConnectedOverlayOpen]="(showDropdown$ | async)!"
+    cdkConnectedOverlayHasBackdrop
+    [cdkConnectedOverlayPositions]="positions"
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    [cdkConnectedOverlayWidth]="width!"
+    [cdkConnectedOverlayMinWidth]="width!"
+    #overlay
+>
+    <div class="hxp-document-location-picker-overlay">
+        <hxp-workspace-document-tree
+            [documents]="selectedDocument"
+            [enableContextMenu]="false"
+            (selectedDocument)="onLocationSelected($event)"
+        />
+    </div>
+</ng-template>

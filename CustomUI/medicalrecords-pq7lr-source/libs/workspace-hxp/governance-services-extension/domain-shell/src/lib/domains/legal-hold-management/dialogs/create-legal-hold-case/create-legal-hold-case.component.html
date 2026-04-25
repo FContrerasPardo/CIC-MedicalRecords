@@ -1,0 +1,109 @@
+<div
+    class="hxp-cic-gov-create-legal-hold-case-dialog"
+    [formGroup]="legalHoldCaseForm"
+    (ngSubmit)="onAction()"
+>
+    <form [formGroup]="legalHoldCaseForm">
+        @if (existingLegalHoldCase) {
+            <h1 mat-dialog-title>{{ 'GOVERNANCE.EDIT_LEGAL_HOLD_CASE_DIALOG.TITLE' | translate }}</h1>
+        } @else {
+            <h1 mat-dialog-title>{{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.TITLE' | translate }}</h1>
+        }
+
+        <div mat-dialog-content>
+            <div class="hxp-cic-gov-create-legal-form-holder">
+                <mat-form-field class="hxp-create-legal-hold-case-form">
+                    <mat-label>{{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.NAME' | translate }}</mat-label>
+                    <input
+                        id="hxp-new-legal-case-name"
+                        cdkFocusInitial
+                        formControlName="legal_name"
+                        [required]="true"
+                        matInput
+                    />
+                    @if (legalHoldCaseForm.get('legal_name')?.hasError('maxlength')) {
+                        <mat-error>
+                            {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.ERRORS.MAX_LENGTH_EXCEEDED' | translate: { max: 64 } }}
+                        </mat-error>
+                    } @else if (
+                        legalHoldCaseForm.get('legal_name')?.hasError('required') || legalHoldCaseForm.get('legal_name')?.hasError('pattern')
+                    ) {
+                        <mat-error>
+                            {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.ERRORS.REQUIRED' | translate }}
+                        </mat-error>
+                    }
+                </mat-form-field>
+                <mat-form-field class="hxp-create-legal-hold-case-form">
+                    <mat-label>{{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.REASON' | translate }}</mat-label>
+                    <input
+                        id="hxp-new-legal-case-reason"
+                        formControlName="legal_reason"
+                        [required]="true"
+                        matInput
+                    />
+                    @if (legalHoldCaseForm.get('legal_reason')?.hasError('maxlength')) {
+                        <mat-error>
+                            {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.ERRORS.MAX_LENGTH_EXCEEDED' | translate: { max: 512 } }}
+                        </mat-error>
+                    } @else if (
+                        legalHoldCaseForm.get('legal_reason')?.hasError('required') || legalHoldCaseForm.get('legal_reason')?.hasError('pattern')
+                    ) {
+                        <mat-error>
+                            {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.ERRORS.REQUIRED' | translate }}
+                        </mat-error>
+                    }
+                </mat-form-field>
+                <mat-form-field class="hxp-create-legal-hold-case-form">
+                    <mat-label>{{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.DESCRIPTION' | translate }}</mat-label>
+                    <textarea
+                        id="hxp-new-legal-case-description"
+                        formControlName="legal_description"
+                        matInput
+                    ></textarea>
+                    @if (legalHoldCaseForm.get('legal_description')?.hasError('maxlength')) {
+                        <mat-error>
+                            {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.ERRORS.MAX_LENGTH_EXCEEDED' | translate: { max: 512 } }}
+                        </mat-error>
+                    }
+                </mat-form-field>
+            </div>
+        </div>
+
+        <mat-dialog-actions
+            class="hxp-cic-gov-create-legal--hold-case-dialog-actions"
+            align="end"
+        >
+            <button
+                type="button"
+                mat-button
+                (click)="onCancel()"
+                [disabled]="isProcessing"
+            >
+                {{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.CANCEL' | translate }}
+            </button>
+            <button
+                type="submit"
+                mat-flat-button
+                [disabled]="!canPerformAction()"
+                [class.hxp-loading]="isProcessing"
+                (click)="onAction()"
+            >
+                <span class="hxp-create-legal--hold-case-btn-label">
+                    @if (isProcessing) {
+                        <mat-progress-spinner
+                            mode="indeterminate"
+                            diameter="15"
+                            strokeWidth="3"
+                            [attr.aria-label]="'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.SAVING_LEGAL_HOLD_CASE' | translate"
+                        />
+                    }
+                    @if (existingLegalHoldCase) {
+                        <span>{{ 'GOVERNANCE.EDIT_LEGAL_HOLD_CASE_DIALOG.EDIT' | translate }}</span>
+                    } @else {
+                        <span>{{ 'GOVERNANCE.CREATE_LEGAL_HOLD_CASE_DIALOG.CREATE' | translate }}</span>
+                    }
+                </span>
+            </button>
+        </mat-dialog-actions>
+    </form>
+</div>

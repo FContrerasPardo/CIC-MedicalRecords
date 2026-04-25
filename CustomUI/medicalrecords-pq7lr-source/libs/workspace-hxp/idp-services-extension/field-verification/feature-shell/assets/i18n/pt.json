@@ -1,0 +1,118 @@
+{
+    "EXTRACTION": {
+        "VERIFICATION": {
+            "TASK_HEADER": {
+                "TITLE": "Rever os valores dos campos extraídos do documento",
+                "REMAINING_ISSUES": "problemas a resolver",
+                "ALL_RESOLVED": "Tudo resolvido",
+                "BACK_LABEL": "Voltar a Tarefas",
+                "TASK_NAME": "Nome da tarefa",
+                "TASK_NAME_VALUE": "Verificação do documento",
+                "DOCUMENT_CLASSES": "Classes de documento",
+                "TOTAL_DOCUMENTS": "Total de documentos",
+                "TOTAL_PAGES": "Total de páginas",
+                "CONTENT_TYPE": "Tipo de conteúdo",
+                "SET_DOCUMENT_FLAG_BUTTON": "Assinalar documento",
+                "REVIEW_DOCUMENT_FLAG_BUTTON": "Rever sinalização"
+            },
+            "SUBMIT_BUTTON": "Enviar",
+            "SUBMIT_WITH_ISSUE_BUTTON": "Enviar com problema",
+            "METADATA_PANEL": {
+                "TITLE": "Metadados",
+                "VALIDATING_FIELDS": "Campos de validação"
+            },
+            "FIELD_IGNORED_FOR_AUTO": "Este campo é excluído da extração automática.",
+            "METADATA_TABLE": {
+                "ADD_TABLE": "Adicionar tabela",
+                "ADD_TABLE_TOOLTIP": "Add Table",
+                "TABLE_ROWS_FOUND_SINGULAR": "linha encontrada",
+                "TABLE_ROWS_FOUND_PLURAL": "linhas encontradas",
+                "TABLE_NOT_FOUND": "Tabela não encontrada",
+                "TABLE_ICON_ALT": "Table type field"
+            },
+            "TABLE_ISSUES": {
+                "SHOW_ENTIRE_TABLE": "Mostrar Tabela Inteira"
+            },
+            "METADATA_FIELD_VALIDATOR": {
+                "REQUIRED": "O campo é obrigatório",
+                "INVALID_INTEGER": "O campo tem de ser um número"
+            },
+            "EXTRACTION_RESULT": {
+                "EXTRACTION_ISSUE": "Problema de extração",
+                "EXTRACTED_SUCCESSFULLY": "Extraído com sucesso",
+                "VERIFIED": "Verificado",
+                "NOT_VERIFIED": "Não verificado",
+                "INVALID_VALUE": "Valor inválido"
+            },
+            "EXTRACTION_TABLE": {
+                "TABLE_NOT_EXTRACTED": "Os dados da tabela não puderam ser extraídos com êxito.",
+                "INSERT_ROW_ABOVE": "Inserir linha acima",
+                "INSERT_ROW_BELOW": "Inserir linha abaixo",
+                "CLEAR_ROW": "Limpar esta linha",
+                "DELETE_ROW": "Eliminar esta linha",
+                "CLEAR_COLUMN": "Limpar esta coluna",
+                "DELETE_TABLE": "Eliminar tabela",
+                "ADD_TABLE_INSTRUCTIONS": "Clique no botão 'Adicionar tabela' ou prima ALT-T para gerar uma nova tabela.",
+                "RESET_ALL_COLUMN_WIDTHS": "Repor todas as larguras das colunas",
+                "RESET_COLUMN_WIDTH": "Repor largura da coluna",
+                "RESIZE_COLUMN_TOOLTIP": "Redimensionar coluna",
+                "REQUIRED_FIELD_ERROR_MESSAGE": "Este campo é obrigatório",
+                "MINIMUM_LENGTH_ERROR_MESSAGE": "O comprimento mínimo é de {{minFieldLength}} caracteres",
+                "MAXIMUM_LENGTH_ERROR_MESSAGE": "O comprimento mínimo é de {{maxFieldLength}} caracteres",
+                "INVALID_FORMAT_ERROR_MESSAGE": "Formato inválido",
+                "CELL_MENU_CUT": "Cut",
+                "CELL_MENU_COPY": "Copy",
+                "CELL_MENU_PASTE": "Paste",
+                "CELL_MENU_FILL_ALL_ABOVE": "Fill-All Above",
+                "CELL_MENU_FILL_TO_ABOVE": "Fill-To Above",
+                "CELL_MENU_FILL_ALL_BELOW": "Fill-All Below",
+                "CELL_MENU_FILL_TO_BELOW": "Fill-To Below"
+            },
+            "NOTIFICATIONS": {
+                "SCREEN_INIT_ERROR": "Falha ao inicializar a tela",
+                "SCREEN_INIT_ERROR_NOT_CLAIMABLE": "A tarefa não pode ser solicitada",
+                "SCREEN_INIT_ERROR_ASSIGNEE": "Erro ao obter o destinatário da tarefa",
+                "SCREEN_LOAD_ERROR": "Falha ao carregar os dados do ecrã",
+                "TASK_ACTION_ERROR": "Failed to perform action",
+                "TASK_SAVE_ERROR": "Falha ao Salvar Tarefa",
+                "TASK_COMPLETE_ERROR": "Falha ao Concluir Tarefa",
+                "TASK_CLAIM_ERROR": "Falha a reclamar tarefa",
+                "TASK_UNCLAIM_SUCCESS": "Successfully released task",
+                "TASK_UNCLAIM_ERROR": "Falha a não reclamar tarefa",
+                "VALIDATION_PROCESS_ERROR": "Falha na execução do processo"
+            },
+            "TASK_ACTIONS": {
+                "SAVE": "Guardar",
+                "SUBMIT": "Enviar",
+                "OPEN_NEXT_TASK": "Abrir a tarefa seguinte automaticamente",
+                "UNCLAIM": "Release"
+            },
+            "SHORTCUTS": {
+                "NAVIGATE_NEXT_FIELD": "Navegar para o campo seguinte",
+                "SELECT_ROW": "Selecionar linha",
+                "SELECT_COLUMN": "Selecionar coluna",
+                "SELECT_TABLE": "Selecionar tabela",
+                "NAVIGATE_PREVIOUS_TABLE_COLUMN": "Navegar para a coluna anterior da tabela",
+                "NAVIGATE_NEXT_TABLE_COLUMN": "Navegar para a coluna seguinte da tabela",
+                "NAVIGATE_PREVIOUS_TABLE_ROW": "Navigate to cell or row above",
+                "NAVIGATE_NEXT_TABLE_ROW": "Navigate to cell or row below",
+                "TABLE_CONTEXT_MENU": "Abrir o menu de contexto da tabela",
+                "TABLE_CREATE_MISSING": "Criar tabela em falta",
+                "TABLE_CELL_FILL_ALL_ABOVE": "Fill-All Above - Fill all cells above with this value",
+                "TABLE_CELL_FILL_TO_ABOVE": "Fill-To Above - Fill upward until the next non‑blank cell",
+                "TABLE_CELL_FILL_TO_BELOW": "Fill-To Below - Fill downward until the next non‑blank cell",
+                "TABLE_CELL_FILL_ALL_BELOW": "Fill-All Below - Fill all cells below with this value",
+                "GROW_COLUMN": "Aumentar largura da coluna",
+                "SHRINK_COLUMN": "Reduzir largura da coluna",
+                "RESIZE_COLUMN_CANCEL": "Cancelar redimensionamento da coluna",
+                "VIEWER_TOGGLE_THUMBNAIL": "Alternar o visualizador de miniaturas",
+                "VIEWER_ZOOM_IN": "Ampliar",
+                "VIEWER_ZOOM_OUT": "Reduzir",
+                "VIEWER_ROTATE": "Rodar para a direita",
+                "VIEWER_FULLSCREEN": "Alternar ecrã completo",
+                "ZOOM_IMAGE": "Ampliar imagem",
+                "ZOOM_TEXT": "Ampliar texto"
+            }
+        }
+    }
+}

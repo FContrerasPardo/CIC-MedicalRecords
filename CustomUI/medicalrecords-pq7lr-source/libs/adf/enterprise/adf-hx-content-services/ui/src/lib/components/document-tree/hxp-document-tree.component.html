@@ -1,0 +1,149 @@
+<div
+    class="hxp-tree-container"
+    #treeContainer
+>
+    <mat-tree
+        [dataSource]="dataSource"
+        [treeControl]="treeControl"
+        class="hxp-document-tree hxp-fill"
+        *ngIf="!isInitialTreeLoad"
+    >
+        <mat-tree-node
+            *matTreeNodeDef="let node"
+            matTreeNodePadding
+            class="hxp-document-tree-node"
+            [class.hxp-selected]="!multiSelection && !node.isSkeleton && selection.isSelected(node.document)"
+            (click)="!node.isSkeleton && onDocumentSelected(node.document, $event)"
+        >
+            <ng-container *ngIf="!node.isSkeleton; else skeletonTemplate">
+                <ng-container *ngIf="node.isLoading; else showFolderIcon">
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="30"
+                    />
+                </ng-container>
+
+                <ng-template #showFolderIcon>
+                    <hxp-folder-icon
+                        *ngIf="isDocumentExpandable(node.document)"
+                        [isExpanded]="treeControl.isExpanded(node)"
+                    />
+                </ng-template>
+                <span
+                    (click)="onDocumentSelected(node.document, $event)"
+                    class="hxp-node-label"
+                    [class.hxp-has-contextmenu]="contextActionMenuTemplateRef"
+                >
+                    {{ node.document | breadcrumbLabel: 'DOCUMENT_TREE.ROOT' }}
+                </span>
+            </ng-container>
+
+            <ng-template #skeletonTemplate>
+                <hxp-tree-skeleton-loader [skeletonRows]="1" />
+            </ng-template>
+        </mat-tree-node>
+
+        <mat-tree-node
+            *matTreeNodeDef="let node; when: hasChild"
+            matTreeNodePadding
+            class="hxp-document-tree-node"
+            [class.hxp-selected]="!multiSelection && selection.isSelected(node.document)"
+            [class.hxp-node-context-opened]="contextMenuOpenedDocument?.sys_id === node.document?.sys_id"
+        >
+            <button
+                mat-icon-button
+                data-automation-id="document-tree-toggle-button"
+                [attr.aria-label]="('DOCUMENT_TREE.TOGGLE_ARIA-LABEL ' | translate) + node.name"
+                [attr.aria-expanded]="treeControl.isExpanded(node)"
+                matTreeNodeToggle
+                (click)="onNodeExpand($event)"
+            >
+                <mat-icon
+                    class="mat-icon-rtl-mirror"
+                    [svgIcon]="treeControl.isExpanded(node) ? 'chevron_down' : 'chevron_right'"
+                />
+            </button>
+
+            <mat-checkbox
+                *ngIf="multiSelection && node.isSelectable"
+                class="hxp-node-selection-checkbox"
+                (change)="onDocumentSelected(node.document)"
+                [checked]="selection.isSelected(node.document)"
+            />
+
+            <ng-container>
+                <div
+                    class="hxp-node-container"
+                    (click)="onDocumentSelected(node.document, $event)"
+                    (contextmenu)="onContextMenu($event, node.document)"
+                >
+                    <ng-container *ngIf="node.isLoading; else showFolderIcon">
+                        <mat-progress-spinner
+                            mode="indeterminate"
+                            diameter="30"
+                        />
+                    </ng-container>
+
+                    <ng-template #showFolderIcon>
+                        <hxp-folder-icon
+                            *ngIf="isDocumentExpandable(node.document)"
+                            [isExpanded]="treeControl.isExpanded(node)"
+                        />
+                    </ng-template>
+
+                    <span
+                        class="hxp-node-label"
+                        [class.hxp-has-contextmenu]="contextActionMenuTemplateRef"
+                        title="{{ node.document | breadcrumbLabel: 'DOCUMENT_TREE.ROOT' }}"
+                    >
+                        {{ node.document | breadcrumbLabel: 'DOCUMENT_TREE.ROOT' }}
+                    </span>
+                </div>
+
+                <div
+                    class="hxp-context-btn"
+                    *ngIf="!multiSelection && contextActionMenuTemplateRef"
+                >
+                    <button
+                        mat-icon-button
+                        data-automation-id="document-tree-context-menu-button"
+                        #trigger="matMenuTrigger"
+                        role="button"
+                        *ngIf="hasVisibleActions(node.document)"
+                        [attr.aria-label]="'DOCUMENT_TREE.CONTEXT_MENU.TRIGGER_ARIA_LABEL' | translate"
+                        [matMenuTriggerFor]="contextMenu"
+                        [matMenuTriggerData]="{ actions: contextActions }"
+                        [class.hxp-menu-opened]="trigger.menuOpen || hiddenTrigger.menuOpen"
+                        (click)="openContextMenu($event, node.document)"
+                    >
+                        <mat-icon
+                            aria-hidden="true"
+                            svgIcon="more_vert"
+                        />
+                    </button>
+                </div>
+
+                <div
+                    #hiddenTrigger="matMenuTrigger"
+                    class="hxp-menu-trigger"
+                    [style.left]="contextMenuPosition.x"
+                    [style.top]="contextMenuPosition.y"
+                    [matMenuTriggerFor]="contextMenu"
+                    [matMenuTriggerData]="{ actions: contextActions }"
+                ></div>
+            </ng-container>
+        </mat-tree-node>
+    </mat-tree>
+
+    <hxp-tree-skeleton-loader
+        *ngIf="isInitialTreeLoad"
+        [skeletonRows]="DEFAULT_ITEMS_PER_PAGE"
+    />
+</div>
+<mat-menu
+    #contextMenu="matMenu"
+    class="hxp-context-menu"
+    (closed)="onContextMenuClosed()"
+>
+    <ng-container *ngTemplateOutlet="contextActionMenuTemplateRef; context: { $implicit: contextActions }" />
+</mat-menu>

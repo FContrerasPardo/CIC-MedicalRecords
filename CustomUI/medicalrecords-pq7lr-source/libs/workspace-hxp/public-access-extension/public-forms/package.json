@@ -1,0 +1,17 @@
+{
+  "name": "@hxp/workspace-hxp/public-access-extension/public-forms",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/core": ">=19.2.18",
+    "@alfresco/adf-process-services-cloud": ">=8.5.0-0",
+    "rxjs": ">=7.8.2",
+    "@angular/material": ">=19.2.19",
+    "@alfresco/adf-hx-content-services/services": ">=0.0.1",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@angular/router": ">=19.2.18",
+    "@ngx-translate/core": ">=17.0.0",
+    "@angular/common": ">=19.2.18"
+  },
+  "dependencies": {},
+  "sideEffects": false
+}

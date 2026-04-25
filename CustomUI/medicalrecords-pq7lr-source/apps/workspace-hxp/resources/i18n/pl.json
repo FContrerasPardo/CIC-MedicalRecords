@@ -1,0 +1,17 @@
+{
+  "APP": {
+    "HEADER": {
+      "SIGN_OUT": "Wyloguj się",
+      "HELP": "Pomoc",
+      "LANGUAGE": "Język"
+    },
+    "TOOLBAR": {
+      "SELECTED": "Zaznaczone",
+      "CLEAR_ALL": "Wyczyść wszystko"
+    }
+  },
+  "PAGINATION": {
+    "PAGE_SIZE": "Elementów na stronie",
+    "PAGE_NUMBER": "{{startIndex}} - {{endIndex}} of {{totalPages}}"
+  }
+}

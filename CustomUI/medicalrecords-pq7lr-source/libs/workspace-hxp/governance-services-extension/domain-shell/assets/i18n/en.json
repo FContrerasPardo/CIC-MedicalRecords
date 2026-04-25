@@ -1,0 +1,407 @@
+{
+    "GOVERNANCE": {
+        "SIDENAV": {
+            "TITLE": "Governance",
+            "ARIA_LABEL": "Governance navigation menu"
+        },
+        "HEADER": {
+            "TITLE": "Governance"
+        },
+        "TABS": {
+            "RECORDS": "Records Management",
+            "LEGAL_HOLD": "Legal Hold Management",
+            "DASHBOARD": "Dashboard"
+        },
+        "LEGAL_HOLD": {
+            "TITLE": "Legal Hold Management",
+            "HEADER": "Legal Hold Cases",
+            "TABLE": {
+                "COLUMNS": {
+                    "TYPE": "Type",
+                    "CASE_NAME": "Legal Hold Case",
+                    "REASON_FOR_HOLD": "Reason for Hold",
+                    "TOTAL_RECORDS_HELD": "Total Records Held",
+                    "TOTAL_RECORDS_HELD_ARIA": "{{ caseName }}: {{ count }} Total Records Held",
+                    "DATE_OF_CREATION": "Date of Creation",
+                    "CREATOR": "Creator"
+                },
+                "NO_RECORDS_FOUND": "You don't have any legal hold cases yet.",
+                "NO_RECORDS_FOUND_FILTERED": "No legal hold case matches your search filter."
+            },
+            "CREATE_BUTTON": "Create Legal Hold Case",
+            "SEARCH_PLACEHOLDER": "Search Legal Hold Case Name",
+            "CLEAR_ALL": "Clear All",
+            "SELECTED": "Selected",
+            "ACTIONS": "More actions"
+        },
+        "LEGAL_RECORDS": {
+            "NO_RECORDS_FOUND": "There is no legal record to show.",
+            "NO_RECORDS_FOUND_FILTERED": "No legal record matches your search filter.",
+            "SEARCH_RECORDS_PLACEHOLDER": "Search Records",
+            "BACK": "Back to Legal Hold Cases"
+        },
+        "SEARCH": {
+            "FILTERS": {
+                "ARIA-LABEL": {
+                    "BACK_TO_ALL": "Back to all options",
+                    "CLEAR_INPUT": "Clear input",
+                    "LOADING_OPTIONS": "Loading filter options",
+                    "CLEAR_SEARCH": "Clear search",
+                    "FILTERS_LIST": "Filters list",
+                    "REMOVE": "Remove filter"
+                },
+                "SELECTED": "{{selected}} selected",
+                "RESULTS_FOUND_PLURAL": "{{count}} Results Found",
+                "RESULTS_FOUND_SINGLE": "{{count}} Result Found",
+                "CATEGORY": {
+                    "LABEL": "Category"
+                },
+                "CREATOR": {
+                    "LABEL": "Creator"
+                },
+                "DATA_SOURCE": {
+                    "LABEL": "Data Source"
+                },
+                "MODIFIER": {
+                    "LABEL": "Modifier"
+                },
+                "STATUS": {
+                    "LABEL": "Status"
+                },
+                "LEGAL_CASE": {
+                    "LABEL": "Legal Case"
+                },
+                "NO_SEARCH_RESULTS": {
+                    "MESSAGE": "No matching results found"
+                },
+                "PLACEHOLDER": "Search",
+                "CUTOFF": {
+                    "LABEL": "Cutoff"
+                },
+                "DISPOSITION": {
+                    "LABEL": "Disposition Date"
+                },
+                "DATE": {
+                    "ARIA-LABEL": {
+                        "DEFAULT_OPTIONS_LIST": "List of available date options"
+                    },
+                    "OPTIONS": {
+                        "TOMORROW": "Tomorrow",
+                        "NEXT_WEEK": "Next Week",
+                        "NEXT_MONTH": "Next Month",
+                        "NEXT_YEAR": "Next Year",
+                        "CUSTOM_DATE": {
+                            "LABEL": "Custom Date",
+                            "VALUES": {
+                                "AFTER": "After",
+                                "BEFORE": "Before",
+                                "SINCE_TO_DATE": "Since {{afterDate}} to {{beforeDate}}",
+                                "SINCE_TO_TODAY": "Since {{date}} to Today",
+                                "UNTIL_DATE": "Until {{date}}"
+                            }
+                        },
+                        "BUTTON": {
+                            "CLEAR": {
+                                "ARIA_LABEL": {
+                                    "AFTER": "Clear after date",
+                                    "BEFORE": "Clear before date"
+                                }
+                            }
+                        },
+                        "ERRORS": {
+                            "BEFORE_DATE_TOO_EARLY": "Before date cannot be earlier than After date",
+                            "AFTER_DATE_TOO_LATE": "After date cannot be later than Before date",
+                            "INVALID_DATE_FORMAT": "Please enter a valid date format MM/DD/YYYY"
+                        }
+                    }
+                }
+            },
+            "TOOLBAR": {
+                "BUTTONS": {
+                    "DELETE": "Delete Selected Records",
+                    "DELETE_LABEL": "Delete",
+                    "LEGAL_HOLD_CASE": "Add to Legal Hold Case",
+                    "PROPERTY_PANE_OPEN": "View Property",
+                    "PROPERTY_PANE_CLOSE": "Hide Property",
+                    "EDIT_LEGAL_HOLD_CASE": "Edit Legal Hold Case",
+                    "DETAILS": "Details"
+                }
+            }
+        },
+        "SEARCH_RESULTS": {
+            "BUTTONS": {
+                "RESET": {
+                    "LABEL": "Reset"
+                },
+                "SEARCH": {
+                    "LABEL": "Search"
+                },
+                "SELECT_ALL": {
+                    "LABEL": "Select All"
+                },
+                "UNSELECT_ALL": {
+                    "LABEL": "Unselect All"
+                },
+                "SELECT_ROW": {
+                    "LABEL": "Select Row"
+                },
+                "SELECT_ROW_WITH_ID": {
+                    "LABEL": "Select Row with ID {{id}}"
+                }
+            },
+            "INITIAL_STATE": {
+                "LABEL": "Search for records using advanced filtering",
+                "ICON": "Search for records using advanced filtering"
+            },
+            "NO_RESULTS": {
+                "ICON": "No records found for the selected filters. Adjust your search criteria and try again.",
+                "LABEL": "No records found for the selected filters. Adjust your search criteria and try again."
+            },
+            "RESULTS_LIST": {
+                "COUNT_PLURAL": "{{count}} Results Found",
+                "COUNT_SINGLE": "{{count}} Result Found",
+                "WAITING_FOR_ADJUSTMENT": "Waiting for adjustment",
+                "INDEFINITE": "Indefinite",
+                "COLUMNS": {
+                    "NAME": "Record Name",
+                    "DATA_SOURCE": "Data Source",
+                    "CATEGORY": "Category",
+                    "CUTOFF_DATE": "Cutoff Date",
+                    "DISPOSITION_DATE": "Disposition Date",
+                    "PROCESSING_RECORD": "Processing record",
+                    "LOADING_DISPOSITION_DATE": "Loading disposition date",
+                    "DISPOSITION": "Disposition",
+                    "STATUS": "Status",
+                    "ADDED_ON": "Date Added On",
+                    "ADDED_BY": "Added By"
+                },
+                "ITEMS_PER_PAGE": "Items per page:",
+                "NEXT_PAGE": "Next page",
+                "PREVIOUS_PAGE": "Previous page"
+            },
+            "SELECTED_RESULTS_COUNT": "{{selected}} selected",
+            "ERROR": {
+                "TITLE": "Something went wrong",
+                "LABEL": "If this keeps happening check your connection or contact your administrator",
+                "RETRY": "Retry",
+                "BUTTON_ARIA_LABEL": "Retry"
+            }
+        },
+        "SEARCH_FILTERS": {
+            "CONTENT_ID": {
+                "LABEL": "Content ID",
+                "PLACEHOLDER": "Enter Content ID",
+                "ERROR": "Please enter a valid Content ID."
+            },
+            "RECORD_NAME": {
+                "LABEL": "Record Name",
+                "PLACEHOLDER": "Enter Record Name",
+                "ERROR": "Please enter a valid Record Name."
+            }
+        },
+        "SIDEBAR": {
+            "EDIT_TITLE": "Edit Record Properties",
+            "TABS": {
+                "PROPERTIES": "Properties"
+            },
+            "SECTIONS": {
+                "RECORD_PROPERTIES": "Record Properties"
+            },
+            "BUTTONS": {
+                "EDIT": "Edit",
+                "CANCEL": "Cancel",
+                "SAVE": "Save",
+                "SAVING_RECORD": "Saving record",
+                "CLEAR": "Clear",
+                "CLOSE": "Close Sidebar",
+                "TOGGLE": "Expand/Collapse"
+            },
+            "FIELDS": {
+                "CUTOFF_DATE": "Cutoff Date",
+                "INCOMPLETE": "Incomplete"
+            },
+            "DATEPICKER": {
+                "CLEAR": "Clear",
+                "CANCEL": "Cancel",
+                "APPLY": "OK"
+            },
+            "LINKED_CASE": "Linked Legal Hold Cases"
+        },
+        "DELETE_DIALOG": {
+            "TITLE": "Confirm Deletion",
+            "CONTENT": "Are you sure you want to delete the selected records?",
+            "CANCEL": "Cancel",
+            "DELETE": "Delete",
+            "DELETING_RECORD": "Deleting record"
+        },
+        "LEGAL_DIALOG": {
+            "TITLE": "Legal Hold Cases",
+            "CANCEL": "Cancel",
+            "ASSIGN": "Add Records to Selection",
+            "ASSIGNING_LEGAL_HOLD": "Assigning legal hold",
+            "INFO_ADD_RECORDS": "{{count}} file will be added to selected legal hold",
+            "INFO_ADD_RECORDS_plural": "{{count}} files will be added to selected legal hold",
+            "BACK":"Back"
+        },
+        "CREATE_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Create Legal Hold Case",
+            "NAME": "Name",
+            "REASON": "Reason",
+            "DESCRIPTION": "Description",
+            "CANCEL": "Cancel",
+            "CREATE": "Create Legal Hold Case",
+            "SAVING_LEGAL_HOLD_CASE": "Saving legal hold case",
+            "ERRORS": {
+                "REQUIRED": "This field is required.",
+                "MAX_LENGTH_EXCEEDED": "Maximum length of {{max}} characters exceeded."
+            }
+        },
+        "EDIT_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Edit Legal Hold Case",
+            "EDIT": "Edit Legal Hold Case"
+        },
+        "UNSAVED_CHANGES_DIALOG": {
+            "TITLE": "Unsaved Changes",
+            "CONTENT": "You have unsaved changes. To review and save them, click 'Keep Editing.' To discard changes, click 'Close Without Saving.",
+            "DISCARD": "Close Without Saving",
+            "KEEP": "Keep Editing"
+        },
+        "NOTIFICATIONS": {
+            "RECORD_DELETE_SUCCESS": "Record(s) deleted successfully!",
+            "RECORD_DELETE_ERROR": "Failed to delete property. Please try again.",
+            "RECORD_DELETE_PARTIAL": "{{successCount}} records deleted, {{failureCount}} failed.",
+            "PROPERTY_UPDATE_SUCCESS": "Property updated successfully!",
+            "PROPERTY_UPDATE_ERROR": "Failed to update property. Please try again.",
+            "LEGAL_HOLD_CASE_CREATE_SUCCESS": "Legal Hold Case created successfully",
+            "LEGAL_HOLD_CASE_CREATE_ERROR": "Failed to create Legal Hold Case. Please try again.",
+            "LEGAL_HOLD_CASE_NAME_EXISTS": "A legal hold case with this name already exists.",
+            "LEGAL_HOLD_ASSIGNMENT_ERROR": "Failed to assign records to legal hold. Please try again.",
+            "LEGAL_HOLD_ASSIGNMENT_SUCCESS": "Your request to add records to legal case(s) has been successfully submitted. The process has started and may take some time to complete.",
+            "LEGAL_HOLD_CASE_EDIT_SUCCESS": "Legal Hold Case updated successfully",
+            "LEGAL_HOLD_CASE_EDIT_ERROR": "Failed to update Legal Hold Case. Please try again.",
+            "PROPERTY_UPDATE_TIMEOUT": "Timeout: Record's property update is still processing. Click refresh or check the property in a few moments.",
+            "STATUS_UPDATE_SUCCESS": "Record status updated successfully.",
+            "STATUS_UPDATE_ERROR": "Failed to update record status.",
+            "STATUS_UPDATE_TIMEOUT": "Timeout: Record(s) are still being added to the selected Legal Hold case. Click refresh or check the record status in a few moments.",
+            "RETENTION_ADJUSTMENT_SUCCESS": "Your request to adjust retention has been successfully submitted. The process has started and may take some time to complete."
+        },
+        "SEARCH_INPUT": {
+            "SEARCH": "Search",
+            "CLEAR": "Clear"
+        },
+        "SHARED": {
+            "CLEAR_ALL": "Clear all",
+            "NO_DATA": "No data available",
+            "SELECTED_RESULTS_COUNT": "{{selected}} selected"
+        },
+        "DASHBOARD": {
+            "LAST_REFRESH": "Last refresh",
+            "REFRESH": "Refresh",
+            "EXPORT_PPT": "Export",
+            "RECORD_HEALTH": "Record Health",
+            "RECORD_HEALTH_SUBTITLE": "Holistic view of record states",
+            "TOTAL": "Total",
+            "TOTAL_RECORDS": "Total Records",
+            "VIEW_RECORDS": "Click here to view records",
+            "RECORDS_BY_STATUS": "Records by Status",
+            "ACTIVE_RETENTION_STATUS": "Active Retention Status",
+            "ACTIVE_RETENTION_SUBTITLE": "Monitor content retention across categories",
+            "INCOMPLETE_RECORD": "Incomplete Record",
+            "INCOMPLETE_SUBTITLE": "Track and fix incomplete records across categories",
+            "CUTOFF_TRACKER": "Cutoff Tracker",
+            "CUTOFF_SUBTITLE": "Records due for cutoff in selected month",
+            "DISPOSITION_TRACKER": "Disposition Tracker",
+            "DISPOSITION_SUBTITLE": "Records due for disposition in selected month",
+            "UNDER_RETENTION": "Under Retention",
+            "MISSING_PROPERTY": "Missing Property",
+            "READY_TO_CUTOFF": "Ready to Cutoff",
+            "DUE_FOR_DISPOSITION": "Due for Disposition",
+            "ALL_CATEGORIES": "All Categories",
+            "ALL_STATUS": "All Status",
+            "ALL_MONTHS": "All Months",
+            "NO_DATA": "No data available",
+            "SELECT_CATEGORY": "Select Category",
+            "SEARCH_PLACEHOLDER": "Search...",
+            "LOADING": "Loading",
+            "NO_RESULTS_FOUND": "No results found",
+            "SELECT_MONTH": "Select month",
+            "THIS_MONTH": "This Month",
+            "SORT_ORDER": "Sort order",
+            "SORT_HIGH_TO_LOW": "High to low",
+            "SORT_LOW_TO_HIGH": "Low to high",
+            "NEXT_PAGE": "Next page",
+            "PREVIOUS_PAGE": "Previous page",
+            "CHART_PAGE_SUMMARY": "Page {{page}} of {{total}}",
+            "LEGAL_HOLD_SUMMARY": "Active Legal Hold Cases",
+            "LEGAL_HOLD_SUBTITLE": "Overview of records on legal hold",
+            "LEGAL_HOLD_TOOLTIP": "On Hold Records",
+            "LOADING_WIDGET_DATA": "Loading widget data",
+            "RECORD_HEALTH_CHART": "Record health breakdown chart",
+            "EMPTY": {
+                "RECORD_HEALTH": "No Records to track",
+                "ACTIVE_RETENTION": "No Records Under Retention",
+                "MISSING_PROPERTIES": "No Records with Missing Properties",
+                "CUTOFF_TRACKER": "No Records in Ready to Cutoff status",
+                "DISPOSITION_TRACKER": "No Records in Reached Disposition status",
+                "LEGAL_HOLD_SUMMARY": "No Records on Legal Hold"
+            },
+            "PPT": {
+                "INTRO": {
+                    "TITLE": "Governance Dashboard Summary",
+                    "REPORTING_DATE": "Reporting Date",
+                    "PRODUCT_LINE": "Content & Records Governance"
+                },
+                "RECORD_HEALTH": {
+                    "TITLE": "Record Health Overview",
+                    "SUB_TITLE": "Holistic view of record states across categories",
+                    "TOTAL_RECORDS": "Total Records",
+                    "RECORDS_BY_STATUS": "Records by Status",
+                    "DONUT_SERIES_LABEL": "Records"
+                },
+                "COMMON": {
+                    "CATEGORY_OVERVIEW": "Category Overview",
+                    "TABLE": {
+                        "CATEGORY": "Category",
+                        "TOTAL_RECORDS": "Total Records",
+                        "LEGAL_CASE_NAME": "Legal Case Name"
+                    },
+                    "LEGEND": {
+                        "TOTAL": "Total"
+                    }
+                },
+                "WIDGETS": {
+                    "ACTIVE_RETENTION": {
+                        "TITLE": "Active Retention Status",
+                        "SUB_TITLE": "Monitor content retention across categories",
+                        "CAPTION": "Top 10 categories with most records under retention",
+                        "VALUE_LABEL": "Under Retention"
+                    },
+                    "MISSING_PROPERTIES": {
+                        "TITLE": "Incomplete Records",
+                        "SUB_TITLE": "Categories with missing mandatory properties",
+                        "CAPTION": "Top 10 categories with most incomplete records",
+                        "VALUE_LABEL": "Incomplete"
+                    },
+                    "CUTOFF_TRACKER": {
+                        "TITLE": "Cutoff Tracker",
+                        "SUB_TITLE": "Records approaching cutoff dates",
+                        "CAPTION": "Top 10 categories by records ready for cutoff",
+                        "VALUE_LABEL": "Ready for Cutoff"
+                    },
+                    "DISPOSITION_TRACKER": {
+                        "TITLE": "Disposition Tracker",
+                        "SUB_TITLE": "Records due for disposition",
+                        "CAPTION": "Top 10 categories by records due for disposition",
+                        "VALUE_LABEL": "Due for Disposition"
+                    },
+                    "LEGAL_HOLD_SUMMARY": {
+                        "TITLE": "Legal Hold Summary",
+                        "SUB_TITLE": "Overview of records on legal hold",
+                        "CAPTION": "Shows records currently on hold by legal case",
+                        "VALUE_LABEL": "On Hold"
+                    }
+                }
+            }
+        }
+    }
+}

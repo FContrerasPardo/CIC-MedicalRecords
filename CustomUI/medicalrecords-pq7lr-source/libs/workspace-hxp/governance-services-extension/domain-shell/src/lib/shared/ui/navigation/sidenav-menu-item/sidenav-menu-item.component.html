@@ -1,0 +1,23 @@
+@if (hasPermission()) {
+    <mat-nav-list
+        [attr.data-automation-id]="'hxp-governance-navigation'"
+        [attr.aria-label]="'GOVERNANCE.SIDENAV.ARIA_LABEL' | translate"
+    >
+        <a
+            mat-list-item
+            [routerLink]="GOVERNANCE_ROUTE()"
+            [activated]="isGovernanceRoute()"
+            [attr.aria-current]="isGovernanceRoute() ? 'page' : null"
+            [attr.data-automation-id]="'hxp-governance-menu-item'"
+            class="hxp-governance-menu-item"
+            [class.hxp-governance-menu-item-active]="isGovernanceRoute()"
+        >
+            {{ 'GOVERNANCE.SIDENAV.TITLE' | translate }}
+            <mat-icon
+                svgIcon="policy"
+                class="hxp-governance-menu-item-icon"
+                matListItemIcon
+            />
+        </a>
+    </mat-nav-list>
+}

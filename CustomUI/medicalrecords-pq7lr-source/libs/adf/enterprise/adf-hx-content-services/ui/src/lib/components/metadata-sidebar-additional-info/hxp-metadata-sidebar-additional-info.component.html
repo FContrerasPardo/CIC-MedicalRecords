@@ -1,0 +1,57 @@
+<dl class="hxp-metadata-panel-additional-info">
+    @for (property of nonEditableSystemProperties(); track property.key) {
+        @if (property.label.toLowerCase() === 'path') {
+            <div class="hxp-metadata-panel-additional-info-property-path">
+                <dt class="hxp-metadata-panel-additional-info-property-label mat-body-small">{{ property.label }}</dt>
+                <dd class="hxp-metadata-panel-additional-info-property-container">
+                    <span
+                        #pathContent
+                        class="hxp-metadata-panel-additional-info-property-value"
+                        [attr.data-automation-id]="'hxp-metadata-additional-info-value-' + property.key"
+                        [class.hxp-metadata-panel-additional-info-property-value_clamp]="isClamped"
+                    >
+                        {{ property.displayValue }}
+                    </span>
+                    @if (hasOverflowed) {
+                        <button
+                            mat-icon-button
+                            (click)="toggleClamp()"
+                            [attr.aria-label]="
+                                (isClamped ? 'DOCUMENT.METADATA.TOGGLE_PATH.EXPAND' : 'DOCUMENT.METADATA.TOGGLE_PATH.COLLAPSE') | translate
+                            "
+                            [attr.aria-expanded]="!isClamped"
+                            matTooltip="{{
+                                (isClamped ? 'DOCUMENT.METADATA.TOGGLE_PATH.EXPAND' : 'DOCUMENT.METADATA.TOGGLE_PATH.COLLAPSE') | translate
+                            }}"
+                            class="hxp-metadata-panel-additional-info-property-path-expand-button"
+                        >
+                            <mat-icon [svgIcon]="isClamped ? 'chevron_down' : 'chevron_up'" />
+                        </button>
+                    }
+                    <button
+                        mat-icon-button
+                        (click)="onCopyPath()"
+                        [attr.aria-label]="'DOCUMENT.METADATA.COPY_PATH.TOOLTIP' | translate"
+                        matTooltip="{{ 'DOCUMENT.METADATA.COPY_PATH.TOOLTIP' | translate }}"
+                        class="hxp-metadata-panel-additional-info-property-path-copy-button"
+                    >
+                        <mat-icon
+                            class="hxp-metadata-panel-additional-info-property-path-copy-button-icon"
+                            svgIcon="copy"
+                        />
+                    </button>
+                </dd>
+            </div>
+        } @else {
+            <div class="hxp-metadata-panel-additional-info-property">
+                <dt class="hxp-metadata-panel-additional-info-property-label mat-body-small">{{ property.label }}</dt>
+                <dd
+                    class="hxp-metadata-panel-additional-info-property-value"
+                    [attr.data-automation-id]="'hxp-metadata-additional-info-value-' + property.key"
+                >
+                    {{ property.displayValue }}
+                </dd>
+            </div>
+        }
+    }
+</dl>

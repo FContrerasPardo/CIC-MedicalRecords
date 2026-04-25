@@ -1,0 +1,271 @@
+<div
+    class="idp-extraction-view"
+    tabindex="0"
+>
+    @let currentPageOcrWords = (currentPageOcrWords$ | async) || [];
+    <hyland-idp-task-header class="idp-header">
+        <ng-container hylandIdpTaskHeaderTrailingContent>
+            @let document = document$ | async;
+            @let isDocumentFlagged = !!document?.rejectReasonId;
+            <button
+                mat-flat-button
+                class="idp-extraction-view__reject-document-button"
+                data-automation-id="idp-field-reject-button"
+                (click)="onFlagDocument(isDocumentFlagged ? { rejectReasonId: document.rejectReasonId, rejectNote: document.rejectNote } : undefined)"
+            >
+                <mat-icon
+                    svgIcon="flag"
+                    aria-hidden="true"
+                />
+                <span>{{ `EXTRACTION.VERIFICATION.TASK_HEADER.${isDocumentFlagged ? 'REVIEW' : 'SET'}_DOCUMENT_FLAG_BUTTON` | translate }}</span>
+            </button>
+        </ng-container>
+    </hyland-idp-task-header>
+    <div class="idp-metadata-viewer-container">
+        <div
+            id="split-left"
+            data-automation-id="idp-view-metadata-splitter-pane"
+        >
+            <hyland-idp-extraction-metadata-panel
+                class="idp-metadata-panel"
+                [ocrWords]="currentPageOcrWords"
+                (fieldValuePending)="fieldValuePending.next($event)"
+            />
+        </div>
+        <div
+            id="split-right"
+            data-automation-id="idp-view-viewer-splitter-pane"
+        >
+            <div class="idp-viewer-container">
+                <div
+                    id="split-top"
+                    class="idp-viewer-container__document"
+                    data-automation-id="idp-viewer-splitter-pane-document"
+                >
+                    <hyland-idp-viewer
+                        class="idp-viewer"
+                        [datasource]="(viewerDatasource$ | async) || undefined"
+                        [configuration]="viewerConfiguration"
+                        [activeHighlights]="viewerHighlights"
+                        [keyboardEvent]="keyboardEvent$ | async"
+                        (viewerEvent)="viewerEvent$.next($event)"
+                    >
+                        @if (showTextLayer) {
+                            <ng-template
+                                hylandIdpViewerContentLayer="TextSuperImposed"
+                                let-host="host"
+                            >
+                                <hyland-idp-viewer-text-layer
+                                    [host]="host"
+                                    [autoNavigationToHighlight]="true"
+                                    [handleClipboard]="false"
+                                    data-automation-id="idp-viewer-text-layer"
+                                    (textSelected)="viewerTextSelected.emit($event)"
+                                />
+                            </ng-template>
+                        }
+
+                        <ng-container ngProjectAs="hyland-idp-viewer-sticky-action">
+                            <hyland-idp-viewer-sticky-action [align]="'right'">
+                                <button
+                                    mat-fab
+                                    class="idp-extraction-view__shortcuts_button"
+                                    data-automation-id="idp-shortcut-sticky-button"
+                                    [attr.aria-label]="'IDP_CLASS_VERIFICATION.VIEWER.STICKY_ACTION.OPEN_SHORTCUT_BROWSER_BUTTON_TOOLTIP' | translate"
+                                    [matTooltip]="'IDP_CLASS_VERIFICATION.VIEWER.STICKY_ACTION.OPEN_SHORTCUT_BROWSER_BUTTON_TOOLTIP' | translate"
+                                    (click)="onShortcutBrowserClick()"
+                                    (keydown.enter)="onShortcutBrowserClick()"
+                                >
+                                    <mat-icon
+                                        svgIcon="keyboard"
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            </hyland-idp-viewer-sticky-action>
+                        </ng-container>
+                    </hyland-idp-viewer>
+
+                    <!-- Extraction Table Panel (Overlays document area) -->
+                    @if (tablePanelMode() !== TablePanelMode.Hidden) {
+                        @if (renderTableContent) {
+                            <div
+                                class="idp-extraction-table-panel"
+                                [class.idp-extraction-table-panel--transitioning]="tablePanelTransitioning()"
+                                [class.idp-extraction-table-panel--minimized]="tablePanelMode() === TablePanelMode.Minimized"
+                                [style.bottom.px]="viewerHScrollProxyVisible() ? viewerHScrollStripPx : null"
+                                [style.height]="tablePanelMode() === TablePanelMode.Minimized ? tablePanelHeight() + 'em' : tablePanelHeight() + '%'"
+                                data-automation-id="idp-extraction-table-panel"
+                                role="region"
+                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.REGION_LABEL' | translate"
+                                [attr.aria-expanded]="tablePanelMode() !== TablePanelMode.Minimized"
+                            >
+                                <!-- Resize Handle (only visible in default and maximized modes) -->
+                                @if (tablePanelMode() !== TablePanelMode.Minimized) {
+                                    <div
+                                        class="idp-extraction-table-panel__resize-handle"
+                                        (mousedown)="onResizeHandleMouseDown($event)"
+                                        role="separator"
+                                        [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.RESIZE_HANDLE_LABEL' | translate"
+                                        aria-orientation="horizontal"
+                                    >
+                                        <div class="idp-extraction-table-panel__resize-indicator"></div>
+                                    </div>
+                                }
+
+                                <!-- Table Header -->
+                                <div class="idp-extraction-table-panel__header">
+                                    <div class="idp-extraction-table-panel__title">
+                                        <mat-icon adf-icon="table_chart" />
+                                        <span>{{
+                                            'EXTRACTION.VERIFICATION.TABLE_PANEL.TITLE'
+                                                | translate: { rows: (activeTable$ | async)?.rows?.length ?? 0 }
+                                        }}</span>
+                                    </div>
+                                    <div class="idp-extraction-table-panel__actions">
+                                        @if (tablePanelMode() === TablePanelMode.Minimized) {
+                                            <!-- Minimized: Show Default View and Maximize buttons -->
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-default-view-button"
+                                                (click)="setDefaultView()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.DEFAULT_VIEW_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.DEFAULT_VIEW_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon svgIcon="chevron_up" />
+                                            </button>
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-maximize-button"
+                                                (click)="maximizeTable()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MAXIMIZE_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MAXIMIZE_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon adf-icon="open_in_full" />
+                                            </button>
+                                        } @else if (tablePanelMode() === TablePanelMode.Default) {
+                                            <!-- Default: Show Minimize and Maximize buttons -->
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-minimize-button"
+                                                (click)="minimizeTable()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MINIMIZE_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MINIMIZE_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon svgIcon="chevron_down" />
+                                            </button>
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-maximize-button"
+                                                (click)="maximizeTable()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MAXIMIZE_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MAXIMIZE_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon adf-icon="open_in_full" />
+                                            </button>
+                                        } @else if (tablePanelMode() === TablePanelMode.Maximized) {
+                                            <!-- Maximized: Show Minimize and Default View buttons -->
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-minimize-button"
+                                                (click)="minimizeTable()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MINIMIZE_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.MINIMIZE_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon svgIcon="chevron_down" />
+                                            </button>
+                                            <button
+                                                mat-icon-button
+                                                data-automation-id="idp-extraction-table-panel-default-view-button"
+                                                (click)="setDefaultView()"
+                                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.DEFAULT_VIEW_BUTTON' | translate"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.TABLE_PANEL.DEFAULT_VIEW_BUTTON_TOOLTIP' | translate"
+                                            >
+                                                <mat-icon adf-icon="close_fullscreen" />
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Table Content (only visible in default and maximized modes) -->
+                                @if (tablePanelMode() !== TablePanelMode.Minimized) {
+                                    <div class="idp-extraction-table-panel__content">
+                                        <hyland-idp-extraction-table
+                                            #activeTable
+                                            class="idp-extraction-table"
+                                            [ocrWords]="currentPageOcrWords"
+                                            (fieldValuePending)="fieldValuePending.next($event)"
+                                            (groupSelectionChanged)="onTableGroupSelectionChanged($event)"
+                                        />
+                                    </div>
+                                }
+                            </div>
+                        } @else {
+                            <!-- Loading Shell -->
+                            <div
+                                class="idp-extraction-view__table-loading-shell"
+                                tabindex="0"
+                                data-automation-id="idp-extraction-view-table-loading-shell"
+                                role="region"
+                                aria-live="polite"
+                                [attr.aria-busy]="!renderTableContent"
+                                [attr.aria-label]="'EXTRACTION.VERIFICATION.TABLE_PANEL.REGION_LABEL' | translate"
+                                [class.idp-extraction-table-panel--transitioning]="tablePanelTransitioning()"
+                                [style.bottom.px]="viewerHScrollProxyVisible() ? viewerHScrollStripPx : null"
+                                [style.height]="tablePanelMode() === TablePanelMode.Minimized ? tablePanelHeight() + 'em' : tablePanelHeight() + '%'"
+                            >
+                                <div class="idp-extraction-view__table-loading-shell-table">
+                                    <!-- Header Row -->
+                                    <div class="idp-extraction-view__table-loading-shell-row idp-extraction-view__table-loading-shell-row--header">
+                                        @for (col of tableLoadingShellColumns; track col) {
+                                            <div
+                                                class="idp-extraction-view__table-loading-shell-cell"
+                                                [ngClass]="{ 'idp-extraction-view__table-loading-shell-cell--row-number': col === 1 }"
+                                            >
+                                                <span
+                                                    class="idp-extraction-view__table-loading-shell-placeholder"
+                                                    [ngClass]="{
+                                                        'idp-extraction-view__table-loading-shell-placeholder--icon': col === 1,
+                                                        'idp-extraction-view__table-loading-shell-placeholder--header': true,
+                                                    }"
+                                                ></span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <!-- Data Rows -->
+                                    @for (row of tableLoadingShellRows; track row) {
+                                        <div class="idp-extraction-view__table-loading-shell-row">
+                                            @for (col of tableLoadingShellColumns; track col) {
+                                                <div
+                                                    class="idp-extraction-view__table-loading-shell-cell"
+                                                    [ngClass]="{ 'idp-extraction-view__table-loading-shell-cell--row-number': col === 1 }"
+                                                >
+                                                    <span
+                                                        class="idp-extraction-view__table-loading-shell-placeholder"
+                                                        [ngClass]="{ 'idp-extraction-view__table-loading-shell-placeholder--index': col === 1 }"
+                                                    ></span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (viewerHScrollProxyVisible()) {
+                            <div
+                                #viewerHScrollProxy
+                                class="idp-extraction-view__viewer-hscroll-proxy"
+                                data-automation-id="idp-extraction-view-viewer-hscroll-proxy"
+                                (scroll)="onViewerHScrollProxyScroll()"
+                            >
+                                <div
+                                    class="idp-extraction-view__viewer-hscroll-proxy__spacer"
+                                    [style.width.px]="viewerHScrollSpacerWidth()"
+                                ></div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

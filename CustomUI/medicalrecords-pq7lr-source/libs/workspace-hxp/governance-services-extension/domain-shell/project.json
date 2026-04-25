@@ -1,0 +1,30 @@
+{
+    "name": "workspace-hxp-governance-services-extension-domain-shell",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/workspace-hxp/governance-services-extension/domain-shell/src",
+    "prefix": "hxp",
+    "projectType": "library",
+    "tags": ["scope:workspace-hxp-governance-services-extension-domain-shell", "category:workspace-hxp", "scope:cicgov"],
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+            "options": {
+                "project": "libs/workspace-hxp/governance-services-extension/domain-shell/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/workspace-hxp/governance-services-extension/domain-shell/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/workspace-hxp/governance-services-extension/domain-shell/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/workspace-hxp/governance-services-extension/domain-shell/tsconfig.lib.adf.json"
+            }
+            },
+            "defaultConfiguration": "production"
+        },
+        "stylelint": {}
+    }
+}

@@ -1,0 +1,81 @@
+<div class="idp-scanning-header">
+    <sat-app-header>
+        <span satAppHeaderTitle>{{ 'IDP_DOCUMENT_SCANNING.HEADER.TITLE' | translate }}</span>
+        <div
+            satAppHeaderActions
+            class="idp-scanning-header-actions"
+        >
+            @let scanners = scanSession.scanners$ | async;
+            @let selectedScanner = scanSession.selectedScanner();
+            @let scanClientState = scanSession.scanClientState();
+
+            <div class="idp-scanning-header-group idp-scanning-header-group--scanner">
+                <hyland-idp-scanner-list
+                    [scanners]="scanners ?? []"
+                    [scanClientState]="scanClientState"
+                    [selectedScanner]="selectedScanner"
+                    (selectedScannerChange)="scanSession.selectedScanner.set($event)"
+                />
+            </div>
+            <div
+                class="idp-scanning-header-actions-divider"
+                aria-hidden="true"
+            ></div>
+            <div class="idp-scanning-header-group idp-scanning-header-group--scan">
+                <button
+                    mat-button
+                    class="idp-scanner-settings-button"
+                    data-automation-id="idp-scanning-settings-button"
+                    [disabled]="scanSession.isBusy() || !selectedScanner"
+                    (click)="scanSession.configureScanner()"
+                >
+                    <mat-icon svgIcon="settings" />
+                    {{ 'IDP_DOCUMENT_SCANNING.HEADER.SCANNER_SETTINGS' | translate }}
+                </button>
+                @if (!scanSession.isScanning()) {
+                    <button
+                        mat-button
+                        class="idp-start-stop-scan-button"
+                        data-automation-id="idp-scanning-start-button"
+                        [disabled]="scanSession.isBusy() || !selectedScanner"
+                        (click)="scanSession.startScan()"
+                    >
+                        <mat-icon svgIcon="triangle_right" />
+                        {{ 'IDP_DOCUMENT_SCANNING.HEADER.SCANNER_START' | translate }}
+                    </button>
+                } @else {
+                    <button
+                        mat-button
+                        class="idp-start-stop-scan-button"
+                        data-automation-id="idp-scanning-stop-button"
+                        (click)="scanSession.stopScan()"
+                    >
+                        <mat-icon svgIcon="block" />
+                        {{ 'IDP_DOCUMENT_SCANNING.HEADER.SCANNER_STOP' | translate }}
+                    </button>
+                }
+            </div>
+            <div
+                class="idp-scanning-header-actions-divider"
+                aria-hidden="true"
+            ></div>
+            <div class="idp-scanning-header-group idp-scanning-header-group--batch">
+                <button
+                    mat-stroked-button
+                    data-automation-id="idp-scanning-cancel-button"
+                    (click)="scanSession.cancelBatch()"
+                >
+                    {{ 'IDP_DOCUMENT_SCANNING.HEADER.SCANNER_CANCEL' | translate }}
+                </button>
+                <button
+                    mat-flat-button
+                    data-automation-id="idp-scanning-submit-button"
+                    [disabled]="!scanSession.canUploadBatch()"
+                    (click)="scanSession.uploadBatch()"
+                >
+                    {{ 'IDP_DOCUMENT_SCANNING.HEADER.UPLOAD' | translate }}
+                </button>
+            </div>
+        </div>
+    </sat-app-header>
+</div>

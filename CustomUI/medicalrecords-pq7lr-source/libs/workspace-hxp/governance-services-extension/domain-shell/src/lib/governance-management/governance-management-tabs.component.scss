@@ -1,0 +1,47 @@
+/* this is the only way of settings the height of mat-tab without overrides */
+$governance-tab-content-height: calc(100vh - 221px);
+
+.hxp-governance-management-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+.hxp-governance-management-header-title {
+    padding: 20px;
+}
+
+.hxp-governance-management-tab-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.hxp-governance-tab-content-wrapper {
+    height: $governance-tab-content-height;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+    box-sizing: border-box;
+    min-height: 0;
+    min-width: 0;
+    background-color: var(--mat-sys-surface);
+}
+
+.hxp-governance-main-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+}
+
+.hxp-governance-results-sidebar {
+    background-color: var(--mat-sys-surface-container-lowest);
+    overflow-y: auto;
+    flex-shrink: 0;
+    min-height: 0;
+    border: 1px solid transparent;
+    border-radius: var(--sat-platform-nav-corner-medium);
+}

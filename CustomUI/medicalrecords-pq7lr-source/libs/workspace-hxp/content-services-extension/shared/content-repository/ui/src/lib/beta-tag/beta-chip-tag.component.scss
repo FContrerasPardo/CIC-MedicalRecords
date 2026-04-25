@@ -1,0 +1,9 @@
+@use 'mixins' as m;
+
+.hxp-beta-chip {
+    @include m.hxp-tag;
+}
+
+.hxp-beta-chip-label {
+    color: var(--mat-sys-primary);
+}

@@ -1,0 +1,15 @@
+@if (isAvailable$ | async) {
+    <button
+        mat-button
+        class="hxp-governance-action-button"
+        [attr.aria-label]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.LEGAL_HOLD_CASE' | translate"
+        [matTooltip]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.LEGAL_HOLD_CASE' | translate"
+        (click)="openLegalHoldDialog()"
+    >
+        <mat-icon
+            class="hxp-governance-action-icon"
+            svgIcon="gavel"
+        />
+        <span>{{ 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.LEGAL_HOLD_CASE' | translate }}</span>
+    </button>
+}

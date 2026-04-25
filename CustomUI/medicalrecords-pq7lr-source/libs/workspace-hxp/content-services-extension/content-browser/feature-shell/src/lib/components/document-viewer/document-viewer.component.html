@@ -1,0 +1,113 @@
+@if (document) {
+    <hxp-ui-document-viewer
+        [document]="document"
+        [showRightSidebar]="rightSidebarVisibility()"
+        [fullScreen]="fullScreen"
+        (closeViewer)="onClose()"
+        class="app-chrome"
+    >
+        <ng-template #toolbar>
+            <mat-toolbar data-automation-id="hxp-mat-toolbar">
+                <button
+                    id="document-viewer-close-button"
+                    mat-icon-button
+                    data-automation-id="document-viewer-toolbar-close"
+                    [attr.aria-label]="'ADF_VIEWER.ACTIONS.CLOSE' | translate"
+                    title="{{ 'ADF_VIEWER.ACTIONS.CLOSE' | translate }}"
+                    [matTooltip]="'ADF_VIEWER.ACTIONS.CLOSE' | translate"
+                    (click)="onClose()"
+                >
+                    <mat-icon svgIcon="arrow_left" />
+                </button>
+                <hxp-breadcrumb [document]="document" />
+                <hxp-document-version-selector [actionContext]="actionContext" />
+                <hxp-document-layout-toggle
+                    [actionContext]="actionContext"
+                    [isDocumentView]="isDocumentView"
+                    (toggleDocumentView)="onToggleDocumentView($event)"
+                />
+                <div class="hxp-document-viewer-toolbar--spacer"></div>
+                <div id="document-viewer-custom-actions">
+                    <hxp-content-properties-viewer-button [actionContext]="actionContext" />
+                    <hxp-content-delete [actionContext]="actionContext" />
+                    <hxp-version-delete-button [actionContext]="actionContext" />
+                    <hxp-single-item-download [actionContext]="actionContext" />
+                    <hxp-single-file-share [actionContext]="actionContext" />
+                </div>
+
+                <mat-divider
+                    class="hxp-document-viewer-toolbar--divider"
+                    [vertical]="true"
+                />
+
+                <button
+                    id="document-viewer-fullscreen"
+                    mat-icon-button
+                    [attr.aria-label]="'ADF_VIEWER.ACTIONS.FULLSCREEN' | translate"
+                    title="{{ 'ADF_VIEWER.ACTIONS.FULLSCREEN' | translate }}"
+                    [matTooltip]="'ADF_VIEWER.ACTIONS.FULLSCREEN' | translate"
+                    data-automation-id="document-toolbar-fullscreen"
+                    (click)="enterFullScreen()"
+                >
+                    <mat-icon svgIcon="fullscreen" />
+                </button>
+
+                @if (hasMoreMenu()) {
+                    <mat-divider
+                        class="hxp-document-viewer-toolbar--divider"
+                        [vertical]="true"
+                    />
+                }
+                <hxp-document-more-action
+                    [actionContext]="actionContext"
+                    [menuItems]="(moreMenu$ | async)!"
+                    (availabilityStatus)="hasMoreMenu.set($event)"
+                />
+            </mat-toolbar>
+        </ng-template>
+        <ng-template #sidebar>
+            @switch (sidebarService.panel()) {
+                @case ('property') {
+                    <hxp-metadata-sidebar
+                        [document]="document"
+                        [editable]="editablePropertiesSidebar"
+                        (closePropertySidebar)="closeRightSidebarPanel()"
+                    />
+                }
+                @case ('permission') {
+                    <hxp-permissions-management-panel
+                        [document]="document"
+                        [parentDocument]="actionContext.parentDocument"
+                    />
+                }
+                @case ('version') {
+                    <hxp-manage-versions-sidebar
+                        [document]="document"
+                        (closeVersionsSidebar)="closeRightSidebarPanel()"
+                    >
+                        <ng-template
+                            #contextActionMenu
+                            let-contextActions
+                        >
+                            @for (item of contextActions; track item) {
+                                @if (item.model.visible) {
+                                    <button
+                                        role="menuitem"
+                                        [attr.data-automation-id]="'context-' + (item.model.title || '' | translate)"
+                                        mat-menu-item
+                                        (click)="onMenuItemClick(item)"
+                                    >
+                                        @if (item.model.icon) {
+                                            <mat-icon [svgIcon]="item.model.icon" />
+                                        }
+                                        <span>{{ item.model.title || '' | translate }}</span>
+                                    </button>
+                                }
+                            }
+                        </ng-template>
+                    </hxp-manage-versions-sidebar>
+                }
+            }
+        </ng-template>
+    </hxp-ui-document-viewer>
+}

@@ -1,0 +1,39 @@
+.hxp-month-picker {
+    display: flex;
+    align-items: center;
+
+    .hxp-month-chip-set {
+        margin: 0;
+    }
+
+    .hxp-month-chip {
+        cursor: pointer;
+        color: var(--mat-sys-primary);
+
+        --mdc-chip-label-text-color: var(--mat-sys-primary);
+        --mdc-chip-with-icon-label-text-color: var(--mat-sys-primary);
+
+        .hxp-month-chip-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .hxp-month-chip-icon,
+        .hxp-month-chip-label {
+            color: var(--mat-sys-primary) !important;
+        }
+
+        &_active {
+            --mdc-chip-outline-width: 0;
+
+            background: var(--mat-sys-primary-container);
+        }
+    }
+
+    .hxp-hidden-input {
+        position: absolute;
+        visibility: hidden;
+    }
+}

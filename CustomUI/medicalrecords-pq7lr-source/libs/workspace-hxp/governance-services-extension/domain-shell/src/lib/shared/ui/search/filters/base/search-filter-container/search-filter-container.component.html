@@ -1,0 +1,54 @@
+<div class="hxp-governance-search-filter satorized-container">
+    <button #chip type="button" (click)="openFilterOverlay()"
+        class="hxp-governance-search-filter-chip"
+        [class.hxp-governance-search-filter-chip_active]="data"
+        [class.hxp-governance-search-filter-chip_opened]="isFilterOverlayOpened"
+        [matTooltip]="selectionLabel | translate"
+        [attr.aria-expanded]="isFilterOverlayOpened"
+        [attr.aria-label]="name + (selectionLabel ? ': ' + (selectionLabel | translate) : '')"
+        [attr.aria-controls]="overlayId">
+        <div class="hxp-governance-search-filter-chip-label-container">
+            @if (data) {
+                <mat-icon class="hxp-governance-search-filter-chip-icon-prefix" aria-hidden="true"
+                    svgIcon="check" />
+            }
+            <div class="hxp-governance-search-filter-chip-label hxp-label-extra-bold" #chipLabel>
+                <span>{{ name + (selectionLabel ? ': ' + (selectionLabel | translate) : '') }}</span>
+            </div>
+            @if (hiddenValuesCount > 0) {
+                <div aria-hidden="true" class="hxp-governance-search-filter-chip-badge">
+                    +{{ hiddenValuesCount }}
+                </div>
+            }
+            <mat-icon class="hxp-governance-search-filter-chip-icon"
+                [svgIcon]="isFilterOverlayOpened ? 'chevron_up' : 'chevron_down'" />
+        </div>
+    </button>
+    <ng-template #template>
+        <div class="hxp-governance-search-filter-overlay" [id]="overlayId" role="dialog" aria-modal="true">
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilter($event)" (reset)="clearFilter($event)"
+                (keydown.enter)="onFormKeydownEnter($event)">
+                <ng-content />
+
+                <div class="hxp-governance-search-filter-overlay-actions">
+                    <button
+                        class="hxp-governance-search-filter-overlay-actions-clear"
+                        mat-button
+                        type="reset"
+                        [disabled]="(!data || data.values?.length === 0) && filterForm.pristine"
+                    >
+                        {{ 'SEARCH.FILTERS.ACTIONS.CLEAR_ALL' | translate }}
+                    </button>
+                    <button
+                        class="hxp-governance-search-filter-overlay-actions-apply"
+                        mat-flat-button
+                        type="submit"
+                        [disabled]="filterForm.pristine || filterForm.invalid"
+                    >
+                        {{ 'SEARCH.FILTERS.ACTIONS.APPLY' | translate }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </ng-template>
+</div>

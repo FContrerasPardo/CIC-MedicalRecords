@@ -1,0 +1,40 @@
+.hxp-lhc-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hxp-lhc-title {
+    color: var(--mat-sys-on-surface);
+    padding-top: 24px;
+}
+
+.hxp-lhc-skeleton {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+
+    .hxp-loader-pill {
+        height: 24px;
+        width: 100%;
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--mat-sys-primary-container) 60%, transparent);
+        background-size: 400% 100%;
+    }
+}
+
+.hxp-lhc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hxp-lhc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-primary);
+    border-radius: 8px;
+}

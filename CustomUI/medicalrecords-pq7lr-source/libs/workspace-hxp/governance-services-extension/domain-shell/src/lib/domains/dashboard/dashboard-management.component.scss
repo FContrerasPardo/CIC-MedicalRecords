@@ -1,0 +1,161 @@
+@mixin record-health-layout {
+    display: flex;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 8px 4px;
+
+    .hxp-record-health-metrics {
+        display: flex;
+        flex: 6 1 0%;
+        gap: 32px;
+
+        .hxp-total-records-wrapper a {
+            text-decoration: none;
+        }
+    }
+
+    .hxp-total {
+        font-size: var(--mat-sys-headline-large-line-height);
+        line-height: 1;
+        font-weight: var(--mat-sys-body-large-weight);
+        color: var(--mat-sys-primary);
+        letter-spacing: -0.02em;
+    }
+
+    .hxp-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 6px;
+
+        .hxp-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+
+            .hxp-legend-label {
+                text-decoration: underline;
+                text-underline-offset: 3px;
+                color: inherit;
+                font-weight: var(--mat-sys-body-large-weight);
+            }
+
+            .hxp-sw {
+                width: 12px;
+                height: 12px;
+                border-radius: var(--sat-platform-nav-corner-extra-small);
+                display: inline-block;
+                flex: 0 0 12px;
+            }
+        }
+    }
+
+    .hxp-cic-gov-donut-chart {
+        flex: 4 1 0%;
+        display: block;
+        width: 100%;
+        background: var(--mat-sys-surface);
+    }
+
+    .hxp-cicgov-column-chart {
+        display: block;
+        height: 100%;
+        background: var(--mat-sys-surface);
+    }
+}
+
+.hxp-dashboard-landing {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--mat-sys-inverse-on-surface);
+    border-radius: var(--sat-platform-nav-corner-medium);
+
+    .hxp-dashboard-topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 4px;
+
+        .hxp-left-controls {
+            .hxp-selector {
+                min-width: 160px;
+            }
+        }
+
+        .hxp-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--mat-sys-on-surface-variant);
+        }
+    }
+
+    .hxp-dashboard-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+
+        .hxp-widget-wrapper {
+            flex: 0 0 calc(50% - 15px);
+            box-sizing: border-box;
+            max-width: calc(50% - 15px);
+        }
+
+        .hxp-card-large {
+            width: 100%;
+        }
+    }
+
+    .hxp-record-health-widget {
+        @include record-health-layout;
+    }
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.cdk-drag-preview {
+    .hxp-record-health-widget {
+        @include record-health-layout;
+    }
+}
+
+@media (width <= 1366px) {
+    .hxp-card-large:first-child {
+        flex: 1;
+        width: 100%;
+    }
+}
+
+@media (width <= 1024px) {
+    .hxp-dashboard-landing {
+        padding-bottom: 50px;
+        overflow-x: hidden;
+
+        .hxp-dashboard-grid {
+            flex-direction: column;
+            .hxp-widget-wrapper {
+                flex: 0 0 100%;
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+        }
+    }
+
+    .hxp-record-health-widget {
+        flex-direction: column;
+        .hxp-record-health-metrics {
+            flex: 1 1 auto;
+            width: 100%;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .hxp-cic-gov-donut-chart {
+            flex: 1 1 auto;
+            width: 100%;
+        }
+    }
+}

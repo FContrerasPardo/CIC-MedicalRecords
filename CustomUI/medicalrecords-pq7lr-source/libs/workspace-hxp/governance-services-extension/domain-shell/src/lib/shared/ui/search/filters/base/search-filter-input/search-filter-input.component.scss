@@ -1,0 +1,19 @@
+.hxp-governance-search-filter-input {
+    width: 100%;
+
+    &-prefix,
+    &-suffix {
+        display: flex;
+        align-items: center;
+    }
+
+    &-clear {
+        display: flex;
+        text-align: center;
+        margin-right: 2px;
+    }
+
+    &-search-icon {
+        margin-right: 10px;
+    }
+}

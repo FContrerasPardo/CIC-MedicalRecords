@@ -1,0 +1,32 @@
+{
+  "name": "@hxp/workspace-hxp/content-services-extension/content-browser/feature-shell",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@alfresco/adf-hx-content-services/services": ">=0.0.1",
+    "@alfresco/adf-hx-content-services/ui": ">=0.0.1",
+    "@alfresco/adf-hx-content-services": ">=0.0.1",
+    "@hxp/shared-hxp/services": ">=0.0.1",
+    "@hxp/workspace-hxp/content-services-extension/shared/util": ">=0.0.1",
+    "@hxp/workspace-hxp/content-services-extension/shared/upload/feature-shell": ">=0.0.1",
+    "@hxp/workspace-hxp/content-services-extension/shared/content-repository/feature-shell": ">=0.0.1",
+    "@hxp/workspace-hxp/content-services-extension/shared/content-repository/ui": ">=0.0.1",
+    "@hxp/workspace-hxp/shared/upload-files/feature-shell": ">=0.0.1",
+    "@alfresco/adf-hx-content-services/icons": ">=0.0.1",
+    "@alfresco-dbp/workspace-hxp/shared/workspace-document-tree": ">=0.0.1",
+    "@alfresco/adf-hx-content-services/api": ">=0.0.1",
+    "@hxp/workspace-hxp/content-services-extension/search/feature-shell": ">=0.0.1",
+    "@hxp/workspace-hxp/shared/services": ">=0.0.1",
+    "@alfresco/adf-extensions": ">=8.5.0-0",
+    "rxjs": ">=7.8.2",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@ngx-translate/core": ">=17.0.0",
+    "@hylandsoftware/hxcs-js-client": ">=2.0.1",
+    "@angular/material": ">=19.2.19",
+    "@angular/forms": ">=19.2.18",
+    "@angular/router": ">=19.2.18",
+    "@angular/platform-browser": ">=19.2.18",
+    "@angular/cdk": ">=19.2.19",
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "checkJs": false
+  },
+  "exclude": [
+    "**/*"
+  ]
+}

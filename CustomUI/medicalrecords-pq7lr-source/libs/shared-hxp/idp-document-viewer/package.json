@@ -1,0 +1,16 @@
+{
+  "name": "@hyland/idp-document-viewer",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "es-toolkit": ">=1.33.0",
+    "rxjs": ">=7.8.0",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@ngx-translate/core": ">=17.0.0",
+    "@angular/material": ">=19.2.19",
+    "@angular/platform-browser": ">=19.2.18",
+    "@angular/cdk": ">=19.2.19",
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18"
+  },
+  "sideEffects": false
+}

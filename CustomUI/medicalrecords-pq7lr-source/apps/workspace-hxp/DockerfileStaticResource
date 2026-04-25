@@ -1,0 +1,20 @@
+FROM nginxinc/nginx-unprivileged:1.29.3-alpine3.22@sha256:5aea7cc516b419e3526f47dd1531be31a56a046cfe44754d94f9383e13e2ee99
+
+USER root
+
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 busybox && \
+    if apk info nginx-module-image-filter > /dev/null 2>&1; then apk del --no-cache --purge nginx-module-image-filter; fi && \
+    apk del --no-cache --purge curl
+
+USER 101
+
+COPY apps/studio-hxp/example-projects /usr/share/nginx/html/example-projects
+COPY apps/studio-hxp/example-models /usr/share/nginx/html/example-models
+COPY dist/artifacts/workspace-hxp/*-dist.zip /usr/share/nginx/html/dist.zip
+COPY dist/artifacts/workspace-hxp/*-source-code.zip /usr/share/nginx/html/source-code.zip
+
+RUN ls -alt /usr/share/nginx/html/
+
+ENV SERVER_PORT=8080
+ENV BASE_PATH=/
+ENV NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d

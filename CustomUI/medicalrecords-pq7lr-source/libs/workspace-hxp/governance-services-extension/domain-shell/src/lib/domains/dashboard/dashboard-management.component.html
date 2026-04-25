@@ -1,0 +1,280 @@
+<div class="satorized-container">
+    <div class="hxp-dashboard-landing">
+        <div class="hxp-dashboard-topbar">
+            <div class="hxp-left-controls"></div>
+            <div class="hxp-right-controls">
+                <div class="hxp-last-refresh">{{ 'GOVERNANCE.DASHBOARD.LAST_REFRESH' | translate }}: {{ lastRefresh() | date: 'shortTime' }}</div>
+                <button
+                    mat-button
+                    class="hxp-refresh-btn"
+                    (click)="refreshAll()"
+                    type="button"
+                >
+                    <mat-icon
+                        class="hxp-refresh-icon"
+                        svgIcon="refresh"
+                    />
+                    {{ 'GOVERNANCE.DASHBOARD.REFRESH' | translate }}
+                </button>
+                <button
+                    mat-button
+                    class="hxp-export-btn"
+                    (click)="exportToPPT()"
+                    type="button"
+                    data-automation-id="hxp-gov-dashboard-export"
+                >
+                    <mat-icon svgIcon="download" />
+                    {{ 'GOVERNANCE.DASHBOARD.EXPORT_PPT' | translate }}
+                </button>
+            </div>
+        </div>
+        <div
+            class="hxp-dashboard-grid"
+            cdkDropList
+            cdkDropListOrientation="mixed"
+            (cdkDropListDropped)="drop($event)"
+        >
+            @for (widgetId of widgetOrder; track widgetId) {
+                <div
+                    class="hxp-widget-wrapper"
+                    cdkDrag
+                >
+                    @switch (widgetId) {
+                        @case (WIDGET_ID.RecordHealth) {
+                            <!-- Record Health -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.RecordHealth"
+                                [heading]="'GOVERNANCE.DASHBOARD.RECORD_HEALTH' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.RECORD_HEALTH_SUBTITLE' | translate"
+                                [loading]="loading()[WIDGET_ID.RecordHealth]"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.Category]"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasRecordHealthData()"
+                                (categoryChange)="onCategoryChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.RecordHealth]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.RecordHealth)" />
+                                } @else if (hasRecordHealthData()) {
+                                    <div class="hxp-record-health-widget">
+                                        <div class="hxp-record-health-metrics">
+                                            <div class="hxp-total-records-wrapper">
+                                                <div class="hxp-label">
+                                                    {{ 'GOVERNANCE.DASHBOARD.TOTAL_RECORDS' | translate }}
+                                                </div>
+                                                <a
+                                                    class="hxp-total"
+                                                    [routerLink]="['/governance/records']"
+                                                    [queryParams]="getRecordHealthQueryParams()"
+                                                    [matTooltip]="'GOVERNANCE.DASHBOARD.VIEW_RECORDS' | translate"
+                                                    matTooltipPosition="above"
+                                                    data-automation-id="hxp-gov-dashboard-total-count"
+                                                >
+                                                    {{ data()[WIDGET_ID.RecordHealth]?.total || '—' }}
+                                                </a>
+                                            </div>
+                                            <div>
+                                                <div class="hxp-label">
+                                                    {{ 'GOVERNANCE.DASHBOARD.RECORDS_BY_STATUS' | translate }}
+                                                </div>
+                                                <div class="hxp-legend">
+                                                    @for (item of recordHealthBreakdown(); track item.status) {
+                                                        <a
+                                                            class="hxp-legend-item"
+                                                            [routerLink]="['/governance/records']"
+                                                            [queryParams]="getRecordHealthQueryParams(item.status)"
+                                                            [attr.data-automation-id]="'hxp-gov-dashboard-record-health-' + item.status"
+                                                        >
+                                                            <span
+                                                                class="hxp-sw"
+                                                                aria-hidden="true"
+                                                                [style.background]="getStatusColor(item.status)"
+                                                                [attr.title]="item.label"
+                                                            ></span>
+                                                            <span class="hxp-legend-label">{{ item.label }}</span>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hxp-cic-gov-donut-chart
+                                            [data]="data()[WIDGET_ID.RecordHealth]?.breakdown ?? null"
+                                            [edsId]="edsId"
+                                            [queryParams]="getRecordHealthQueryParams()"
+                                            class="hxp-cic-gov-donut-chart"
+                                            data-automation-id="hxp-gov-dashboard-donut-chart"
+                                        />
+                                    </div>
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.RECORD_HEALTH' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                        @case (WIDGET_ID.ActiveRetention) {
+                            <!-- Active Retention -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.ActiveRetention"
+                                [heading]="'GOVERNANCE.DASHBOARD.ACTIVE_RETENTION_STATUS' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.ACTIVE_RETENTION_SUBTITLE' | translate"
+                                [loading]="loading()[WIDGET_ID.ActiveRetention]"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.Category]"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasActiveRetentionData()"
+                                (categoryChange)="onCategoryChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.ActiveRetention]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.ActiveRetention)" />
+                                } @else if (hasActiveRetentionData()) {
+                                    <hxp-cicgov-column-chart
+                                        class="hxp-cicgov-column-chart"
+                                        data-automation-id="hxp-gov-dashboard-active-retention"
+                                        [data]="data()[WIDGET_ID.ActiveRetention]?.series ?? []"
+                                        [edsId]="edsId"
+                                        [status]="RECORD_STATUS.UnderRetention"
+                                        [primaryColor]="STATUS_COLOR_MAP[WIDGET_STATUS_MAP[WIDGET_ID.ActiveRetention]]"
+                                        [tooltipLabel]="'GOVERNANCE.DASHBOARD.UNDER_RETENTION' | translate"
+                                    />
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.ACTIVE_RETENTION' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                        @case (WIDGET_ID.MissingProperties) {
+                            <!-- Incomplete Record -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.MissingProperties"
+                                [heading]="'GOVERNANCE.DASHBOARD.INCOMPLETE_RECORD' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.INCOMPLETE_SUBTITLE' | translate"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.Category]"
+                                [loading]="loading()[WIDGET_ID.MissingProperties]"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasMissingPropertiesData()"
+                                (categoryChange)="onCategoryChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.MissingProperties]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.MissingProperties)" />
+                                } @else if (hasMissingPropertiesData()) {
+                                    <hxp-cicgov-column-chart
+                                        class="hxp-cicgov-column-chart"
+                                        data-automation-id="hxp-gov-dashboard-missing-properties"
+                                        [data]="data()[WIDGET_ID.MissingProperties]?.series ?? []"
+                                        [edsId]="edsId"
+                                        [status]="RECORD_STATUS.Incomplete"
+                                        [primaryColor]="STATUS_COLOR_MAP[WIDGET_STATUS_MAP[WIDGET_ID.MissingProperties]]"
+                                        [tooltipLabel]="'GOVERNANCE.DASHBOARD.MISSING_PROPERTY' | translate"
+                                    />
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.MISSING_PROPERTIES' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                        @case (WIDGET_ID.CutoffTracker) {
+                            <!-- Cutoff Tracker -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.CutoffTracker"
+                                [heading]="'GOVERNANCE.DASHBOARD.CUTOFF_TRACKER' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.CUTOFF_SUBTITLE' | translate"
+                                [loading]="loading()[WIDGET_ID.CutoffTracker]"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.Month, WIDGET_CONTROL_KEY.Category]"
+                                [selectedMonth]="selectedMonths[WIDGET_ID.CutoffTracker]"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasCutoffTrackerData()"
+                                (monthChange)="onMonthChange($event)"
+                                (categoryChange)="onCategoryChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.CutoffTracker]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.CutoffTracker)" />
+                                } @else if (hasCutoffTrackerData()) {
+                                    <hxp-cicgov-column-chart
+                                        class="hxp-cicgov-column-chart"
+                                        data-automation-id="hxp-gov-dashboard-cutoff-tracker"
+                                        [data]="data()[WIDGET_ID.CutoffTracker]?.series ?? []"
+                                        [edsId]="edsId"
+                                        [status]="RECORD_STATUS.Ready"
+                                        [primaryColor]="STATUS_COLOR_MAP[WIDGET_STATUS_MAP[WIDGET_ID.CutoffTracker]]"
+                                        [tooltipLabel]="'GOVERNANCE.DASHBOARD.READY_TO_CUTOFF' | translate"
+                                    />
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.CUTOFF_TRACKER' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                        @case (WIDGET_ID.DispositionTracker) {
+                            <!-- Disposition Tracker -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.DispositionTracker"
+                                [heading]="'GOVERNANCE.DASHBOARD.DISPOSITION_TRACKER' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.DISPOSITION_SUBTITLE' | translate"
+                                [loading]="loading()[WIDGET_ID.DispositionTracker]"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.Month, WIDGET_CONTROL_KEY.Category]"
+                                [selectedMonth]="selectedMonths[WIDGET_ID.DispositionTracker]"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasDispositionTrackerData()"
+                                (monthChange)="onMonthChange($event)"
+                                (categoryChange)="onCategoryChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.DispositionTracker]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.DispositionTracker)" />
+                                } @else if (hasDispositionTrackerData()) {
+                                    <hxp-cicgov-column-chart
+                                        class="hxp-cicgov-column-chart"
+                                        data-automation-id="hxp-gov-dashboard-disposition-tracker"
+                                        [data]="data()[WIDGET_ID.DispositionTracker]?.series ?? []"
+                                        [edsId]="edsId"
+                                        [status]="RECORD_STATUS.ReachedDisposition"
+                                        [primaryColor]="STATUS_COLOR_MAP[WIDGET_STATUS_MAP[WIDGET_ID.DispositionTracker]]"
+                                        [tooltipLabel]="'GOVERNANCE.DASHBOARD.DUE_FOR_DISPOSITION' | translate"
+                                    />
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.DISPOSITION_TRACKER' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                        @case (WIDGET_ID.LegalHoldSummary) {
+                            <!-- Legal Hold Summary -->
+                            <hxp-dashboard-widget
+                                class="hxp-card-large"
+                                [widgetId]="WIDGET_ID.LegalHoldSummary"
+                                [heading]="'GOVERNANCE.DASHBOARD.LEGAL_HOLD_SUMMARY' | translate"
+                                [subtitle]="'GOVERNANCE.DASHBOARD.LEGAL_HOLD_SUBTITLE' | translate"
+                                [loading]="loading()[WIDGET_ID.LegalHoldSummary]"
+                                [controlKeys]="[WIDGET_CONTROL_KEY.LegalCase]"
+                                [legalCaseItems]="rawData()[WIDGET_ID.LegalHoldSummary]?.series ?? []"
+                                [refreshToken]="lastRefresh()"
+                                [disabled]="!hasLegalHoldSummaryData()"
+                                (legalCaseChange)="onLegalCaseChange($event.widgetId, $event.value)"
+                            >
+                                @if (error()[WIDGET_ID.LegalHoldSummary]) {
+                                    <hxp-governance-error (buttonClick)="retryWidget(WIDGET_ID.LegalHoldSummary)" />
+                                } @else if (hasLegalHoldSummaryData()) {
+                                    <hxp-cicgov-column-chart
+                                        class="hxp-cicgov-column-chart"
+                                        data-automation-id="hxp-gov-dashboard-legal-hold-summary"
+                                        [data]="data()[WIDGET_ID.LegalHoldSummary]?.series ?? []"
+                                        [edsId]="edsId"
+                                        [status]="RECORD_STATUS.OnHold"
+                                        [navigationRoute]="'/governance/legal-holds'"
+                                        [navigationIdQueryParam]="'legalCaseId'"
+                                        [navigationQueryParamOverrides]="legalHoldSummaryNavigationQueryParamOverrides"
+                                        [primaryColor]="STATUS_COLOR_MAP[WIDGET_STATUS_MAP[WIDGET_ID.LegalHoldSummary]]"
+                                        [tooltipLabel]="'GOVERNANCE.DASHBOARD.LEGAL_HOLD_TOOLTIP' | translate"
+                                    />
+                                } @else {
+                                    <hxp-empty-widget-state [message]="'GOVERNANCE.DASHBOARD.EMPTY.LEGAL_HOLD_SUMMARY' | translate" />
+                                }
+                            </hxp-dashboard-widget>
+                        }
+                    }
+                </div>
+                <div
+                    *cdkDragPlaceholder
+                    class="hxp-drag-placeholder"
+                ></div>
+            }
+        </div>
+    </div>
+</div>

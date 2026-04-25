@@ -1,0 +1,17 @@
+.hxp-permission-select {
+    width: 100%;
+    .hxp-permission-select-field {
+        width: 100%;
+    }
+
+    .hxp-select-permission {
+        font-size: var(--mat-sys-body-medium-size);
+        padding-left: 5px;
+        &.hxp-disabled {
+            padding-left: 0;
+            > div {
+                padding: 5px 10px;
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+@use '@angular/material' as mat;
+
+hxp-app-layout .adf-layout-container-sidenav {
+    @include mat.sidenav-overrides(
+        (
+            container-shape: 0,
+            container-background-color: transparent,
+        )
+    );
+}

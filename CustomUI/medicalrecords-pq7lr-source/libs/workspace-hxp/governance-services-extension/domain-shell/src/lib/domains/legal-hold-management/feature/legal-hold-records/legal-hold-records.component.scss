@@ -1,0 +1,77 @@
+@use '../../../../shared/ui/search/filters/status/status-options';
+@use '../../../records-management/actions/action-button';
+
+.hxp-governance-legal-hold-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+.hxp-governance-legal-hold-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 0;
+    height: 48px;
+}
+
+.hxp-governance-legal-hold-container-inner {
+    padding: 24px 24px 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.hxp-governance-search-box-right {
+    margin-left: auto;
+}
+
+.hxp-governance-legal-hold-table-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.hxp-governance-legal-hold-paginator-container {
+    display: flex;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    margin-top: 4px;
+}
+
+.hxp-governance-legal-hold-table-no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    img {
+        width: 170px;
+        height: auto;
+    }
+
+    span {
+        padding: 24px;
+    }
+}
+
+.hxp-legal-hold-empty-state {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 24px;
+}
+
+.hxp-record-list-data-source-column {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

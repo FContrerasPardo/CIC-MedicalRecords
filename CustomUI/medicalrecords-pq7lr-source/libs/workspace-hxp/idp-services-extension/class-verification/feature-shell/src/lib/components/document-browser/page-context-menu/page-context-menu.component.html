@@ -1,0 +1,36 @@
+<div
+    #ctxMenuTrigger="matMenuTrigger"
+    class="idp-page-context-menu-trigger"
+    [style.left]="position.x"
+    [style.top]="position.y"
+    [matMenuTriggerFor]="ctxMenu"
+    (menuOpened)="onMenuOpened()"
+    (menuClosed)="onMenuClosed()"
+></div>
+<mat-menu #ctxMenu="matMenu">
+    @if (canCut) {
+        <button
+            mat-menu-item
+            data-automation-id="idp-page-context-menu-item-cut"
+            (click)="onCutPages()"
+        >
+            {{ 'IDP_CLASS_VERIFICATION.PAGE_CONTEXT_MENU.CUT' | translate }}
+        </button>
+    }
+    @if (canInsert) {
+        <button
+            mat-menu-item
+            data-automation-id="idp-page-context-menu-item-insert-above"
+            (click)="onInsertPagesAbove()"
+        >
+            {{ 'IDP_CLASS_VERIFICATION.PAGE_CONTEXT_MENU.INSERT_ABOVE' | translate }}
+        </button>
+        <button
+            mat-menu-item
+            data-automation-id="idp-page-context-menu-item-insert-below"
+            (click)="onInsertPagesBelow()"
+        >
+            {{ 'IDP_CLASS_VERIFICATION.PAGE_CONTEXT_MENU.INSERT_BELOW' | translate }}
+        </button>
+    }
+</mat-menu>

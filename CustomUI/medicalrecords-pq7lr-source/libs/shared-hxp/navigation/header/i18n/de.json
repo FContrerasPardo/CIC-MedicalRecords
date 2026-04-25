@@ -1,0 +1,17 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "EINSTELLUNGEN",
+        "ACTIONS": {
+            "LANGUAGE": "Sprache",
+            "FEATURE_FLAGS": "Feature-Flags",
+            "HELP": "Hilfe",
+            "THEME_SWITCH": {
+                "DARK": "Dunkles Schema",
+                "DARK_LABEL": "Zu dunklem Schema wechseln",
+                "LIGHT": "Helles Schema",
+                "LIGHT_LABEL": "Zu hellem Schema wechseln"
+            }
+        }
+    }
+}

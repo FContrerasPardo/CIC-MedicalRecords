@@ -1,0 +1,24 @@
+:host {
+    --mdc-outlined-text-field-disabled-input-text-color: var(--mat-sys-on-surface);
+    --adf-metadata-property-panel-label-color: var(--mat-sys-on-surface);
+}
+
+.hxp-metadata-properties {
+    display: flex;
+    flex-direction: column;
+
+    &-title {
+        margin-bottom: 16px;
+        font-size: var(--mat-sys-headline-small);
+    }
+
+    &-accordion-content {
+        margin-top: 12px;
+    }
+
+    &-accordion-controls {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 8px;
+    }
+}

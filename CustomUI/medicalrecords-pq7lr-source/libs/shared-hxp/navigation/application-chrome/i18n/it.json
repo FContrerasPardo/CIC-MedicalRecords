@@ -1,0 +1,16 @@
+{
+    "APP_CHROME": {
+        "ENV_SWITCHER": {
+            "CONTROL_CENTER": "Centro di controllo"
+        },
+        "APP_LIST": {
+            "HOME": "Home"
+        },
+        "USER_MENU": {
+            "SIGN_OUT": "Disconnetti"
+        },
+        "ERRORS": {
+            "APPS": "Si è verificato un errore durante il recupero delle applicazioni"
+        }
+    }
+}

@@ -1,0 +1,58 @@
+<div
+    (click)="$event.stopPropagation()"
+    class="hxp-radio-filter-menu"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+>
+    <div class="hxp-radio-filter-menu__content">
+        <div class="hxp-radio-filter-menu__list-container">
+            <mat-radio-group
+                class="hxp-radio-filter-menu__list"
+                [value]="selectedOption?.value ?? null"
+                data-automation-id="hxp-radio-filter-menu-list"
+            >
+                <mat-radio-button
+                    *ngFor="let option of options; trackBy: trackByValue"
+                    [value]="option.value"
+                    class="hxp-radio-filter-menu__list-item"
+                    (change)="selectedOption = option"
+                    [attr.data-automation-id]="'hxp-radio-filter-menu-list-item-' + option.value"
+                >
+                    <div class="hxp-radio-filter-menu__option-content">
+                        @if (hasStatusDeployed(option)) {
+                            <mat-icon
+                                class="hxp-radio-filter-menu__deployed-icon"
+                                matTooltip="{{ 'ICON-TOOLTIPS.DEPLOYED' | translate }}"
+                                svgIcon="cloud"
+                            />
+                        }
+                        <span>{{ option.label | translate }}</span>
+                    </div>
+                </mat-radio-button>
+            </mat-radio-group>
+        </div>
+    </div>
+
+    <mat-divider class="hxp-radio-filter-menu__divider" />
+
+    <div class="hxp-radio-filter-menu__actions">
+        <button
+            *ngIf="allowEmpty"
+            mat-button
+            class="hxp-radio-filter-menu__clear-selection-button"
+            [disabled]="selectedOption === null"
+            (click)="selectedOption = null"
+            data-automation-id="hxp-filter-menu-clear-selection-button"
+        >
+            {{ 'FILTERS.MENU.CLEAR_SELECTION' | translate }}
+        </button>
+        <button
+            mat-flat-button
+            class="hxp-radio-filter-menu__update-button"
+            (click)="onUpdate()"
+            data-automation-id="hxp-filter-menu-update-button"
+        >
+            {{ 'FILTERS.MENU.UPDATE' | translate }}
+        </button>
+    </div>
+</div>

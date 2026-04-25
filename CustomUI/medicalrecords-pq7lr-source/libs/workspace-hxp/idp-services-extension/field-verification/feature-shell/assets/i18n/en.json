@@ -1,0 +1,134 @@
+{
+    "EXTRACTION": {
+        "VERIFICATION": {
+            "TASK_HEADER": {
+                "TITLE": "Review field values extracted from the document",
+                "REMAINING_ISSUES": "issues to resolve",
+                "ALL_RESOLVED": "All resolved",
+                "BACK_LABEL": "Back to Tasks",
+                "TASK_NAME": "Task name",
+                "TASK_NAME_VALUE": "Document Verification",
+                "DOCUMENT_CLASSES": "Document classes",
+                "TOTAL_DOCUMENTS": "Total documents",
+                "TOTAL_PAGES": "Total pages",
+                "CONTENT_TYPE": "Content type",
+                "SET_DOCUMENT_FLAG_BUTTON": "Flag Document",
+                "REVIEW_DOCUMENT_FLAG_BUTTON": "Review Flag Note"
+            },
+            "SUBMIT_BUTTON": "Submit",
+            "SUBMIT_WITH_ISSUE_BUTTON": "Submit with Issue",
+            "METADATA_PANEL": {
+                "TITLE": "Fields",
+                "VALIDATING_FIELDS": "Validating Fields"
+            },
+            "FIELD_IGNORED_FOR_AUTO": "This field is excluded from automatic extraction.",
+            "METADATA_TABLE": {
+                "ADD_TABLE": "Add Table",
+                "ADD_TABLE_TOOLTIP": "Add Table",
+                "TABLE_ROWS_FOUND_SINGULAR": "row found",
+                "TABLE_ROWS_FOUND_PLURAL": "rows found",
+                "TABLE_NOT_FOUND": "Table Not Found",
+                "TABLE_ICON_ALT": "Table type field"
+            },
+            "TABLE_ISSUES": {
+                "SHOW_ENTIRE_TABLE": "Show Entire Table"
+            },
+            "TABLE_PANEL": {
+                "REGION_LABEL": "Extraction table",
+                "TITLE": "Extraction Table ({{rows}} rows)",
+                "RESIZE_HANDLE_LABEL": "Resize table panel",
+                "MINIMIZE_BUTTON": "Minimize table",
+                "MAXIMIZE_BUTTON": "Maximize table",
+                "DEFAULT_VIEW_BUTTON": "Default View",
+                "MINIMIZE_BUTTON_TOOLTIP": "Minimize table (Ctrl+Shift+1)",
+                "MAXIMIZE_BUTTON_TOOLTIP": "Maximize table (Ctrl+Shift+3)",
+                "DEFAULT_VIEW_BUTTON_TOOLTIP": "Default view (Ctrl+Shift+2)"
+            },
+            "METADATA_FIELD_VALIDATOR": {
+                "REQUIRED": "Field is required",
+                "INVALID_INTEGER": "Field must be a number"
+            },
+            "EXTRACTION_RESULT": {
+                "EXTRACTION_ISSUE": "Extraction issue",
+                "EXTRACTED_SUCCESSFULLY": "Extracted successfully",
+                "VERIFIED": "Verified",
+                "NOT_VERIFIED": "Not verified",
+                "INVALID_VALUE": "Invalid value"
+            },
+            "EXTRACTION_TABLE": {
+                "TABLE_NOT_EXTRACTED": "Table data unable to be successfully extracted.",
+                "INSERT_ROW_ABOVE": "Insert row above",
+                "INSERT_ROW_BELOW": "Insert row below",
+                "CLEAR_ROW": "Clear this row",
+                "DELETE_ROW": "Delete this row",
+                "CLEAR_COLUMN": "Clear this column",
+                "DELETE_TABLE": "Delete table",
+                "ADD_TABLE_INSTRUCTIONS": "Click the 'Add Table' button, or press ALT-T, to generate a new table.",
+                "RESET_ALL_COLUMN_WIDTHS": "Reset all column widths",
+                "RESET_COLUMN_WIDTH": "Reset column width",
+                "RESIZE_COLUMN_TOOLTIP": "Resize column",
+                "REQUIRED_FIELD_ERROR_MESSAGE": "This field is required",
+                "MINIMUM_LENGTH_ERROR_MESSAGE": "Minimum length is {{minFieldLength}} characters",
+                "MAXIMUM_LENGTH_ERROR_MESSAGE": "Maximum length is {{maxFieldLength}} characters",
+                "INVALID_FORMAT_ERROR_MESSAGE": "Invalid format",
+                "CELL_MENU_CUT": "Cut",
+                "CELL_MENU_COPY": "Copy",
+                "CELL_MENU_PASTE": "Paste",
+                "CELL_MENU_FILL_ALL_ABOVE": "Fill-All Above",
+                "CELL_MENU_FILL_TO_ABOVE": "Fill-To Above",
+                "CELL_MENU_FILL_ALL_BELOW": "Fill-All Below",
+                "CELL_MENU_FILL_TO_BELOW": "Fill-To Below"
+            },
+            "NOTIFICATIONS": {
+                "SCREEN_INIT_ERROR": "Failed to initialize the screen",
+                "SCREEN_INIT_ERROR_NOT_CLAIMABLE": "Task cannot be claimed",
+                "SCREEN_INIT_ERROR_ASSIGNEE": "Error occurred on getting task assignee",
+                "SCREEN_LOAD_ERROR": "Failed to load the screen data",
+                "TASK_ACTION_ERROR": "Failed to perform action",
+                "TASK_SAVE_ERROR": "Failed to Save Task",
+                "TASK_COMPLETE_ERROR": "Failed to Complete Task",
+                "TASK_CLAIM_ERROR": "Failed to Claim Task",
+                "TASK_UNCLAIM_SUCCESS": "Successfully released task",
+                "TASK_UNCLAIM_ERROR": "Failed to Unclaim Task",
+                "VALIDATION_PROCESS_ERROR": "Process execution failed",
+                "VALIDATION_TABLE_ROW_MISMATCH": "Validation returned an unexpected number of rows, the table update did not complete",
+                "VALIDATION_TABLE_COLUMN_MISMATCH": "Validation returned an unexpected number of columns, the table update did not complete"
+            },
+            "TASK_ACTIONS": {
+                "SAVE": "Save",
+                "SUBMIT": "Submit",
+                "OPEN_NEXT_TASK": "Open next task automatically",
+                "UNCLAIM": "Release"
+            },
+            "SHORTCUTS": {
+                "NAVIGATE_NEXT_FIELD": "Navigate to next field",
+                "SELECT_ROW": "Select Row",
+                "SELECT_COLUMN": "Select Column",
+                "SELECT_TABLE": "Select Table",
+                "NAVIGATE_PREVIOUS_TABLE_COLUMN": "Navigate to cell or column to the left",
+                "NAVIGATE_NEXT_TABLE_COLUMN": "Navigate to cell or column to the right",
+                "NAVIGATE_PREVIOUS_TABLE_ROW": "Navigate to cell or row above",
+                "NAVIGATE_NEXT_TABLE_ROW": "Navigate to cell or row below",
+                "TABLE_CONTEXT_MENU": "Open table context menu",
+                "TABLE_PANEL_MINIMIZE": "Minimize table panel",
+                "TABLE_PANEL_DEFAULT": "Set table panel to default view",
+                "TABLE_PANEL_MAXIMIZE": "Maximize table panel",
+                "TABLE_CREATE_MISSING": "Create missing table",
+                "TABLE_CELL_FILL_ALL_ABOVE": "Fill-All Above - Fill all cells above with this value",
+                "TABLE_CELL_FILL_TO_ABOVE": "Fill-To Above - Fill upward until the next non‑blank cell",
+                "TABLE_CELL_FILL_TO_BELOW": "Fill-To Below - Fill downward until the next non‑blank cell",
+                "TABLE_CELL_FILL_ALL_BELOW": "Fill-All Below - Fill all cells below with this value",
+                "GROW_COLUMN": "Grow column width",
+                "SHRINK_COLUMN": "Shrink column width",
+                "RESIZE_COLUMN_CANCEL": "Cancel column resize",
+                "VIEWER_TOGGLE_THUMBNAIL": "Toggle thumbnail viewer",
+                "VIEWER_ZOOM_IN": "Zoom in",
+                "VIEWER_ZOOM_OUT": "Zoom out",
+                "VIEWER_ROTATE": "Rotate clockwise",
+                "VIEWER_FULLSCREEN": "Toggle fullscreen",
+                "ZOOM_IMAGE": "Zoom Image",
+                "ZOOM_TEXT": "Zoom Text"
+            }
+        }
+    }
+}

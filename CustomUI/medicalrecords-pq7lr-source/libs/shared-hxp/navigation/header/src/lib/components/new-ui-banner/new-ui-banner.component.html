@@ -1,0 +1,51 @@
+<div
+    class="hxp-new-ui-banner"
+    data-automation-id="new-ui-banner"
+>
+    <div class="hxp-new-ui-banner__content">
+        <sat-h-mark-logo class="hxp-new-ui-banner__icon" />
+        @if (variant() === 'promote') {
+            <span class="hxp-new-ui-banner__message">{{ 'HEADER.UNIFIED_UI.BANNER.MESSAGE' | translate }}</span>
+        } @else {
+            <span class="hxp-new-ui-banner__message">{{ 'HEADER.UNIFIED_UI.BANNER.NAVIGATE_BACK_MESSAGE' | translate }}</span>
+        }
+    </div>
+    <div class="hxp-new-ui-banner__actions">
+        @if (variant() === 'promote') {
+            <button
+                mat-button
+                class="hxp-new-ui-banner__try-button"
+                data-automation-id="new-ui-banner-try-button"
+                (click)="onTryNewUi()"
+            >
+                {{ 'HEADER.UNIFIED_UI.BANNER.TRY_NEW_UI' | translate }}
+            </button>
+            <button
+                mat-icon-button
+                class="hxp-new-ui-banner__info"
+                [matTooltip]="'HEADER.UNIFIED_UI.TOOLTIP' | translate"
+                [attr.aria-label]="'HEADER.UNIFIED_UI.TOOLTIP' | translate"
+            >
+                <mat-icon svgIcon="info" />
+            </button>
+            <button
+                mat-icon-button
+                class="hxp-new-ui-banner__close"
+                data-automation-id="new-ui-banner-close"
+                [attr.aria-label]="'HEADER.UNIFIED_UI.BANNER.CLOSE' | translate"
+                (click)="onClose()"
+            >
+                <mat-icon svgIcon="x_large" />
+            </button>
+        } @else {
+            <button
+                mat-button
+                class="hxp-new-ui-banner__try-button"
+                data-automation-id="new-ui-banner-understood"
+                (click)="onClose()"
+            >
+                {{ 'HEADER.UNIFIED_UI.BANNER.UNDERSTOOD' | translate }}
+            </button>
+        }
+    </div>
+</div>

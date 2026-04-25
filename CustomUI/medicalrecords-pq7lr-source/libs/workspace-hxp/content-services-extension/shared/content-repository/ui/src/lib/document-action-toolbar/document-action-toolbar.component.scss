@@ -1,0 +1,18 @@
+@use '@angular/material' as mat;
+
+.hxp-document-action-toolbar {
+    @include mat.toolbar-overrides(
+        (
+            container-background-color: color-mix(in srgb, var(--mat-sys-primary-fixed-dim) 16%, transparent),
+            container-text-color: var(--mat-sys-on-surface),
+        )
+    );
+
+    &--spacer {
+        flex: 1 1 auto;
+    }
+}
+
+.hxp-document-action-toolbar-hidden {
+    visibility: hidden;
+}

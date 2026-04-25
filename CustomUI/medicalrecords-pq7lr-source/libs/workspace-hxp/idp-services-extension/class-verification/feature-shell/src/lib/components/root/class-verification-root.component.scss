@@ -1,0 +1,57 @@
+.idp-class-verification-root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .idp-header-container {
+        width: 100%;
+        flex: 0 1 auto;
+    }
+
+    .idp-content-container {
+        display: flex;
+        width: 100%;
+        flex: 1 1 auto;
+        padding-left: 8px;
+        box-sizing: border-box;
+        overflow: hidden;
+        border-top: 1px solid var(--mat-sys-outline-variant);
+
+        &__document-browser {
+            flex: 0 0 30%;
+            min-width: 0;
+            height: inherit;
+        }
+
+        &__viewer {
+            flex: 1 0 70%;
+            height: inherit;
+        }
+    }
+
+    .idp-footer-container {
+        width: 100%;
+        flex: 0 1 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 16px;
+        box-sizing: border-box;
+        border-top: 1px solid var(--mat-sys-outline-variant);
+
+        &__buttons {
+            display: flex;
+            gap: 24px;
+        }
+    }
+
+    &__progress {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+    }
+}

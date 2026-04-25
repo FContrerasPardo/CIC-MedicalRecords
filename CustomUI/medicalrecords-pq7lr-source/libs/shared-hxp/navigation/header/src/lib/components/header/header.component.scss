@@ -1,0 +1,55 @@
+@use '@angular/material' as mat;
+
+.hxp-header {
+    &__logo {
+        width: 106px;
+    }
+
+    &__custom-logo {
+        display: flex;
+        width: 76px;
+        height: 25px;
+        object-fit: contain;
+    }
+
+    &__title {
+        cursor: pointer;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        margin-right: 64px;
+        color: var(--sat-sys-on-info-container);
+
+        @include mat.slide-toggle-overrides(
+            (
+                label-text-color: var(--sat-sys-on-info-container),
+            )
+        );
+    }
+
+    &__toggle-info {
+        color: var(--mat-sys-on-surface);
+    }
+
+    &__banner-overlay {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        max-width: 700px;
+        width: 100%;
+        padding: 8px 16px;
+        pointer-events: auto;
+    }
+}

@@ -1,0 +1,34 @@
+<div class="hxp-cancel-edit-dialog">
+    <h1 mat-dialog-title>{{ 'DOCUMENT.METADATA.CANCEL_DIALOG.TITLE' | translate }}</h1>
+    <div mat-dialog-content>
+        <p>{{ 'DOCUMENT.METADATA.CANCEL_DIALOG.DESCRIPTION_LINE1' | translate }}</p>
+        <p>{{ 'DOCUMENT.METADATA.CANCEL_DIALOG.DESCRIPTION_LINE2' | translate }}</p>
+    </div>
+    <div
+        mat-dialog-actions
+        align="end"
+    >
+        <button
+            mat-button
+            data-automation-id="continue-editing-button"
+            mat-dialog-close
+        >
+            {{ 'DOCUMENT.METADATA.CANCEL_DIALOG.CONTINUE_EDITING' | translate }}
+        </button>
+        <button
+            mat-button
+            data-automation-id="discard-button"
+            (click)="onDiscardChanges()"
+        >
+            {{ 'DOCUMENT.METADATA.CANCEL_DIALOG.DISCARD' | translate }}
+        </button>
+        <button
+            mat-flat-button
+            cdkFocusInitial
+            data-automation-id="save-and-exit-button"
+            (click)="onSaveAndExit()"
+        >
+            {{ 'DOCUMENT.METADATA.CANCEL_DIALOG.SAVE_AND_EXIT' | translate }}
+        </button>
+    </div>
+</div>

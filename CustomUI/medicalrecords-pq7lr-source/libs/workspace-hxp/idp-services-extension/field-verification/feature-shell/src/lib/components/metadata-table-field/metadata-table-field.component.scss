@@ -1,0 +1,80 @@
+@use '@angular/material' as mat;
+
+#table-issues-container {
+    --table-issues-icon-large: 16px;
+    --table-issues-icon-medium: 14px;
+    --table-issues-icon-small: 12px;
+
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+
+    .idp-issues-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: baseline;
+        width: 100%;
+        vertical-align: middle;
+        cursor: pointer;
+
+        &-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            vertical-align: middle;
+        }
+
+        &-right {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            vertical-align: top;
+            padding-right: 16px;
+        }
+    }
+
+    .idp-issues-body {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        margin-left: 16px;
+        cursor: pointer;
+        margin-top: 16px;
+        height: 36px;
+    }
+
+    .idp-table-name {
+        margin-left: 8px;
+        margin-bottom: 0;
+    }
+
+    .idp-table-not-found {
+        font-size: 14px;
+        font-style: normal;
+        font-weight: bold;
+        margin-left: 8px;
+    }
+
+    .idp-has-issue {
+        color: var(--mat-sys-error);
+    }
+
+    .idp-icon-table {
+        width: var(--table-issues-icon-large);
+        height: var(--table-issues-icon-large);
+    }
+
+    .idp-add-table-button {
+        margin-top: -8px;
+        background-color: transparent;
+        @include mat.button-overrides(
+            (
+                filled-label-text-color: var(--mat-sys-primary),
+                filled-label-text-font: var(--mat-sys-label-large),
+                filled-label-text-size: var(--mat-sys-title-medium-size),
+                filled-label-text-weight: var(--mat-sys-label-large-weight-prominent),
+            )
+        );
+    }
+}

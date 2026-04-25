@@ -1,0 +1,15 @@
+<div data-automation-id="idp-confirmation-dialog" class="idp-confirmation-dialog">
+    <div data-automation-id="idp-confirmation-dialog__header" class="idp-confirmation-dialog__title"
+    >{{ data.dialogHeader | translate }}</div>
+    <mat-dialog-content data-automation-id="idp-confirmation-dialog__content" class="idp-confirmation-dialog__content"
+    >{{ data.content | translate }}</mat-dialog-content>
+    <mat-dialog-actions class="idp-confirmation-dialog__footer" align="end">
+        <button data-automation-id="idp-confirmation-dialog__cancel-button" mat-button mat-dialog-close
+        >{{ data.cancelLabel | translate }}</button>
+        <button data-automation-id="idp-confirmation-dialog__confirm-button"
+            mat-flat-button
+            [class]="'idp-confirmation-dialog__confirm-button--' + confirmButtonModifier"
+            [mat-dialog-close]="true"
+        >{{ data.confirmLabel | translate }}</button>
+    </mat-dialog-actions>
+</div>

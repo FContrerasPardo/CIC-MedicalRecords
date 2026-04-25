@@ -1,0 +1,32 @@
+.hxp-governance-action-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.hxp-governance-action-button[mat-button] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 36px;
+}
+
+.hxp-governance-action-button[mat-button] .hxp-governance-action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+}
+
+.hxp-governance-toolbar-no-selection-left {
+    display: inline-flex;
+    align-items: center;
+
+    .hxp-governance-toolbar-selected,
+    button[mat-icon-button] {
+        margin-top: 1px;
+    }
+}

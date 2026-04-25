@@ -1,0 +1,25 @@
+.hxp-search-input {
+    .hxp-search-text {
+        display: flex;
+        justify-content: space-between;
+        flex-grow: 1;
+
+        .hxp-new-search-input {
+            flex: 1;
+        }
+    }
+
+    textarea {
+        width: 100%;
+        resize: none;
+    }
+}
+
+.hxp-search-text-suffix-container {
+    align-items: center;
+    border-left: 1px solid var(--mat-sys-outline);
+    display: flex;
+    height: 56px;
+    justify-content: center;
+    width: 56px;
+}

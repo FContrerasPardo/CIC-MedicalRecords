@@ -1,0 +1,167 @@
+@use '@angular/material' as mat;
+
+#metadata-container {
+    height: calc(100% - 8px);
+    padding: 0.1em 0.4em;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .idp-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        .idp-spacer {
+            flex: 1;
+        }
+    }
+
+    .idp-title {
+        width: 30%;
+        margin-left: 10px;
+        margin-block-start: 16px;
+        margin-block-end: 16px;
+        font: var(--mat-sys-headline-medium);
+    }
+
+    .idp-cloud-form-wrapper {
+        flex: 1;
+        overflow-y: auto;
+
+        &.idp-disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    }
+
+    .idp-form-loading {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .idp-validation-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        gap: 10px;
+    }
+
+    .idp-validation-message {
+        font: var(--mat-sys-label-large);
+    }
+
+    .idp-metadata-cloud-form {
+        border-width: 2px;
+
+        adf-form-field {
+            display: block; // prevents incomplete inline border on old forms
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .idp-is-selected {
+            background-color: var(--mat-sys-primary-container);
+            border-radius: 8px;
+        }
+    }
+
+    .idp-field-status {
+        margin-top: 6px;
+        margin-left: 1px;
+        margin-bottom: 1px;
+        border-radius: 4px;
+        max-width: max-content;
+        box-shadow: 0 0 0 1px var(--mat-sys-surface-container-lowest);
+        display: inline-block;
+        line-height: 1;
+    }
+
+    .idp-metadata-fields-form {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-left: 5px;
+        padding-right: 10px;
+
+        .idp-fields-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 19.2px;
+            max-width: 600px;
+
+            .idp-form-field {
+                display: flex;
+                flex-direction: column;
+                padding: 15px 10px 7px;
+
+                @include mat.form-field-overrides(
+                    (
+                        outlined-label-text-font: var(--mat-sys-label-large),
+                        outlined-label-text-weight: var(--mat-sys-label-large-weight),
+                        outlined-label-text-populated-size: var(--mat-sys-title-medium-size),
+                    )
+                );
+
+                &-label {
+                    overflow-wrap: break-word;
+                }
+                &.idp-has-issue {
+                    @include mat.form-field-overrides(
+                        (
+                            outlined-label-text-color: var(--sat-sys-on-important-container),
+                            outlined-hover-label-text-color: var(--sat-sys-on-important-container),
+                            outlined-focus-label-text-color: var(--sat-sys-on-important-container),
+                            outlined-error-label-text-color: var(--sat-sys-on-important-container),
+                            outlined-outline-color: var(--sat-sys-on-important-container),
+                            outlined-hover-outline-color: var(--sat-sys-on-important-container),
+                            outlined-focus-outline-color: var(--sat-sys-on-important-container),
+                            outlined-error-outline-color: var(--sat-sys-on-important-container),
+                        )
+                    );
+                }
+                &.idp-is-selected {
+                    border-radius: 8px;
+                    background-color: var(--mat-sys-primary-container);
+                }
+                &.idp-has-issue.idp-is-selected {
+                    background-color: var(--sat-sys-important-container);
+                }
+                &-input {
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                    border: 0;
+                }
+            }
+
+            .idp-field-lock-icon {
+                @include mat.icon-overrides(
+                    (
+                        color: var(--mat-sys-outline),
+                    )
+                );
+
+                width: 16px;
+                height: 16px;
+                margin-left: 4px;
+                vertical-align: text-top;
+                opacity: 0.7;
+            }
+        }
+    }
+
+    .idp-table-data-text {
+        margin-left: 20px;
+    }
+}

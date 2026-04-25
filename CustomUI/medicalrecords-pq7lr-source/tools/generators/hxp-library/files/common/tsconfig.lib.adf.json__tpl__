@@ -1,0 +1,5 @@
+{
+    "extends": "<%= offsetFromRoot %>tsconfig.adf.json",
+    "exclude": ["**/*.spec.ts"],
+    "include": ["**/*.ts"]
+}

@@ -1,0 +1,38 @@
+.hxp-full-height {
+    height: 100%;
+}
+
+.hxp-cicgov-donut-chart-root {
+    --hxp-donut-size: 250px;
+
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    background: var(--mat-sys-surface);
+
+    .hxp-cicgov-donut-chart {
+        width: var(--hxp-donut-size) !important;
+        height: var(--hxp-donut-size) !important;
+        margin: 0 auto;
+        display: block;
+    }
+}
+
+@media (width <= 1024px) {
+    .hxp-cicgov-donut-chart-root {
+        --hxp-donut-size: min(440px, 100%);
+
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 8px;
+
+        .hxp-cicgov-donut-chart {
+            aspect-ratio: 1 / 1;
+        }
+    }
+}

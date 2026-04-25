@@ -1,0 +1,43 @@
+@use '@angular/material' as mat;
+
+.hxp-document-location-picker {
+    display: flex;
+    flex-direction: column;
+}
+
+.hxp-document-location-picker-input-container {
+    display: flex;
+    flex-direction: row;
+    padding-right: 10px;
+}
+
+.hxp-document-location-picker-folder-icon,
+.hxp-document-location-picker-pencil-icon {
+    display: inline-block;
+    width: 16px;
+}
+
+.hxp-document-location-picker-folder-icon {
+    margin-inline-end: 12px;
+}
+
+.hxp-document-location-picker-overlay {
+    @include mat.elevation(3);
+
+    background-color: var(--mat-sys-surface);
+    border-radius: 8px;
+    max-height: 240px;
+    padding: 24px;
+    overflow: auto;
+    width: 100%;
+    margin-top: 4px;
+}
+
+#cdk-overlay-0 {
+    overflow: auto;
+}
+
+.hxp-document-location-picker-required::after {
+    content: ' *';
+    color: var(--mat-sys-error);
+}

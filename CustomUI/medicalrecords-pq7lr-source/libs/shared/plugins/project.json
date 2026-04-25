@@ -1,0 +1,59 @@
+{
+    "name": "shared-plugins",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/shared/plugins/src",
+    "projectType": "library",
+    "tags": ["scope:shared-plugins"],
+    "// test executor note": "Uses run-commands with --experimental-vm-modules because Prettier 3.x is ESM-only and formatFiles() in Nx generators requires dynamic imports",
+    "targets": {
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config {projectRoot}/jest.config.ts --passWithNoTests"
+            },
+            "configurations": {
+                "adf": {
+                    "command": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config {projectRoot}/jest.adf.config.ts --passWithNoTests --silent"
+                }
+            }
+        },
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/libs/shared/plugins",
+                "main": "libs/shared/plugins/src/index.ts",
+                "tsConfig": "libs/shared/plugins/tsconfig.lib.json",
+                "assets": [
+                    "libs/shared/plugins/*.md",
+                    {
+                        "input": "./libs/shared/plugins/src",
+                        "glob": "**/!(*.ts)",
+                        "output": "./src"
+                    },
+                    {
+                        "input": "./libs/shared/plugins/src",
+                        "glob": "**/*.d.ts",
+                        "output": "./src"
+                    },
+                    {
+                        "input": "./libs/shared/plugins",
+                        "glob": "generators.json",
+                        "output": "."
+                    },
+                    {
+                        "input": "./libs/shared/plugins",
+                        "glob": "executors.json",
+                        "output": "."
+                    }
+                ]
+            },
+            "configurations": {
+                "adf": {
+                    "outputPath": "dist/libs/shared/plugins/adf",
+                    "tsConfig": "libs/shared/plugins/tsconfig.lib.adf.json"
+                }
+            }
+        }
+    }
+}

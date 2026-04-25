@@ -1,0 +1,22 @@
+<div class="hxp-table-reference-widget satorized-container {{field.className}}"
+    [attr.tabindex]="field.readOnly ? -1 : 0"
+    [attr.id]="field.id"
+    [attr.role]="'button'"
+    [attr.aria-label]="field.name"
+>
+
+    <label class="hxp-label" [attr.for]="field.id">
+        {{field.name | translate}}
+    </label>
+
+    @if (customTemplate) {
+        <ng-container [ngTemplateOutlet]="customTemplate" [ngTemplateOutletContext]="{ field }" />
+    } @else {
+        <sat-status-tag class="hxp-extraction-result"
+            [status]="field.isValid ? StatusResult.STATUS_SUCCESS : StatusResult.STATUS_IMPORTANT"
+            [attr.data-test-status]="field.isValid ? 'success' : 'error'"
+        >
+            {{ field.validationSummary?.message | translate }}
+        </sat-status-tag>
+    }
+</div>

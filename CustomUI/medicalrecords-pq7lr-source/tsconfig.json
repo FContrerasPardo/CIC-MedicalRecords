@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "extends": "./tsconfig.base.json",
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "nxcache",
+    "tmp",
+    "e2es"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es6"
+    }
+  }
+}

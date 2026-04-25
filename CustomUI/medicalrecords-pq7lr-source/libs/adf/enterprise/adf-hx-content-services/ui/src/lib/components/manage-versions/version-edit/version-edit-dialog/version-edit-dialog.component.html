@@ -1,0 +1,65 @@
+<div class="hxp-version-edit-dialog">
+    <h1 mat-dialog-title>{{ 'MANAGE_VERSIONS.EDIT_DIALOG.TITLE' | translate }}</h1>
+    <mat-dialog-content>
+        <form
+            [formGroup]="form"
+            class="hxp-version-edit-dialog-form"
+        >
+            <mat-form-field
+                class="hxp-edit-form-field"
+                data-automation-id="hxp-document-version-edit-title"
+            >
+                <mat-label>{{ 'MANAGE_VERSIONS.EDIT_DIALOG.FIELD_TITLE' | translate }}</mat-label>
+                <input
+                    matInput
+                    formControlName="sysver_title"
+                    (keydown)="$event.stopPropagation()"
+                />
+            </mat-form-field>
+            <mat-form-field
+                class="hxp-edit-form-field"
+                data-automation-id="hxp-document-version-edit-description"
+                hideRequiredMarker
+            >
+                <mat-label>{{ 'MANAGE_VERSIONS.EDIT_DIALOG.DESCRIPTION' | translate }}</mat-label>
+                <textarea
+                    matInput
+                    formControlName="sysver_description"
+                    placeholder="{{ 'MANAGE_VERSIONS.EDIT_DIALOG.PLACEHOLDER_DESCRIPTION' | translate }}"
+                    (keydown)="$event.stopPropagation()"
+                    rows="5"
+                >
+                </textarea>
+            </mat-form-field>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions
+        [align]="'end'"
+        class="hxp-version-edit-dialog-footer-action"
+    >
+        <button
+            mat-button
+            mat-dialog-close
+        >
+            {{ 'MANAGE_VERSIONS.EDIT_DIALOG.BUTTONS.CANCEL' | translate }}
+        </button>
+        <button
+            mat-flat-button
+            [disabled]="form.invalid || isUpdating"
+            (click)="onSave()"
+            data-automation-id="hxp-document-version-edit-save"
+        >
+            <span class="hxp-version-edit-dialog-save-btn-label">
+                @if (isUpdating) {
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="15"
+                    />
+                }
+                <span class="hxp-version-edit-dialog-save-btn-title">
+                    {{ 'MANAGE_VERSIONS.EDIT_DIALOG.BUTTONS.SAVE' | translate }}
+                </span>
+            </span>
+        </button>
+    </mat-dialog-actions>
+</div>

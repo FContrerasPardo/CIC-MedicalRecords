@@ -1,0 +1,39 @@
+@use '@hylandsoftware/satori-ui/theme' as sat;
+@use './styles/adf-variables' as adf-variables;
+@use './styles/adf-components-overrides' as adfOverrides;
+@use './styles/components-overrides' as componentsOverrides;
+@use 'mat-date-time-picker-overrides' as dateTimePickerOverrides;
+@use 'viewer.theme' as idpViewer;
+@use '@hylandsoftware/satori-tokens/scss/light' as satLight;
+@import './styles/material-theme';
+
+@include adf-variables.provide-adf-variables();
+
+:root {
+    color-scheme: light;
+}
+
+.idp-viewer {
+    // Concrete light tokens for IDP viewer canvas highlights.
+    $idp-viewer-canvas-tokens: (
+        rubber-band: satLight.$primary,
+        rubber-band-background: satLight.$primary-container,
+        valid: satLight.$cat-green-icon,
+        invalid: satLight.$cat-red-icon,
+        primary: satLight.$primary,
+        primary-container: satLight.$primary-container,
+        secondary: satLight.$cat-yellow-icon,
+        default: satLight.$cat-yellow-icon,
+    );
+
+    @include idpViewer.viewer-theme($canvas-tokens: $idp-viewer-canvas-tokens);
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+
+    @include dateTimePickerOverrides.override-mat-date-timepicker();
+    @include adfOverrides.adf-toasts;
+}

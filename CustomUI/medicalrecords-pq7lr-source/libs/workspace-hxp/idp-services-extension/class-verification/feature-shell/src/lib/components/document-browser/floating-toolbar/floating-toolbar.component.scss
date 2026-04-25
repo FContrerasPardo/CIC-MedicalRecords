@@ -1,0 +1,42 @@
+@use '@angular/material' as mat;
+
+:host {
+    position: sticky;
+    bottom: 0;
+    z-index: 999;
+}
+
+.idp-footer-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 16px 12px;
+    padding: 4px 8px;
+    height: 40px;
+    gap: 16px;
+    background-color: var(--mat-sys-surface);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 16px;
+    box-sizing: content-box;
+    box-shadow: var(--mat-sys-level4);
+
+    &.idp-collapsed-width {
+        width: min-content;
+        max-width: 48px;
+    }
+
+    &__button {
+        @include mat.icon-button-overrides(
+            (
+                icon-color: var(--mat-sys-primary),
+                state-layer-size: 28px,
+            )
+        );
+    }
+
+    &__select-text {
+        flex: 1;
+        text-align: center;
+        font: var(--mat-sys-body-large);
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@hxp/shared-hxp/services",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "rxjs": ">=7.8.0",
+    "@alfresco/adf-hx-content-services/services": ">=0.0.1",
+    "@hylandsoftware/hxcs-js-client": ">=2.0.1",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@alfresco/adf-extensions": ">=8.5.0-0",
+    "@angular/material": ">=19.2.19",
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18",
+    "@ngx-translate/core": "^17.0.0",
+    "@features": "0.0.1"
+  }
+}

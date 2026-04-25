@@ -1,0 +1,51 @@
+<div class="hxp-metadata-properties">
+    @if (properties() && properties().length > 0) {
+        @if (collapsible()) {
+            <div class="hxp-metadata-properties-accordion-controls">
+                <button
+                    mat-button
+                    (click)="toggleAllAccordions()"
+                    class="hxp-accordion-controls-button"
+                    data-automation-id="metadata-accordion-toggle-all"
+                >
+                    {{
+                        (allExpanded() ? 'DOCUMENT.METADATA.PROPERTIES.ACCORDION.COLLAPSE_ALL' : 'DOCUMENT.METADATA.PROPERTIES.ACCORDION.EXPAND_ALL')
+                            | translate
+                    }}
+                </button>
+            </div>
+            @for (group of groupedProperties(); track group.schema) {
+                <mat-accordion displayMode="flat">
+                    <mat-expansion-panel
+                        class="hxp-panel-dropdown mat-elevation-z0"
+                        [expanded]="group.expanded"
+                        (expandedChange)="onPanelExpandedChange()"
+                    >
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>{{ group.schema | translate }}</mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <div class="hxp-metadata-properties-accordion-content">
+                            <adf-card-view
+                                [properties]="group.properties"
+                                [editable]="editable()"
+                                [displayEmpty]="displayEmpty()"
+                                [copyToClipboardAction]="copyToClipboardAction()"
+                                [useChipsForMultiValueProperty]="useChipsForMultiValueProperty()"
+                                [multiValueSeparator]="multiValueSeparator"
+                            />
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            }
+        } @else {
+            <adf-card-view
+                [properties]="properties()"
+                [editable]="editable()"
+                [displayEmpty]="displayEmpty()"
+                [copyToClipboardAction]="copyToClipboardAction()"
+                [useChipsForMultiValueProperty]="useChipsForMultiValueProperty()"
+                [multiValueSeparator]="multiValueSeparator"
+            />
+        }
+    }
+</div>

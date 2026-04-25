@@ -1,0 +1,38 @@
+<div class="satorized-container">
+    <div class="hxp-month-picker">
+        <mat-chip-set class="hxp-month-chip-set">
+            <mat-chip
+                class="hxp-month-chip"
+                [class.hxp-month-chip_active]="isMonthChipActive()"
+                selectable="false"
+                (click)="picker.open()"
+                (keydown.enter)="picker.open()"
+                tabindex="0"
+                [attr.aria-label]="'GOVERNANCE.DASHBOARD.SELECT_MONTH' | translate"
+            >
+                <span class="hxp-month-chip-content">
+                    <mat-icon
+                        class="hxp-month-chip-icon"
+                        svgIcon="calendar"
+                    />
+                    <span class="hxp-month-chip-label hxp-label-extra-bold">
+                        {{ label || ('GOVERNANCE.DASHBOARD.SELECT_MONTH' | translate) }}
+                    </span>
+                </span>
+            </mat-chip>
+        </mat-chip-set>
+        <input
+            matInput
+            [matDatepicker]="picker"
+            class="hxp-hidden-input"
+            aria-hidden="true"
+            tabindex="-1"
+        />
+        <!-- MatDatepicker requires an associated input; keep it out of the a11y tree because the chip is the visible trigger. -->
+        <mat-datepicker
+            #picker
+            startView="multi-year"
+            (monthSelected)="onMonthSelected($event)"
+        />
+    </div>
+</div>

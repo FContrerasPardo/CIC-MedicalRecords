@@ -1,0 +1,8 @@
+$app-chrome-default-width: 56px;
+
+:host {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    margin-left: var(--sat-platform-nav-collapsed-width, $app-chrome-default-width);
+}

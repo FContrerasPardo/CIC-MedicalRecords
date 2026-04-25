@@ -1,0 +1,48 @@
+<div class="hxp-governance-table-paginator">
+    <span class="hxp-governance-table-paginator-label">
+        {{ 'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.ITEMS_PER_PAGE' | translate }}
+    </span>
+
+    <mat-form-field
+        class="hxp-governance-table-paginator-select"
+        subscriptSizing="dynamic"
+    >
+        <mat-label>{{ 'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.ITEMS_PER_PAGE' | translate }}</mat-label>
+        <mat-select
+            [(value)]="pageSize"
+            (selectionChange)="onPageSizeChange($event.value)"
+            [hideSingleSelectionIndicator]="true"
+            [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.ITEMS_PER_PAGE' | translate"
+        >
+            @for (size of pageSizeOptions; track size) {
+            <mat-option [value]="size">
+                {{ size }}
+            </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <div class="hxp-governance-table-paginator-chevrons">
+        <button
+            mat-icon-button
+            type="button"
+            (click)="loadPreviousPage()"
+            data-testid="prev-page-button"
+            [disabled]="previousDisabled"
+            [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.PREVIOUS_PAGE' | translate"
+        >
+            <mat-icon svgIcon="chevron_left" />
+        </button>
+
+        <button
+            mat-icon-button
+            type="button"
+            data-testid="next-page-button"
+            (click)="loadNextPage()"
+            [disabled]="nextDisabled"
+            [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.NEXT_PAGE' | translate"
+        >
+            <mat-icon svgIcon="chevron_right" />
+        </button>
+    </div>
+</div>

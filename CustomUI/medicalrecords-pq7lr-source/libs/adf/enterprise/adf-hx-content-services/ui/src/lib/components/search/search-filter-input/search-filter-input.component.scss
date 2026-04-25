@@ -1,0 +1,32 @@
+.hxp-search-filter-input {
+    width: 100%;
+
+    &-prefix,
+    &-suffix {
+        display: flex;
+        align-items: center;
+    }
+
+    &-divider {
+        height: 54px;
+    }
+
+    &-clear {
+        display: flex;
+        text-align: center;
+    }
+
+    &-search {
+        min-width: 48px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}

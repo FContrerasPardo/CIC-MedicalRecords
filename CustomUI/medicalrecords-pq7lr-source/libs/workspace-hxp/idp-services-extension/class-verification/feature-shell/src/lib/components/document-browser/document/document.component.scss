@@ -1,0 +1,153 @@
+@use 'sass:color';
+@use '@angular/material' as mat;
+
+:host {
+    margin-top: 1px;
+}
+
+.idp-document-hover-disabled {
+    &[selected='true'] {
+        @include mat.list-overrides(
+            (
+                list-item-container-color: var(--sat-sys-cat-purple-container),
+            )
+        );
+    }
+
+    &:hover {
+        @include mat.list-overrides(
+            (
+                list-item-container-color: unset,
+            )
+        );
+
+        box-shadow: var(--mat-sys-level0);
+    }
+
+    cursor: not-allowed;
+    * {
+        cursor: not-allowed !important;
+    }
+}
+
+.idp-list-item-document {
+    transform: none;
+
+    &[selected='true'] {
+        position: relative;
+
+        &::after {
+            background-color: var(--sat-sys-on-cat-purple-container);
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 4px;
+        }
+
+        @include mat.list-overrides(
+            (
+                list-item-container-color: var(--sat-sys-cat-purple-container),
+            )
+        );
+
+        &:hover {
+            @include mat.list-overrides(
+                (
+                    list-item-container-color: oklch(from var(--sat-sys-cat-purple-container) calc(l - 0.055) calc(c * 1.4) h),
+                )
+            );
+        }
+    }
+
+    &:hover {
+        @include mat.list-overrides(
+            (
+                list-item-container-color: oklch(from var(--sat-sys-cat-purple-container) calc(l - 0.055) calc(c * 1.4) h),
+            )
+        );
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    .idp-list-item-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        cursor: pointer;
+        color: black;
+        font-size: 14px;
+
+        .idp-display-name {
+            display: inline-block;
+            flex: 1 1 auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: 0.5em;
+        }
+
+        .idp-list-item-toggle-button {
+            margin-left: 0.5em;
+            margin-right: 0.25em;
+        }
+
+        .idp-right-align {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            margin: 0 0.5em;
+            align-items: center;
+        }
+
+        .idp-classification-confidence-tag {
+            margin-left: 0.5em;
+            margin-right: 0.5em;
+            padding: 0.25em;
+            border-radius: 2px;
+            font: var(--mat-sys-label-large);
+            display: inline-block;
+            white-space: nowrap;
+            vertical-align: middle;
+
+            &-green {
+                background-color: var(--sat-sys-success-container);
+                color: var(--sat-sys-on-success-container);
+            }
+
+            &-yellow {
+                background-color: var(--sat-sys-warning-container);
+                color: var(--sat-sys-on-warning-container);
+            }
+        }
+
+        .idp-issue {
+            color: var(--mat-sys-error);
+        }
+    }
+
+    .idp-menu-trigger {
+        visibility: hidden;
+        position: fixed;
+    }
+}
+
+.idp-cut {
+    @include mat.list-overrides(
+        (
+            list-item-container-color: var(--mat-sys-surface-container-high),
+        )
+    );
+
+    &[selected='true'] {
+        @include mat.list-overrides(
+            (
+                list-item-container-color: var(--mat-sys-surface-container-high),
+            )
+        );
+    }
+}

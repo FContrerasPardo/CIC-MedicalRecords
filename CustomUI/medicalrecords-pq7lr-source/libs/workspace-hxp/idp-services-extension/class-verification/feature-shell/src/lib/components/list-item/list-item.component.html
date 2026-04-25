@@ -1,0 +1,10 @@
+<mat-list-item
+    role="listitem"
+    class="idp-list-item"
+    [class.idp-list-item--disabled]="disabled"
+    [activated]="isSelected"
+    [attr.selected]="isSelected"
+    [disabled]="disabled"
+>
+    <ng-content />
+</mat-list-item>

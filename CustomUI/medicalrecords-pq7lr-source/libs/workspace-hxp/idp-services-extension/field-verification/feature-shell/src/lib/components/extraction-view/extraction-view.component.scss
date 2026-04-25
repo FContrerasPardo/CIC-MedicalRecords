@@ -1,0 +1,431 @@
+@use '@angular/material' as mat;
+
+.idp-extraction-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .idp-header {
+        flex: 0 0 auto;
+    }
+
+    &__reject-document-button {
+        flex: 0 0 auto;
+    }
+
+    &__viewer-hscroll-proxy {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 3.75em;
+        height: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        z-index: 11;
+        box-sizing: border-box;
+        background: var(--mat-sys-surface);
+        border-top: 0.0625em solid var(--mat-sys-outline-variant);
+
+        &__spacer {
+            height: 1px;
+            pointer-events: none;
+        }
+    }
+
+    hyland-idp-viewer-sticky-action {
+        z-index: 20;
+    }
+
+    .idp-metadata-viewer-container {
+        display: flex;
+        flex-direction: row;
+        flex: 1 1 auto;
+        min-height: 0; // Allow flex item to shrink for browser zoom
+        max-height: calc(100% - 74px);
+        border-top: 1px solid var(--mat-sys-outline-variant);
+
+        #split-left {
+            width: 25%; // Default width before Split.js initialization
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        #split-right {
+            width: 75%; // Default width before Split.js initialization
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .idp-metadata-panel {
+            padding-top: 0.5em;
+            overflow-y: auto;
+            flex: 0 0 25%;
+            height: inherit;
+        }
+        .idp-viewer-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            width: 100%;
+            height: 100%;
+            min-height: 0; // Allow shrinking for browser zoom
+
+            .idp-viewer {
+                flex: 1 1 auto; // Allow both grow and shrink
+                min-height: 0;
+            }
+
+            &__document {
+                position: relative;
+                height: 100%;
+                width: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+
+    .idp-extraction-table-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 3.75em;
+        background: var(--mat-sys-surface);
+        border-top: 0.0625em solid var(--mat-sys-outline-variant);
+        display: flex;
+        flex-direction: column;
+        min-height: 20%;
+        max-height: 100%;
+        overflow: hidden;
+        z-index: 10;
+
+        &--transitioning {
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        &--minimized {
+            min-height: auto;
+
+            .idp-extraction-table-panel__header {
+                border-bottom: none;
+            }
+        }
+
+        &__resize-handle {
+            height: 0.75em;
+            cursor: row-resize;
+            background: var(--mat-sys-surface-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+
+            &:hover,
+            &:active {
+                background: var(--mat-sys-primary-container);
+            }
+        }
+
+        &__resize-indicator {
+            width: 3em;
+            height: 0.25em;
+            background: var(--mat-sys-outline);
+            border-radius: 0.125em;
+            transition: background 0.2s;
+
+            .idp-extraction-table-panel__resize-handle:hover & {
+                background: var(--mat-sys-primary);
+            }
+        }
+
+        &__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.375em 0.75em;
+            background: var(--mat-sys-surface-container-low);
+            border-bottom: 0.0625em solid var(--mat-sys-outline-variant);
+            min-height: 1.5em;
+            flex-shrink: 0;
+        }
+
+        &__title {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-size: 0.875em;
+            font-weight: 500;
+            color: var(--mat-sys-on-surface);
+
+            mat-icon {
+                font-size: 1.25em;
+                width: 1.25em;
+                height: 1.25em;
+                color: var(--mat-sys-primary);
+            }
+        }
+
+        &__actions {
+            display: flex;
+            align-items: center;
+            gap: 0.25em;
+
+            button {
+                width: 1.5em;
+                height: 1.5em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                mat-icon {
+                    font-size: 1em;
+                    width: 1em;
+                    height: 1em;
+                }
+            }
+        }
+
+        &__content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+
+            .idp-extraction-table {
+                flex: 1 1 auto;
+                min-height: 0;
+            }
+        }
+    }
+
+    &__table-loading-shell {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 3.75em;
+        display: flex;
+        flex-direction: column;
+        min-height: 20%;
+        max-height: 100%;
+        padding: 0.75em;
+        border-top: 0.0625em solid var(--mat-sys-outline-variant);
+        background: var(--mat-sys-surface);
+        outline: none;
+        overflow: hidden;
+        z-index: 10;
+
+        &.idp-extraction-table-panel--transitioning {
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        &:focus {
+            box-shadow: inset 0 0 0 0.125em var(--mat-sys-primary);
+        }
+    }
+
+    &__table-loading-shell-table {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+        border: 0.0625em solid var(--mat-sys-outline-variant);
+        border-top-color: var(--mat-sys-primary);
+        background: var(--mat-sys-surface-container-lowest, var(--mat-sys-surface));
+    }
+
+    &__table-loading-shell-row {
+        display: grid;
+        grid-template-columns:
+            3.5em
+            minmax(8em, 1.15fr)
+            minmax(7em, 1fr)
+            minmax(12em, 1.7fr)
+            minmax(12em, 1.9fr)
+            minmax(4.5em, 0.6fr)
+            minmax(4.5em, 0.6fr)
+            minmax(5.5em, 0.75fr);
+        min-width: 0;
+    }
+
+    &__table-loading-shell-row + &__table-loading-shell-row {
+        border-top: 0.0625em solid var(--mat-sys-outline-variant);
+    }
+
+    &__table-loading-shell-row--header {
+        background: var(--mat-sys-surface-container-low, var(--mat-sys-surface));
+    }
+
+    &__table-loading-shell-cell {
+        display: flex;
+        align-items: center;
+        min-height: 2.5em;
+        min-width: 0;
+        padding: 0.5em 0.625em;
+    }
+
+    &__table-loading-shell-cell + &__table-loading-shell-cell {
+        border-left: 0.0625em solid var(--mat-sys-outline-variant);
+    }
+
+    &__table-loading-shell-row--header &__table-loading-shell-cell {
+        min-height: 2.25em;
+        padding-block: 0.4375em;
+    }
+
+    &__table-loading-shell-cell--row-number {
+        justify-content: center;
+        padding-inline: 0.5em;
+    }
+
+    &__table-loading-shell-placeholder {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        width: 100%;
+        height: 0.875em;
+        border-radius: 999em;
+        background: var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.08));
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+            animation: idp-extraction-view-shell-shimmer 1.2s ease-in-out infinite;
+        }
+    }
+
+    &__table-loading-shell-placeholder--icon {
+        width: 1em;
+        height: 1em;
+        border-radius: 0.2em;
+    }
+
+    &__table-loading-shell-placeholder--header {
+        height: 0.75em;
+    }
+
+    &__table-loading-shell-placeholder--index {
+        width: 1.1em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(2)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 4.75em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(3)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 3.5em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(4)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 8em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(5)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 9.5em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(6)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 2.5em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(7)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 2em;
+    }
+
+    &__table-loading-shell-row--header
+        .idp-extraction-view__table-loading-shell-cell:nth-child(8)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 3.25em;
+    }
+
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(2)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 72%;
+    }
+
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(3)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 58%;
+    }
+
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(4)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 68%;
+    }
+
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(5)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 74%;
+    }
+
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(6)
+        .idp-extraction-view__table-loading-shell-placeholder,
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(7)
+        .idp-extraction-view__table-loading-shell-placeholder,
+    &__table-loading-shell-row:not(.idp-extraction-view__table-loading-shell-row--header)
+        .idp-extraction-view__table-loading-shell-cell:nth-child(8)
+        .idp-extraction-view__table-loading-shell-placeholder {
+        width: 46%;
+    }
+
+    &__shortcuts_button {
+        @include mat.fab-overrides(
+            (
+                container-shape: 50%,
+            )
+        );
+    }
+
+    ::ng-deep {
+        /* stylelint-disable-next-line selector-class-pattern */
+        .gutter {
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+
+        /* stylelint-disable-next-line selector-class-pattern */
+        .gutter.gutter-vertical {
+            background-image: url('../../../../assets/images/gutter_horizontal_rectangle.svg');
+            cursor: row-resize;
+        }
+
+        /* stylelint-disable-next-line selector-class-pattern */
+        .gutter.gutter-horizontal {
+            background-image: url('../../../../assets/images/gutter_vertical_rectangle.svg');
+            cursor: col-resize;
+        }
+    }
+}
+
+@keyframes idp-extraction-view-shell-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}

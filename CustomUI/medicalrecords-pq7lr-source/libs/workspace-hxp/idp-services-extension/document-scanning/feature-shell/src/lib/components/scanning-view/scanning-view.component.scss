@@ -1,0 +1,159 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.idp-scanning-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .idp-header {
+        flex: 0 0 auto;
+    }
+
+    .idp-scanning-content {
+        display: flex;
+        flex-direction: row;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+
+        .idp-scanning-panel-left {
+            overflow-y: auto;
+            min-height: 0;
+
+            .idp-scanning-results-pending {
+                overflow: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+
+                .idp-scanning-results-pending-image {
+                    max-width: 100%;
+                    height: auto;
+                }
+            }
+
+            .idp-scanning-thumbnail-header-container {
+                width: auto;
+                margin: 16px;
+
+                .idp-scanning-thumbnail-header {
+                    display: flex;
+                    align-items: center;
+                    box-sizing: border-box;
+                    height: 64px;
+                    gap: 8px;
+                    padding: 16px;
+                    width: 100%;
+                    flex: 1;
+
+                    .idp-scanning-thumbnail-header-scanned-page-count {
+                        font: var(--mat-sys-body-medium);
+                    }
+
+                    .idp-scanning-thumbnail-header-tags {
+                        margin-left: auto;
+                        display: flex;
+                        gap: 0.5em;
+                    }
+                }
+            }
+
+            .idp-scanning-document-container {
+                margin: 16px;
+                padding: 16px;
+                border-radius: var(--mat-sys-corner-small);
+                background-color: var(--mat-sys-surface-container-lowest);
+            }
+
+            .idp-scanning-thumbnail-grid {
+                margin-top: 16px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 24px;
+
+                .idp-scanning-thumbnail-wrapper {
+                    position: relative;
+                    display: inline-block;
+                }
+
+                img {
+                    display: block;
+                    width: 120px;
+                    height: 156px;
+                    padding: 10px;
+                    border-radius: 4px;
+                    outline: 1px solid var(--mat-sys-outline);
+                    background-color: var(--mat-sys-surface-container-lowest);
+                }
+
+                .idp-page-selected {
+                    background-color: var(--mat-sys-primary-container);
+                }
+
+                .idp-page-active {
+                    outline: 2px solid var(--mat-sys-primary);
+                }
+
+                .idp-scanning-thumbnail-img-tag {
+                    position: absolute;
+                    bottom: 16px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        .idp-scanning-panel-right {
+            height: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+
+            .idp-viewer {
+                flex: 1;
+                height: 100%;
+                width: 100%;
+            }
+
+            .idp-viewer-sticky-action {
+                &__shortcuts_button {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9;
+                    width: 3.5em;
+                    height: 3.5em;
+                    border: none;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 0.5em rgba(0, 0, 0, 0.5);
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+    }
+
+    ::ng-deep {
+        /* stylelint-disable-next-line selector-class-pattern */
+        .gutter {
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+
+        /* stylelint-disable-next-line selector-class-pattern */
+        .gutter.gutter-horizontal {
+            background-image: url('../../../../assets/images/gutter_vertical_rectangle.svg');
+            cursor: col-resize;
+        }
+    }
+}

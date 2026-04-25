@@ -1,0 +1,271 @@
+@use '@angular/material' as mat;
+@use 'mat-selectors' as ms;
+
+$app-chrome-default-width: 56px;
+
+apa-task-details-cloud-ext {
+    .apa-task-filter-item {
+        cursor: pointer;
+    }
+
+    .apa-selected-action {
+        color: var(--mat-sys-primary);
+    }
+
+    .apa-task-details-navbar {
+        width: 100%;
+        display: flex;
+    }
+
+    .adf-breadcrumb-item {
+        flex: 1;
+    }
+
+    .apa-task-details-content {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100%;
+
+        &-form {
+            flex: 1;
+
+            @include mat.form-field-overrides(
+                (
+                    container-text-size: var(--mat-sys-body-medium-size),
+                    outlined-label-text-size: var(--mat-sys-body-medium-size),
+                )
+            );
+
+            h1 {
+                font: var(--mat-sys-headline-large);
+            }
+
+            h2 {
+                font: var(--mat-sys-headline-medium);
+            }
+
+            h3,
+            h4,
+            h5,
+            h6 {
+                font: var(--mat-sys-headline-small);
+            }
+
+            p,
+            li {
+                font: var(--mat-sys-body-medium);
+            }
+        }
+    }
+
+    .apa-task-details-toolbar-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .adf-content-area {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        height: 100%;
+        overflow: hidden;
+        min-height: 0;
+        background-color: var(--mat-sys-surface-container-highest);
+    }
+
+    .adf-content-border {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        min-height: 0;
+        vertical-align: unset;
+        text-align: unset;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    adf-cloud-user-task {
+        min-height: 0;
+        height: fit-content;
+        overflow-y: auto;
+        background-color: var(--mat-sys-surface);
+
+        > div:first-child {
+            height: 100%;
+        }
+
+        @include mat.card-overrides(
+            (
+                elevated-container-elevation: 0,
+            )
+        );
+
+        .adf-attach-widget .adf-attach-widget-container .adf-attach-widget__menu-upload button {
+            color: var(--mat-sys-primary);
+        }
+    }
+
+    .adf-task-form-cloud-container {
+        background-color: var(--mat-sys-surface-container-highest);
+        height: fit-content;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    adf-cloud-form {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+        max-width: 1366px;
+        height: fit-content;
+        margin: 0 auto;
+        border: 10px solid transparent;
+    }
+
+    adf-cloud-form .adf-cloud-form-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        height: 98%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+        background-color: transparent;
+    }
+
+    .adf-cloud-form-content-card {
+        display: flex;
+        overflow-y: auto;
+        flex-direction: column;
+        flex: 1;
+        height: 98%;
+        overflow-x: hidden;
+        min-height: 0;
+        border: 5px solid transparent;
+        border-radius: 12px;
+    }
+
+    adf-cloud-form .adf-cloud-form-content-card {
+        padding-bottom: 0 !important;
+    }
+
+    .apa-task-details-page-layout-content {
+        flex-direction: column;
+        box-sizing: border-box;
+        display: flex;
+    }
+
+    .apa-sticky-tabs {
+        .adf-cloud-form-content-card {
+            overflow: visible;
+        }
+
+        adf-cloud-form #{ms.$mat-card-content} {
+            overflow: visible;
+        }
+
+        // Material tab internals must be overridden to enable sticky tab headers.
+        // position: sticky requires all ancestor overflow to be visible, but Material
+        // sets overflow: hidden on its tab body wrappers. There is no public API to
+        // change this behaviour.
+        /* stylelint-disable-next-line selector-class-pattern */
+        .alfresco-tabs-widget {
+            #{ms.$mat-tab-header} {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                background-color: var(--adf-theme-background-tab-header-color);
+            }
+
+            #{ms.$mat-tab-body-wrapper} {
+                overflow: visible;
+            }
+
+            #{ms.$mat-tab-body}#{ms.$mat-tab-body-active} {
+                overflow: visible;
+            }
+
+            #{ms.$mat-tab-body-content} {
+                overflow: visible;
+                height: auto;
+            }
+        }
+    }
+}
+
+@page {
+    /* stylelint-disable */
+    margin-bottom: 1in;
+    /* stylelint-enable */
+}
+
+@media print {
+    html,
+    body {
+        height: unset !important;
+        background-color: var(--mat-sys-surface);
+    }
+
+    .apa-print-section {
+        width: initial;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+        display: contents;
+    }
+
+    @include mat.tabs-overrides(
+        (
+            active-indicator-color: var(--mat-sys-primary),
+            active-indicator-height: 4px,
+        )
+    );
+
+    mat-chip[disabled] {
+        opacity: 1 !important;
+    }
+
+    .adf-attach-widget,
+    .hxp-attach-file-widget {
+        display: none !important;
+    }
+
+    file-viewer-widget,
+    hxp-file-viewer-widget {
+        display: none;
+    }
+
+    @include mat.select-overrides(
+        (
+            disabled-trigger-text-color: rgba(0, 0, 0, 1),
+        )
+    );
+
+    @include mat.checkbox-overrides(
+        (
+            disabled-selected-checkmark-color: var(--mat-sys-primary),
+            disabled-label-color: rgba(0, 0, 0, 1),
+        )
+    );
+
+    @include mat.radio-overrides(
+        (
+            disabled-selected-icon-color: var(--mat-sys-primary),
+            disabled-label-color: rgba(0, 0, 0, 1),
+        )
+    );
+}
+
+.hxp-task-details-toolbar--divider {
+    height: 24px;
+
+    @include mat.divider-overrides(
+        (
+            color: var(--mat-sys-outline-variant),
+        )
+    );
+}

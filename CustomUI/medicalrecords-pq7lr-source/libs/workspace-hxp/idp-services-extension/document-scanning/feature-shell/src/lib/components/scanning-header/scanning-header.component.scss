@@ -1,0 +1,37 @@
+.idp-scanning-header {
+    background-color: var(--mat-sys-surface-container-low);
+}
+
+.idp-scanning-header-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.375em;
+    padding-right: 1em;
+}
+
+.idp-scanning-header-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 0.2em;
+
+    &--scanner {
+        gap: 22px;
+    }
+
+    &--scan,
+    &--batch {
+        gap: 0.75em;
+    }
+}
+
+.idp-start-stop-scan-button {
+    width: 160px;
+}
+
+.idp-scanning-header-actions-divider {
+    height: 1.5em;
+    display: flex;
+    border: 1px solid var(--mat-sys-outline-variant);
+}

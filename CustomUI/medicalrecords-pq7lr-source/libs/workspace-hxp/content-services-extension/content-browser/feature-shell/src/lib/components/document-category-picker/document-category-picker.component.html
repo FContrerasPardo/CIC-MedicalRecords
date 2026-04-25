@@ -1,0 +1,22 @@
+<div class="hxp-document-category-picker">
+    <mat-form-field [hideRequiredMarker]="!required">
+        <mat-label id="hxp-document-category-picker-label">
+            {{ title | translate }}
+        </mat-label>
+        <mat-select
+            id="hxp-document-category-picker-select"
+            [required]="required"
+            [placeholder]="placeholder | translate"
+            [disabled]="!options.length"
+            (selectionChange)="onSelected($event)"
+            [value]="value"
+            aria-labelledby="hxp-document-category-picker-label"
+        >
+            @for (option of options; track option) {
+                <mat-option [value]="option">
+                    {{ option }}
+                </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+</div>

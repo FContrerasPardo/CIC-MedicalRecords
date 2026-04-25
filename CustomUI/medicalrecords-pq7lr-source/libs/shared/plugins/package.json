@@ -1,0 +1,20 @@
+{
+  "name": "@hyland/extend",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "dependencies": {
+    "@nx/angular": "20.8.3",
+    "@nx/devkit": "20.8.3",
+    "uuid": ">=11.0.3",
+    "tslib": "^2.3.0",
+    "ts-morph": ">=26.0.0",
+    "@alfresco-dbp/tools": ">=0.0.1",
+    "@alfresco/adf-extensions": ">=8.5.0-0"
+  },
+  "generators": "./generators.json",
+  "devDependencies": {
+    "@types/node": "^22.13.14"
+  }
+}

@@ -1,0 +1,129 @@
+<adf-info-drawer-layout>
+    <div info-drawer-content>
+        <div class="hxp-manage-versions-sidebar-header">
+            <h5>{{ 'MANAGE_VERSIONS.DIALOG.TITLE' | translate }}</h5>
+            <button
+                mat-icon-button
+                class="hxp-manage-versions-sidebar-close-btn"
+                attr.aria-label="{{ 'MANAGE_VERSIONS.DIALOG.CLOSE' | translate }}"
+                (click)="onClose()"
+            >
+                <mat-icon svgIcon="x_large" />
+            </button>
+        </div>
+        @if (isLoading) {
+            <hxp-panel-skeleton-loader
+                [skeletonRows]="10"
+                class="hxp-version-panel-skeleton-loader"
+            />
+        } @else {
+            <div class="hxp-version-list">
+                @for (version of documentVersions; track version) {
+                    <button
+                        type="button"
+                        class="hxp-version-item"
+                        [class.hxp-current-version]="!version.sysver_isVersion"
+                        [class.active]="document?.sys_id === version.sys_id"
+                        (click)="redirectToVersion(version)"
+                        (contextmenu)="onContextMenu($event, version)"
+                    >
+                        @if (!version.sysver_isVersion) {
+                            <div class="hxp-version-header">
+                                <span
+                                    class="hxp-version-title mat-title-medium"
+                                    matTooltip="{{ version?.sys_modified | date: 'medium' }}"
+                                >
+                                    {{ version?.sys_modified | date: 'medium' }}
+                                </span>
+                                <div class="hxp-context-btn">
+                                    <button
+                                        mat-icon-button
+                                        data-automation-id="hxp-current-version-context-menu-button"
+                                        [attr.aria-label]="'DOCUMENT_TREE.CONTEXT_MENU.TRIGGER_ARIA_LABEL' | translate"
+                                        (click)="onContextMenu($event, version)"
+                                    >
+                                        <mat-icon svgIcon="more_vert" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="hxp-version-description mat-title-medium"
+                                matTooltip="{{ version.sysver_description }}"
+                            >
+                                {{ 'MANAGE_VERSIONS.DIALOG.CURRENT_VERSION' | translate }}
+                            </div>
+                            <div class="hxp-version-meta mat-body-small">
+                                <span>
+                                    {{ 'MANAGE_VERSIONS.DIALOG.CREATOR' | translate }}
+                                    {{ version.sys_creator | hxpUserResolverPipe }}
+                                </span>
+                                <span class="hxp-version-date">
+                                    {{ version?.sys_created | date: 'medium' }}
+                                </span>
+                            </div>
+                        } @else {
+                            <div class="hxp-version-header">
+                                <span
+                                    class="hxp-version-title mat-title-medium"
+                                    matTooltip="{{ version?.sysver_title || (version?.sysver_created || version?.sys_modified | date: 'medium') }}"
+                                >
+                                    {{ version?.sysver_title || (version?.sysver_created || version?.sys_modified | date: 'medium') }}
+                                </span>
+                                <div class="hxp-context-btn">
+                                    <button
+                                        mat-icon-button
+                                        data-automation-id="hxp-version-context-menu-button"
+                                        [attr.aria-label]="'DOCUMENT_TREE.CONTEXT_MENU.TRIGGER_ARIA_LABEL' | translate"
+                                        (click)="onContextMenu($event, version)"
+                                    >
+                                        <mat-icon svgIcon="more_vert" />
+                                    </button>
+                                </div>
+                            </div>
+                            @if (version.sysver_description) {
+                                <div
+                                    class="hxp-version-description"
+                                    matTooltip="{{ version.sysver_description }}"
+                                >
+                                    {{ version.sysver_description }}
+                                </div>
+                            }
+                            <div class="hxp-version-meta mat-body-small">
+                                <span>
+                                    {{ 'MANAGE_VERSIONS.DIALOG.CREATOR' | translate }}
+                                    {{ version.sysver_creator | hxpUserResolverPipe }}
+                                </span>
+                                <span class="hxp-version-date">
+                                    {{ version?.sysver_created | date: 'medium' }}
+                                </span>
+                            </div>
+                        }
+                        <div class="hxp-version-footer mat-body-small">
+                            <span>
+                                {{
+                                    version.sysver_expires
+                                        ? (('MANAGE_VERSIONS.DIALOG.EXPIRES' | translate) + version.sysver_expires | date: 'medium')
+                                        : ('MANAGE_VERSIONS.DIALOG.NEVER_EXPIRES' | translate)
+                                }}
+                            </span>
+                        </div>
+                        <div
+                            #hiddenTrigger="matMenuTrigger"
+                            class="hxp-menu-trigger"
+                            [style.left]="contextMenuPosition.x"
+                            [style.top]="contextMenuPosition.y"
+                            [matMenuTriggerFor]="contextMenu"
+                            [matMenuTriggerData]="{ actions: contextActions }"
+                        ></div>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+    <mat-menu
+        #contextMenu="matMenu"
+        class="hxp-context-menu"
+    >
+        <ng-container *ngTemplateOutlet="contextActionMenuTemplateRef; context: { $implicit: contextActions }" />
+    </mat-menu>
+</adf-info-drawer-layout>

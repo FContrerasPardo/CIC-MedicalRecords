@@ -1,0 +1,26 @@
+<div
+    class="hxp-lhc-container"
+    [attr.aria-busy]="loading"
+>
+    <div class="hxp-lhc-title">
+        {{ 'GOVERNANCE.SIDEBAR.LINKED_CASE' | translate }}
+    </div>
+    @if (loading) {
+        <div
+            class="hxp-lhc-skeleton"
+            aria-hidden="true"
+        >
+            <span class="hxp-loader-pill"></span>
+            <span class="hxp-loader-pill"></span>
+            <span class="hxp-loader-pill"></span>
+        </div>
+    } @else if (tags && tags.length > 0) {
+        <div class="hxp-lhc-tags">
+            @for (tag of tags; track tag.legalCaseId ?? $index) {
+                <span class="hxp-lhc-chip">
+                    {{ tag.legalCaseName }}
+                </span>
+            }
+        </div>
+    }
+</div>

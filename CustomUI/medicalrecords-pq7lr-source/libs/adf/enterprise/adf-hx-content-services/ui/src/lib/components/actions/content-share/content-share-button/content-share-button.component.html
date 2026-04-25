@@ -1,0 +1,12 @@
+@if (isAvailable) {
+    <button
+        mat-icon-button
+        class="hxp-content-share-button"
+        [attr.aria-label]="'DOCUMENT_SHARE.TOOLBAR.BUTTONS.SHARE.ARIA-LABEL' | translate"
+        title="{{ 'DOCUMENT_SHARE.TOOLBAR.BUTTONS.SHARE.TITLE' | translate }}"
+        matTooltip="{{ 'DOCUMENT_SHARE.TOOLBAR.BUTTONS.SHARE.TITLE' | translate }}"
+        (click)="onShare()"
+    >
+        <mat-icon svgIcon="share" />
+    </button>
+}

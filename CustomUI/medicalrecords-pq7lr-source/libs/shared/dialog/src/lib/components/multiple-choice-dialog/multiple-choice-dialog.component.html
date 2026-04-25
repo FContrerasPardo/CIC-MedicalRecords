@@ -1,0 +1,58 @@
+@if (title) {
+    <h2 mat-dialog-title>{{ title | translate }}</h2>
+}
+
+<mat-dialog-content>
+    @if (subtitle) {
+        <p>{{ subtitle | translate }}</p>
+    }
+    @if (messages.length) {
+        <ul class="dialog__messages">
+            @for (msg of messages; track $index) {
+                <li>{{ msg }}</li>
+            }
+        </ul>
+    }
+    @if (message) {
+        <p>{{ message | translate }}</p>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <span class="adf-fill-remaining-space"></span>
+    @for (choice of choices; track $index) {
+        @if (choice.choice === 'WITH_SAVE' || choice.flat) {
+            <button
+                mat-flat-button
+                [attr.data-automation-id]="'dialog-button-' + choice.choice"
+                (click)="choose(choice.choice)"
+                [color]="choice.color ? $any(choice.color) : null"
+                [disabled]="disableButtons"
+                [attr.cdkFocusInitial]="choice.autoFocus ? '' : null"
+            >
+                <span class="dialog-button__content">
+                    @if (isSpinnerVisible(choice)) {
+                        <mat-spinner diameter="16" />
+                    }
+                    {{ choice.title || '' | translate }}
+                </span>
+            </button>
+        } @else {
+            <button
+                mat-button
+                [attr.data-automation-id]="'dialog-button-' + choice.choice"
+                (click)="choose(choice.choice)"
+                [color]="choice.color ? $any(choice.color) : null"
+                [disabled]="disableButtons"
+                [attr.cdkFocusInitial]="choice.autoFocus ? '' : null"
+            >
+                <span class="dialog-button__content">
+                    @if (isSpinnerVisible(choice)) {
+                        <mat-spinner diameter="16" />
+                    }
+                    {{ choice.title || '' | translate }}
+                </span>
+            </button>
+        }
+    }
+</mat-dialog-actions>

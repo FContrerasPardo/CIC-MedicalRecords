@@ -1,0 +1,30 @@
+.hxp-cic-gov-record-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+    overflow: hidden;
+
+    .hxp-legal-hold-info-banner {
+        display: flex;
+        align-items: flex-start;
+        font-size: 14px;
+        position: absolute;
+        top: 12.3%;
+        gap: 8px;
+    }
+}
+
+.hxp-cic-gov-record-dialog-actions {
+    button {
+        justify-content: center;
+        border: 0;
+    }
+
+    .hxp-record-delete-btn-label,
+    .hxp-assign-record-to-case-btn-label {
+        display: flex;
+        column-gap: 2px;
+        align-items: center;
+    }
+}

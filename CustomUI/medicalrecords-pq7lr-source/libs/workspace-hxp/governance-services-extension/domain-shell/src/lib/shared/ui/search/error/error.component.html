@@ -1,0 +1,17 @@
+<div class="hxp-governance-error">
+    <img
+        class="hxp-governance-error-icon"
+        src="assets/icons/Error.svg"
+        [alt]="'GOVERNANCE.SEARCH_RESULTS.ERROR.TITLE' | translate"
+    />
+    <span class="hxp-governance-error-title mat-title-medium">{{ 'GOVERNANCE.SEARCH_RESULTS.ERROR.TITLE' | translate }}</span>
+    <span class="hxp-governance-error-label mat-body-large">{{ 'GOVERNANCE.SEARCH_RESULTS.ERROR.LABEL' | translate }}</span>
+    <button
+        mat-stroked-button
+        [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.ERROR.RETRY' | translate"
+        (click)="onButtonClick()"
+    >
+        {{ 'GOVERNANCE.SEARCH_RESULTS.ERROR.RETRY' | translate }}
+        <mat-icon svgIcon="refresh" />
+    </button>
+</div>

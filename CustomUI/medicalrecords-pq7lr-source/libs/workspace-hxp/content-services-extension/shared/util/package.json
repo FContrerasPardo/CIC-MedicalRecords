@@ -1,0 +1,8 @@
+{
+  "name": "@hxp/workspace-hxp/content-services-extension/shared/util",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@angular/core": ">=19.2.18"
+  }
+}

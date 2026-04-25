@@ -1,0 +1,384 @@
+{
+    "GOVERNANCE": {
+        "SIDENAV": {
+            "TITLE": "Gouvernance",
+            "ARIA_LABEL": "Governance navigation menu"
+        },
+        "HEADER": {
+            "TITLE": "Gouvernance"
+        },
+        "TABS": {
+            "RECORDS": "Gestion des documents d'archives",
+            "LEGAL_HOLD": "Gestion de la conservation légale",
+            "DASHBOARD": "Tableau de bord"
+        },
+        "LEGAL_HOLD": {
+            "TITLE": "Gestion de la conservation légale",
+            "HEADER": "Dossiers de conservation légale",
+            "TABLE": {
+                "COLUMNS": {
+                    "CASE_NAME": "Dossier de conservation légale",
+                    "REASON_FOR_HOLD": "Motif de conservation",
+                    "TOTAL_RECORDS_HELD": "Nombre total de documents d'archives conservés",
+                    "DATE_OF_CREATION": "Date de création",
+                    "CREATOR": "Créateur"
+                },
+                "NO_RECORDS_FOUND": "Vous n'avez pas encore de dossier de conservation légale.",
+                "NO_RECORDS_FOUND_FILTERED": "Aucun dossier de conservation légale ne correspond à votre filtre de recherche."
+            },
+            "CREATE_BUTTON": "Créer un dossier de conservation légale",
+            "SEARCH_PLACEHOLDER": "Rechercher le nom d'un dossier de conservation légale",
+            "CLEAR_ALL": "Effacer tout",
+            "SELECTED": "Sélectionné"
+        },
+        "LEGAL_RECORDS": {
+            "NO_RECORDS_FOUND": "Il n'y a pas de dossier légal à afficher.",
+            "NO_RECORDS_FOUND_FILTERED": "Aucun dossier légal ne correspond à votre filtre de recherche.",
+            "SEARCH_RECORDS_PLACEHOLDER": "Recherche de dossiers",
+            "BACK": "Retour vers les dossiers de conservation légale"
+        },
+        "SEARCH": {
+            "FILTERS": {
+                "ARIA-LABEL": {
+                    "CLEAR_INPUT": "Effacer l'entrée",
+                    "CLEAR_SEARCH": "Effacer la recherche",
+                    "FILTERS_LIST": "Liste des filtres",
+                    "REMOVE": "Supprimer le filtre"
+                },
+                "SELECTED": "{{selected}} sélectionné",
+                "RESULTS_FOUND_PLURAL": "{{count}} résultats trouvés",
+                "RESULTS_FOUND_SINGLE": "{{count}} résultat trouvé",
+                "CATEGORY": {
+                    "LABEL": "Catégorie"
+                },
+                "CREATOR": {
+                    "LABEL": "Créateur"
+                },
+                "DATA_SOURCE": {
+                    "LABEL": "Source de données"
+                },
+                "MODIFIER": {
+                    "LABEL": "Modificateur"
+                },
+                "STATUS": {
+                    "LABEL": "Statut"
+                },
+                "LEGAL_CASE": {
+                    "LABEL": "Legal Case"
+                },
+                "NO_SEARCH_RESULTS": {
+                    "MESSAGE": "Aucun résultat correspondant trouvé"
+                },
+                "PLACEHOLDER": "Rechercher",
+                "CUTOFF": {
+                    "LABEL": "Limite"
+                },
+                "DISPOSITION": {
+                    "LABEL": "Date de disposition"
+                },
+                "DATE": {
+                    "ARIA-LABEL": {
+                        "DEFAULT_OPTIONS_LIST": "Liste des options de date disponibles"
+                    },
+                    "OPTIONS": {
+                        "TOMORROW": "Demain",
+                        "NEXT_WEEK": "Semaine prochaine",
+                        "NEXT_MONTH": "Mois prochain",
+                        "NEXT_YEAR": "Année prochaine",
+                        "CUSTOM_DATE": {
+                            "LABEL": "Date personnalisée",
+                            "VALUES": {
+                                "AFTER": "Après",
+                                "BEFORE": "Avant",
+                                "SINCE_TO_DATE": "Depuis le {{afterDate}} jusqu'au {{beforeDate}}",
+                                "SINCE_TO_TODAY": "Depuis le {{date}} jusqu'à aujourd'hui",
+                                "UNTIL_DATE": "Jusqu'au {{date}}"
+                            }
+                        },
+                        "BUTTON": {
+                            "CLEAR": {
+                                "ARIA_LABEL": {
+                                    "AFTER": "Effacer après la date",
+                                    "BEFORE": "Effacer avant la date"
+                                }
+                            }
+                        },
+                        "ERRORS": {
+                            "BEFORE_DATE_TOO_EARLY": "« Avant la date » ne peut pas être antérieur à « Après la date »",
+                            "AFTER_DATE_TOO_LATE": "« Après la date » ne peut pas être postérieur à « Avant la date »",
+                            "INVALID_DATE_FORMAT": "Veuillez saisir un format de date valide JJ/MM/AAAA"
+                        }
+                    }
+                }
+            },
+            "TOOLBAR": {
+                "BUTTONS": {
+                    "DELETE": "Supprimer les documents d'archives sélectionnés",
+                    "LEGAL_HOLD_CASE": "Ajouter les documents d'archives sélectionnés à une conservation légale",
+                    "PROPERTY_PANE_OPEN": "Afficher la propriété",
+                    "PROPERTY_PANE_CLOSE": "Masquer la propriété",
+                    "EDIT_LEGAL_HOLD_CASE": "Modifier un dossier de conservation légale"
+                }
+            }
+        },
+        "SEARCH_RESULTS": {
+            "BUTTONS": {
+                "RESET": {
+                    "LABEL": "Réinitialiser"
+                },
+                "SEARCH": {
+                    "LABEL": "Rechercher"
+                },
+                "SELECT_ALL": {
+                    "LABEL": "Tout sélectionner"
+                },
+                "UNSELECT_ALL": {
+                    "LABEL": "Désélectionner tout"
+                },
+                "SELECT_ROW": {
+                    "LABEL": "Sélectionner une ligne"
+                },
+                "SELECT_ROW_WITH_ID": {
+                    "LABEL": "Sélectionner une ligne avec ID {{id}}"
+                }
+            },
+            "INITIAL_STATE": {
+                "LABEL": "Rechercher des enregistrements à l’aide du filtrage avancé",
+                "ICON": "Rechercher des enregistrements à l’aide du filtrage avancé"
+            },
+            "NO_RESULTS": {
+                "ICON": "Aucun enregistrement trouvé pour les filtres sélectionnés. Ajustez vos critères de recherche et réessayez.",
+                "LABEL": "Aucun enregistrement trouvé pour les filtres sélectionnés. Ajustez vos critères de recherche et réessayez."
+            },
+            "RESULTS_LIST": {
+                "COUNT_PLURAL": "{{count}} résultats trouvés",
+                "COUNT_SINGLE": "{{count}} résultat trouvé",
+                "WAITING_FOR_ADJUSTMENT": "En attente d'ajustement",
+                "INDEFINITE": "Indéfini",
+                "COLUMNS": {
+                    "NAME": "Nom de l’enregistrement",
+                    "DATA_SOURCE": "Source de données",
+                    "CATEGORY": "Catégorie",
+                    "CUTOFF_DATE": "Date limite",
+                    "DISPOSITION_DATE": "Date de destruction",
+                    "DISPOSITION": "Disposition",
+                    "STATUS": "Statut",
+                    "ADDED_ON": "Date d'ajout",
+                    "ADDED_BY": "Ajouté par"
+                },
+                "ITEMS_PER_PAGE": "Éléments par page :",
+                "NEXT_PAGE": "Page suivante",
+                "PREVIOUS_PAGE": "Page précédente"
+            },
+            "SELECTED_RESULTS_COUNT": "{{selected}} sélectionné",
+            "ERROR": {
+                "TITLE": "Un problème est survenu",
+                "LABEL": "Si le problème persiste, vérifiez votre connexion ou contactez votre administrateur",
+                "RETRY": "Réessayer",
+                "BUTTON_ARIA_LABEL": "Réessayer"
+            }
+        },
+        "SEARCH_FILTERS": {
+            "CONTENT_ID": {
+                "LABEL": "ID du contenu",
+                "PLACEHOLDER": "Entrer l’ID de contenu",
+                "ERROR": "Veuillez entrer un ID de contenu valide."
+            },
+            "RECORD_NAME": {
+                "LABEL": "Nom du document d'archives",
+                "PLACEHOLDER": "Entrer un nom de document d'archives",
+                "ERROR": "Veuillez entrer un nom de document d'archives valide."
+            }
+        },
+        "SIDEBAR": {
+            "EDIT_TITLE": "Modifier les propriétés de l’enregistrement",
+            "TABS": {
+                "PROPERTIES": "Propriétés"
+            },
+            "SECTIONS": {
+                "RECORD_PROPERTIES": "Propriétés de l’enregistrement"
+            },
+            "BUTTONS": {
+                "EDIT": "Modifier",
+                "CANCEL": "Annuler",
+                "SAVE": "Enregistrer",
+                "CLEAR": "Effacer",
+                "CLOSE": "Fermer la barre latérale",
+                "TOGGLE": "Développer/Réduire"
+            },
+            "FIELDS": {
+                "CUTOFF_DATE": "Date limite",
+                "INCOMPLETE": "Incomplet"
+            },
+            "DATEPICKER": {
+                "CLEAR": "Effacer",
+                "CANCEL": "Annuler",
+                "APPLY": "OK"
+            },
+            "LINKED_CASE": "Dossiers de conservation légale associés"
+        },
+        "DELETE_DIALOG": {
+            "TITLE": "Confirmer la suppression",
+            "CONTENT": "Souhaitez-vous vraiment supprimer les enregistrements sélectionnés ?",
+            "CANCEL": "Annuler",
+            "DELETE": "Supprimer"
+        },
+        "LEGAL_DIALOG": {
+            "TITLE": "Dossiers de conservation légale",
+            "CANCEL": "Annuler",
+            "ASSIGN": "Ajouter des documents d'archives à la sélection",
+            "INFO_ADD_RECORDS": "{{count}} fichier sera ajouté à la conservation légale sélectionnée",
+            "INFO_ADD_RECORDS_plural": "{{count}} fichiers seront ajoutés à la conservation légale sélectionnée",
+            "BACK": "Back"
+        },
+        "CREATE_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Créer un dossier de conservation légale",
+            "NAME": "Nom",
+            "REASON": "Motif",
+            "DESCRIPTION": "Description",
+            "CANCEL": "Annuler",
+            "CREATE": "Créer un dossier de conservation légale",
+            "ERRORS": {
+                "MAX_LENGTH_EXCEEDED": "Longueur maximale de {{max}} caractères dépassée."
+            }
+        },
+        "EDIT_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Modifier un dossier de conservation légale",
+            "EDIT": "Modifier un dossier de conservation légale"
+        },
+        "UNSAVED_CHANGES_DIALOG": {
+            "TITLE": "Modifications non enregistrées",
+            "CONTENT": "Certaines de vos modifications n'ont pas été enregistrées. Pour les réviser et les enregistrer, cliquez sur « Continuer l'édition ». Pour ignorer les modifications, cliquez sur « Fermer sans enregistrer ».",
+            "DISCARD": "Fermer sans enregistrer",
+            "KEEP": "Continuer l'édition"
+        },
+        "NOTIFICATIONS": {
+            "RECORD_DELETE_SUCCESS": "Enregistrement(s) supprimé(s) avec succès !",
+            "RECORD_DELETE_ERROR": "Impossible de supprimer la propriété. Veuillez réessayer.",
+            "RECORD_DELETE_PARTIAL": "{{successCount}} documents d'archives supprimés, {{failureCount}} échec(s).",
+            "PROPERTY_UPDATE_SUCCESS": "La propriété a bien été mise à jour !",
+            "PROPERTY_UPDATE_ERROR": "Impossible de mettre à jour la propriété. Veuillez réessayer.",
+            "LEGAL_HOLD_CASE_CREATE_SUCCESS": "Dossier de conservation légale créé avec succès",
+            "LEGAL_HOLD_CASE_CREATE_ERROR": "Échec de la création du dossier de conservation légale. Veuillez réessayer.",
+            "LEGAL_HOLD_CASE_NAME_EXISTS": "Un dossier de conservation légale portant ce nom existe déjà.",
+            "LEGAL_HOLD_ASSIGNMENT_ERROR": "Échec de l'affectation des documents d'archives à une conservation légale. Veuillez réessayer.",
+            "LEGAL_HOLD_ASSIGNMENT_SUCCESS": "Your request to add records to legal case(s) has been successfully submitted. The process has started and may take some time to complete.",
+            "LEGAL_HOLD_CASE_EDIT_SUCCESS": "Dossier de conservation légale mis à jour avec succès",
+            "LEGAL_HOLD_CASE_EDIT_ERROR": "Échec de la mise à jour du dossier de conservation légale. Veuillez réessayer.",
+            "PROPERTY_UPDATE_TIMEOUT": "Délai d'attente : la mise à jour des propriétés de l'enregistrement est toujours en cours. Cliquez sur Actualiser ou vérifiez les propriétés dans quelques instants.",
+            "STATUS_UPDATE_SUCCESS": "État de l'enregistrement mis à jour avec succès.",
+            "STATUS_UPDATE_ERROR": "Échec de la mise à jour de l'état de l'enregistrement.",
+            "STATUS_UPDATE_TIMEOUT": "Délai d'attente : enregistrement(s) toujours en cours d'ajout au dossier de conservation légale sélectionné. Cliquez sur Actualiser ou vérifiez l'état des enregistrements dans quelques instants.",
+            "RETENTION_ADJUSTMENT_SUCCESS": "Votre demande de modification de la durée de conservation a été envoyée avec succès. Le processus a commencé et peut prendre un certain temps."
+        },
+        "SEARCH_INPUT": {
+            "SEARCH": "Rechercher",
+            "CLEAR": "Effacer"
+        },
+        "DASHBOARD": {
+            "LAST_REFRESH": "Dernière actualisation",
+            "REFRESH": "Actualiser",
+            "EXPORT_PPT": "Exporter",
+            "RECORD_HEALTH": "Dossier de santé",
+            "RECORD_HEALTH_SUBTITLE": "Vue holistique des états des dossiers",
+            "TOTAL": "Total",
+            "TOTAL_RECORDS": "Nombre total de dossiers",
+            "VIEW_RECORDS": "Cliquez ici pour voir les dossiers",
+            "RECORDS_BY_STATUS": "Dossiers par statut",
+            "ACTIVE_RETENTION_STATUS": "Statut de conservation actif",
+            "ACTIVE_RETENTION_SUBTITLE": "Surveiller la conservation de contenu dans toutes les catégories",
+            "INCOMPLETE_RECORD": "Dossier incomplet",
+            "INCOMPLETE_SUBTITLE": "Suivre et corriger les dossiers incomplets dans toutes les catégories",
+            "CUTOFF_TRACKER": "Suivi de date limite",
+            "CUTOFF_SUBTITLE": "Dossiers dus pour la date limite dans le mois sélectionné",
+            "DISPOSITION_TRACKER": "Suivi de suppression",
+            "DISPOSITION_SUBTITLE": "Dossiers dus pour suppression dans le mois sélectionné",
+            "UNDER_RETENTION": "En cours de conservation",
+            "MISSING_PROPERTY": "Propriété manquante",
+            "READY_TO_CUTOFF": "Prêt pour date limite",
+            "DUE_FOR_DISPOSITION": "Dû pour suppression",
+            "ALL_CATEGORIES": "Toutes les catégories",
+            "ALL_STATUS": "Tous les statuts",
+            "ALL_MONTHS": "Tous les mois",
+            "NO_DATA": "Aucune donnée disponible",
+            "SELECT_CATEGORY": "Sélectionner une catégorie",
+            "SEARCH_PLACEHOLDER": "Rechercher...",
+            "LOADING": "Chargement",
+            "NO_RESULTS_FOUND": "Aucun résultat trouvé",
+            "SELECT_MONTH": "Sélectionner un mois",
+            "THIS_MONTH": "Ce mois-ci",
+            "SORT_HIGH_TO_LOW": "Élevé à faible",
+            "SORT_LOW_TO_HIGH": "Faible à élevé",
+            "NEXT_PAGE": "Page suivante",
+            "PREVIOUS_PAGE": "Page précédente",
+            "LEGAL_HOLD_SUMMARY": "Active Legal Hold Cases",
+            "LEGAL_HOLD_SUBTITLE": "Overview of records on legal hold",
+            "LEGAL_HOLD_TOOLTIP": "On Hold Records",
+            "EMPTY": {
+                "RECORD_HEALTH": "Aucun enregistrement à suivre",
+                "ACTIVE_RETENTION": "Aucun enregistrement actuellement conservé",
+                "MISSING_PROPERTIES": "Aucun enregistrement avec des propriétés manquantes",
+                "CUTOFF_TRACKER": "Aucun enregistrement au statut Prêt à être coupé",
+                "DISPOSITION_TRACKER": "Aucun enregistrement au statut Destruction atteinte",
+                "LEGAL_HOLD_SUMMARY": "No Records on Legal Hold"
+            },
+            "PPT": {
+                "INTRO": {
+                    "TITLE": "Synthèse du tableau de bord de gouvernance",
+                    "REPORTING_DATE": "Date de signalement",
+                    "PRODUCT_LINE": "Gouvernance des documents et des contenus"
+                },
+                "RECORD_HEALTH": {
+                    "TITLE": "Aperçu de l'état des enregistrements",
+                    "SUB_TITLE": "Vue holistique des états des enregistrements dans les différentes catégories",
+                    "TOTAL_RECORDS": "Nombre total de dossiers",
+                    "RECORDS_BY_STATUS": "Dossiers par statut",
+                    "DONUT_SERIES_LABEL": "Enregistrements"
+                },
+                "COMMON": {
+                    "CATEGORY_OVERVIEW": "Aperçu des catégories",
+                    "TABLE": {
+                        "CATEGORY": "Catégorie",
+                        "TOTAL_RECORDS": "Nombre total de dossiers",
+                        "LEGAL_CASE_NAME": "Legal Case Name"
+                    },
+                    "LEGEND": {
+                        "TOTAL": "Total"
+                    }
+                },
+                "WIDGETS": {
+                    "ACTIVE_RETENTION": {
+                        "TITLE": "Statut de conservation actif",
+                        "SUB_TITLE": "Surveiller la conservation de contenu dans toutes les catégories",
+                        "CAPTION": "Les 10 premières catégories contenant le plus d'enregistrements actuellement conservés",
+                        "VALUE_LABEL": "En cours de conservation"
+                    },
+                    "MISSING_PROPERTIES": {
+                        "TITLE": "Enregistrements incomplets",
+                        "SUB_TITLE": "Catégories présentant des propriétés obligatoires manquantes",
+                        "CAPTION": "Les 10 premières catégories contenant le plus d'enregistrements incomplets",
+                        "VALUE_LABEL": "Incomplet"
+                    },
+                    "CUTOFF_TRACKER": {
+                        "TITLE": "Suivi de date limite",
+                        "SUB_TITLE": "Enregistrements approchant des dates limites",
+                        "CAPTION": "Les 10 premières catégories contenant des enregistrements approchant des dates limites",
+                        "VALUE_LABEL": "Prêt pour la destruction"
+                    },
+                    "DISPOSITION_TRACKER": {
+                        "TITLE": "Suivi de suppression",
+                        "SUB_TITLE": "Enregistrements devant être détruits",
+                        "CAPTION": "Les 10 premières catégories contenant des enregistrements devant être détruits",
+                        "VALUE_LABEL": "Dû pour suppression"
+                    },
+                    "LEGAL_HOLD_SUMMARY": {
+                        "TITLE": "Legal Hold Summary",
+                        "SUB_TITLE": "Overview of records on legal hold",
+                        "CAPTION": "Shows records currently on hold by legal case",
+                        "VALUE_LABEL": "En suspens"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "name": "shared-hxp-header",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/shared-hxp/navigation/header/src",
+    "prefix": "hxp",
+    "projectType": "library",
+    "tags": ["scope:shared-hxp-navigation-header", "category:shared-hxp"],
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+            "options": {
+                "project": "libs/shared-hxp/navigation/header/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "{projectRoot}/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "{projectRoot}/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "stylelint": {}
+    }
+}

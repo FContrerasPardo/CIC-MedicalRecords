@@ -1,0 +1,34 @@
+@use '@angular/material' as mat;
+
+.hxp-sidenav-panel {
+    &-item:not(:disabled) {
+        padding: 0;
+    }
+
+    &-collapsed {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hxp-sidenav-panel-item {
+        @include mat.list-overrides(
+            (
+                list-item-one-line-container-height: 100%,
+            )
+        );
+        @include mat.button-overrides(
+            (
+                label-text-color: var(--mat-sys-on-surface),
+            )
+        );
+    }
+
+    .hxp-sidenav-panel-item > * {
+        @include mat.list-overrides(
+            (
+                list-item-one-line-container-height: 48px,
+            )
+        );
+    }
+}

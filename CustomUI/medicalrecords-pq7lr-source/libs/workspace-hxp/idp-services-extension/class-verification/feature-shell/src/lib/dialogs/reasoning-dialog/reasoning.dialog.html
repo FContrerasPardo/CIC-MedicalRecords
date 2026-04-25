@@ -1,0 +1,84 @@
+<div data-automation-id="idp-reasoning-dialog" class="idp-reasoning-dialog">
+    <div class="idp-reasoning-dialog__header">
+        <div class="idp-reasoning-dialog__header-titles">
+            <h2 data-automation-id="idp-reasoning-dialog__title" class="idp-reasoning-dialog__title">
+                {{ 'IDP_CLASS_VERIFICATION.REASONING_DIALOG.TITLE' | translate }}
+            </h2>
+            <span class="idp-reasoning-dialog__subtitle"
+                data-automation-id="idp-reasoning-dialog__document-name">
+                {{ data.documentName }}
+            </span>
+        </div>
+        <span class="idp-reasoning-dialog__spacer"></span>
+        <button mat-icon-button
+            class="idp-reasoning-dialog__help-button"
+            data-automation-id="idp-reasoning-dialog__help-button"
+            [attr.aria-label]="'IDP_CLASS_VERIFICATION.REASONING_DIALOG.HELP_TOOLTIP' | translate"
+            [matTooltip]="'IDP_CLASS_VERIFICATION.REASONING_DIALOG.HELP_TOOLTIP' | translate"
+            #helpTooltip="matTooltip"
+            (click)="toggleHelpTooltip(helpTooltip)">
+            <mat-icon svgIcon="help" />
+        </button>
+        <button mat-icon-button
+            data-automation-id="idp-reasoning-dialog__close-button"
+            [attr.aria-label]="'IDP_CLASS_VERIFICATION.REASONING_DIALOG.CLOSE_BUTTON' | translate"
+            mat-dialog-close>
+            <mat-icon svgIcon="x_large" />
+        </button>
+    </div>
+
+    <mat-dialog-content class="idp-reasoning-dialog__content">
+        <div class="idp-reasoning-dialog__summary"
+            data-automation-id="idp-reasoning-dialog__selection-reason">
+            <span class="idp-reasoning-dialog__summary-label">
+                {{ 'IDP_CLASS_VERIFICATION.REASONING_DIALOG.SELECTION_REASON_LABEL' | translate }}
+            </span>
+            <span class="idp-reasoning-dialog__summary-value">
+                {{ ('IDP_CLASS_VERIFICATION.REASONING_DIALOG.SELECTION_REASONS.' + data.selectionReason) | translate }}
+            </span>
+        </div>
+
+        @if (data.candidates.length > 0) {
+            @for (candidate of data.candidates; track $index) {
+                <section class="idp-reasoning-dialog__candidate-card"
+                    [class.idp-reasoning-dialog__candidate-card--selected]="candidate.isSelected"
+                    [attr.data-automation-id]="'idp-reasoning-dialog__candidate-' + $index"
+                    [attr.aria-labelledby]="'idp-reasoning-dialog-candidate-name-' + $index">
+                    <div class="idp-reasoning-dialog__candidate-header">
+                        <div class="idp-reasoning-dialog__candidate-identity">
+                            <span class="idp-reasoning-dialog__class-name"
+                                [id]="'idp-reasoning-dialog-candidate-name-' + $index"
+                                [attr.data-automation-id]="'idp-reasoning-dialog__candidate-name-' + $index">
+                                {{ candidate.name ?? ('IDP_CLASS_VERIFICATION.REASONING_DIALOG.NO_CLASSIFICATION_LABEL' | translate) }}
+                            </span>
+                            @if (candidate.isSelected) {
+                                <span class="idp-reasoning-dialog__badge" data-automation-id="idp-reasoning-dialog__winner-badge">
+                                    {{ 'IDP_CLASS_VERIFICATION.REASONING_DIALOG.WINNER_BADGE' | translate }}
+                                </span>
+                            }
+                        </div>
+                        <span class="idp-reasoning-dialog__confidence"
+                            [attr.data-automation-id]="'idp-reasoning-dialog__candidate-confidence-' + $index"
+                            [attr.aria-label]="('IDP_CLASS_VERIFICATION.REASONING_DIALOG.CONFIDENCE_LABEL' | translate) + ' ' + candidate.confidence">
+                            {{ candidate.confidence }}
+                        </span>
+                    </div>
+
+                    @if (candidate.reason) {
+                        <div class="idp-reasoning-dialog__reason-block"
+                            [attr.data-automation-id]="'idp-reasoning-dialog__candidate-reason-' + $index">
+                            <span class="idp-reasoning-dialog__reason-label">
+                                {{ 'IDP_CLASS_VERIFICATION.REASONING_DIALOG.REASON_LABEL' | translate }}
+                            </span>
+                            <p class="idp-reasoning-dialog__reason-text">{{ candidate.reason }}</p>
+                        </div>
+                    }
+                </section>
+            }
+        } @else {
+            <div data-automation-id="idp-reasoning-dialog__no-candidates" class="idp-reasoning-dialog__empty">
+                {{ 'IDP_CLASS_VERIFICATION.REASONING_DIALOG.NO_CANDIDATES' | translate }}
+            </div>
+        }
+    </mat-dialog-content>
+</div>

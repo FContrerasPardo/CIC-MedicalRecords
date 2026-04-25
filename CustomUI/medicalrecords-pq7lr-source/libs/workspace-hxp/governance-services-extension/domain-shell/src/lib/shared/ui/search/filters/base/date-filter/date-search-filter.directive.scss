@@ -1,0 +1,32 @@
+.hxp-governance-date-filter-container {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+
+    .hxp-governance-date-filter-option {
+        border-inline-start: 6px solid transparent;
+        box-sizing: border-box;
+
+        &_active {
+            border-inline-start: 6px solid var(--mat-sys-primary);
+        }
+    }
+
+    mat-divider {
+        margin: 10px;
+    }
+
+    .hxp-governance-custom-date {
+        display: flex;
+        flex-direction: column;
+        margin: 0 15px 15px;
+
+        &-error {
+            margin: 0 -15px;
+        }
+
+        .hxp-governance-date-picker-suffix {
+            display: flex;
+        }
+    }
+}

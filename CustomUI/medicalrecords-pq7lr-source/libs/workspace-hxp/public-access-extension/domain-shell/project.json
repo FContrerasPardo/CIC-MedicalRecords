@@ -1,0 +1,34 @@
+{
+    "name": "workspace-hxp-public-access-extension-domain-shell",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/workspace-hxp/public-access-extension/domain-shell/src",
+    "prefix": "hxp",
+    "projectType": "library",
+    "targets": {
+        "test": {
+            "options": {
+                "passWithNoTests": true
+            }
+        },
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/libs/workspace-hxp/public-access-extension/domain-shell"],
+            "options": {
+                "project": "libs/workspace-hxp/public-access-extension/domain-shell/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/workspace-hxp/public-access-extension/domain-shell/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/workspace-hxp/public-access-extension/domain-shell/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/workspace-hxp/public-access-extension/domain-shell/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        }
+    },
+    "tags": ["scope:workspace-hxp-public-access-extension", "category:workspace-hxp"]
+}

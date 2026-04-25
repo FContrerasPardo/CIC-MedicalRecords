@@ -1,0 +1,17 @@
+.apa-cloud-scroll-container {
+    overflow: auto;
+    height: 100%;
+
+    .apa-cloud-scroll-component {
+        height: 100%;
+        padding: 1.5rem;
+
+        .adf-datatable-list {
+            border: none;
+        }
+
+        .adf-datatable-header {
+            border-top: none;
+        }
+    }
+}

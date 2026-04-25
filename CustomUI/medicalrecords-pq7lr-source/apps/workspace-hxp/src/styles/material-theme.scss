@@ -1,0 +1,5 @@
+@use '@hylandsoftware/satori-ui/theme' as sat;
+
+html {
+    @include sat.theme;
+}

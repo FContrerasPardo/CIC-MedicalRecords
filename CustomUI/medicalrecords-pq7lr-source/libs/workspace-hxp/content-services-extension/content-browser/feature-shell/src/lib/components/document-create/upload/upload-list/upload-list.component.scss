@@ -1,0 +1,109 @@
+@use '@angular/material' as mat;
+
+.hxp-workspace-upload-list {
+    @include mat.toolbar-overrides(
+        (
+            container-background-color: color-mix(in srgb, var(--mat-sys-primary-fixed-dim) 16%, transparent),
+            container-text-color: var(--mat-sys-on-surface),
+        )
+    );
+
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow-y: auto;
+
+    /* these styles might need to be reviewed */
+    .adf-datatable {
+        overflow: auto;
+
+        .adf-datatable-list {
+            border: none;
+
+            .adf-datatable-row:focus {
+                border: none;
+                outline: none;
+            }
+
+            .adf-datatable-body {
+                border: none;
+                overflow: auto;
+                .adf-datatable-row {
+                    border: none;
+                }
+            }
+
+            .adf-datatable-header {
+                border: none;
+            }
+        }
+    }
+
+    &__toolbar {
+        &__selection {
+            display: flex;
+            align-items: center;
+            flex: 1 1 auto;
+            gap: 8px;
+
+            &_count {
+                font: var(--mat-sys-body-medium);
+                color: var(--mat-sys-on-surface);
+            }
+        }
+
+        &-hidden {
+            visibility: hidden;
+        }
+
+        &--spacer {
+            flex: 1 1 auto;
+        }
+    }
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        overflow-y: auto;
+
+        &__tables {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+
+        &__table {
+            display: flex;
+            flex-direction: column;
+
+            &__error {
+                color: var(--mat-sys-error);
+            }
+
+            &__loading-column {
+                min-width: 58px !important;
+            }
+
+            &__title-column {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                width: 100%;
+
+                &__title {
+                    margin-bottom: 5px;
+                }
+
+                &__progress-bar--hidden {
+                    visibility: hidden;
+                }
+            }
+
+            .hxp-nav-accordion {
+                margin-bottom: 16px;
+            }
+        }
+    }
+}

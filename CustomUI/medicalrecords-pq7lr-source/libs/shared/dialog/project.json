@@ -1,0 +1,29 @@
+{
+    "name": "shared-dialog",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/shared/dialog/src",
+    "prefix": "alfresco-dbp",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/libs/shared/dialog"],
+            "options": {
+                "project": "libs/shared/dialog/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/shared/dialog/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/shared/dialog/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/shared/dialog/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        }
+    },
+    "tags": ["scope:shared-dialog", "category:shared-dialog", "category:shared-unit"]
+}

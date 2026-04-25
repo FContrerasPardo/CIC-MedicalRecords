@@ -1,0 +1,44 @@
+@use '@hylandsoftware/design-tokens/scss' as *;
+
+mat-table,
+[mat-table] {
+    border: 1px solid var(--mat-sys-surface-container-highest);
+    min-width: auto;
+
+    mat-header-cell,
+    [mat-header-cell] {
+        border: 0;
+        padding-left: $hy-spacing-8;
+        padding-right: 0;
+        margin-left: 0;
+    }
+
+    mat-cell,
+    [mat-cell] {
+        border: 0;
+        margin: 0;
+        padding: 0 0 0 $hy-spacing-8;
+        min-height: initial;
+        display: flex;
+        justify-content: space-between;
+
+        > :first-child {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    }
+}
+
+.studio-process-editor-table-edit-icon {
+    vertical-align: middle;
+    margin-left: $hy-spacing-4;
+    font-size: var(--mat-sys-body-large-size);
+    width: var(--mat-sys-body-large-size);
+    height: var(--mat-sys-body-large-size);
+    padding: $hy-spacing-4 0;
+
+    &:hover {
+        cursor: pointer;
+    }
+}

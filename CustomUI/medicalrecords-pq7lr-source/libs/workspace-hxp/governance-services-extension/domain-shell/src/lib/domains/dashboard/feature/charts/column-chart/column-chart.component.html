@@ -1,0 +1,51 @@
+<div class="satorized-container">
+    <div class="hxp-cicgov-column-chart-root">
+        <div class="hxp-column-chart">
+            <canvas
+                baseChart
+                #stackedCategoryChart
+                [data]="chartData"
+                [options]="chartOptions"
+                [type]="'bar'"
+                role="img"
+                [attr.aria-label]="chartAriaLabel()"
+            ></canvas>
+        </div>
+        <div class="hxp-legend-container">
+            <span
+                class="hxp-legend-dot"
+                [style.background]="primaryColor()"
+            ></span>
+            <span class="hxp-legend-label">{{ tooltipLabel() }}</span>
+
+            <div class="hxp-legend-arrows">
+                <button
+                    mat-icon-button
+                    class="hxp-chart-pagination-button"
+                    type="button"
+                    (click)="prevPage()"
+                    [disabled]="currentPage === 0"
+                    [attr.aria-label]="'GOVERNANCE.DASHBOARD.PREVIOUS_PAGE' | translate"
+                >
+                    <mat-icon
+                        class="hxp-icon"
+                        svgIcon="chevron_left"
+                    />
+                </button>
+                <button
+                    mat-icon-button
+                    class="hxp-chart-pagination-button"
+                    type="button"
+                    (click)="nextPage()"
+                    [disabled]="currentPage + 1 >= totalPages"
+                    [attr.aria-label]="'GOVERNANCE.DASHBOARD.NEXT_PAGE' | translate"
+                >
+                    <mat-icon
+                        class="hxp-icon"
+                        svgIcon="chevron_right"
+                    />
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

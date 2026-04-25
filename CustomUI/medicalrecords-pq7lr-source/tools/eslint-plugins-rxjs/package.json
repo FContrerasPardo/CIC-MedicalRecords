@@ -1,0 +1,6 @@
+{
+  "name": "@alfresco-dbp/eslint-plugin-rxjs",
+  "version": "0.0.0-local",
+  "main": "src/index.js",
+  "private": true
+}

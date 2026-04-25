@@ -1,0 +1,33 @@
+<button
+    mat-flat-button
+    [matMenuTriggerFor]="menu"
+    class="hxp-create-document-menu-button"
+    *ngIf="isAvailable"
+>
+    {{ 'CREATE_CONTENT_MENU.BUTTON_TITLE' | translate }}
+    <mat-icon
+        iconPositionEnd
+        svgIcon="chevron_down"
+    />
+</button>
+
+<mat-menu #menu="matMenu">
+    <hxp-workspace-upload-file-button
+        [multipleFiles]="true"
+        [useAsMenuItem]="true"
+        [rootFolderId]="selectedFolderId$ | async"
+    />
+
+    <button
+        mat-menu-item
+        (click)="onCreate()"
+    >
+        <mat-icon svgIcon="add_folder" />
+        {{ 'CREATE_CONTENT_MENU.CREATE_FOLDER' | translate }}
+    </button>
+</mat-menu>
+
+<hxp-workspace-content-upload-dialog
+    #uploadDialog
+    [currentDocument]="document"
+/>

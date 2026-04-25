@@ -1,0 +1,11 @@
+{
+    "name": "workspace-hxp-process-services-cloud-extension-playwright",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/playwright/workspace-hxp/process-services-cloud-extension/src",
+    "prefix": "hxp",
+    "targets": {
+        "codeowner": {}
+    },
+    "tags": ["scope:workspace-hxp-process-services-cloud-extension-playwright", "category:workspace-hxp"]
+}

@@ -1,0 +1,22 @@
+<mat-nav-list
+    [attr.data-automation-id]="'hxp-search-navigation'"
+    [attr.aria-label]="'SEARCH.SIDENAV.ARIA_LABEL' | translate"
+>
+    <a
+        mat-list-item
+        [routerLink]="SEARCH_ROUTE"
+        [queryParams]="{ type: 'basic', q: '' }"
+        [activated]="isSearchRoute()"
+        [attr.aria-current]="isSearchRoute() ? 'page' : null"
+        [attr.data-automation-id]="'hxp-search-menu-item'"
+        class="hxp-search-menu-item"
+        [class.hxp-search-menu-item-active]="isSearchRoute()"
+    >
+        {{ 'SEARCH.SIDENAV.TITLE' | translate }}
+        <mat-icon
+            svgIcon="full_text_search"
+            class="hxp-search-menu-item-icon"
+            matListItemIcon
+        />
+    </a>
+</mat-nav-list>

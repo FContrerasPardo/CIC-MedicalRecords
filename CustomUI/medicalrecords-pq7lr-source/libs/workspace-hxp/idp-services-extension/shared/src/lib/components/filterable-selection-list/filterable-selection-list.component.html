@@ -1,0 +1,49 @@
+@let activeItem = (activeItem$ | async) || undefined;
+<div class="idp-filterable-selection-list">
+    <div
+        class="idp-filterable-selection-list__search"
+        role="search"
+        mat-dialog-content
+    >
+        <mat-form-field
+            class="idp-filterable-selection-list__search-field"
+            appearance="outline"
+            cdkFocusInitial
+        >
+            <input
+                #searchInput
+                matInput
+                type="search"
+                data-automation-id="idp-filterable-selection-list__search-field-input"
+                [attr.aria-label]="'IDP.FILTERABLE_SELECTION_LIST.SEARCH_ARIA_LABEL' | translate"
+                [placeholder]="searchPlaceholderKey | translate"
+                class="idp-filterable-selection-list__search-field-input"
+                (input)="searchInputSubject$.next(searchInput.value)"
+                (keydown)="handleKeyboardEvent($event)"
+            />
+            <mat-icon
+                svgIcon="search"
+                matSuffix
+            />
+        </mat-form-field>
+    </div>
+    <div class="idp-filterable-selection-list__items">
+        <mat-selection-list
+            #selectionListRef
+            [multiple]="false"
+            [hideSingleSelectionIndicator]="true"
+            (selectionChange)="selectionChange$.next($any($event.options[0])?.value)"
+        >
+            @for (item of (filteredItems$ | async) ?? []; track item.data.id) {
+                <mat-list-option
+                    [attr.data-automation-id]="`idp-dialog-list-item-${slugify(item.displayName)}`"
+                    class="idp-filterable-selection-list__item"
+                    [selected]="item.data.id === activeItem?.data?.id"
+                    [value]="item"
+                >
+                    <span>{{ item.displayName }}</span>
+                </mat-list-option>
+            }
+        </mat-selection-list>
+    </div>
+</div>

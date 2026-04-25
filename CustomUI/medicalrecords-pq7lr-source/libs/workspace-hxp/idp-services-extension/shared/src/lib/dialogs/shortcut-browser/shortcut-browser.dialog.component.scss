@@ -1,0 +1,90 @@
+.idp-shortcut-browser-dialog {
+    $padding-y: 16px;
+    $padding-x: 24px;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+    &__title {
+        display: flex;
+        align-items: center;
+        font: var(--mat-sys-title-large);
+        padding: $padding-y $padding-x;
+
+        :first-child {
+            flex: 1 1 auto;
+            margin: 0;
+        }
+
+        :last-child {
+            flex: 0 0 auto;
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: $padding-y $padding-x;
+    }
+
+    &__search-form {
+        width: 100%;
+    }
+
+    &__shortcuts {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding: 8px;
+        overflow: hidden auto;
+        scrollbar-width: auto;
+        box-shadow: var(--mat-sys-level1);
+
+        &:has(.idp-shortcut-browser-dialog__spinner) {
+            border-radius: 16px;
+            transition: all 0.5s ease-in-out;
+            height: 100%;
+        }
+    }
+
+    &__shortcuts-group {
+        display: flex;
+        flex-direction: column;
+        padding: 0 12px;
+        font: var(--mat-sys-title-large);
+    }
+
+    &__shortcut-group-title {
+        color: var(--mat-sys-outline);
+    }
+
+    &__shortcut {
+        display: flex;
+        gap: 16px;
+        padding: 8px 8px 8px 0;
+        border-radius: 8px;
+        align-items: center;
+        font: var(--mat-sys-body-large);
+    }
+
+    &__shortcut-description {
+        flex: 1 1 70%;
+    }
+
+    &__shortcut-key {
+        border-radius: 8px;
+        border: 2px solid var(--mat-sys-outline-variant);
+        padding: 8px 12px;
+        text-align: center;
+    }
+
+    &__spinner {
+        position: relative;
+        top: 50%;
+        left: 50%;
+    }
+}

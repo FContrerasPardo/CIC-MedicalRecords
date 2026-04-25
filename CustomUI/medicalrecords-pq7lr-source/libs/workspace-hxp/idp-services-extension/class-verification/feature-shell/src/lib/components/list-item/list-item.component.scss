@@ -1,0 +1,11 @@
+@use '@angular/material' as mat;
+
+.idp-list-item {
+    &--disabled {
+        @include mat.list-overrides(
+            (
+                list-item-container-color: var(--mat-sys-surface-container),
+            )
+        );
+    }
+}

@@ -1,0 +1,24 @@
+.hxp-filter-chip {
+    .hxp-filter-chip__label,
+    .hxp-filter-chip__label-suffix {
+        color: var(--mat-sys-on-surface-variant, var(--adf-filter-chip-text-color));
+    }
+
+    .hxp-filter-chip__number-chip {
+        height: 20px;
+        width: 20px;
+        background-color: var(--mat-sys-on-surface-variant, var(--adf-filter-chip-text-color));
+        color: var(--mat-sys-surface-variant, var(--adf-filter-chip-background-color));
+        border-radius: 40%;
+        display: inline-block;
+        margin-left: 4px;
+        padding: 0 2px;
+        text-align: center;
+    }
+
+    .hxp-filter-chip__remove-icon {
+        color: var(--mat-sys-on-surface-variant, var(--adf-filter-chip-text-color));
+        opacity: 1;
+        font-size: var(--mat-sys-label-small-size);
+    }
+}

@@ -1,0 +1,26 @@
+<mat-form-field class="hxp-search-field">
+    <mat-icon
+        matPrefix
+        svgIcon="search"
+    />
+    <input
+        matInput
+        [attr.aria-label]="'GOVERNANCE.SEARCH_INPUT.SEARCH' | translate"
+        [placeholder]="placeholder"
+        [(ngModel)]="searchText"
+        (keydown)="onKeyDown($event)"
+        (input)="onInputChange()"
+        [disabled]="disabled"
+    />
+    @if (searchText) {
+        <button
+            matSuffix
+            mat-icon-button
+            [attr.aria-label]="'GOVERNANCE.SEARCH_INPUT.CLEAR' | translate"
+            (click)="clearSearch()"
+            [disabled]="disabled"
+        >
+            <mat-icon svgIcon="x_large" />
+        </button>
+    }
+</mat-form-field>

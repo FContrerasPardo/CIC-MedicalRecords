@@ -1,0 +1,63 @@
+@use '@angular/material' as mat;
+
+.idp-document-upload-progress-dialog {
+    $padding-y: 16px;
+    $padding-x: 24px;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+    &__title {
+        font: var(--mat-sys-title-large);
+        padding: $padding-y $padding-x;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 $padding-x $padding-y;
+    }
+
+    &__progress {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__progress-details {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__percentage {
+        font: var(--mat-sys-body-medium);
+    }
+
+    &__name {
+        font: var(--mat-sys-body-medium);
+    }
+
+    &__status {
+        display: flex;
+        margin-left: auto;
+    }
+
+    &__cancel-button {
+        @include mat.icon-button-overrides(
+            (
+                state-layer-size: 24px,
+            )
+        );
+
+        cursor: pointer;
+    }
+
+    &__message {
+        font: var(--mat-sys-body-small);
+    }
+}

@@ -1,0 +1,198 @@
+@use '@angular/material' as mat;
+@use 'mat-selectors' as ms;
+
+.apa-start-process-cloud-content {
+    flex: 1 1 auto;
+    box-sizing: border-box;
+
+    .adf-content-area {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        height: 100%;
+        overflow: hidden;
+        min-height: 0;
+
+        @include mat.form-field-overrides(
+            (
+                container-text-size: var(--mat-sys-body-medium-size),
+                outlined-label-text-size: var(--mat-sys-body-medium-size),
+            )
+        );
+
+        h1 {
+            font: var(--mat-sys-headline-large);
+        }
+
+        h2 {
+            font: var(--mat-sys-headline-medium);
+        }
+
+        h3,
+        h4,
+        h5,
+        h6 {
+            font: var(--mat-sys-headline-small);
+        }
+
+        p,
+        li {
+            font: var(--mat-sys-body-medium);
+        }
+    }
+
+    .adf-content-border {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        min-height: 0;
+        vertical-align: unset;
+        text-align: unset;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .adf-inplace-input-mat-form-field {
+        font-size: var(--mat-sys-title-large-size);
+
+        @include mat.form-field-overrides(
+            (
+                filled-container-color: transparent,
+                filled-label-display: 'none',
+            )
+        );
+    }
+
+    .adf-inplace-input-container .adf-inplace-input-mat-form-field {
+        width: 100%;
+    }
+}
+
+adf-cloud-start-process {
+    display: flex;
+    overflow: auto;
+    min-height: 0;
+    height: 100%;
+    background-color: var(--mat-sys-surface-container-highest);
+
+    .adf-start-process {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+    }
+
+    @include mat.card-overrides(
+        (
+            elevated-container-elevation: 0,
+            outlined-outline-width: 0,
+            outlined-outline-color: transparent,
+            outlined-container-color: var(--mat-sys-surface-container-highest),
+        )
+    );
+
+    /* stylelint-disable-next-line selector-id-pattern */
+    #cancel_process {
+        margin-right: 8px;
+    }
+
+    .adf-loading-container {
+        width: 100%;
+    }
+}
+
+adf-cloud-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 1366px;
+    height: fit-content;
+    margin: 0 auto;
+    @include mat.card-overrides(
+        (
+            outlined-container-color: var(--mat-sys-surface),
+        )
+    );
+
+    .adf-cloud-form-container {
+        height: fit-content;
+    }
+
+    .adf-cloud-form-content-card {
+        height: 100% !important;
+        padding-bottom: 2px !important;
+    }
+
+    .adf-form-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+
+        .adf-form-content {
+            display: flex;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            padding: 0;
+            padding-top: 15px;
+        }
+    }
+}
+.adf-start-process-cloud-actions {
+    padding-right: 8px;
+}
+
+.adf-cloud-form-content-card-actions {
+    padding-right: 0;
+    padding-bottom: 0;
+}
+
+.apa-sticky-tabs {
+    adf-cloud-form #{ms.$mat-card}.adf-cloud-form-content-card {
+        overflow: visible;
+    }
+
+    adf-cloud-form #{ms.$mat-card-content} {
+        overflow: visible;
+    }
+
+    adf-cloud-form .adf-cloud-form-fullscreen-container {
+        overflow: auto;
+        height: 100%;
+    }
+
+    // Material tab internals must be overridden to enable sticky tab headers.
+    // position: sticky requires all ancestor overflow to be visible, but Material
+    // sets overflow: hidden on its tab body wrappers. There is no public API to
+    // change this behaviour.
+    /* stylelint-disable-next-line selector-class-pattern */
+    .alfresco-tabs-widget {
+        #{ms.$mat-tab-header} {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: var(--adf-theme-background-tab-header-color);
+        }
+
+        #{ms.$mat-tab-body-wrapper} {
+            overflow: visible;
+        }
+
+        #{ms.$mat-tab-body}#{ms.$mat-tab-body-active} {
+            overflow: visible;
+        }
+
+        #{ms.$mat-tab-body-content} {
+            overflow: visible;
+            height: auto;
+        }
+    }
+}

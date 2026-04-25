@@ -1,0 +1,16 @@
+{
+  "name": "@hxp/shared-hxp/navigation/header",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@hylandsoftware/satori-ui": ">=0.1.0",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@ngx-translate/core": ">=17.0.0",
+    "@features": ">=0.0.1",
+    "@alfresco-dbp/shared/dialog": ">=0.0.1",
+    "@angular/router": ">=19.2.18",
+    "@angular/material": ">=19.2.19",
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,25 @@
+.idp-extraction-result {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+
+    &__status {
+        padding-left: 16px;
+        margin-right: 5px;
+    }
+
+    &__status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+
+        &--issue {
+            background-color: var(--sat-sys-on-cat-red-container);
+        }
+
+        &--no-issue {
+            background-color: var(--sat-sys-on-cat-green-container);
+        }
+    }
+}

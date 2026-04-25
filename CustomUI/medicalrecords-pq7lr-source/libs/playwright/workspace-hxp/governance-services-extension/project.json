@@ -1,0 +1,11 @@
+{
+    "name": "workspace-hxp-governance-services-extension-playwright",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/playwright/workspace-hxp/governance-services-extension/src",
+    "prefix": "hxp",
+    "targets": {
+        "codeowner": {}
+    },
+    "tags": ["scope:workspace-hxp-governance-services-extension-playwright", "category:workspace-hxp"]
+}

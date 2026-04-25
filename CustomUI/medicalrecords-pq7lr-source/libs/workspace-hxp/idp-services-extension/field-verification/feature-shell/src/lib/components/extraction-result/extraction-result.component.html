@@ -1,0 +1,16 @@
+<div class="idp-extraction-result">
+    <div class="idp-extraction-result__status">
+        <svg
+            class="idp-extraction-result__status-indicator"
+            [class]="!hasIssue ? 'idp-extraction-result__status-indicator--no-issue' : 'idp-extraction-result__status-indicator--issue'"
+            [attr.data-automation-id]="'idp-field-extraction-result-icon-' + (hasIssue ? 'has-issue' : 'no-issue')"
+        >
+            <circle />
+        </svg>
+    </div>
+    <span
+        class="idp-extraction-result-text mat-caption"
+        [attr.data-automation-id]="'idp-field-extraction-result-text-' + status"
+        >{{ status | translate }}</span
+    >
+</div>

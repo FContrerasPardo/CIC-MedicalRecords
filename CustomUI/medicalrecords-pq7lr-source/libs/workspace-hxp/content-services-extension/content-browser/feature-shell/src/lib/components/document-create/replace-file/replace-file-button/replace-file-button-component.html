@@ -1,0 +1,9 @@
+<ng-container *ngIf="isAvailable">
+    <button mat-menu-item (click)="triggerFileSelection()" class="hxp-replace-file-button" data-automation-id="hxp-replace-file-button">
+        <mat-icon svgIcon="attach_file" />
+        <div class="hxp-replace-file-input">
+            <span id="hxp-replace-file-input-label">{{ 'DOCUMENT_MORE_ACTION.REPLACE_FILE' | translate }}</span>
+            <hxp-beta-chip-tag />
+        </div>
+    </button>
+</ng-container>

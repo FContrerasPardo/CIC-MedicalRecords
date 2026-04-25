@@ -1,0 +1,15 @@
+@if (isAvailable) {
+    <button
+        mat-button
+        class="hxp-governance-action-button"
+        [attr.aria-label]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.DELETE' | translate"
+        [matTooltip]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.DELETE' | translate"
+        (click)="onDelete()"
+    >
+        <mat-icon
+            class="hxp-governance-action-icon"
+            svgIcon="trash"
+        />
+        <span>{{ 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.DELETE_LABEL' | translate }}</span>
+    </button>
+}

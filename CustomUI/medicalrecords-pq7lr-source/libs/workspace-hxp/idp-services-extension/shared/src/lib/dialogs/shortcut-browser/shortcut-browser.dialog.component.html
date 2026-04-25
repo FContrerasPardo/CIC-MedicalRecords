@@ -1,0 +1,88 @@
+<div class="idp-shortcut-browser-dialog">
+    <div
+        matDialogTitle
+        data-automation-id="idp-shortcut-dialog-title"
+        class="idp-shortcut-browser-dialog__title"
+    >
+        <span>{{ 'IDP.SHORTCUT_DIALOG.TITLE' | translate }}</span>
+        <button
+            mat-icon-button
+            mat-dialog-close
+            data-automation-id="idp-shortcut-dialog-close"
+        >
+            <mat-icon svgIcon="x_large" />
+        </button>
+    </div>
+    <mat-dialog-content class="idp-shortcut-browser-dialog__content">
+        <mat-form-field
+            class="idp-shortcut-browser-dialog__search-form"
+            appearance="outline"
+        >
+            <input
+                matInput
+                #searchInput
+                data-automation-id="idp-shortcut-search-input"
+                [placeholder]="'IDP.SHORTCUT_DIALOG.SEARCH_PLACEHOLDER' | translate"
+                (input)="onSearchInput(searchInput.value)"
+                (keyup)="$event.preventDefault(); $event.stopImmediatePropagation()"
+            />
+            <mat-icon
+                matSuffix
+                svgIcon="x_large"
+                data-automation-id="idp-shortcut-search-clear"
+                (click)="clearSearchInput(searchInput)"
+                (keyup.enter)="clearSearchInput(searchInput)"
+                (keyup.space)="clearSearchInput(searchInput)"
+            />
+            <mat-icon
+                matSuffix
+                svgIcon="search"
+            />
+        </mat-form-field>
+        <div
+            class="idp-shortcut-browser-dialog__shortcuts"
+            tabindex="0"
+        >
+            @if ($any(shortcutSummaries)) {
+                @if (!showNoResults) {
+                    @for (groupShortcuts of shortcutSummaries | keyvalue; track groupShortcuts.key) {
+                        @if (groupShortcuts.value.length > 0) {
+                            <div class="idp-shortcut-browser-dialog__shortcuts-group">
+                                <div class="idp-shortcut-browser-dialog__shortcut-group-title">
+                                    {{ groupShortcuts.key | hylandIdpTransformPascalCaseString }}
+                                </div>
+                                @for (shortcut of groupShortcuts.value; track shortcut.description) {
+                                    <div class="idp-shortcut-browser-dialog__shortcut">
+                                        <div
+                                            #shortcutItemDesc
+                                            class="idp-shortcut-browser-dialog__shortcut-description"
+                                            [attr.data-automation-id]="`idp-shortcut-list-item-${slugify(shortcut.description)}`"
+                                        >
+                                            {{ shortcut.description }}
+                                        </div>
+                                        @for (key of shortcut.keys; track key.icon ?? key.text) {
+                                            <div class="idp-shortcut-browser-dialog__shortcut-key">
+                                                @if (key.icon) {
+                                                    <mat-icon [svgIcon]="key.icon" />
+                                                } @else {
+                                                    <span>{{ key.text | uppercase }}</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                } @else {
+                    <span>{{ 'IDP.SHORTCUT_DIALOG.NO_RESULTS' | translate }}</span>
+                }
+            } @else {
+                <mat-spinner
+                    class="idp-shortcut-browser-dialog__spinner"
+                    diameter="30"
+                />
+            }
+        </div>
+    </mat-dialog-content>
+</div>

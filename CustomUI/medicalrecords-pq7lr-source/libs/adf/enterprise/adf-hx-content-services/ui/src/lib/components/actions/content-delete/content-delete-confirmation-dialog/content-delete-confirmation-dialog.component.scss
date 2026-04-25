@@ -1,0 +1,11 @@
+.hxp-confirm-delete-button {
+    --mdc-filled-button-container-color: var(--sat-sys-important-loud-container);
+    --mdc-filled-button-label-text-color: var(--sat-sys-on-important-loud-container);
+    --mdc-circular-progress-active-indicator-color: var(--sat-sys-on-important-loud-container);
+
+    .hxp-confirm-delete-button-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+}

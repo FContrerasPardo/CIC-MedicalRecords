@@ -1,0 +1,24 @@
+<ng-container>
+    @let activeItem = (activeItem$ | async) || undefined;
+    <div class="idp-class-change-dialog" (keydown.enter)="handleKeyEnter($event, activeItem)" >
+        <div class="idp-class-change-dialog__title"
+        >{{ 'IDP_CLASS_VERIFICATION.CLASS_CHANGE_DIALOG.TITLE' | translate }}</div>
+        <mat-dialog-content class="idp-class-change-dialog__content">
+            <hyland-idp-filterable-selection-list
+                [items]="(items$ | async) || []"
+                [selectedItemId]="contextSelectedClassId"
+                [searchPlaceholderKey]="'IDP_CLASS_VERIFICATION.CLASS_CHANGE_DIALOG.SEARCH_PLACEHOLDER'"
+                (activeItemChanged)="onActiveItemChanged($event)"
+            />
+        </mat-dialog-content>
+        <mat-dialog-actions data-automation-id="idp-class-change-dialog__footer" class="idp-class-change-dialog__footer" align="end">
+            <button mat-button mat-dialog-close
+            >{{ 'IDP_CLASS_VERIFICATION.CLASS_CHANGE_DIALOG.CANCEL_BUTTON' | translate }}</button>
+            <button data-automation-id="idp-change-class-button"
+                mat-flat-button class="idp-class-change-dialog__save-button"
+                [disabled]="!activeItem"
+                [mat-dialog-close]="activeItem"
+            >{{ 'IDP_CLASS_VERIFICATION.CLASS_CHANGE_DIALOG.SAVE_BUTTON' | translate }}</button>
+        </mat-dialog-actions>
+    </div>
+</ng-container>

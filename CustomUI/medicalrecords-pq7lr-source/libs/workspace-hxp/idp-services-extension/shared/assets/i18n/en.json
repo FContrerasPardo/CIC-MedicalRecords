@@ -1,0 +1,33 @@
+{
+    "IDP": {
+        "REJECT_DIALOG": {
+            "TITLE": "Flag Document",
+            "DESCRIPTION": "This document will not be included in the batch's extraction process if it is flagged. Verify that you really want to do this.\n\nPlease give a justification for flagging",
+            "REASON_LABEL": "Reason to Flag",
+            "CANCEL_BUTTON": "Cancel",
+            "REMOVE_BUTTON": "Remove Flag",
+            "REJECT_BUTTON": "Save",
+            "SEARCH_PLACEHOLDER": "Search for a reason...",
+            "REJECT_NOTE" : {
+                "LABEL": "Flag note",
+                "PLACEHOLDER": "Enter a flag note...",
+                "ARIA_LABEL": "Enter a flag note",
+                "HINT": "Maximum {{max}} characters"
+            }
+        },
+        "SHORTCUT_DIALOG": {
+            "TITLE": "Keyboard Shortcuts",
+            "SEARCH_PLACEHOLDER": "Search for a shortcut...",
+            "NO_RESULTS": "No results found"
+        },
+        "DISCARD_DIALOG": {
+            "TITLE": "Discard Changes",
+            "DESCRIPTION": "You have unsaved changes. Unsaved changes will be lost if you leave this page.",
+            "CANCEL_BUTTON": "Cancel",
+            "DISCARD_BUTTON": "Discard Changes"
+        },
+        "FILTERABLE_SELECTION_LIST": {
+            "SEARCH_ARIA_LABEL": "Search"
+        }
+    }
+}

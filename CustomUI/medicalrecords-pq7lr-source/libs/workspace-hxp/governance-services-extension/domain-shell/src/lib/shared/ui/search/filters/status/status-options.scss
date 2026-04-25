@@ -1,0 +1,68 @@
+.hxp-governance-record-status {
+    $color-gray-5e: #5e5e5e;
+
+    $under-retention-bg: #d1f2c9;
+    $under-retention-text: #1b5634;
+
+    $unprocessed-bg: #d3d3d3;
+    $unprocessed-text: #5a5a5a;
+
+    $incomplete-bg: #fde4c3;
+    $incomplete-text: #9c4007;
+
+    $ready-bg: #d1e6f8;
+    $ready-text: #25498f;
+
+    $reached-disposition-bg: #ffedec;
+    $reached-disposition-text: #ea580c;
+
+    $archived-bg: #ffedec;
+    $archived-text: #ea580c;
+
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    background: var(--mat-sys-surface-container-low);
+    color: $color-gray-5e;
+    gap: 4px;
+
+    &-under-retention {
+        background: $under-retention-bg;
+        color: $under-retention-text;
+    }
+
+    &-unprocessed {
+        background: $unprocessed-bg;
+        color: $unprocessed-text;
+    }
+
+    &-incomplete {
+        background: $incomplete-bg;
+        color: $incomplete-text;
+    }
+
+    &-ready {
+        background: $ready-bg;
+        color: $ready-text;
+    }
+
+    &-reached-disposition {
+        background: $reached-disposition-bg;
+        color: $reached-disposition-text;
+    }
+
+    &-archived {
+        background: $archived-bg;
+        color: $archived-text;
+    }
+
+    &-on-hold {
+        &::before {
+            content: 'gavel';
+            font-family: 'Material Icons', sans-serif;
+            line-height: 1;
+        }
+    }
+}

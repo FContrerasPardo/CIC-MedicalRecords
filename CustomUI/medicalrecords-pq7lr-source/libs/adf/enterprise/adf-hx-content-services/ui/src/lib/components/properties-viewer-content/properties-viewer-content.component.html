@@ -1,0 +1,55 @@
+<div class="hxp-metadata-properties">
+    <mat-accordion
+        displayMode="flat"
+        [multi]="multi"
+    >
+        <mat-expansion-panel
+            *ngIf="displayDefaultProperties"
+            [expanded]="expanded"
+        >
+            <mat-expansion-panel-header>
+                <mat-panel-title class="hxp-metadata-properties-title mat-subtitle-1">
+                    {{ headerText | translate }}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <adf-card-view
+                [properties]="properties"
+                [editable]="editMode"
+                [displayEmpty]="displayEmpty"
+                [copyToClipboardAction]="copyToClipboardAction"
+                [useChipsForMultiValueProperty]="useChipsForMultiValueProperty"
+                [multiValueSeparator]="', '"
+            />
+
+            @if (workingCopy && editable && isEditableRecord) {
+                <div class="hxp-property-edit-actions">
+                    @if (!editMode) {
+                        <button
+                            mat-flat-button
+                            class="hxp-property-edit-button"
+                            (click)="toggleEditMode()"
+                        >
+                            {{ 'DOCUMENT.PROPERTIES_EDIT.EDIT' | translate }}
+                        </button>
+                    } @else {
+                        <button
+                            mat-button
+                            data-automation-id="hxp-document-properties-edit-cancel-button"
+                            (click)="toggleEditMode()"
+                        >
+                            {{ 'DOCUMENT.PROPERTIES_EDIT.CANCEL' | translate }}
+                        </button>
+                        <button
+                            class="hxp-save-properties-button"
+                            mat-flat-button
+                            [disabled]="!(hasBeenModified() && allCardValuesAreValid())"
+                            (click)="onSaveProperties()"
+                        >
+                            {{ 'DOCUMENT.PROPERTIES_EDIT.SAVE' | translate }}
+                        </button>
+                    }
+                </div>
+            }
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>

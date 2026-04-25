@@ -1,0 +1,30 @@
+@use '@angular/material' as mat;
+
+$app-chrome-default-width: 56px;
+
+hxp-document-version-selector {
+    margin-left: 12px;
+}
+
+.app-chrome {
+    .adf-viewer-overlay-container .adf-viewer-content {
+        left: var(--sat-platform-nav-collapsed-width, $app-chrome-default-width);
+        width: calc(100% - var(--sat-platform-nav-collapsed-width, $app-chrome-default-width));
+    }
+}
+
+.hxp-document-viewer-toolbar {
+    &--spacer {
+        flex: 1 1 auto;
+    }
+
+    &--divider {
+        height: 24px;
+
+        @include mat.divider-overrides(
+            (
+                color: var(--mat-sys-outline-variant),
+            )
+        );
+    }
+}

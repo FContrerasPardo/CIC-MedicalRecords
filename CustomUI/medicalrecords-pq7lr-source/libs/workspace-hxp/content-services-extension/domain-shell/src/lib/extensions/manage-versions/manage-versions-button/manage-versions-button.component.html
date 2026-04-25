@@ -1,0 +1,12 @@
+<button
+    *ngIf="isAvailable"
+    mat-menu-item
+    (click)="openManageVersions()"
+    class="hxp-manage-versions-button"
+>
+    <mat-icon svgIcon="clock" />
+    <div class="hxp-manage-versions-button-content">
+        <span class="hxp-manage-version-button-label">{{ 'DOCUMENT_MORE_ACTION.MANAGE_VERSIONS' | translate }}</span>
+        <hxp-beta-chip-tag />
+    </div>
+</button>

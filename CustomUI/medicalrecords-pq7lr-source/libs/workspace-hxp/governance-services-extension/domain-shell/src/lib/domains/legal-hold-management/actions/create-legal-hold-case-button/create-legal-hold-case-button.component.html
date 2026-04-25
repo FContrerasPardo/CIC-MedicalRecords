@@ -1,0 +1,15 @@
+@if (isAvailable) {
+    <button
+        mat-button
+        class="hxp-governance-action-button"
+        [attr.aria-label]="'GOVERNANCE.LEGAL_HOLD.CREATE_BUTTON' | translate"
+        [matTooltip]="'GOVERNANCE.LEGAL_HOLD.CREATE_BUTTON' | translate"
+        (click)="createLegalHoldCase()"
+    >
+        <mat-icon
+            class="hxp-governance-action-icon"
+            svgIcon="plus_large"
+        />
+        <span>{{ 'GOVERNANCE.LEGAL_HOLD.CREATE_BUTTON' | translate }}</span>
+    </button>
+}

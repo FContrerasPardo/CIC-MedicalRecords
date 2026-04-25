@@ -1,0 +1,29 @@
+@if (actionContext.documents.length === 1) {
+    <div class="hxp-more-action-button">
+        @if (menuItems) {
+            @if (isAvailable()) {
+                <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="menu"
+                    [attr.aria-label]="menuItems.title"
+                >
+                    <mat-icon [svgIcon]="menuItems.icon ?? ''" />
+                </button>
+            }
+            <mat-menu
+                #menu="matMenu"
+                xPosition="before"
+            >
+                <div data-automation-id="hxp-document-more-menu-panel">
+                    @for (action of menuItems.children; track childTrackBy($index, action)) {
+                        <hxp-document-more-menu-item
+                            #menuItem
+                            [actionContext]="actionContext"
+                            [item]="action"
+                        />
+                    }
+                </div>
+            </mat-menu>
+        }
+    </div>
+}

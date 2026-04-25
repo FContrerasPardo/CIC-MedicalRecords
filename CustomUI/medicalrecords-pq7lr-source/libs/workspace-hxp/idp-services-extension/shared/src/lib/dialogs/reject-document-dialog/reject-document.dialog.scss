@@ -1,0 +1,67 @@
+@use '@angular/material' as mat;
+
+.idp-reject-document-dialog {
+    $padding-y: 16px;
+    $padding-x: 24px;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+    &__title {
+        font: var(--mat-sys-title-large);
+        padding: $padding-y $padding-x;
+    }
+
+    &__description {
+        padding: 0 $padding-x;
+        white-space: pre-wrap;
+    }
+
+    &__content {
+        min-height: 0;
+        padding: $padding-y $padding-x;
+    }
+
+    &__reasons-form {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    &__reasons {
+        min-height: 0;
+    }
+
+    &__note {
+        flex: 1;
+        margin-top: 8px;
+    }
+
+    &__note-field {
+        width: 100%;
+        height: 100%;
+    }
+
+    &__note-text {
+        resize: none;
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: $padding-y $padding-x;
+    }
+
+    &__remove-button {
+        @include mat.button-overrides(
+            (
+                outlined-label-text-color: var(--sat-sys-on-important-container),
+                outlined-outline-color: var(--mat-sys-outline-variant),
+            )
+        );
+    }
+}

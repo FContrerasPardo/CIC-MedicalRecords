@@ -1,0 +1,18 @@
+.hxp-add-permission {
+    display: flex;
+    flex-direction: column;
+
+    .hxp-permission-dialog-input-area {
+        margin-top: 24px;
+    }
+
+    .hxp-permission-dialog-button {
+        align-self: flex-end;
+        margin-top: 15px;
+    }
+
+    .hxp-permission-dialog-input-area-form-field {
+        display: flex;
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,12 @@
+.dialog-button__content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dialog__messages {
+    max-height: 144px;
+    overflow-y: auto;
+    margin: 8px 0;
+    padding-left: 24px;
+}

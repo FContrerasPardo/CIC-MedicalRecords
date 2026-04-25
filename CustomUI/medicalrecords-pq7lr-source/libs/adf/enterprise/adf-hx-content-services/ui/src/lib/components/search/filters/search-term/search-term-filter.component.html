@@ -1,0 +1,48 @@
+<form
+    class="hxp-search-input"
+    role="search"
+    [formGroup]="filterForm"
+    (submit)="onSearch()"
+>
+    <div class="hxp-search-text">
+        <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="hxp-new-search-input"
+        >
+            <textarea
+                matInput
+                #searchInput
+                type="search"
+                formControlName="query"
+                cdkTextareaAutosize
+                cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="3"
+                placeholder="{{ 'SEARCH.INPUT.PLACEHOLDER' | translate }}"
+                [attr.aria-label]="'SEARCH.INPUT.ARIA_LABEL' | translate"
+                [errorStateMatcher]="errorStateMatcher"
+                (input)="onInput()"
+                (keydown.enter)="onSearch($event)"
+            ></textarea>
+
+            @if (searchInput?.value?.length && filterForm.get('query')?.value) {
+                <div
+                    matSuffix
+                    class="hxp-search-text-suffix-container"
+                >
+                    <button
+                        mat-icon-button
+                        class="hxp-clear"
+                        [attr.aria-label]="'SEARCH.INPUT.CLEAR_INPUT' | translate"
+                        (click)="onClear()"
+                    >
+                        <mat-icon
+                            aria-hidden="true"
+                            svgIcon="x_large"
+                        />
+                    </button>
+                </div>
+            }
+        </mat-form-field>
+    </div>
+</form>

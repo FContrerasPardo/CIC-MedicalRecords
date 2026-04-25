@@ -1,0 +1,27 @@
+@use 'mixins' as m;
+
+.hxp-document-version-selector {
+    min-width: 260px !important; /* Ensure a minimum width to prevent initial clipping of content */
+}
+
+.hxp-document-version-option-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .hxp-document-version-option-title {
+        flex: 1 1 auto;
+        max-width: 320px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.hxp-document-version-tag {
+    @include m.hxp-tag;
+}
+
+.hxp-document-version-tag-label {
+    color: var(--mat-sys-primary);
+}

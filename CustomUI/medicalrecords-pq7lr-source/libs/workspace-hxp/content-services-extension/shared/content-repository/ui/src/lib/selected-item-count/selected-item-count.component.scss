@@ -1,0 +1,14 @@
+.hxp-document-list-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hxp-selected-item-count {
+    font: var(--mat-sys-body-medium);
+    color: var(--mat-sys-on-surface);
+}
+
+.hxp-clear-selection {
+    display: flex;
+}

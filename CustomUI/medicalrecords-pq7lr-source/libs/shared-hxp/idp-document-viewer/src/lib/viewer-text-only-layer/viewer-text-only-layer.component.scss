@@ -1,0 +1,42 @@
+:host {
+    display: block;
+    background: transparent;
+    width: 98%;
+    min-width: fit-content;
+    height: 100%;
+    position: relative;
+}
+
+.idp-viewer-text-only-layer {
+    &__container-div {
+        position: relative;
+        padding-top: 3.5em;
+        top: 0.5em;
+        width: max-content;
+        min-width: 100%;
+        min-height: 100%;
+        overflow: auto;
+        user-select: text;
+
+        &:has(.idp-text-only-spinner) {
+            display: flex;
+            align-items: center;
+        }
+
+        .idp-text-only-spinner {
+            position: relative;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+    }
+
+    &__text {
+        padding-top: 1em;
+        padding-right: 1.5em;
+        font-size: 0.8em;
+        white-space: pre;
+        display: inline-block;
+    }
+}

@@ -1,0 +1,12 @@
+.idp-document-upload {
+    &__file-input {
+        display: none;
+    }
+
+    &__button {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+}

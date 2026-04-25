@@ -1,0 +1,13 @@
+@if (isAvailable) {
+    <button
+        mat-icon-button
+        [attr.aria-label]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.EDIT_LEGAL_HOLD_CASE' | translate"
+        [matTooltip]="'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.EDIT_LEGAL_HOLD_CASE' | translate"
+        (click)="editLegalHoldCase()"
+    >
+        <mat-icon
+            class="material-symbols-outlined"
+            svgIcon="pencil"
+        />
+    </button>
+}

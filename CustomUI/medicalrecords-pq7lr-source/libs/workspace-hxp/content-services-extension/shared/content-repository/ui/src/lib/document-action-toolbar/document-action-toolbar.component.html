@@ -1,0 +1,33 @@
+<mat-toolbar
+    class="hxp-document-action-toolbar"
+    [class.hxp-document-action-toolbar-hidden]="!hasVisibleActions()"
+    data-automation-id="hxp-mat-toolbar"
+>
+    <hxp-selected-item-count [selectedItems]="selection()" />
+    <div class="hxp-document-action-toolbar--spacer"></div>
+    <hxp-content-properties-viewer-button
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+    />
+    <hxp-content-delete
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+    />
+    <hxp-single-item-download
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+    />
+    <hxp-single-file-share
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+    />
+    <hxp-manage-column-button
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+    />
+    <hxp-document-more-action
+        #actionButton
+        [actionContext]="actionContextWithSelection()"
+        [menuItems]="moreMenu$ | async"
+    />
+</mat-toolbar>

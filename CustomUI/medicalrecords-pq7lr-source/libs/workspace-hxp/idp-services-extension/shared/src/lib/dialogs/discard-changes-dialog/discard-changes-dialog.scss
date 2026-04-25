@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+
+.idp-discard-changes-dialog {
+    &__title {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        h1 {
+            flex: 1;
+            padding-left: 0;
+        }
+    }
+
+    &__discard-button {
+        @include mat.button-overrides(
+            (
+                filled-container-color: var(--sat-sys-important-loud-container),
+                filled-label-text-color: var(--sat-sys-on-important-loud-container),
+            )
+        );
+
+        padding: 10px 20px;
+        margin-left: 12px;
+        display: flex;
+    }
+
+    &__close-button-wrapper {
+        background-color: transparent;
+        border: 0;
+        cursor: pointer;
+        padding: 0;
+    }
+}

@@ -1,0 +1,35 @@
+<mat-card class="idp-document-list-container">
+    <mat-card-content class="idp-document-list-content">
+        @if (documentUniquenessFn) {
+            <mat-list
+                class="idp-document-list"
+                data-automation-id="idp-document-list"
+                [id]="dropListId"
+                tabindex="0"
+                (keydown)="onContainerKeyDown(documents, $event)"
+            >
+                @for (item of documents; track documentUniquenessFn($index, item); let docIndex = $index) {
+                    <hyland-idp-document
+                        [document]="item"
+                        [documentIndex]="docIndex"
+                        [formatDocumentName]="formatDocumentName"
+                        [isElementContained]="isElementContained"
+                        [onItemKeyDown]="onItemKeyDown"
+                        [onItemMouseDown]="onItemMouseDown"
+                        [onItemMouseUp]="onItemMouseUp"
+                        [onDoubleClick]="onDoubleClick"
+                        [onPageCollapseRequest]="onPageCollapseRequest"
+                        [canCutPages]="canCutPages"
+                        (collapseContainer)="onPageCollapseRequest(item)"
+                        (pagesCut)="onPagesCut()"
+                        [dragPlaceholderMetadata]="placeholder"
+                        [draggingDocuments]="draggingDocuments"
+                        (documentMouseEnter)="onMouseEnter($event)"
+                        (documentDragStarted)="onDragStarted()"
+                        (documentDragStopped)="onDragStopped()"
+                    />
+                }
+            </mat-list>
+        }
+    </mat-card-content>
+</mat-card>

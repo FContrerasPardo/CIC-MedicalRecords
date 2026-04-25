@@ -1,0 +1,417 @@
+<div
+    #tableContainer
+    id="extraction-table-container"
+    tabindex="0"
+    class="satorized-container"
+    (mousedown)="onContainerMouseDown()"
+    (focusout)="onTableFocusOut($event)"
+>
+    @let table = table$ | async;
+    @let tableSummary = tableSummary$ | async;
+    @let isValidationProcessRunning = (isValidationProcessRunning$ | async) ?? false;
+    @let groupSelected = isGroupSelected();
+    @if (table) {
+        <div
+            class="idp-table-container"
+            #scrollContainer
+            [class.idp-table-container-hidden]="!(table.rows && table.rows.length)"
+            [class.idp-disabled]="isValidationProcessRunning"
+        >
+            <table
+                mat-table
+                #extractedTable
+                [dataSource]="scrollDataSource"
+                [class.idp-blank-table]="!(table.rows && table.rows.length)"
+                [class.idp-table-selected]="tableSelected"
+                [trackBy]="trackRow"
+                scrollable
+            >
+                <!-- Table header -->
+                <ng-container matColumnDef="rowNumber">
+                    <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        class="idp-table-row-number-header"
+                        (click)="$event.stopPropagation(); onTableMenuLeftClick($event)"
+                        (contextmenu)="onTableMenuRightClick($event, tableMenuTrigger, tableMenuTriggerElement); $event.preventDefault()"
+                    >
+                        <div
+                            #tableMenuTriggerElement
+                            #tableMenuTrigger="matMenuTrigger"
+                            [matMenuTriggerFor]="tableMenu"
+                            class="idp-menu-trigger-hidden"
+                        ></div>
+                        <mat-menu
+                            #tableMenu="matMenu"
+                            yPosition="below"
+                            [overlapTrigger]="false"
+                        >
+                            <ng-template matMenuContent>
+                                <button
+                                    mat-menu-item
+                                    (click)="onDeleteTable()"
+                                    [disabled]="isValidationProcessRunning"
+                                >
+                                    {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.DELETE_TABLE' | translate }}
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    (click)="resetAllColumnWidths()"
+                                    data-automation-id="reset-all-column-widths"
+                                    [disabled]="isValidationProcessRunning"
+                                >
+                                    {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.RESET_ALL_COLUMN_WIDTHS' | translate }}
+                                </button>
+                            </ng-template>
+                        </mat-menu>
+                        <img
+                            class="idp-icon-table"
+                            src="assets/idp-services-extension-field-verification/images/table_type_field.svg"
+                            alt="Table icon"
+                        />
+                    </th>
+                    <!-- Row cells -->
+                    <td
+                        mat-cell
+                        *matCellDef="let row; let i = index"
+                        #rowMenuAnchor
+                        class="idp-table-row-number-cell"
+                        (click)="$event.stopPropagation(); onRowMenuLeftClick($event, i - 1 + renderedRowOffset)"
+                        (contextmenu)="onRowMenuRightClick($event, i - 1 + renderedRowOffset); $event.preventDefault()"
+                    >
+                        @if (!row.isSpacer) {
+                            {{ i + renderedRowOffset }}
+                        }
+                    </td>
+                </ng-container>
+                <!-- Column headers -->
+                <ng-container
+                    *ngFor="let column of table.columnHeaderNames; let columnIndex = index; trackBy: trackColumn"
+                    [matColumnDef]="column"
+                >
+                    <th
+                        mat-header-cell
+                        *matHeaderCellDef
+                        #columnMenuAnchor
+                        class="idp-table-row-header hxp-label-large-bold idp-resizable-header"
+                        [ngClass]="{ 'idp-column-header-selected': selectedColumnIndices().has(columnIndex) }"
+                        [matTooltip]="column"
+                        [matTooltipShowDelay]="500"
+                        [style.width]="columnWidths[column]"
+                        [style.min-width]="columnWidths[column]"
+                        [style.max-width]="columnWidths[column]"
+                        (click)="$event.stopPropagation(); onColumnMenuLeftClick($event, columnIndex)"
+                        (contextmenu)="onColumnMenuRightClick($event, columnIndex); $event.preventDefault()"
+                    >
+                        <div class="idp-header-content">
+                            <span>{{ column }}</span>
+                            <div
+                                class="idp-resize-handle"
+                                (mousedown)="onResizeStart($event, column)"
+                                [attr.title]="'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.RESIZE_COLUMN_TOOLTIP' | translate"
+                                [attr.aria-label]="'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.RESIZE_COLUMN_TOOLTIP' | translate"
+                            ></div>
+                        </div>
+                    </th>
+                    <td
+                        mat-cell
+                        class="idp-cell"
+                        [ngClass]="{
+                            'idp-column-cell-selected':
+                                selectedColumnIndices().has(columnIndex) && recordIndex - 1 + renderedRowOffset !== table.rows.length - 1,
+                            'idp-column-cell-selected-last':
+                                selectedColumnIndices().has(columnIndex) && recordIndex - 1 + renderedRowOffset === table.rows.length - 1,
+                        }"
+                        [style.width]="columnWidths[column]"
+                        [style.min-width]="columnWidths[column]"
+                        [style.max-width]="columnWidths[column]"
+                        *matCellDef="let record; let recordIndex = index"
+                    >
+                        <div
+                            class="idp-cell-edit"
+                            *ngIf="record.rowCells[columnIndex] as cell"
+                        >
+                            @let validationRules = fieldValidationRules.get(cell.name);
+                            <input
+                                matInput
+                                #extractionTableInput
+                                cdkFocusInitial
+                                [id]="cell.id"
+                                [attr.aria-label]="cell.name"
+                                class="idp-cell-edit-input"
+                                [class.idp-cell-edit-input-is-selected]="cell.isSelected && !groupSelected"
+                                [class.idp-cell-edit-input-error]="cell.validationStatus === 'Invalid'"
+                                [matTooltip]="cell.value"
+                                [matTooltipShowDelay]="500"
+                                [type]="cell.type"
+                                [name]="cell.id"
+                                [value]="cell.value"
+                                [required]="validationRules?.required"
+                                [attr.minlength]="validationRules?.length?.min"
+                                [attr.maxlength]="validationRules?.length?.max"
+                                [attr.pattern]="validationRules?.regex?.pattern"
+                                [attr.title]="''"
+                                [disabled]="isValidationProcessRunning"
+                                (keydown)="onKeydown(cell, $event)"
+                                (input)="onFieldInput(cell, extractionTableInput)"
+                                (focus)="onFieldFocus(cell)"
+                                (focusout)="onFieldFocusOut(cell, extractionTableInput)"
+                                (contextmenu)="onInputRightClick($event)"
+                                (invalid)="$event.preventDefault()"
+                            />
+                            <div
+                                class="idp-cell-edit-icon"
+                                [attr.data-automation-id]="'idp-cell-edit-icon-' + cell.id"
+                            >
+                                <mat-icon
+                                    *ngIf="cell.validationStatus === 'Invalid'"
+                                    class="idp-cell-edit-icon-error"
+                                    [matTooltip]="getCustomValidationErrorMessage(extractionTableInput.value, cell.name)"
+                                    [svgIcon]="'critical'"
+                                />
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+                <!-- Virtual scroll spacer column -->
+                <ng-container matColumnDef="spacerColumn">
+                    <td
+                        mat-cell
+                        *matCellDef="let row"
+                        [attr.colspan]="table.columnHeaderNames.length + 1"
+                        [style.height.px]="row.height"
+                        class="idp-virtual-spacer-cell"
+                    ></td>
+                </ng-container>
+                <tr
+                    mat-header-row
+                    *matHeaderRowDef="table.columnHeaderNames | withRowNumberColumn; sticky: true"
+                ></tr>
+                <tr
+                    mat-row
+                    *matRowDef="let row; columns: table.columnHeaderNames | withRowNumberColumn; when: isDataRow; let columnIndex = index"
+                    [attr.data-row-index]="columnIndex - 1 + renderedRowOffset"
+                    [ngClass]="{ 'idp-row-selected': selectedRowIndices().has(columnIndex - 1 + renderedRowOffset) }"
+                ></tr>
+                <tr
+                    mat-row
+                    *matRowDef="let row; columns: ['spacerColumn']; when: isSpacerRow"
+                    class="idp-virtual-spacer-row"
+                ></tr>
+            </table>
+            <div
+                #rowMenuTriggerElement
+                #rowMenuTrigger="matMenuTrigger"
+                [matMenuTriggerFor]="rowMenu"
+                class="idp-menu-trigger-hidden"
+            ></div>
+            <mat-menu
+                #rowMenu="matMenu"
+                yPosition="below"
+                [overlapTrigger]="false"
+            >
+                <ng-template matMenuContent>
+                    <button
+                        mat-menu-item
+                        (click)="onRowAction('insertRowAbove')"
+                        [disabled]="isValidationProcessRunning || selectedRowIndices().size > 1"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.INSERT_ROW_ABOVE' | translate }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="onRowAction('insertRowBelow')"
+                        [disabled]="isValidationProcessRunning || selectedRowIndices().size > 1"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.INSERT_ROW_BELOW' | translate }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="onRowAction('clearRow')"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CLEAR_ROW' | translate }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="onRowAction('deleteRow')"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.DELETE_ROW' | translate }}
+                    </button>
+                </ng-template>
+            </mat-menu>
+            <div
+                #columnMenuTriggerElement
+                #columnMenuTrigger="matMenuTrigger"
+                [matMenuTriggerFor]="columnMenu"
+                class="idp-menu-trigger-hidden"
+            ></div>
+            <mat-menu
+                #columnMenu="matMenu"
+                yPosition="below"
+                [overlapTrigger]="false"
+            >
+                <ng-template matMenuContent>
+                    <button
+                        mat-menu-item
+                        (click)="onClearSelectedColumns()"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CLEAR_COLUMN' | translate }}
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="resetColumnWidth(getSelectedColumnName())"
+                        data-automation-id="reset-column-width"
+                        [disabled]="isValidationProcessRunning || selectedColumnIndices().size > 1"
+                    >
+                        {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.RESET_COLUMN_WIDTH' | translate }}
+                    </button>
+                </ng-template>
+            </mat-menu>
+            <div
+                #cellMenuTriggerElement
+                #cellMenuTrigger="matMenuTrigger"
+                [matMenuTriggerFor]="cellMenu"
+                class="idp-menu-trigger-hidden"
+            ></div>
+            <mat-menu
+                #cellMenu="matMenu"
+                yPosition="below"
+                [overlapTrigger]="false"
+            >
+                <ng-template matMenuContent>
+                    <button
+                        mat-menu-item
+                        (click)="cutText()"
+                        data-automation-id="cell-menu-cut"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        <mat-icon svgIcon="content_cut" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_CUT' | translate }}</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="copyText()"
+                        data-automation-id="cell-menu-copy"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        <mat-icon svgIcon="copy" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_COPY' | translate }}</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="pasteText()"
+                        data-automation-id="cell-menu-paste"
+                        [disabled]="isValidationProcessRunning"
+                    >
+                        <mat-icon adf-icon="content_paste" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_PASTE' | translate }}</span>
+                    </button>
+                    <mat-divider />
+                    <button
+                        mat-menu-item
+                        data-automation-id="cell-menu-fill-all-above"
+                        [disabled]="isValidationProcessRunning || activeCellRowIndex === 0"
+                        (click)="fillActiveCell(FillDirection.AllAbove)"
+                    >
+                        <mat-icon adf-icon="keyboard_double_arrow_up" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_FILL_ALL_ABOVE' | translate }}</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        data-automation-id="cell-menu-fill-to-above"
+                        [disabled]="isValidationProcessRunning || !showFillToAbove(activeCellRowIndex, activeCellColumnIndex, activeCellRows)"
+                        (click)="fillActiveCell(FillDirection.ToAbove)"
+                    >
+                        <mat-icon svgIcon="chevron_up" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_FILL_TO_ABOVE' | translate }}</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        data-automation-id="cell-menu-fill-to-below"
+                        [disabled]="isValidationProcessRunning || !showFillToBelow(activeCellRowIndex, activeCellColumnIndex, activeCellRows)"
+                        (click)="fillActiveCell(FillDirection.ToBelow)"
+                    >
+                        <mat-icon svgIcon="chevron_down" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_FILL_TO_BELOW' | translate }}</span>
+                    </button>
+                    <button
+                        mat-menu-item
+                        data-automation-id="cell-menu-fill-all-below"
+                        [disabled]="isValidationProcessRunning || activeCellRowIndex === activeCellRows.length - 1"
+                        (click)="fillActiveCell(FillDirection.AllBelow)"
+                    >
+                        <mat-icon adf-icon="keyboard_double_arrow_down" />
+                        <span>{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.CELL_MENU_FILL_ALL_BELOW' | translate }}</span>
+                    </button>
+                </ng-template>
+            </mat-menu>
+            <div
+                *ngIf="!(table.rows && table.rows.length)"
+                class="idp-no-data-overlay"
+            >
+                <div class="idp-no-data-overlay-table-name">'{{ table.name }}'</div>
+                <div>
+                    <input
+                        type="text"
+                        style="opacity: 0"
+                        #extractionTableInput
+                        cdkFocusInitial
+                        (keydown)="onKeydown(undefined, $event)"
+                    />
+                </div>
+                <div class="idp-no-data-overlay-table-message">{{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.TABLE_NOT_EXTRACTED' | translate }}</div>
+                <br />
+                <div class="idp-no-data-overlay-table-instructions">
+                    {{ 'EXTRACTION.VERIFICATION.EXTRACTION_TABLE.ADD_TABLE_INSTRUCTIONS' | translate }}
+                </div>
+            </div>
+        </div>
+    } @else {
+        <div
+            class="idp-table-loading-shell"
+            data-automation-id="idp-extraction-table-loading-shell"
+            aria-busy="true"
+            aria-live="polite"
+        >
+            <div class="idp-table-loading-shell__header">
+                <div
+                    class="idp-table-loading-shell__title"
+                    [class.idp-table-loading-shell__title--named]="!!tableSummary?.name"
+                    data-automation-id="idp-extraction-table-loading-shell-title"
+                >
+                    {{ tableSummary?.name || '' }}
+                </div>
+            </div>
+            <div class="idp-table-loading-shell__table">
+                <div class="idp-table-loading-shell__row idp-table-loading-shell__row--header">
+                    <div class="idp-table-loading-shell__cell idp-table-loading-shell__cell--row-number">
+                        <div class="idp-table-loading-shell__placeholder idp-table-loading-shell__placeholder--icon"></div>
+                    </div>
+                    <div
+                        class="idp-table-loading-shell__cell"
+                        *ngFor="let column of loadingShellColumns"
+                    >
+                        <div class="idp-table-loading-shell__placeholder idp-table-loading-shell__placeholder--header"></div>
+                    </div>
+                </div>
+                <div
+                    class="idp-table-loading-shell__row"
+                    *ngFor="let row of loadingShellRows"
+                >
+                    <div class="idp-table-loading-shell__cell idp-table-loading-shell__cell--row-number">
+                        <div class="idp-table-loading-shell__placeholder idp-table-loading-shell__placeholder--index"></div>
+                    </div>
+                    <div
+                        class="idp-table-loading-shell__cell"
+                        *ngFor="let column of loadingShellColumns"
+                    >
+                        <div class="idp-table-loading-shell__placeholder"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

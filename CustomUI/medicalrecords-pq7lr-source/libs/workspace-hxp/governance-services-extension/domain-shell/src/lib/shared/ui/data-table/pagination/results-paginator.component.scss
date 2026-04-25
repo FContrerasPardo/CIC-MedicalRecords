@@ -1,0 +1,44 @@
+.hxp-governance-table-paginator {
+    --paginator-select-min-width: 84px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .hxp-governance-table-paginator-select {
+        min-width: var(--paginator-select-min-width);
+    }
+
+    .hxp-governance-table-paginator-label {
+        white-space: nowrap;
+    }
+
+    /* stylelint-disable selector-class-pattern */
+    ::ng-deep .hxp-governance-table-paginator-select {
+        .mat-mdc-form-field-subscript-wrapper,
+        .mdc-notched-outline {
+            display: none;
+        }
+
+        .mat-mdc-text-field-wrapper {
+            background: transparent;
+            padding: 0;
+        }
+
+        .mat-mdc-form-field-infix {
+            min-height: auto;
+            padding: 0;
+            width: 100%;
+        }
+
+        .mat-mdc-select-trigger {
+            gap: 8px;
+        }
+    }
+    /* stylelint-enable selector-class-pattern */
+
+    .hxp-governance-table-paginator-chevrons {
+        display: flex;
+        gap: 0;
+    }
+}

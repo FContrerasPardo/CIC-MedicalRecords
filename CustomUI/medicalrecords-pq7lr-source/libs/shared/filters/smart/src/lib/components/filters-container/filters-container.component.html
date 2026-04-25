@@ -1,0 +1,122 @@
+<div class="hxp-filters-container">
+    <mat-accordion>
+        <mat-expansion-panel
+            #expansionPanel
+            [expanded]="loading === false"
+            [disabled]="loading === true"
+            (closed)="isPanelExpanded = false"
+            (opened)="isPanelExpanded = true"
+            data-automation-id="hxp-filters-container-expansion-panel"
+            class="hxp-filters-container__expansion-panel"
+            [class.hxp-expanded]="expansionPanel.expanded"
+            [class.hxp-expanded-with-saved-filters]="expansionPanel.expanded && savedFilters?.length && isPanelExpanded"
+        >
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    @if (!isPanelExpanded || !isUserFilterFeatureOn) {
+                        <span class="hxp-title-large">{{ 'FILTERS.TITLE' | translate }}</span>
+                    }
+                    @if (savedFilters?.length && isPanelExpanded) {
+                        <mat-form-field
+                            (click)="$event.stopPropagation()"
+                            class="hxp-input hxp-filters-container__saved-filters-field"
+                        >
+                            <mat-label>{{ 'FILTERS.SAVED_FILTERS.LABEL' | translate }}</mat-label>
+                            <input
+                                type="text"
+                                matInput
+                                [formControl]="savedFilterControl"
+                                [matAutocomplete]="savedFiltersAuto"
+                                (keydown.escape)="onEscape()"
+                                data-automation-id="saved-filters-autocomplete-input"
+                            />
+                            @if (savedFilterControl.value) {
+                                <button
+                                    mat-icon-button
+                                    matSuffix
+                                    (click)="onClearSavedFilter($event)"
+                                    class="hxp-filters-container__clear-saved-filter-button"
+                                    [matTooltip]="'FILTERS.SAVED_FILTERS.CLEAR' | translate"
+                                    data-automation-id="clear-saved-filter-button"
+                                >
+                                    <mat-icon svgIcon="x_large" />
+                                </button>
+                            }
+                            <mat-autocomplete
+                                #savedFiltersAuto="matAutocomplete"
+                                [displayWith]="displaySavedFilterName"
+                                (optionSelected)="onSavedFilterSelect($event)"
+                                autoActiveFirstOption
+                                data-automation-id="saved-filters-autocomplete"
+                            >
+                                @for (filter of filteredSavedFilters; track filter.name) {
+                                    <mat-option
+                                        [value]="filter"
+                                        [attr.data-automation-id]="'saved-filter-option-' + filter.name"
+                                    >
+                                        {{ filter.name | translate }}
+                                    </mat-option>
+                                }
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    }
+                </mat-panel-title>
+
+                <mat-panel-description
+                    *ngIf="isPanelExpanded"
+                    class="hxp-filters-container__description"
+                >
+                    <hxp-filters-container-actions
+                        [isDefaultFilter]="isDefaultFilter"
+                        [visibleActions]="visibleActions"
+                        [filterNames]="getFilterNames(savedFilters)"
+                        [currentFilterName]="getFilterName(currentSavedFilter)"
+                        (saveClick)="onFiltersSave()"
+                        (saveAsClick)="saveFilterAs.emit($event)"
+                        (deleteClick)="deleteFilter.emit()"
+                        (renameClick)="renameFilters.emit($event)"
+                    />
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <mat-chip-set class="hxp-filters-container__chips">
+                @for (filter of visibleFilters(); track filter.name) {
+                    <div [matTooltip]="filter.description ?? ''">
+                        <ng-template
+                            [hxpFilterFactory]="filter"
+                            [type]="filter.type"
+                            (filterChange)="onFilterValueChange($event)"
+                            (filterRemove)="onFilterRemove(filter)"
+                        />
+                    </div>
+                }
+
+                <button
+                    mat-button
+                    cdkOverlayOrigin
+                    #trigger="cdkOverlayOrigin"
+                    class="hxp-filters-container__more-button"
+                    (click)="isMenuOpen = !isMenuOpen"
+                >
+                    {{ 'FILTERS.MORE_FILTERS' | translate }}
+                    <mat-icon
+                        class="hxp-filters-container__menu-icon"
+                        svgIcon="plus_large"
+                    />
+                </button>
+
+                <ng-template
+                    cdkConnectedOverlay
+                    [cdkConnectedOverlayOrigin]="trigger"
+                    [cdkConnectedOverlayOpen]="isMenuOpen"
+                    [cdkConnectedOverlayHasBackdrop]="true"
+                    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+                    (backdropClick)="isMenuOpen = false"
+                    (detach)="isMenuOpen = false"
+                >
+                    <hxp-more-filters-menu (filtersVisibilityUpdate)="isMenuOpen = false" />
+                </ng-template>
+            </mat-chip-set>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>

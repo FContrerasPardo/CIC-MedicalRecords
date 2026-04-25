@@ -1,0 +1,10 @@
+{
+    "name": "shared-authentication-services",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/shared/authentication/services/src",
+    "prefix": "alfresco-dbp",
+    "targets": {
+    },
+    "tags": ["scope:shared-authentication-services", "category:shared-authentication", "category:shared-unit", "type:data-access"]
+}

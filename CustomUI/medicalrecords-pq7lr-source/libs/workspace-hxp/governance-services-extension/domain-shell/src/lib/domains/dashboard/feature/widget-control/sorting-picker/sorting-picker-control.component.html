@@ -1,0 +1,34 @@
+<div class="satorized-container">
+    <div class="hxp-sorting-picker">
+        <mat-form-field class="hxp-sorting-select-wrapper">
+            <mat-select
+                [value]="internalSelected()"
+                (selectionChange)="onSelect($event.value)"
+                class="hxp-sorting-select"
+                [disabled]="disabled()"
+                [attr.aria-label]="'GOVERNANCE.DASHBOARD.SORT_ORDER' | translate"
+            >
+                <mat-select-trigger>
+                    <div class="hxp-sorting-control-icon-container">
+                        <mat-icon
+                            class="hxp-sorting-trigger-icon"
+                            svgIcon="filter"
+                        />
+                        {{
+                            internalSelected() === SORT_OPTION.ValueAsc
+                                ? ('GOVERNANCE.DASHBOARD.SORT_LOW_TO_HIGH' | translate)
+                                : ('GOVERNANCE.DASHBOARD.SORT_HIGH_TO_LOW' | translate)
+                        }}
+                    </div>
+                </mat-select-trigger>
+
+                <mat-option [value]="SORT_OPTION.ValueDesc">
+                    {{ 'GOVERNANCE.DASHBOARD.SORT_HIGH_TO_LOW' | translate }}
+                </mat-option>
+                <mat-option [value]="SORT_OPTION.ValueAsc">
+                    {{ 'GOVERNANCE.DASHBOARD.SORT_LOW_TO_HIGH' | translate }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+</div>

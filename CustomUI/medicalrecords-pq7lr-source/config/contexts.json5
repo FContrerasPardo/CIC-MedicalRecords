@@ -1,0 +1,15 @@
+{
+    "_customApp": {
+        "__name": "Custom App",
+        "scope": "openid profile hxp environment_authorization offline_access groups profile.attributes iam.jti-capture",
+        "deployedApps": [
+            {
+                "name": "fc-gb-customui-class-xm8b4-58e71b1e"
+            }
+        ],
+        "studioClientId": "hxps:fc-gb-customui-class-xm8b4-58e71b1e:clients:158e0fdb-7f9d-4b4f-9c38-fa294f6d325b:env:58e71b1e",
+        "contentHost": "https://dev-75634925ac034690aeaf6236e36d0810.content.experience.hyland.com",
+        "processHost": "https://d41b2703-40b0-4b4b-9a2b-2f592759edb7.studio.experience.hyland.com",
+        "idpURL": "https://auth.iam.experience.hyland.com/idp"
+    }
+}

@@ -1,0 +1,45 @@
+.hxp-metadata-panel-additional-info {
+    margin: 24px 0;
+
+    &-property {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+
+        &-value {
+            margin-inline-start: unset;
+            overflow-wrap: anywhere;
+
+            &_clamp {
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                flex: 1;
+            }
+        }
+
+        &-container {
+            display: flex;
+            margin-inline-start: unset;
+        }
+
+        &-path {
+            display: flex;
+            flex-direction: column;
+
+            &-expand-button {
+                transform: translate(-4px, -8px);
+            }
+
+            &-copy-button {
+                transform: translate(-4px, -8px);
+
+                &-icon {
+                    font-size: var(--mat-sys-body-medium);
+                }
+            }
+        }
+    }
+}

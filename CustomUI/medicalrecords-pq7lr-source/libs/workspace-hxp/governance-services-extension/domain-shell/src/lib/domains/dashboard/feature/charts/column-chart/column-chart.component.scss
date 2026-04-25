@@ -1,0 +1,60 @@
+.hxp-cicgov-column-chart-root {
+    width: 100%;
+    height: 340px;
+
+    .hxp-column-chart {
+        height: 90%;
+    }
+
+    .hxp-legend-container {
+        display: flex;
+        align-items: center;
+        background: var(--mat-sys-surface-container-highest);
+        border-radius: 0 0 var(--sat-platform-nav-corner-medium) var(--sat-platform-nav-corner-medium);
+        padding: 5px 16px;
+        width: 100%;
+        height: 36px;
+        box-sizing: border-box;
+        font-size: var(--mat-sys-body-medium-size);
+        color: var(--mat-sys-on-surface-variant);
+        margin-top: 6px;
+
+        .hxp-legend-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: var(--sat-platform-nav-corner-extra-small);
+            margin-right: 8px;
+            vertical-align: middle;
+            background: var(--series-color, var(--mat-sys-primary-container));
+        }
+
+        .hxp-legend-label {
+            flex: 1;
+        }
+
+        .hxp-legend-arrows {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 12px;
+        }
+    }
+}
+
+@media (width <= 1024px) {
+    .hxp-cicgov-column-chart-root {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+
+        .hxp-column-chart {
+            height: calc(100% - 42px);
+            min-height: 0;
+        }
+
+        .hxp-legend-container {
+            flex-shrink: 0;
+        }
+    }
+}

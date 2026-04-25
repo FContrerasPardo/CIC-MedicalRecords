@@ -1,0 +1,34 @@
+{
+    "name": "shared-hxp-services",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/shared-hxp/services/src",
+    "prefix": "hxp",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/libs/shared-hxp/services"],
+            "options": {
+                "project": "libs/shared-hxp/services/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/shared-hxp/services/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/shared-hxp/services/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/shared-hxp/services/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "test": {
+            "options": {
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": ["scope:shared-hxp-services", "category:shared-hxp"]
+}

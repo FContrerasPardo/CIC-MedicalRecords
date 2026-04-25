@@ -1,0 +1,197 @@
+<div class="hxp-record-sidebar">
+    <div class="hxp-sidebar-header">
+        <span
+            class="hxp-sidebar-header-title"
+            matTooltip="{{ editMode ? ('GOVERNANCE.SIDEBAR.EDIT_TITLE' | translate) : record.fileName }}"
+            matTooltipPosition="below"
+            matTooltipShowDelay="500"
+        >
+            {{ editMode ? ('GOVERNANCE.SIDEBAR.EDIT_TITLE' | translate) : record.fileName }}
+        </span>
+        <button
+            mat-icon-button
+            [attr.aria-label]="'GOVERNANCE.SIDEBAR.BUTTONS.CLOSE'"
+            (click)="onClose()"
+        >
+            <mat-icon svgIcon="x_large" />
+        </button>
+    </div>
+    <ng-template
+        #dateEditor
+        let-label="label"
+        let-control="control"
+        let-onClear="onClear"
+        let-onSave="onSave"
+        let-saveDisabled="saveDisabled"
+    >
+        <div class="hxp-sidebar-edit-content">
+            <mat-form-field class="hxp-full-width">
+                <mat-label>{{ label }}</mat-label>
+                <input
+                    matInput
+                    [matDatepicker]="picker"
+                    [formControl]="control"
+                />
+                <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                />
+                <mat-datepicker #picker>
+                    <mat-datepicker-actions>
+                        <div class="hxp-datepicker-actions-container">
+                            <div class="hxp-datepicker-left-actions">
+                                <button
+                                    mat-button
+                                    [color]="control.value ? 'primary' : undefined"
+                                    (click)="onClear()"
+                                >
+                                    {{ 'GOVERNANCE.SIDEBAR.DATEPICKER.CLEAR' | translate }}
+                                </button>
+                            </div>
+                            <div class="hxp-datepicker-right-actions">
+                                <button
+                                    mat-button
+                                    (click)="picker.close()"
+                                >
+                                    {{ 'GOVERNANCE.SIDEBAR.DATEPICKER.CANCEL' | translate }}
+                                </button>
+                                <button
+                                    mat-button
+                                    matDatepickerApply
+                                >
+                                    {{ 'GOVERNANCE.SIDEBAR.DATEPICKER.APPLY' | translate }}
+                                </button>
+                            </div>
+                        </div>
+                    </mat-datepicker-actions>
+                </mat-datepicker>
+            </mat-form-field>
+            <div class="hxp-sidebar-edit-actions">
+                <div class="hxp-sidebar-edit-actions-left"></div>
+                <div class="hxp-sidebar-edit-actions-right">
+                    <button
+                        mat-button
+                        (click)="cancelEdit()"
+                    >
+                        {{ 'GOVERNANCE.SIDEBAR.BUTTONS.CANCEL' | translate }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        [disabled]="saveDisabled"
+                        [ngClass]="{ 'hxp-loading': isSaving }"
+                        (click)="onSave()"
+                    >
+                        <span class="hxp-record-save-btn-label">
+                            <mat-progress-spinner
+                                *ngIf="isSaving"
+                                mode="indeterminate"
+                                diameter="15"
+                                strokeWidth="3"
+                                [attr.aria-label]="'GOVERNANCE.SIDEBAR.BUTTONS.SAVING_RECORD' | translate"
+                            />
+                            <span class="hxp-record-save-btn-title">
+                                {{ 'GOVERNANCE.SIDEBAR.BUTTONS.SAVE' | translate }}
+                            </span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    @if (!editMode && !editModeInRetention) {
+        <mat-tab-group [(selectedIndex)]="activeTabIndex">
+            <mat-tab label="{{ 'GOVERNANCE.SIDEBAR.TABS.PROPERTIES' | translate }}">
+                @if (isOnHold) {
+                    <hxp-legal-hold-case-tag [record]="record" />
+                } @else {
+                    <div class="hxp-sidebar-section-header">
+                        <span>{{ 'GOVERNANCE.SIDEBAR.SECTIONS.RECORD_PROPERTIES' | translate }}</span>
+                        <div class="hxp-sidebar-section-controls">
+                            @if (isEditableRecord) {
+                                <button
+                                    mat-flat-button
+                                    class="hxp-edit-button"
+                                    (click)="toggleEditMode()"
+                                >
+                                    <mat-icon svgIcon="pencil" />
+                                    <span>{{ 'GOVERNANCE.SIDEBAR.BUTTONS.EDIT' | translate }}</span>
+                                </button>
+                            }
+                            <button
+                                mat-icon-button
+                                (click)="toggleCollapse()"
+                                [attr.aria-label]="'GOVERNANCE.SIDEBAR.BUTTONS.TOGGLE'"
+                            >
+                                <mat-icon [svgIcon]="collapsed ? 'chevron_down' : 'chevron_up'" />
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        class="hxp-sidebar-properties"
+                        *ngIf="!collapsed"
+                    >
+                        <div class="hxp-property">
+                            <div class="hxp-property-label">{{ 'GOVERNANCE.SIDEBAR.FIELDS.CUTOFF_DATE' | translate }}</div>
+                            <div>
+                                {{ record.cutOffDate | date: 'MM/dd/yyyy' }}
+                            </div>
+                        </div>
+                    </div>
+                }
+            </mat-tab>
+        </mat-tab-group>
+        @if (record.status === 'UnderRetention') {
+            <ng-container *ngIf="$any(record)?.contentMetadata as meta">
+                <ng-container *ngIf="meta.retentionAdjustmentPropertyName as key">
+                    <div class="hxp-property hxp-under-retention">
+                        <div class="hxp-property-label">{{ key }}</div>
+                        @if (!meta[key]) {
+                            <button
+                                mat-button
+                                class="hxp-edit-button"
+                                (click)="toggleEditModeInRetention()"
+                            >
+                                <mat-icon svgIcon="pencil" />
+                                <span>{{ 'GOVERNANCE.SIDEBAR.BUTTONS.EDIT' | translate }}</span>
+                            </button>
+                        }
+                    </div>
+                    @if (meta[key]) {
+                        <div class="hxp-under-retention-value">
+                            {{ meta[key] | date: 'MM/dd/yyyy' }}
+                        </div>
+                    }
+                </ng-container>
+            </ng-container>
+        }
+    } @else if (editMode && !editModeInRetention) {
+        <ng-container
+            *ngTemplateOutlet="
+                dateEditor;
+                context: {
+                    label: ('GOVERNANCE.SIDEBAR.FIELDS.CUTOFF_DATE' | translate),
+                    control: cutoffDateControl,
+                    onClear: clearCutoffDate.bind(this),
+                    onSave: saveChanges.bind(this),
+                    saveDisabled: !isContentChanged || isSaving,
+                }
+            "
+        />
+    } @else if (!editMode && editModeInRetention) {
+        <ng-container *ngIf="retentionDurationAdjustmentDateControl">
+            <ng-container
+                *ngTemplateOutlet="
+                    dateEditor;
+                    context: {
+                        label: $any(record.contentMetadata)?.retentionAdjustmentPropertyName,
+                        control: retentionDurationAdjustmentDateControl,
+                        onClear: clearRetentionDate.bind(this),
+                        onSave: saveChangesForRetention.bind(this),
+                        saveDisabled: !isRetentionDurationChanged || isSaving,
+                        minDate: retentionMinDate,
+                    }
+                "
+            />
+        </ng-container>
+    }
+</div>

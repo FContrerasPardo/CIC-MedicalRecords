@@ -1,0 +1,89 @@
+<sat-app-header
+    hxpApplicationTheme
+    class="hxp-header"
+    [style.backgroundColor]="backgroundColor()"
+    [style.backgroundImage]="backgroundImageStyle()"
+>
+    <div
+        data-automation-id="app-header"
+        satAppHeaderTitle
+        role="link"
+        [attr.aria-label]="headerConfig.title | translate"
+        routerLink="/"
+        class="hxp-header__title"
+        [style.color]="headerTextColor()"
+    >
+        {{ headerConfig.title | translate }}
+    </div>
+
+    @if (showUnifiedUiToggle()) {
+        <div
+            satAppHeaderLogo
+            class="hxp-header__toggle"
+        >
+            <mat-slide-toggle
+                [checked]="unifiedUiEnabled()"
+                (change)="onUnifiedUiToggle($event.checked)"
+                data-automation-id="hxp-header-unified-ui-toggle"
+                hideIcon
+            >
+                {{ 'HEADER.UNIFIED_UI.TOGGLE_LABEL' | translate }}
+            </mat-slide-toggle>
+            <button
+                mat-icon-button
+                class="hxp-header__toggle-info"
+                [matTooltip]="'HEADER.UNIFIED_UI.TOOLTIP' | translate"
+                [attr.aria-label]="'HEADER.UNIFIED_UI.TOOLTIP' | translate"
+            >
+                <mat-icon svgIcon="info" />
+            </button>
+        </div>
+    }
+
+    @if (logoPath()) {
+        <img
+            satAppHeaderLogo
+            [src]="logoPath()"
+            [attr.alt]="'HEADER.LOGO' | translate"
+            class="hxp-header__custom-logo"
+        />
+    } @else {
+        <div
+            satAppHeaderLogo
+            class="hxp-header__logo"
+        >
+            <sat-word-mark-logo />
+        </div>
+    }
+
+    <div
+        satAppHeaderActions
+        class="hxp-header__actions"
+    >
+        <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            [attr.aria-label]="'HEADER.SETTINGS' | translate"
+            data-automation-id="hxp-header-menu-button"
+        >
+            <mat-icon svgIcon="gear" />
+        </button>
+        <mat-menu #menu="matMenu">
+            <hxp-language-action />
+            <hxp-feature-flags-action />
+            <hxp-help-action />
+            <hxp-application-theme-action *adfForFeatures="studioDarkLightThemeSwitch" />
+        </mat-menu>
+    </div>
+</sat-app-header>
+
+@if (showNewUiBanner()) {
+    <div class="hxp-header__banner-overlay">
+        <hxp-new-ui-banner
+            data-automation-id="hxp-header-new-ui-banner"
+            variant="promote"
+            (tryNewUi)="onBannerTryNewUi()"
+            (closeBanner)="onBannerClose()"
+        />
+    </div>
+}

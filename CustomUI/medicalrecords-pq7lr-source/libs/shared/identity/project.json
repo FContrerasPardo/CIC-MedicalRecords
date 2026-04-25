@@ -1,0 +1,30 @@
+{
+    "name": "shared-identity",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/shared/identity/src",
+    "prefix": "alfresco-dbp",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": ["{workspaceRoot}/dist/libs/shared/identity"],
+            "options": {
+                "project": "libs/shared/identity/ng-package.json"
+            },
+            "configurations": {
+                "production": {
+                    "tsConfig": "libs/shared/identity/tsconfig.lib.prod.json"
+                },
+                "development": {
+                    "tsConfig": "libs/shared/identity/tsconfig.lib.json"
+                },
+                "adf": {
+                    "tsConfig": "libs/shared/identity/tsconfig.lib.adf.json"
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "stylelint": {}
+    },
+    "tags": ["scope:shared-identity", "category:shared-identity", "category:shared-unit", "type:data-access"]
+}

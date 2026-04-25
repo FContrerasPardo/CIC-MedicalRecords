@@ -1,0 +1,24 @@
+<div class="idp-discard-changes-dialog">
+    <div mat-dialog-title class="idp-discard-changes-dialog__title">
+        <h1 mat-dialog-title>{{ 'IDP.DISCARD_DIALOG.TITLE' | translate }}</h1>
+        <button mat-dialog-close
+            data-automation-id="idp-discard-dialog__x-button"
+            class="idp-discard-changes-dialog__close-button-wrapper"
+            aria-label="close dialog"
+        >
+            <mat-icon svgIcon="x_large" />
+        </button>
+    </div>
+    <div mat-dialog-content class="hxp-fixed-dialog-content-height"
+    >{{ 'IDP.DISCARD_DIALOG.DESCRIPTION' | translate }}</div>
+    <mat-dialog-actions [align]="'end'">
+        <button mat-button mat-dialog-close
+            data-automation-id="idp-discard-dialog__cancel-button"
+        >{{ 'IDP.DISCARD_DIALOG.CANCEL_BUTTON' | translate }}</button>
+        <button mat-flat-button
+            data-automation-id="idp-discard-dialog__discard-button"
+            class="idp-discard-changes-dialog__discard-button"
+            (click)="onDiscard()"
+        >{{ 'IDP.DISCARD_DIALOG.DISCARD_BUTTON' | translate }}</button>
+    </mat-dialog-actions>
+</div>

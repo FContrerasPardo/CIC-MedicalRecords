@@ -1,0 +1,12 @@
+.hxp-permissions-management-panel-container {
+    display: flex;
+    padding: 16px;
+    overflow: auto;
+    height: calc(100% - 32px);
+}
+
+hxp-permission-management-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}

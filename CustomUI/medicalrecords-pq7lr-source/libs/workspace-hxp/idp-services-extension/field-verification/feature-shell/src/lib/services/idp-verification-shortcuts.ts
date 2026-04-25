@@ -1,0 +1,233 @@
+/*
+ * Copyright 2005-2026 Hyland Software, Inc. and its affiliates. All rights reserved.
+ * License rights for this program may be obtained from Hyland Software, Inc. and its affiliates.
+ * pursuant to a written agreement and any use of this program without such an
+ * agreement is prohibited.
+ */
+
+import { IdpShortcut, ModifierKey, IdpShortcutAction, IDP_SCREEN_SHORTCUTS_INJECTION_TOKEN } from '@hxp/workspace-hxp/idp-services-extension/shared';
+
+const shortcuts: IdpShortcut[] = [
+    {
+        key: 'z',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.Undo,
+        category: 'general',
+        description: 'IDP_CLASS_VERIFICATION.SHORTCUTS.UNDO',
+    },
+    {
+        key: 'y',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.Redo,
+        category: 'general',
+        description: 'IDP_CLASS_VERIFICATION.SHORTCUTS.REDO',
+    },
+    {
+        key: 'enter',
+        modifierKeys: [],
+        action: IdpShortcutAction.NavigateNextField,
+        category: 'general',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.NAVIGATE_NEXT_FIELD',
+    },
+    {
+        key: 'enter',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.Save,
+        category: 'general',
+        description: 'EXTRACTION.VERIFICATION.TASK_ACTIONS.SAVE',
+    },
+    {
+        key: 'enter',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.Submit,
+        category: 'general',
+        description: 'EXTRACTION.VERIFICATION.TASK_ACTIONS.SUBMIT',
+    },
+    {
+        key: 'page up',
+        modifierKeys: [],
+        action: IdpShortcutAction.NavigateUp,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.NAVIGATE_PREVIOUS_TABLE_ROW',
+    },
+    {
+        key: 'page down',
+        modifierKeys: [],
+        action: IdpShortcutAction.NavigateDown,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.NAVIGATE_NEXT_TABLE_ROW',
+    },
+    {
+        key: 'home',
+        modifierKeys: [],
+        action: IdpShortcutAction.NavigateLeft,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.NAVIGATE_PREVIOUS_TABLE_COLUMN',
+    },
+    {
+        key: 'end',
+        modifierKeys: [],
+        action: IdpShortcutAction.NavigateRight,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.NAVIGATE_NEXT_TABLE_COLUMN',
+    },
+    {
+        key: 'space',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.SelectRow,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.SELECT_ROW',
+    },
+    {
+        key: 'space',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.SelectColumn,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.SELECT_COLUMN',
+    },
+    {
+        key: 'space',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.SelectTable,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.SELECT_TABLE',
+    },
+    {
+        key: '~',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CONTEXT_MENU',
+    },
+    {
+        key: '1',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.TablePanelMinimize,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_PANEL_MINIMIZE',
+    },
+    {
+        key: '2',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.TablePanelDefault,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_PANEL_DEFAULT',
+    },
+    {
+        key: '3',
+        modifierKeys: [ModifierKey.ctrlKey, ModifierKey.shiftKey],
+        action: IdpShortcutAction.TablePanelMaximize,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_PANEL_MAXIMIZE',
+    },
+    {
+        key: 'T',
+        modifierKeys: [ModifierKey.altKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_navigation',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CREATE_MISSING',
+    },
+    {
+        key: '←',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_navigation_column_resize',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.SHRINK_COLUMN',
+    },
+    {
+        key: '→',
+        modifierKeys: [ModifierKey.ctrlKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_navigation_column_resize',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.GROW_COLUMN',
+    },
+    {
+        key: 'escape',
+        modifierKeys: [],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_navigation_column_resize',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.RESIZE_COLUMN_CANCEL',
+    },
+    {
+        category: 'viewer_general',
+        key: 'T',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.ViewerToggleThumbnail,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.VIEWER_TOGGLE_THUMBNAIL',
+    },
+    {
+        category: 'viewer_general',
+        key: '+',
+        modifierKeys: [ModifierKey.shiftKey, ModifierKey.altKey],
+        action: IdpShortcutAction.ViewerZoomIn,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.VIEWER_ZOOM_IN',
+    },
+    {
+        category: 'viewer_general',
+        key: '-',
+        modifierKeys: [ModifierKey.shiftKey, ModifierKey.altKey],
+        action: IdpShortcutAction.ViewerZoomOut,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.VIEWER_ZOOM_OUT',
+    },
+    {
+        category: 'viewer_general',
+        key: 'R',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.ViewerRotate,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.VIEWER_ROTATE',
+    },
+    {
+        category: 'viewer_general',
+        key: 'F',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.ViewerFullScreen,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.VIEWER_FULLSCREEN',
+    },
+    {
+        category: 'viewer_general',
+        key: 'I',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.ViewerZoomImage,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.ZOOM_IMAGE',
+    },
+    {
+        category: 'viewer_general',
+        key: 'W',
+        modifierKeys: [ModifierKey.shiftKey],
+        action: IdpShortcutAction.ViewerZoomText,
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.ZOOM_TEXT',
+    },
+    {
+        key: '↑',
+        modifierKeys: [ModifierKey.shiftKey, ModifierKey.altKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_cell_fill',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CELL_FILL_ALL_ABOVE',
+    },
+    {
+        key: '↑',
+        modifierKeys: [ModifierKey.altKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_cell_fill',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CELL_FILL_TO_ABOVE',
+    },
+    {
+        key: '↓',
+        modifierKeys: [ModifierKey.altKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_cell_fill',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CELL_FILL_TO_BELOW',
+    },
+    {
+        key: '↓',
+        modifierKeys: [ModifierKey.shiftKey, ModifierKey.altKey],
+        action: IdpShortcutAction.TableContextMenu,
+        category: 'table_cell_fill',
+        description: 'EXTRACTION.VERIFICATION.SHORTCUTS.TABLE_CELL_FILL_ALL_BELOW',
+    },
+];
+
+export const FIELD_VERIFICATION_SCREEN_SHORTCUT_PROVIDER = {
+    provide: IDP_SCREEN_SHORTCUTS_INJECTION_TOKEN,
+    useValue: shortcuts,
+};

@@ -1,0 +1,12 @@
+@if (isDocumentLayoutFeatureFlagOn() && isToggleButtonVisible()) {
+    <button
+        mat-icon-button
+        class="hxp-view-toggle-button"
+        (click)="onToggleDocumentView()"
+        [attr.aria-label]="tooltipText() | translate"
+        [attr.data-automation-id]="isDocumentView() ? 'switch-to-folder-view-button' : 'switch-to-file-view-button'"
+        [matTooltip]="tooltipText() | translate"
+    >
+        <mat-icon [svgIcon]="icon()" />
+    </button>
+}

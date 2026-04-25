@@ -1,0 +1,11 @@
+@mixin hxp-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 23px;
+    padding: 0 5px;
+    background-color: var(--mat-sys-background);
+    border-radius: var(--mat-sys-corner-small, 8px);
+    border: 1px solid var(--mat-sys-primary);
+    font: var(--mat-sys-label-large);
+}

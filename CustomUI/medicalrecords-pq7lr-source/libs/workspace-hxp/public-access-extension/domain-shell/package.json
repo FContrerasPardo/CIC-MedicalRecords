@@ -1,0 +1,11 @@
+{
+  "name": "@hxp/workspace-hxp/public-access-extension/domain-shell",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/router": ">=19.2.18",
+    "@angular/core": ">=19.2.18",
+    "@hxp/workspace-hxp/public-access-extension/public-forms": ">=0.0.1",
+    "@alfresco/adf-extensions": ">=8.5.0-0",
+    "@alfresco/adf-core": ">=8.5.0-0"
+  }
+}

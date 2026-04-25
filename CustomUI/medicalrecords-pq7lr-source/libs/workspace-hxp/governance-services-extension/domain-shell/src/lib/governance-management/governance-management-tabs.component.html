@@ -1,0 +1,59 @@
+<div class="hxp-governance-management-container">
+    <div class="hxp-governance-main-column">
+        <div class="hxp-governance-management-header-title mat-headline-medium">
+            {{ 'GOVERNANCE.HEADER.TITLE' | translate }}
+        </div>
+        <mat-tab-group
+            [selectedIndex]="selectedIndex"
+            (selectedIndexChange)="onTabIndexChange($event)"
+            mat-align-tabs="start"
+            mat-stretch-tabs="false"
+            animationDuration="0"
+            class="hxp-governance-management-tab-group"
+        >
+            @if (isDashboardEnabled) {
+                <mat-tab label="{{ 'GOVERNANCE.TABS.DASHBOARD' | translate }}">
+                    <ng-template matTabContent>
+                        <div class="hxp-governance-tab-content-wrapper">
+                            <hxp-governance-dashboard-management class="hxp-governance-main-content" />
+                        </div>
+                    </ng-template>
+                </mat-tab>
+            }
+            <mat-tab label="{{ 'GOVERNANCE.TABS.RECORDS' | translate }}">
+                <ng-template matTabContent>
+                    <div class="hxp-governance-tab-content-wrapper">
+                        <hxp-governance-records-management
+                            class="hxp-governance-main-content"
+                            (sidebarToggle)="onSidebarToggle($event)"
+                            (actionContextChange)="onActionContextChange($event)"
+                        />
+                        @if (showSidebar && actionContext?.showPanel && actionContext?.records?.length) {
+                            <hxp-record-properties-sidebar
+                                class="hxp-governance-results-sidebar"
+                                [actionContext]="actionContext"
+                            />
+                        }
+                    </div>
+                </ng-template>
+            </mat-tab>
+            <mat-tab label="{{ 'GOVERNANCE.TABS.LEGAL_HOLD' | translate }}">
+                <ng-template matTabContent>
+                    <div class="hxp-governance-tab-content-wrapper">
+                        <hxp-governance-legal-hold-management
+                            class="hxp-governance-main-content"
+                            (sidebarToggle)="onSidebarToggle($event)"
+                            (actionContextChange)="onActionContextChange($event)"
+                        />
+                        @if (showSidebar && actionContext?.showPanel && actionContext?.records?.length) {
+                            <hxp-record-properties-sidebar
+                                class="hxp-governance-results-sidebar"
+                                [actionContext]="actionContext"
+                            />
+                        }
+                    </div>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

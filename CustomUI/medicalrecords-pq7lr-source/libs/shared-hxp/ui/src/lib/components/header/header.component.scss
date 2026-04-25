@@ -1,0 +1,11 @@
+hxp-header sat-app-header {
+    background-color: var(--hxp-header-bg);
+    background-image: var(--hxp-header-bg-image, none);
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: var(--hxp-header-text-color);
+
+    .hxp-header-app-title[satAppHeaderTitle] {
+        color: var(--hxp-header-text-color);
+    }
+}

@@ -1,0 +1,89 @@
+adf-info-drawer-layout {
+    .hxp-version-panel-skeleton-loader {
+        display: inline-block;
+        width: 370px;
+    }
+
+    .adf-info-drawer-layout-content {
+        position: relative;
+    }
+
+    .adf-info-drawer-layout-header {
+        display: none;
+    }
+
+    .hxp-manage-versions-sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 16px;
+    }
+
+    .hxp-version-list {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        height: 100vh;
+
+        .hxp-version-item {
+            padding: 0 24px;
+            margin-bottom: 8px;
+            text-align: left;
+            cursor: pointer;
+            border: 0;
+            background-color: var(--mat-sys-on-surface-container);
+
+            &:hover,
+            &.active {
+                background-color: var(--mat-sys-surface-container);
+            }
+
+            &.hxp-current-version {
+                .hxp-version-description {
+                    color: var(--mat-sys-primary);
+                }
+            }
+
+            .hxp-version-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .hxp-context-btn {
+                    position: relative;
+                    right: -24px;
+                }
+            }
+
+            .hxp-version-header,
+            .hxp-version-description {
+                padding-bottom: 12px;
+            }
+
+            .hxp-version-title,
+            .hxp-version-description {
+                max-width: 320px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            .hxp-version-meta,
+            .hxp-version-footer {
+                padding-bottom: 12px;
+                color: var(--mat-sys-on-surface);
+            }
+        }
+    }
+
+    .hxp-menu-trigger {
+        visibility: hidden;
+        position: fixed;
+    }
+}
+
+.adf-viewer-sidebars .adf-viewer__sidebar {
+    width: auto;
+}

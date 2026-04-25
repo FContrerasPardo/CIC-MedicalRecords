@@ -1,0 +1,18 @@
+{
+    "IDP_DOCUMENT_SCANNING": {
+        "HEADER": {
+            "TITLE": "Dokumente scannen",
+            "SCANNER_LIST": "Scanner-Liste",
+            "SCANNER_SETTINGS": "Scanner-Einstellungen",
+            "SCANNER_START": "Scan auslösen",
+            "SCANNER_STOP": "Stop Scan",
+            "SCANNER_CANCEL": "Abbrechen",
+            "CONNECTED": "Connected",
+            "DISCONNECTED": "Disconnected"
+        },
+        "SCANNING_RESULTS": {
+            "MESSAGE": "Starten Sie einen Scan um das Ergebnis hier anzuzeigen."
+        },
+        "SCANNING_VIEWER": {}
+    }
+}

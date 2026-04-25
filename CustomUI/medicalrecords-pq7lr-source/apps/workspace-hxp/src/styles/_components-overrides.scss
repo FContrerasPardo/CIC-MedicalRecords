@@ -1,0 +1,9 @@
+@use '@angular/material' as mat;
+
+.hxp-panel-dropdown {
+    @include mat.expansion-overrides(
+        (
+            container-background-color: transparent,
+        )
+    );
+}

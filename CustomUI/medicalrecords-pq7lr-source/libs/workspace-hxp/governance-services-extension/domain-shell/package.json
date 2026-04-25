@@ -1,0 +1,28 @@
+{
+  "name": "@hxp/workspace-hxp/governance-services-extension/domain-shell",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/core": ">=19.2.18",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@alfresco/adf-extensions": ">=8.5.0-0",
+    "@angular/material": ">=19.2.19",
+    "@angular/router": ">=19.2.18",
+    "@ngx-translate/core": ">=17.0.0",
+    "rxjs": ">=7.8.2",
+    "@hxp/workspace-hxp/shared/services": ">=0.0.1",
+    "@angular/platform-browser": ">=19.2.18",
+    "@angular/common": ">=19.2.18",
+    "@alfresco/adf-hx-content-services/ui": ">=0.0.1",
+    "@angular/cdk": ">=19.2.19",
+    "@angular/forms": ">=19.2.18",
+    "@hylandsoftware/satori-ui": ">=0.1.0",
+    "@alfresco/adf-hx-content-services/services": ">=0.0.1",
+    "date-fns": "^2.30.0",
+    "chart.js": ">=4.4.0",
+    "ng2-charts": ">=5.0.0",
+    "ng-mocks": ">=14.13.5",
+    "@alfresco/adf-hx-content-services/features": ">=0.0.1"
+  },
+  "dependencies": {},
+  "sideEffects": false
+}

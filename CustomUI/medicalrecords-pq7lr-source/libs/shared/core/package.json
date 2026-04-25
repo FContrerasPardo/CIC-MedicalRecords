@@ -1,0 +1,6 @@
+{
+  "name": "@alfresco-dbp/shared-core",
+  "version": "0.0.1",
+  "peerDependencies": {
+  }
+}

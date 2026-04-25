@@ -1,0 +1,19 @@
+{
+    "name": "workspace-hxp-idp-services-extension-document-scanning-feature-shell",
+    "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/workspace-hxp/idp-services-extension/document-scanning/feature-shell/src",
+    "prefix": "hxp",
+    "tags": ["scope:workspace-hxp-idp-services-extension-document-scanning-feature-shell", "category:workspace-hxp", "scope:idp"],
+    "projectType": "library",
+    "targets": {
+        "test": {
+            "executor": "@nx/jest:jest",
+            "options": {
+                "jestConfig": "{projectRoot}/jest.config.ts",
+                "passWithNoTests": false
+            }
+        },
+        "stylelint": {
+        }
+    }
+}

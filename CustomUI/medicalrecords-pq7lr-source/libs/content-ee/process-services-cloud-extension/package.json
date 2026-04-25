@@ -1,0 +1,10 @@
+{
+  "name": "@alfresco/adf-process-services-cloud-extension",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": ">=19.2.9",
+    "@angular/core": ">=19.2.9"
+  },
+  "dependencies": {
+  }
+}

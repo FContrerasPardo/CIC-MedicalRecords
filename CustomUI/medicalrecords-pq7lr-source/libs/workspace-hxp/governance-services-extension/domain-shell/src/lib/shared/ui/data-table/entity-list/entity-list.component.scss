@@ -1,0 +1,28 @@
+.hxp-record-list-row {
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--mat-sys-surface-container-low);
+    }
+
+    &.hxp-record-selected {
+        background-color: var(--mat-sys-surface-container-low);
+
+        &:hover {
+            background-color: var(--mat-sys-surface-container-low);
+        }
+    }
+}
+
+.hxp-record-list-container {
+    max-height: 100%;
+    overflow: auto;
+    position: relative;
+}
+
+.hxp-record-list-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--mat-sys-surface-container-lowest);
+}

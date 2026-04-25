@@ -1,0 +1,25 @@
+@let datasourceDocuments = (documents$ | async) || [];
+@let datasourcePlaceholder = dragPlaceholderMetadata$ | async;
+@let datasourceSelectedDocumentsCount = selectedDocumentsCount$ | async;
+
+<hyland-idp-document-list
+    [documents]="datasourceDocuments"
+    [placeholder]="datasourcePlaceholder"
+    [selectedDocumentsCount]="datasourceSelectedDocumentsCount"
+    [draggingDocuments]="draggingDocuments"
+    [dropListId]="classDropListId"
+    [documentUniquenessFn]="documentUniquenessFn.bind(this)"
+    [formatDocumentName]="formatDocumentName.bind(this)"
+    [isElementContained]="isElementContained.bind(this)"
+    [onItemKeyDown]="onItemKeyDown.bind(this)"
+    [onContainerKeyDown]="onContainerKeyDown.bind(this)"
+    [onItemMouseDown]="onItemMouseDown.bind(this)"
+    [onItemMouseUp]="onItemMouseUp.bind(this)"
+    [onDoubleClick]="onDoubleClick.bind(this)"
+    [onMouseEnter]="onMouseEnter.bind(this)"
+    [onDragStarted]="onDragStarted.bind(this)"
+    [onDragStopped]="onDragStopped.bind(this)"
+    [onPageCollapseRequest]="onPageCollapseRequest.bind(this)"
+    [canCutPages]="canCutPages$ | async"
+    (pagesCut)="onPagesCut()"
+/>

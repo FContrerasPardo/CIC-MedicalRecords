@@ -1,0 +1,60 @@
+<ng-container>
+    <hyland-idp-list-item
+        class="idp-list-item-page"
+        [attr.data-automation-id]="'idp-list-item-page__' + pageIndex"
+        [attr.selected]="page.isSelected"
+        [class.idp-page-drop-disabled]="dragPlaceholderMetadata && dragPlaceholderMetadata.isDocumentDragging"
+        [class.idp-page-highlight-disabled]="dragPlaceholderMetadata && dragPlaceholderMetadata.isPageDragging"
+        [class.idp-cut]="page.isCut"
+        [isSelected]="page.isSelected || false"
+        [id]="page.id"
+        [index]="pageIndex"
+        (mouseenter)="onItemMouseEnter()"
+        (mousedown)="onItemMouseDown($event)"
+        (mouseup)="onItemMouseUp($event)"
+        (keydown)="onItemKeyDown($event)"
+        (dblclick)="onDoubleClick()"
+        cdkDrag
+        [cdkDragData]="{ pages: draggingPages }"
+        (cdkDragStarted)="onDragStarted()"
+        (cdkDragReleased)="onDragStopped()"
+        (contextmenu)="onContextMenu($event)"
+    >
+        <div
+            class="idp-list-item-content"
+            [class.idp-item-selected]="page.isSelected"
+            [class.invalid]="page.hasIssue"
+        >
+            <div
+                *cdkDragPreview
+                matBadge="{{ draggingPages.length }}"
+                class="idp-drag-preview-ext"
+                [style.width]="'auto'"
+            >
+                <mat-icon [svgIcon]="draggingPages.length > 1 ? 'pages' : 'page'" />
+            </div>
+            <mat-icon
+                svgIcon="page"
+                [class.idp-issue]="isIssue || page.hasIssue"
+            />
+            <span
+                class="idp-display-name"
+                data-automation-id="idp-page-name"
+                >{{ pageIndex + 1 }}</span
+            >
+        </div>
+
+        <ng-container *adfForFeatures="idpCutInsertFeature">
+            <hyland-idp-page-context-menu
+                #pageContextMenu
+                [canCut]="canCutPages"
+                [canInsert]="frozenCanInsertPages"
+                (pagesCut)="onPagesCut()"
+                (pagesInsertedAbove)="onPagesInsertAbove()"
+                (pagesInsertedBelow)="onPagesInsertBelow()"
+                (menuOpened)="onPageContextMenuOpened()"
+                (menuClosed)="onPageContextMenuClosed()"
+            />
+        </ng-container>
+    </hyland-idp-list-item>
+</ng-container>

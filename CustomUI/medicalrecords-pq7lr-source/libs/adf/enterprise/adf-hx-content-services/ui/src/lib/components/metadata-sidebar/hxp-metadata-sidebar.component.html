@@ -1,0 +1,130 @@
+<adf-info-drawer-layout
+    class="hxp-metadata-panel"
+    (hxpOutsideClick)="onOutsideClick()"
+>
+    <div
+        info-drawer-content
+        class="hxp-metadata-info-drawer-content"
+    >
+        <div
+            class="hxp-metadata-panel-header"
+            data-automation-id="hxp-metadata-sidebar-title"
+        >
+            <div class="hxp-metadata-panel-header_title mat-headline-medium">{{ selectedDocument?.sys_title }}</div>
+            <button
+                mat-icon-button
+                tabindex="0"
+                attr.aria-label="{{ 'DOCUMENT.PROPERTIES.RIGHT_SIDEBAR.CLOSE' | translate }}"
+                (click)="onClose()"
+                class="hxp-metadata-sidebar-close-button"
+                data-automation-id="hxp-metadata-sidebar-close-button"
+            >
+                <mat-icon svgIcon="x_large" />
+            </button>
+        </div>
+
+        <div class="hxp-metadata-panel-wrapper">
+            @if (propertyLoading) {
+                <div class="hxp-metadata-panel-spinner-container">
+                    <mat-progress-spinner
+                        mode="indeterminate"
+                        diameter="30"
+                    />
+                </div>
+            } @else {
+                <!--
+                The tab structure uses nested conditionals for each tab rather than dynamically adding/removing tabs.
+                This is necessary because Angular Material's tab group doesn't handle dynamic insertion at index 0 correctly.
+                -->
+                @if (editableSystemProperties$ | async; as editableSystemProperties) {
+                    <hxp-metadata-sidebar-content
+                        [useChipsForMultiValueProperty]="false"
+                        [properties]="editableSystemProperties"
+                        id="properties-viewer-content"
+                        [editable]="editMode"
+                        [document]="selectedDocument"
+                        (propertyUpdateRequest)="handlePropertyUpdate($event)"
+                    />
+                }
+                <mat-tab-group
+                    animationDuration="0"
+                    mat-stretch-tabs="false"
+                    (selectedTabChange)="onTabChange($event)"
+                >
+                    @let customProperties = customProperties$ | async;
+                    @let nonEditableSystemProperties = nonEditableSystemProperties$ | async;
+                    @if (customProperties && customProperties.length > 0) {
+                        <mat-tab>
+                            <ng-template mat-tab-label>
+                                <span data-automation-id="hxp-metadata-sidebar-properties-tab">
+                                    {{ 'DOCUMENT.METADATA.TABS.PROPERTIES' | translate }}
+                                </span>
+                            </ng-template>
+                            <hxp-metadata-sidebar-content
+                                [useChipsForMultiValueProperty]="true"
+                                [properties]="customProperties"
+                                [propertiesGroups]="propertiesGroups"
+                                [editable]="editMode"
+                                [document]="selectedDocument"
+                                (propertyUpdateRequest)="handlePropertyUpdate($event)"
+                                [collapsible]="true"
+                                [invalidFieldIds]="invalidFieldIds()"
+                            />
+                        </mat-tab>
+                        @if (nonEditableSystemProperties && nonEditableSystemProperties.length > 0) {
+                            <mat-tab>
+                                <ng-template mat-tab-label>
+                                    <span data-automation-id="hxp-metadata-sidebar-additional-info-tab">
+                                        {{ 'DOCUMENT.METADATA.TABS.ADDITIONAL_INFORMATION' | translate }}
+                                    </span>
+                                </ng-template>
+                                <hxp-metadata-sidebar-additional-info [nonEditableSystemProperties]="nonEditableSystemProperties" />
+                            </mat-tab>
+                        }
+                    } @else if (nonEditableSystemProperties && nonEditableSystemProperties.length > 0) {
+                        <mat-tab>
+                            <ng-template mat-tab-label>
+                                <span data-automation-id="hxp-metadata-sidebar-additional-info-tab">
+                                    {{ 'DOCUMENT.METADATA.TABS.ADDITIONAL_INFORMATION' | translate }}
+                                </span>
+                            </ng-template>
+                            <hxp-metadata-sidebar-additional-info [nonEditableSystemProperties]="nonEditableSystemProperties" />
+                        </mat-tab>
+                    }
+                </mat-tab-group>
+            }
+        </div>
+
+        @if (workingCopy && editable) {
+            <div class="hxp-property-edit-actions">
+                @if (!editMode && !isUpdateInProgress) {
+                    <button
+                        mat-flat-button
+                        [disabled]="propertyLoading"
+                        data-automation-id="hxp-metadata-sidebar-edit-button"
+                        (click)="enableEditMode()"
+                    >
+                        {{ 'DOCUMENT.PROPERTIES_EDIT.EDIT' | translate }}
+                    </button>
+                } @else if (editMode || isUpdateInProgress) {
+                    <button
+                        mat-button
+                        data-automation-id="hxp-metadata-sidebar-cancel-button"
+                        (click)="onCancel()"
+                        [disabled]="isUpdateInProgress"
+                    >
+                        {{ 'DOCUMENT.PROPERTIES_EDIT.CANCEL' | translate }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        data-automation-id="hxp-metadata-sidebar-save-button"
+                        [disabled]="isUpdateInProgress || !hasBeenModified()"
+                        (click)="onSaveProperties()"
+                    >
+                        {{ 'DOCUMENT.PROPERTIES_EDIT.UPDATE' | translate }}
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</adf-info-drawer-layout>

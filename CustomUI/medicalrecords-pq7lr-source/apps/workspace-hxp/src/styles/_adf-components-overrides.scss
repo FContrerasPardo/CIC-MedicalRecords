@@ -1,0 +1,117 @@
+@use '@angular/material' as mat;
+@use 'mat-selectors' as ms;
+
+.adf-asterisk {
+    color: var(--mat-sys-error);
+}
+
+.adf-datatable .adf-datatable-list {
+    adf-datatable-row.adf-datatable-row {
+        min-height: var(--mat-sys-display-medium-line-height);
+        .adf-datatable-cell {
+            font: var(--mat-sys-body-medium);
+        }
+    }
+}
+
+.hxp-right-aligned-dialog {
+    @include mat.dialog-overrides(
+        (
+            container-shape: var(--mat-sys-corner-large) 0 0 var(--mat-sys-corner-large),
+        )
+    );
+}
+
+adf-select-filter-input.adf-select-filter-input .adf-select-filter-input-container {
+    background: unset;
+}
+
+@mixin adf-toasts {
+    .hxp-snack-bar-container {
+        #{ms.$mat-snackbar-surface} {
+            background-color: var(--mat-sys-surface);
+            border: var(--mat-sys-outline);
+            border-style: solid;
+            border-radius: 10px;
+            min-width: 240px;
+            max-width: none;
+
+            #{ms.$mat-mdc-snack-bar-label} {
+                color: var(--mat-sys-on-surface);
+            }
+        }
+
+        background-color: var(--mat-sys-surface);
+        border-radius: 10px;
+        min-width: 240px;
+        max-width: none;
+
+        .adf-snackbar-message-content-action-icon #{ms.$mat-icon} {
+            @include mat.icon-overrides(
+                (
+                    color: var(--mdc-icon-button-icon-color, var(--mat-sys-on-surface-variant)),
+                )
+            );
+
+            /* Adjusting the position of the cross icon within the snackbar to have the ripple/focus element centered */
+            padding-left: 4px;
+            padding-bottom: 4px;
+        }
+
+        #{ms.$mat-mdc-snack-bar-label} {
+            color: var(--mat-sys-on-surface);
+        }
+
+        &.hxp-snack-bar-type-error {
+            #{ms.$mat-snackbar-surface} {
+                border-color: var(--theme-warn-color);
+
+                .adf-snackbar-message-content #{ms.$mat-icon} {
+                    color: var(--theme-warn-color);
+                }
+            }
+        }
+
+        &.hxp-snack-bar-type-done {
+            #{ms.$mat-snackbar-surface} {
+                border-color: var(--sat-sys-on-success-container);
+
+                .adf-snackbar-message-content #{ms.$mat-icon} {
+                    color: var(--sat-sys-on-success-container);
+                }
+            }
+
+            .adf-snackbar-message-content #{ms.$mat-icon} {
+                color: var(--sat-sys-on-success-container);
+            }
+        }
+
+        &.hxp-snack-bar-type-info {
+            #{ms.$mat-snackbar-surface} {
+                border-color: var(--sat-sys-on-info-container);
+
+                .adf-snackbar-message-content #{ms.$mat-icon} {
+                    color: var(--sat-sys-on-info-container);
+                }
+            }
+        }
+    }
+
+    .adf-error-snackbar,
+    .adf-warning-snackbar,
+    .adf-info-snackbar {
+        border-radius: 8px;
+    }
+
+    .adf-info-snackbar {
+        #{ms.$mat-snackbar-surface} {
+            background-color: var(--theme-primary-color);
+        }
+    }
+
+    .adf-error-snackbar {
+        #{ms.$mat-snackbar-surface} {
+            background-color: var(--theme-warn-color);
+        }
+    }
+}

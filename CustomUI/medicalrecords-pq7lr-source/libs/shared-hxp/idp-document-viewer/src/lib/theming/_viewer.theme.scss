@@ -1,0 +1,210 @@
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+@function viewer-canvas-color($tokens, $state, $fallback) {
+    @if $tokens and map.has-key($tokens, $state) {
+        @return map.get($tokens, $state);
+    }
+    @return $fallback;
+}
+
+@mixin viewer-theme($theme: null, $canvas-tokens) {
+    @if $theme {
+        @include mat.system-level-colors($theme);
+    }
+
+    // System level colors
+    $viewer-image-background-color: var(--mat-sys-surface-container);
+    $viewer-highlight-color: var(--mat-sys-primary);
+    $viewer-highlight-color-light: var(--mat-sys-primary-container);
+    $viewer-tooltip-background-color: var(--mat-sys-primary-container);
+    $viewer-grid-image-background-color: var(--mat-sys-primary-container);
+
+    $viewer-text-color: var(--mat-sys-on-surface);
+    $viewer-disabled-color: var(--mat-sys-on-surface-variant);
+    $viewer-border-color: var(--mat-sys-outline-variant);
+    $viewer-toolbar-background-color: var(--mat-sys-surface);
+
+    $viewer-text-layout-font-family: 'Courier New', monospace;
+    $viewer-text-layout-font-weight: 600;
+
+    // Canvas color maps
+    $viewer-rubber-band-color: viewer-canvas-color($canvas-tokens, rubber-band, #5654ac);
+    $viewer-rubber-band-background-color: viewer-canvas-color($canvas-tokens, rubber-band-background, #e2dfff);
+    $viewer-rubber-band-opacity: 0.6;
+
+    $viewer-valid-color: viewer-canvas-color($canvas-tokens, valid, #379f36);
+    $viewer-valid-opacity: 0.5;
+
+    $viewer-invalid-color: viewer-canvas-color($canvas-tokens, invalid, #d2444c);
+    $viewer-invalid-opacity: 0.5;
+
+    $viewer-primary-color: viewer-canvas-color($canvas-tokens, primary, #5654ac);
+    $viewer-primary-background-color: viewer-canvas-color($canvas-tokens, primary-container, #e2dfff);
+    $viewer-primary-opacity: 0.5;
+
+    $viewer-secondary-color: viewer-canvas-color($canvas-tokens, secondary, #9a7b13);
+    $viewer-secondary-opacity: 0.6;
+
+    $viewer-redaction-color: viewer-canvas-color($canvas-tokens, redaction, #000000);
+    $viewer-redaction-background-color: viewer-canvas-color($canvas-tokens, redaction-background, #000000);
+    $viewer-redaction-opacity: 1;
+
+    $viewer-redaction-inactive-color: viewer-canvas-color($canvas-tokens, redaction-inactive, #565454);
+    $viewer-redaction-inactive-background-color: viewer-canvas-color($canvas-tokens, redaction-inactive-background, #6c6c6c);
+    $viewer-redaction-inactive-opacity: 0.6;
+
+    // Text layer color maps
+    $viewer-text-layer-colors: (
+        rubber-band: (
+            color: $viewer-rubber-band-color,
+            background: $viewer-rubber-band-background-color,
+            opacity: $viewer-rubber-band-opacity,
+        ),
+        valid: (
+            color: $viewer-valid-color,
+            background: $viewer-valid-color,
+            opacity: $viewer-valid-opacity,
+        ),
+        invalid: (
+            color: $viewer-invalid-color,
+            background: $viewer-invalid-color,
+            opacity: $viewer-invalid-opacity,
+        ),
+        primary: (
+            color: $viewer-primary-color,
+            background: $viewer-primary-background-color,
+            opacity: $viewer-primary-opacity,
+        ),
+        secondary: (
+            color: $viewer-secondary-color,
+            background: $viewer-secondary-color,
+            opacity: $viewer-secondary-opacity,
+        ),
+        default: (
+            color: $viewer-secondary-color,
+            background: $viewer-secondary-color,
+            opacity: $viewer-secondary-opacity,
+        ),
+        redaction: (
+            color: $viewer-redaction-color,
+            background: $viewer-redaction-background-color,
+            opacity: $viewer-redaction-opacity,
+        ),
+        redaction-inactive: (
+            color: $viewer-redaction-inactive-color,
+            background: $viewer-redaction-inactive-background-color,
+            opacity: $viewer-redaction-inactive-opacity,
+        ),
+    );
+
+    hyland-idp-viewer-grid-view,
+    .idp-viewer-container {
+        background-color: $viewer-image-background-color;
+    }
+
+    .idp-grid-view {
+        background-color: $viewer-image-background-color;
+        &__image-container {
+            background-color: $viewer-grid-image-background-color;
+            border-color: $viewer-highlight-color;
+
+            .idp-image-overlay__doc-label {
+                color: $viewer-highlight-color;
+                background-color: $viewer-grid-image-background-color;
+                border: 3px solid $viewer-highlight-color;
+            }
+        }
+    }
+
+    .idp-viewer-toolbar {
+        border: 1px solid $viewer-border-color;
+        background-color: $viewer-toolbar-background-color;
+
+        .idp-zoom-container,
+        .idp-page-nav-container {
+            .idp-zoom-input,
+            .idp-page-nav-input {
+                border-bottom: 2px solid $viewer-border-color;
+
+                &.idp-disabled {
+                    color: $viewer-disabled-color;
+                }
+                input {
+                    color: $viewer-text-color;
+                }
+            }
+        }
+    }
+
+    .idp-selected {
+        background-color: $viewer-highlight-color-light !important;
+    }
+
+    .idp-viewer-text-only-layer__container-div {
+        background-color: $viewer-toolbar-background-color;
+    }
+
+    .idp-viewer-text-only-layer__text {
+        font-family: $viewer-text-layout-font-family;
+        font-weight: $viewer-text-layout-font-weight;
+
+        .idp-layout-background-text {
+            @each $type, $vals in $viewer-text-layer-colors {
+                &__#{$type} {
+                    background-color: map-get($vals, background);
+                    opacity: map-get($vals, opacity);
+                }
+            }
+
+            &__redaction {
+                color: $viewer-redaction-color;
+                user-select: none;
+            }
+        }
+    }
+
+    .idp-viewer-text-only-layer__text .idp-layout-border-text {
+        @each $type, $vals in $viewer-text-layer-colors {
+            &__#{$type} {
+                outline: 2px solid map-get($vals, color);
+                outline-offset: -1px;
+                opacity: 1;
+            }
+        }
+
+        &__redaction {
+            user-select: none;
+        }
+    }
+
+    .idp-viewer-text-layer__container-canvas {
+        @each $type, $vals in $viewer-text-layer-colors {
+            --idp-viewer-text-layer-color-#{$type}: #{map-get($vals, color)};
+            --idp-viewer-text-layer-background-color-#{$type}: #{map-get($vals, background)};
+            --idp-viewer-text-layer-opacity-#{$type}: #{map-get($vals, opacity)};
+        }
+
+        --idp-viewer-text-layer-color-selection: #{$viewer-rubber-band-color};
+    }
+
+    .idp-viewer-text-layer__text-tooltip {
+        background-color: $viewer-tooltip-background-color;
+        border: 1px solid $viewer-highlight-color;
+    }
+
+    .idp-thumbnail-viewer {
+        border-right: 1px solid $viewer-border-color;
+        border-top: 1px solid $viewer-border-color;
+        background-color: $viewer-toolbar-background-color;
+
+        &__list-item img {
+            border: 1px solid $viewer-border-color;
+        }
+    }
+}
+
+// Global styles for CDK overlay content
+.idp-generic-control-menu .idp-menu-item-button.idp-selected {
+    background-color: var(--mat-sys-primary-container, rgba(98, 0, 238, 0.12));
+}

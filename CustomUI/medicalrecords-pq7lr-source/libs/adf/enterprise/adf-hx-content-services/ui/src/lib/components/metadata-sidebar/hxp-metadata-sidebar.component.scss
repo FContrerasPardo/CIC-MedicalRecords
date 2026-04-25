@@ -1,0 +1,87 @@
+.hxp-metadata-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    &_title {
+        display: inline-block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        margin-bottom: 0 !important; // material headline adds a bottom margin that breaks vertical centering
+    }
+}
+
+.hxp-metadata-panel-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+adf-info-drawer-layout.hxp-metadata-panel {
+    width: 420px;
+
+    /* 32 px is the app Header height */
+    height: calc(100% - 32px);
+    padding: 16px;
+    background-color: var(--mat-sys-surface);
+
+    .adf-info-drawer-layout-content {
+        padding: 0;
+        height: 100%;
+    }
+
+    .adf-info-drawer-layout-header {
+        display: none;
+    }
+}
+
+.adf-property-container adf-card-view-selectitem {
+    .adf-property-value {
+        margin-top: 0;
+        padding-top: 0;
+    }
+}
+
+.adf-viewer-sidebars .adf-viewer__sidebar {
+    width: auto;
+}
+
+.hxp-metadata-info-drawer-content {
+    height: 100%;
+    flex-direction: column;
+
+    // adf-info-drawer-layout forces display:block inline; keep flex so footer stays pinned
+    display: flex !important;
+}
+
+.hxp-metadata-panel-wrapper {
+    overflow-y: scroll;
+    padding-top: 16px;
+    flex: 1;
+}
+
+.hxp-property-edit-actions {
+    padding-top: 16px;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+// Ensure card-view labels adopt the active theme color palette
+// The rule is defined in _hxp-inputs
+// To be reviewed once we adopt MD3 (https://hyland.atlassian.net/browse/CSX-359)
+// Disable stylelint for selector-class-pattern as we are targeting 3rd party library classes
+/* stylelint-disable selector-class-pattern */
+.mdc-text-field {
+    &:not(&--focused, &--invalid) .adf-property-label {
+        color: var(--mat-sys-on-surface) !important; /* Overrides color: unset !important in _hxp-inputs.scss:10 */
+    }
+}
+/* stylelint-enable selector-class-pattern */
+
+.hxp-required-field::after {
+    content: ' *';
+}

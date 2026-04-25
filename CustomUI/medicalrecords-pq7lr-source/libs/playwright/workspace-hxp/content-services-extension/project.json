@@ -1,0 +1,11 @@
+{
+    "name": "workspace-hxp-content-services-extension-playwright",
+    "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/playwright/workspace-hxp/content-services-extension/src",
+    "prefix": "hxp",
+    "targets": {
+        "codeowner": {}
+    },
+    "tags": ["scope:workspace-hxp-content-services-extension-playwright", "category:workspace-hxp"]
+}

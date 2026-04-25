@@ -1,0 +1,25 @@
+.hxp-create-folder-name {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.hxp-create-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+    padding: 10px;
+    gap: 5px;
+}
+
+.hxp-create-folder-dialog-spacing {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.hxp-create-folder-subtitle {
+    padding: 0 24px;
+}

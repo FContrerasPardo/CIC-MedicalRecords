@@ -1,0 +1,45 @@
+<mat-form-field class="hxp-governance-search-filter-input">
+    @if (prefixIcon) {
+    <div matPrefix>
+        <button
+            mat-icon-button
+            type="button"
+            (click)="onPrefixClick()"
+            [attr.aria-label]="prefixAriaLabel || inputAriaLabel || ('GOVERNANCE.SEARCH_INPUT.SEARCH' | translate)"
+        >
+            <mat-icon [svgIcon]="prefixIcon" />
+        </button>
+        <mat-divider vertical />
+    </div>
+    }
+
+    <input
+        matInput
+        type="text"
+        [attr.aria-label]="inputAriaLabel || ('GOVERNANCE.SEARCH_INPUT.SEARCH' | translate)"
+        [placeholder]="placeholder ?? ''"
+        [(ngModel)]="searchTerm"
+        (keyup)="applyFilter($event)"
+    />
+
+    <div matSuffix>
+        @if (searchTerm) {
+        <button
+            mat-icon-button
+            type="button"
+            [attr.aria-label]="clearAriaLabel || ('GOVERNANCE.SEARCH_INPUT.CLEAR' | translate)"
+            (click)="clearInput()"
+        >
+            <mat-icon
+                class="hxp-governance-search-filter-input-clear-icon"
+                svgIcon="x_large"
+            />
+        </button>
+        } @else {
+        <mat-icon
+            class="hxp-governance-search-filter-input-search-icon"
+            svgIcon="search"
+        />
+        }
+    </div>
+</mat-form-field>

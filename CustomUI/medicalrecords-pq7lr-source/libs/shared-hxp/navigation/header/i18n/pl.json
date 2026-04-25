@@ -1,0 +1,17 @@
+{
+    "HEADER": {
+        "LOGO": "Logo",
+        "SETTINGS": "USTAWIENIA",
+        "ACTIONS": {
+            "LANGUAGE": "Język",
+            "FEATURE_FLAGS": "Znaczniki funkcji",
+            "HELP": "Pomoc",
+            "THEME_SWITCH": {
+                "DARK": "Ciemny motyw",
+                "DARK_LABEL": "Przełącz na ciemny motyw",
+                "LIGHT": "Jasny motyw",
+                "LIGHT_LABEL": "Przełącz na jasny motyw"
+            }
+        }
+    }
+}

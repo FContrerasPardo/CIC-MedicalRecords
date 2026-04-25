@@ -1,0 +1,18 @@
+<div class="app-content-header">
+    <div *ngIf="showNavBarToggleButton">
+        <button
+            *ngIf="(appNavBarMode$ | async) === 'collapsed'"
+            mat-icon-button
+            (click)="toggleNavBar()"
+            data-automation-id="app-start-process-button"
+            title="{{ 'APP.TOOLTIPS.EXPAND_NAVIGATION' | translate }}"
+        >
+            <mat-icon svgIcon="chevron_double_right" />
+        </button>
+    </div>
+    <ng-content select="app-page-layout-header" />
+</div>
+
+<ng-container>
+    <ng-content select="app-page-layout-content" />
+</ng-container>

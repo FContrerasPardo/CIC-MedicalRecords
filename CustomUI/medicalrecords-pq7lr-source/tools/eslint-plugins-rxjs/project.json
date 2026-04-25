@@ -1,0 +1,43 @@
+{
+    "name": "eslint-plugin-rxjs",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "tools/eslint-plugins-rxjs/src",
+    "projectType": "library",
+    "tags": ["type:tool", "scope:eslint"],
+    "targets": {
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/tools/eslint-plugins-rxjs",
+                "main": "tools/eslint-plugins-rxjs/src/index.ts",
+                "tsConfig": "tools/eslint-plugins-rxjs/tsconfig.lib.json",
+                "generatePackageJson": false,
+                "assets": [
+                    "tools/eslint-plugins-rxjs/*.md",
+                    "tools/eslint-plugins-rxjs/LICENSE",
+                    {
+                        "input": "tools/eslint-plugins-rxjs",
+                        "glob": "package.json",
+                        "output": "."
+                    }
+                ]
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["tools/eslint-plugins-rxjs/**/*.ts"]
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "tools/eslint-plugins-rxjs/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    }
+}

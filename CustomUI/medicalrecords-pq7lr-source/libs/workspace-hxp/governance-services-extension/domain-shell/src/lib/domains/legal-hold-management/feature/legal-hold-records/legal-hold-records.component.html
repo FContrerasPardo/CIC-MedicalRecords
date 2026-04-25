@@ -1,0 +1,140 @@
+<div class="hxp-governance-legal-hold-container">
+    <div class="hxp-governance-legal-hold-title mat-headline-medium">
+        <button
+            mat-icon-button
+            (click)="backToCases()"
+            [attr.aria-label]="'GOVERNANCE.LEGAL_DIALOG.BACK' | translate"
+        >
+            <mat-icon svgIcon="arrow_left" />
+        </button>
+        <span class="hxp-governance-legal-hold-case-name">{{ selectedCase?.legalCaseName }}</span>
+        <hxp-search-box
+            class="hxp-governance-search-box-right"
+            [placeholder]="'GOVERNANCE.LEGAL_RECORDS.SEARCH_RECORDS_PLACEHOLDER' | translate"
+            [searchText]="searchText"
+            (inputChange)="onSearchInputChange($event)"
+            [disabled]="isLoading || allRecords.length === 0"
+        />
+    </div>
+    @if (!noResults) {
+    <div class="hxp-governance-legal-hold-container-inner">
+        <hxp-action-toolbar
+            [selectedCount]="selectedCount"
+            [hasSelection]="hasSelection"
+            [clearAll]="clearAll"
+        >
+            <div
+                toolbar-actions
+                class="hxp-governance-action-group hxp-governance-details-end-button"
+            >
+                <hxp-record-properties-button [actionContext]="actionContext" />
+            </div>
+            <div
+                toolbar-no-selection-left
+                class="hxp-governance-toolbar-no-selection-left"
+            ></div>
+            <button
+                toolbar-no-selection-actions
+                mat-button
+                class="hxp-governance-action-button"
+                disabled
+            >
+                <mat-icon
+                    class="hxp-governance-action-icon"
+                    svgIcon="panel_close"
+                />
+                {{ 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.DETAILS' | translate }}
+            </button>
+        </hxp-action-toolbar>
+        @if (isLoading) {
+        <hxp-table-skeleton-loader />
+        }
+        <div class="hxp-governance-legal-hold-table-wrapper">
+            <hxp-entity-list
+                #legalRecordsList
+                [records]="records"
+                [selectAllEnabled]="true"
+                [showSelection]="true"
+                [sorting]="{ active: sortColumn, direction: sortDirection }"
+                (selectionChanged)="onSelectionChanged($event)"
+                (sortingChanged)="onSortingChanged($event)"
+            >
+                <hxp-data-column
+                    key="icon"
+                    title=""
+                    headerAriaLabel="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.STATUS"
+                    width="1%"
+                >
+                    <ng-template let-record="$implicit">
+                        @if (record.hasCredential) {
+                        <mat-icon svgIcon="governance_record_hasCredential" />
+                        } @else {
+                        <mat-icon svgIcon="governance_record_onHold" />
+                        }
+                    </ng-template>
+                </hxp-data-column>
+                <hxp-data-column
+                    key="fileName"
+                    title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.NAME"
+                >
+                    <ng-template let-record="$implicit">
+                        <span [innerHTML]="highlightMatch(record.fileName)"></span>
+                    </ng-template>
+                </hxp-data-column>
+                <hxp-data-column
+                    key="environmentDataSourceId"
+                    title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.DATA_SOURCE"
+                >
+                    <ng-template let-record="$implicit">
+                        <div class="hxp-record-list-data-source-column">
+                            <mat-icon svgIcon="cloud" />
+                            <span>{{ record.environmentDataSourceId | recordDataSourceLabel }}</span>
+                        </div>
+                    </ng-template>
+                </hxp-data-column>
+                <hxp-data-column
+                    key="createdAt"
+                    title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.ADDED_ON"
+                    [sortable]="true"
+                    [disableClear]="true"
+                >
+                    <ng-template let-record="$implicit">
+                        {{ record.createdAt | date }}
+                    </ng-template>
+                </hxp-data-column>
+                <hxp-data-column
+                    key="createdByUsername"
+                    title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.ADDED_BY"
+                />
+            </hxp-entity-list>
+        </div>
+        <div class="hxp-governance-legal-hold-paginator-container">
+            <hxp-results-paginator
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[25, 50, 100]"
+                [previousDisabled]="previousDisabled"
+                [nextDisabled]="nextDisabled"
+                (pageSizeChange)="onPageSizeChange($event)"
+                (nextPage)="loadNextPage()"
+                (previousPage)="loadPreviousPage()"
+            />
+        </div>
+    </div>
+    } @else if (hasError) {
+    <hxp-governance-error (buttonClick)="onRetry()" />
+    } @else {
+    <div class="hxp-legal-hold-empty-state">
+        <div class="hxp-governance-legal-hold-table-no-results">
+            <img
+                src="assets/icons/Empty.svg"
+                [alt]="'GOVERNANCE.LEGAL_HOLD.TABLE.NO_RECORDS_FOUND' | translate"
+            />
+            @if (!searchText) {
+            <span class="mat-headline-small">{{ 'GOVERNANCE.LEGAL_RECORDS.NO_RECORDS_FOUND' | translate }}</span>
+            } @else {
+            <span class="mat-headline-small">{{ 'GOVERNANCE.LEGAL_RECORDS.NO_RECORDS_FOUND_FILTERED' | translate }}</span>
+            }
+        </div>
+    </div>
+    }
+</div>

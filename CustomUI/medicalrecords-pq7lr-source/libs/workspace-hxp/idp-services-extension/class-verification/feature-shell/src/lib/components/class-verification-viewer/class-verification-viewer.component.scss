@@ -1,0 +1,68 @@
+@use '@angular/material' as mat;
+
+.idp-viewer-header {
+    position: absolute;
+    width: 100%;
+    z-index: 9;
+    height: inherit;
+    overflow: hidden;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+
+    &__toolbar {
+        display: flex;
+        padding: 8px 32px;
+        border: 2px solid var(--mat-sys-primary);
+        border-radius: 8px;
+        box-sizing: border-box;
+        box-shadow: var(--mat-sys-level2);
+    }
+
+    &__action-buttons {
+        display: flex;
+    }
+}
+
+.idp-viewer-empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    height: 100%;
+    width: 100%;
+    background-color: var(--mat-sys-surface);
+
+    &__text {
+        font: var(--mat-sys-headline-medium);
+        font-weight: var(--mat-sys-label-large-weight-prominent);
+        color: var(--mat-sys-on-surface);
+    }
+
+    &__sub-text {
+        padding-bottom: 8px;
+        font: var(--mat-sys-headline-small);
+        color: var(--mat-sys-on-surface);
+    }
+
+    &__image {
+        max-height: 25%;
+        object-fit: contain;
+    }
+}
+
+.idp-viewer__shortcuts-button {
+    @include mat.fab-overrides(
+        (
+            container-shape: 50%,
+        )
+    );
+}
+
+.idp-viewer__issue-page {
+    border: solid rgb(from var(--mat-sys-error) r g b / 0.5);
+    border-radius: 8px;
+}

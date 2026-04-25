@@ -1,0 +1,142 @@
+@if (file) {
+    <div class="hxp-file-uploading-row">
+        <mat-icon
+            *ngIf="mimeType === 'default'"
+            matListItemIcon
+            class="hxp-file-uploading-row__type"
+            svgIcon="add_to_drive"
+        />
+
+        <hxp-mime-type-icon
+            *ngIf="mimeType !== 'default'"
+            [mimeType]="mimeType"
+        />
+
+        <span
+            tabindex="0"
+            class="hxp-file-uploading-row__name"
+            title="{{ file.name }}"
+        >
+            {{ file.name }}
+        </span>
+
+        <span
+            *ngIf="isUploadVersion()"
+            class="hxp-file-uploading-row__version"
+            tabindex="0"
+        >
+            <mat-chip-option
+                [attr.aria-label]="'HXP_FILE_UPLOAD.ARIA-LABEL.VERSION' | translate: { version: versionNumber }"
+                [title]="'version' + versionNumber"
+                disabled
+                >{{ versionNumber }}</mat-chip-option
+            >
+        </span>
+
+        <div
+            tabindex="0"
+            role="button"
+            #toggleIcon="toggleIcon"
+            hxpToggleIcon
+            (keyup.enter)="onCancel(file)"
+            (click)="onCancel(file)"
+            data-automation-id="cancel-upload-progress"
+            *ngIf="isUploading()"
+            [attr.aria-label]="'HXP_FILE_UPLOAD.ARIA-LABEL.STOP_FILE_UPLOAD' | translate: { file: file.name }"
+            class="hxp-file-uploading-row__group hxp-file-uploading-row__group--toggle"
+            title="{{ 'HXP_FILE_UPLOAD.BUTTON.STOP_FILE' | translate }}"
+        >
+            <span
+                class="hxp-file-uploading-row__status"
+                *ngIf="!toggleIcon.isToggled"
+            >
+                {{ file.progress.loaded | adfFileSize }} / {{ file.progress.total | adfFileSize }}
+            </span>
+
+            <mat-icon
+                *ngIf="toggleIcon.isToggled"
+                class="hxp-file-uploading-row__action hxp-file-uploading-row__action--cancel"
+                svgIcon="x_large"
+            />
+        </div>
+
+        <button
+            mat-icon-button
+            hxpToggleIcon
+            #toggleIcon="toggleIcon"
+            *ngIf="isUploadComplete()"
+            class="hxp-file-uploading-row__group"
+            [attr.aria-label]="'HXP_FILE_UPLOAD.ARIA-LABEL.UPLOAD_SUCCESSFUL' | translate: { file: file.name }"
+            title="{{ 'HXP_FILE_UPLOAD.BUTTON.UPLOAD_SUCCESSFUL' | translate }}"
+        >
+            <mat-icon
+                class="hxp-file-uploading-row__status hxp-file-uploading-row__status--done"
+                svgIcon="circle_check"
+            />
+        </button>
+
+        <div
+            *ngIf="isUploadVersionComplete()"
+            class="hxp-file-uploading-row__file-version"
+            [attr.aria-label]="'HXP_FILE_UPLOAD.STATUS.FILE_DONE_STATUS' | translate"
+            role="status"
+        >
+            <mat-icon
+                matListItemIcon
+                class="hxp-file-uploading-row__status--done"
+                svgIcon="circle_check"
+            />
+        </div>
+
+        <button
+            hxpToggleIcon
+            #toggleIconCancel="toggleIcon"
+            mat-icon-button
+            *ngIf="canCancelUpload()"
+            (click)="onCancel(file)"
+            data-automation-id="cancel-upload-queue"
+            class="hxp-file-uploading-row__group"
+            title="{{ 'HXP_FILE_UPLOAD.BUTTON.STOP_FILE' | translate }}"
+            [attr.aria-label]="'HXP_FILE_UPLOAD.ARIA-LABEL.STOP_FILE' | translate: { file: file.name }"
+        >
+            <mat-icon
+                *ngIf="!toggleIconCancel.isToggled"
+                class="hxp-file-uploading-row__status hxp-file-uploading-row__status--pending"
+                svgIcon="schedule"
+            />
+
+            <mat-icon
+                *ngIf="toggleIconCancel.isToggled"
+                class="hxp-file-uploading-row__action hxp-file-uploading-row__action--remove"
+                svgIcon="circle_minus"
+            />
+        </button>
+
+        <div
+            tabindex="0"
+            role="status"
+            *ngIf="isUploadError()"
+            class="hxp-file-uploading-row__block hxp-file-uploading-row__status--error"
+        >
+            <mat-icon
+                matListItemIcon
+                [attr.aria-label]="
+                    'HXP_FILE_UPLOAD.ARIA-LABEL.UPLOAD_FILE_ERROR'
+                        | translate: { error: file.errorCode !== null ? (file.errorCode | hxpFileUploadError) : '' }
+                "
+                [matTooltip]="file.errorCode !== null ? (file.errorCode | hxpFileUploadError) : ''"
+                svgIcon="report_problem"
+            />
+        </div>
+
+        <div
+            tabindex="0"
+            [attr.aria-label]="'HXP_FILE_UPLOAD.STATUS.FILE_CANCELED_STATUS' | translate"
+            role="status"
+            *ngIf="showCancelledStatus()"
+            class="hxp-file-uploading-row__block hxp-file-uploading-row__status--cancelled"
+        >
+            {{ 'HXP_FILE_UPLOAD.STATUS.FILE_CANCELED_STATUS' | translate }}
+        </div>
+    </div>
+}

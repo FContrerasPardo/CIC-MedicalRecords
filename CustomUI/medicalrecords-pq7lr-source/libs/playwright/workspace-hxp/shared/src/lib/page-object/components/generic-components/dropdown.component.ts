@@ -1,0 +1,30 @@
+/*
+ * Copyright 2005-2026 Hyland Software, Inc. and its affiliates. All rights reserved.
+ * License rights for this program may be obtained from Hyland Software, Inc. and its affiliates.
+ * pursuant to a written agreement and any use of this program without such an
+ * agreement is prohibited.
+ */
+
+import { BaseComponent } from '@alfresco-dbp/playwright/shared';
+import { Page } from '@playwright/test';
+
+export class DropdownComponent extends BaseComponent {
+    private static rootElement = '.adf-dropdown-widget';
+    constructor(page: Page) {
+        super(page, DropdownComponent.rootElement);
+    }
+
+    executorDropdown = this.getChild('#executorDropdown');
+    dropdownOptions = this.page.locator('[role="option"]');
+    getDropdownById = (id: string) => this.getChild(`#${id}`);
+
+    async selectOptionById(optionId: string): Promise<void> {
+        await this.executorDropdown.click();
+        await this.page.locator(`#${optionId}`).click();
+    }
+
+    async selectOptionByText(optionText: string): Promise<void> {
+        await this.executorDropdown.click();
+        await this.page.locator(`text=${optionText}`).click();
+    }
+}

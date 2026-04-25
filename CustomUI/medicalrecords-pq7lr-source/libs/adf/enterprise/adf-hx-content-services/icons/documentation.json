@@ -1,0 +1,694 @@
+{
+    "pipes": [],
+    "interfaces": [],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [
+        {
+            "name": "FolderIconComponent",
+            "id": "component-FolderIconComponent-4579cf6b397061c5f6a93fbb3498348559a371844dac2a7d6526b688231e121d47445136324a0fadee964f3e627cbf47bd5a50c1c2997a4afe2f927f8dc81971",
+            "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "hxp-folder-icon",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./folder-icon.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "isExpanded",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 1247,
+                            "end": 1268,
+                            "kind": 344,
+                            "id": 0,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "tagName": {
+                                "pos": 1248,
+                                "end": 1252,
+                                "kind": 80,
+                                "id": 0,
+                                "flags": 16842752,
+                                "transformFlags": 0,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 1253,
+                                "end": 1262,
+                                "kind": 309,
+                                "id": 0,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "type": {
+                                    "pos": 1254,
+                                    "end": 1261,
+                                    "kind": 136,
+                                    "id": 0,
+                                    "flags": 16777216,
+                                    "transformFlags": 1
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nIndicates whether the folder is expanded.\n",
+                    "description": "<p>Indicates whether the folder is expanded.</p>\n",
+                    "line": 47,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MimeTypeIconComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "<p>Component representing a folder icon.</p>\n<p>To use the <code>FolderIconComponent</code>, you need first to import the component in your module</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-ts\">import { FolderIconComponent } from &#39;&#64;alfresco/adf-hx-content-services/icons&#39;;\n&#64;NgModule({\n    imports: [\n        FolderIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}</code></pre></div><p>Then use it in your Angular template as shown in the example below:</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-html\">&lt;hxp-folder-icon [isExpanded]=&quot;false&quot;&gt;&lt;/hxp-folder-icon&gt;</code></pre></div>",
+            "rawdescription": "\n\nComponent representing a folder icon.\n\nTo use the `FolderIconComponent`, you need first to import the component in your module\n\n```ts\nimport { FolderIconComponent } from '@alfresco/adf-hx-content-services/icons';\n@NgModule({\n    imports: [\n        FolderIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}\n```\n\nThen use it in your Angular template as shown in the example below:\n\n```html\n<hxp-folder-icon [isExpanded]=\"false\"></hxp-folder-icon>\n```",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\nimport { MimeTypeIconComponent } from '../mime-type-icon/mime-type-icon.component';\nimport { DefaultIcon } from '../configs/icons.config';\n\n/**\n * Component representing a folder icon.\n *\n * To use the `FolderIconComponent`, you need first to import the component in your module\n *\n * ```ts\n * import { FolderIconComponent } from '@alfresco/adf-hx-content-services/icons';\n * @NgModule({\n *     imports: [\n *         FolderIconComponent,\n *         ...\n *     ],\n *    [...]\n * })\n * export class AppModule {}\n * ```\n *\n * Then use it in your Angular template as shown in the example below:\n *\n * @example\n * <hxp-folder-icon [isExpanded]=\"false\"></hxp-folder-icon>\n */\n@Component({\n    selector: 'hxp-folder-icon',\n    templateUrl: './folder-icon.component.html',\n    standalone: true,\n    imports: [MimeTypeIconComponent],\n})\nexport class FolderIconComponent {\n    /**\n     * Indicates whether the folder is expanded.\n     * @type {boolean}\n     */\n    @Input()\n    isExpanded = false;\n\n    protected readonly folderIcon: DefaultIcon = 'folder';\n    protected readonly openFolderIcon: DefaultIcon = 'openFolder';\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<hxp-mime-type-icon\n    [mimeType]=\"isExpanded ? openFolderIcon : folderIcon\"\n/>\n"
+        },
+        {
+            "name": "MimeTypeIconComponent",
+            "id": "component-MimeTypeIconComponent-347a0a3999fdc874f804af1ee255f3c52b31b6d2b78c80c923323099fa1a006d3895dd4e449485f1ce84ef3908ce8de8e9fb6bea21f1eb3e323252c5c2002451",
+            "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": "{ provide: AdfThumbnailService, useClass: ThumbnailService }",
+                    "type": "injectable"
+                }
+            ],
+            "selector": "hxp-mime-type-icon",
+            "styleUrls": [
+                "./mime-type-icon.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./mime-type-icon.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "mimeType",
+                    "defaultValue": "DefaultIcon.UNKNOWN",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 1527,
+                            "end": 6168,
+                            "kind": 344,
+                            "id": 0,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "tagName": {
+                                "pos": 1528,
+                                "end": 1532,
+                                "kind": 80,
+                                "id": 0,
+                                "flags": 16842752,
+                                "transformFlags": 0,
+                                "escapedText": "type"
+                            },
+                            "comment": "<details>\n<summary>Supported mime types</summary>\n\n<ul>\n<li>&#39;image/png&#39;</li>\n<li>&#39;image/jpeg&#39;</li>\n<li>&#39;image/gif&#39;</li>\n<li>&#39;image/bmp&#39;</li>\n<li>&#39;image/cgm&#39;</li>\n<li>&#39;image/ief&#39;</li>\n<li>&#39;image/jp2&#39;</li>\n<li>&#39;image/tiff&#39;</li>\n<li>&#39;image/vnd.adobe.photoshop&#39;</li>\n<li>&#39;image/vnd.adobe.premiere&#39;</li>\n<li>&#39;image/x-cmu-raster&#39;</li>\n<li>&#39;image/x-dwt&#39;</li>\n<li>&#39;image/x-portable-anymap&#39;</li>\n<li>&#39;image/x-portable-bitmap&#39;</li>\n<li>&#39;image/x-portable-graymap&#39;</li>\n<li>&#39;image/x-portable-pixmap&#39;</li>\n<li>&#39;image/x-raw-adobe&#39;</li>\n<li>&#39;image/x-raw-canon&#39;</li>\n<li>&#39;image/x-raw-fuji&#39;</li>\n<li>&#39;image/x-raw-hasselblad&#39;</li>\n<li>&#39;image/x-raw-kodak&#39;</li>\n<li>&#39;image/x-raw-leica&#39;</li>\n<li>&#39;image/x-raw-minolta&#39;</li>\n<li>&#39;image/x-raw-nikon&#39;</li>\n<li>&#39;image/x-raw-olympus&#39;</li>\n<li>&#39;image/x-raw-panasonic&#39;</li>\n<li>&#39;image/x-raw-pentax&#39;</li>\n<li>&#39;image/x-raw-red&#39;</li>\n<li>&#39;image/x-raw-sigma&#39;</li>\n<li>&#39;image/x-raw-sony&#39;</li>\n<li>&#39;image/x-xbitmap&#39;</li>\n<li>&#39;image/x-xpixmap&#39;</li>\n<li>&#39;image/x-xwindowdump&#39;</li>\n<li>&#39;image/svg+xml&#39;</li>\n<li>&#39;application/eps&#39;</li>\n<li>&#39;application/illustrator&#39;</li>\n<li>&#39;application/pdf&#39;</li>\n<li>&#39;application/vnd.ms-excel&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.spreadsheetml.template&#39;</li>\n<li>&#39;application/vnd.ms-excel.addin.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.sheet.binary.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.sheet.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.template.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.sun.xml.calc&#39;</li>\n<li>&#39;application/vnd.sun.xml.calc.template&#39;</li>\n<li>&#39;application/vnd.ms-outlook&#39;</li>\n<li>&#39;application/msword&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.template&#39;</li>\n<li>&#39;application/vnd.ms-word.document.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-word.template.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.sun.xml.writer&#39;</li>\n<li>&#39;application/vnd.sun.xml.writer.template&#39;</li>\n<li>&#39;application/rtf&#39;</li>\n<li>&#39;text/rtf&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.template&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.slideshow&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.presentation&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.presentation-template&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.slide&#39;</li>\n<li>&#39;application/vnd.sun.xml.impress&#39;</li>\n<li>&#39;application/vnd.sun.xml.impress.template&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.spreadsheet&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.spreadsheet-template&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.addin.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.presentation.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.slide.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.slideshow.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.template.macroenabled.12&#39;</li>\n<li>&#39;video/mp4&#39;</li>\n<li>&#39;video/3gpp&#39;</li>\n<li>&#39;video/3gpp2&#39;</li>\n<li>&#39;video/mp2t&#39;</li>\n<li>&#39;video/mpeg&#39;</li>\n<li>&#39;video/mpeg2&#39;</li>\n<li>&#39;video/ogg&#39;</li>\n<li>&#39;video/quicktime&#39;</li>\n<li>&#39;video/webm&#39;</li>\n<li>&#39;video/x-flv&#39;</li>\n<li>&#39;video/x-m4v&#39;</li>\n<li>&#39;video/x-ms-asf&#39;</li>\n<li>&#39;video/x-ms-wmv&#39;</li>\n<li>&#39;video/x-msvideo&#39;</li>\n<li>&#39;video/x-rad-screenplay&#39;</li>\n<li>&#39;video/x-sgi-movie&#39;</li>\n<li>&#39;video/x-matroska&#39;</li>\n<li>&#39;audio/mpeg&#39;</li>\n<li>&#39;audio/ogg&#39;</li>\n<li>&#39;audio/wav&#39;</li>\n<li>&#39;audio/basic&#39;</li>\n<li>&#39;audio/mp3&#39;</li>\n<li>&#39;audio/mp4&#39;</li>\n<li>&#39;audio/vnd.adobe.soundbooth&#39;</li>\n<li>&#39;audio/vorbis&#39;</li>\n<li>&#39;audio/x-aiff&#39;</li>\n<li>&#39;audio/x-flac&#39;</li>\n<li>&#39;audio/x-ms-wma&#39;</li>\n<li>&#39;audio/x-wav&#39;</li>\n<li>&#39;x-world/x-vrml&#39;</li>\n<li>&#39;text/plain&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.text&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.text-template&#39;</li>\n<li>&#39;application/x-javascript&#39;</li>\n<li>&#39;application/json&#39;</li>\n<li>&#39;text/csv&#39;</li>\n<li>&#39;text/xml&#39;</li>\n<li>&#39;text/html&#39;</li>\n<li>&#39;text/css&#39;</li>\n<li>&#39;application/x-compressed&#39;</li>\n<li>&#39;application/x-zip-compressed&#39;</li>\n<li>&#39;application/zip&#39;</li>\n<li>&#39;application/x-tar&#39;</li>\n<li>&#39;application/vnd.apple.keynote&#39;</li>\n<li>&#39;application/vnd.apple.pages&#39;</li>\n<li>&#39;application/vnd.apple.numbers&#39;</li>\n<li>&#39;application/vnd.visio&#39;</li>\n<li>&#39;application/wordperfect&#39;</li>\n<li>&#39;application/x-cpio&#39;</li>\n<li>&#39;multipart/related&#39;</li>\n</ul>\n</details>",
+                            "typeExpression": {
+                                "pos": 1533,
+                                "end": 1541,
+                                "kind": 309,
+                                "id": 0,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "type": {
+                                    "pos": 1534,
+                                    "end": 1540,
+                                    "kind": 154,
+                                    "id": 0,
+                                    "flags": 16777216,
+                                    "transformFlags": 1
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nA string representing a valid mime type.\n\n<details>\n<summary>Supported mime types</summary>\n\n- 'image/png'\n- 'image/jpeg'\n- 'image/gif'\n- 'image/bmp'\n- 'image/cgm'\n- 'image/ief'\n- 'image/jp2'\n- 'image/tiff'\n- 'image/vnd.adobe.photoshop'\n- 'image/vnd.adobe.premiere'\n- 'image/x-cmu-raster'\n- 'image/x-dwt'\n- 'image/x-portable-anymap'\n- 'image/x-portable-bitmap'\n- 'image/x-portable-graymap'\n- 'image/x-portable-pixmap'\n- 'image/x-raw-adobe'\n- 'image/x-raw-canon'\n- 'image/x-raw-fuji'\n- 'image/x-raw-hasselblad'\n- 'image/x-raw-kodak'\n- 'image/x-raw-leica'\n- 'image/x-raw-minolta'\n- 'image/x-raw-nikon'\n- 'image/x-raw-olympus'\n- 'image/x-raw-panasonic'\n- 'image/x-raw-pentax'\n- 'image/x-raw-red'\n- 'image/x-raw-sigma'\n- 'image/x-raw-sony'\n- 'image/x-xbitmap'\n- 'image/x-xpixmap'\n- 'image/x-xwindowdump'\n- 'image/svg+xml'\n- 'application/eps'\n- 'application/illustrator'\n- 'application/pdf'\n- 'application/vnd.ms-excel'\n- 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'\n- 'application/vnd.openxmlformats-officedocument.spreadsheetml.template'\n- 'application/vnd.ms-excel.addin.macroenabled.12'\n- 'application/vnd.ms-excel.sheet.binary.macroenabled.12'\n- 'application/vnd.ms-excel.sheet.macroenabled.12'\n- 'application/vnd.ms-excel.template.macroenabled.12'\n- 'application/vnd.sun.xml.calc'\n- 'application/vnd.sun.xml.calc.template'\n- 'application/vnd.ms-outlook'\n- 'application/msword'\n- 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'\n- 'application/vnd.openxmlformats-officedocument.wordprocessingml.template'\n- 'application/vnd.ms-word.document.macroenabled.12'\n- 'application/vnd.ms-word.template.macroenabled.12'\n- 'application/vnd.sun.xml.writer'\n- 'application/vnd.sun.xml.writer.template'\n- 'application/rtf'\n- 'text/rtf'\n- 'application/vnd.ms-powerpoint'\n- 'application/vnd.openxmlformats-officedocument.presentationml.presentation'\n- 'application/vnd.openxmlformats-officedocument.presentationml.template'\n- 'application/vnd.openxmlformats-officedocument.presentationml.slideshow'\n- 'application/vnd.oasis.opendocument.presentation'\n- 'application/vnd.oasis.opendocument.presentation-template'\n- 'application/vnd.openxmlformats-officedocument.presentationml.slide'\n- 'application/vnd.sun.xml.impress'\n- 'application/vnd.sun.xml.impress.template'\n- 'application/vnd.oasis.opendocument.spreadsheet'\n- 'application/vnd.oasis.opendocument.spreadsheet-template'\n- 'application/vnd.ms-powerpoint.addin.macroenabled.12'\n- 'application/vnd.ms-powerpoint.presentation.macroenabled.12'\n- 'application/vnd.ms-powerpoint.slide.macroenabled.12'\n- 'application/vnd.ms-powerpoint.slideshow.macroenabled.12'\n- 'application/vnd.ms-powerpoint.template.macroenabled.12'\n- 'video/mp4'\n- 'video/3gpp'\n- 'video/3gpp2'\n- 'video/mp2t'\n- 'video/mpeg'\n- 'video/mpeg2'\n- 'video/ogg'\n- 'video/quicktime'\n- 'video/webm'\n- 'video/x-flv'\n- 'video/x-m4v'\n- 'video/x-ms-asf'\n- 'video/x-ms-wmv'\n- 'video/x-msvideo'\n- 'video/x-rad-screenplay'\n- 'video/x-sgi-movie'\n- 'video/x-matroska'\n- 'audio/mpeg'\n- 'audio/ogg'\n- 'audio/wav'\n- 'audio/basic'\n- 'audio/mp3'\n- 'audio/mp4'\n- 'audio/vnd.adobe.soundbooth'\n- 'audio/vorbis'\n- 'audio/x-aiff'\n- 'audio/x-flac'\n- 'audio/x-ms-wma'\n- 'audio/x-wav'\n- 'x-world/x-vrml'\n- 'text/plain'\n- 'application/vnd.oasis.opendocument.text'\n- 'application/vnd.oasis.opendocument.text-template'\n- 'application/x-javascript'\n- 'application/json'\n- 'text/csv'\n- 'text/xml'\n- 'text/html'\n- 'text/css'\n- 'application/x-compressed'\n- 'application/x-zip-compressed'\n- 'application/zip'\n- 'application/x-tar'\n- 'application/vnd.apple.keynote'\n- 'application/vnd.apple.pages'\n- 'application/vnd.apple.numbers'\n- 'application/vnd.visio'\n- 'application/wordperfect'\n- 'application/x-cpio'\n- 'multipart/related'\n\n</details>\n\n\n",
+                    "description": "<p>A string representing a valid mime type.</p>\n<details>\n<summary>Supported mime types</summary>\n\n<ul>\n<li>&#39;image/png&#39;</li>\n<li>&#39;image/jpeg&#39;</li>\n<li>&#39;image/gif&#39;</li>\n<li>&#39;image/bmp&#39;</li>\n<li>&#39;image/cgm&#39;</li>\n<li>&#39;image/ief&#39;</li>\n<li>&#39;image/jp2&#39;</li>\n<li>&#39;image/tiff&#39;</li>\n<li>&#39;image/vnd.adobe.photoshop&#39;</li>\n<li>&#39;image/vnd.adobe.premiere&#39;</li>\n<li>&#39;image/x-cmu-raster&#39;</li>\n<li>&#39;image/x-dwt&#39;</li>\n<li>&#39;image/x-portable-anymap&#39;</li>\n<li>&#39;image/x-portable-bitmap&#39;</li>\n<li>&#39;image/x-portable-graymap&#39;</li>\n<li>&#39;image/x-portable-pixmap&#39;</li>\n<li>&#39;image/x-raw-adobe&#39;</li>\n<li>&#39;image/x-raw-canon&#39;</li>\n<li>&#39;image/x-raw-fuji&#39;</li>\n<li>&#39;image/x-raw-hasselblad&#39;</li>\n<li>&#39;image/x-raw-kodak&#39;</li>\n<li>&#39;image/x-raw-leica&#39;</li>\n<li>&#39;image/x-raw-minolta&#39;</li>\n<li>&#39;image/x-raw-nikon&#39;</li>\n<li>&#39;image/x-raw-olympus&#39;</li>\n<li>&#39;image/x-raw-panasonic&#39;</li>\n<li>&#39;image/x-raw-pentax&#39;</li>\n<li>&#39;image/x-raw-red&#39;</li>\n<li>&#39;image/x-raw-sigma&#39;</li>\n<li>&#39;image/x-raw-sony&#39;</li>\n<li>&#39;image/x-xbitmap&#39;</li>\n<li>&#39;image/x-xpixmap&#39;</li>\n<li>&#39;image/x-xwindowdump&#39;</li>\n<li>&#39;image/svg+xml&#39;</li>\n<li>&#39;application/eps&#39;</li>\n<li>&#39;application/illustrator&#39;</li>\n<li>&#39;application/pdf&#39;</li>\n<li>&#39;application/vnd.ms-excel&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.spreadsheetml.template&#39;</li>\n<li>&#39;application/vnd.ms-excel.addin.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.sheet.binary.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.sheet.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-excel.template.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.sun.xml.calc&#39;</li>\n<li>&#39;application/vnd.sun.xml.calc.template&#39;</li>\n<li>&#39;application/vnd.ms-outlook&#39;</li>\n<li>&#39;application/msword&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.template&#39;</li>\n<li>&#39;application/vnd.ms-word.document.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-word.template.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.sun.xml.writer&#39;</li>\n<li>&#39;application/vnd.sun.xml.writer.template&#39;</li>\n<li>&#39;application/rtf&#39;</li>\n<li>&#39;text/rtf&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.template&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.slideshow&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.presentation&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.presentation-template&#39;</li>\n<li>&#39;application/vnd.openxmlformats-officedocument.presentationml.slide&#39;</li>\n<li>&#39;application/vnd.sun.xml.impress&#39;</li>\n<li>&#39;application/vnd.sun.xml.impress.template&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.spreadsheet&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.spreadsheet-template&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.addin.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.presentation.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.slide.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.slideshow.macroenabled.12&#39;</li>\n<li>&#39;application/vnd.ms-powerpoint.template.macroenabled.12&#39;</li>\n<li>&#39;video/mp4&#39;</li>\n<li>&#39;video/3gpp&#39;</li>\n<li>&#39;video/3gpp2&#39;</li>\n<li>&#39;video/mp2t&#39;</li>\n<li>&#39;video/mpeg&#39;</li>\n<li>&#39;video/mpeg2&#39;</li>\n<li>&#39;video/ogg&#39;</li>\n<li>&#39;video/quicktime&#39;</li>\n<li>&#39;video/webm&#39;</li>\n<li>&#39;video/x-flv&#39;</li>\n<li>&#39;video/x-m4v&#39;</li>\n<li>&#39;video/x-ms-asf&#39;</li>\n<li>&#39;video/x-ms-wmv&#39;</li>\n<li>&#39;video/x-msvideo&#39;</li>\n<li>&#39;video/x-rad-screenplay&#39;</li>\n<li>&#39;video/x-sgi-movie&#39;</li>\n<li>&#39;video/x-matroska&#39;</li>\n<li>&#39;audio/mpeg&#39;</li>\n<li>&#39;audio/ogg&#39;</li>\n<li>&#39;audio/wav&#39;</li>\n<li>&#39;audio/basic&#39;</li>\n<li>&#39;audio/mp3&#39;</li>\n<li>&#39;audio/mp4&#39;</li>\n<li>&#39;audio/vnd.adobe.soundbooth&#39;</li>\n<li>&#39;audio/vorbis&#39;</li>\n<li>&#39;audio/x-aiff&#39;</li>\n<li>&#39;audio/x-flac&#39;</li>\n<li>&#39;audio/x-ms-wma&#39;</li>\n<li>&#39;audio/x-wav&#39;</li>\n<li>&#39;x-world/x-vrml&#39;</li>\n<li>&#39;text/plain&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.text&#39;</li>\n<li>&#39;application/vnd.oasis.opendocument.text-template&#39;</li>\n<li>&#39;application/x-javascript&#39;</li>\n<li>&#39;application/json&#39;</li>\n<li>&#39;text/csv&#39;</li>\n<li>&#39;text/xml&#39;</li>\n<li>&#39;text/html&#39;</li>\n<li>&#39;text/css&#39;</li>\n<li>&#39;application/x-compressed&#39;</li>\n<li>&#39;application/x-zip-compressed&#39;</li>\n<li>&#39;application/zip&#39;</li>\n<li>&#39;application/x-tar&#39;</li>\n<li>&#39;application/vnd.apple.keynote&#39;</li>\n<li>&#39;application/vnd.apple.pages&#39;</li>\n<li>&#39;application/vnd.apple.numbers&#39;</li>\n<li>&#39;application/vnd.visio&#39;</li>\n<li>&#39;application/wordperfect&#39;</li>\n<li>&#39;application/x-cpio&#39;</li>\n<li>&#39;multipart/related&#39;</li>\n</ul>\n</details>\n\n\n",
+                    "line": 182,
+                    "type": "string",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "MimeTypeIconPipe",
+                    "type": "pipe"
+                }
+            ],
+            "description": "<p>Component representing a mime type icon.</p>\n<p>To use the <code>MimeTypeIconComponent</code>, you need first to import the component in your module</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-ts\">import { MimeTypeIconComponent } from &#39;&#64;alfresco/adf-hx-content-services/icons&#39;;\n&#64;NgModule({\n    imports: [\n        MimeTypeIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}</code></pre></div><p>Then use it in your Angular template as shown in the example below:</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-html\">&lt;hxp-mime-type-icon [mimeType]=&quot;&#39;image/png&#39;&quot;&gt;&lt;/hxp-mime-type-icon&gt;</code></pre></div>",
+            "rawdescription": "\n\nComponent representing a mime type icon.\n\nTo use the `MimeTypeIconComponent`, you need first to import the component in your module\n\n```ts\nimport { MimeTypeIconComponent } from '@alfresco/adf-hx-content-services/icons';\n@NgModule({\n    imports: [\n        MimeTypeIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}\n```\n\nThen use it in your Angular template as shown in the example below:\n\n```html\n<hxp-mime-type-icon [mimeType]=\"'image/png'\"></hxp-mime-type-icon>\n```\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\nimport { ThumbnailService as AdfThumbnailService } from '@alfresco/adf-core';\nimport { ThumbnailService } from '../services/thumbnail.service';\nimport { DefaultIcon } from '../configs/icons.config';\nimport { MimeTypeIconPipe } from '../pipes/mime-type-icon.pipe';\n\n/**\n * Component representing a mime type icon.\n *\n * To use the `MimeTypeIconComponent`, you need first to import the component in your module\n *\n * ```ts\n * import { MimeTypeIconComponent } from '@alfresco/adf-hx-content-services/icons';\n * @NgModule({\n *     imports: [\n *         MimeTypeIconComponent,\n *         ...\n *     ],\n *    [...]\n * })\n * export class AppModule {}\n * ```\n *\n * Then use it in your Angular template as shown in the example below:\n *\n * @example\n * <hxp-mime-type-icon [mimeType]=\"'image/png'\"></hxp-mime-type-icon>\n *\n */\n@Component({\n    selector: 'hxp-mime-type-icon',\n    templateUrl: './mime-type-icon.component.html',\n    styleUrls: ['./mime-type-icon.component.scss'],\n    standalone: true,\n    imports: [MimeTypeIconPipe],\n    providers: [{ provide: AdfThumbnailService, useClass: ThumbnailService }],\n})\nexport class MimeTypeIconComponent {\n    /**\n     * A string representing a valid mime type.\n     * @type {string}\n     *\n     * <details>\n     * <summary>Supported mime types</summary>\n     *\n     * - 'image/png'\n     * - 'image/jpeg'\n     * - 'image/gif'\n     * - 'image/bmp'\n     * - 'image/cgm'\n     * - 'image/ief'\n     * - 'image/jp2'\n     * - 'image/tiff'\n     * - 'image/vnd.adobe.photoshop'\n     * - 'image/vnd.adobe.premiere'\n     * - 'image/x-cmu-raster'\n     * - 'image/x-dwt'\n     * - 'image/x-portable-anymap'\n     * - 'image/x-portable-bitmap'\n     * - 'image/x-portable-graymap'\n     * - 'image/x-portable-pixmap'\n     * - 'image/x-raw-adobe'\n     * - 'image/x-raw-canon'\n     * - 'image/x-raw-fuji'\n     * - 'image/x-raw-hasselblad'\n     * - 'image/x-raw-kodak'\n     * - 'image/x-raw-leica'\n     * - 'image/x-raw-minolta'\n     * - 'image/x-raw-nikon'\n     * - 'image/x-raw-olympus'\n     * - 'image/x-raw-panasonic'\n     * - 'image/x-raw-pentax'\n     * - 'image/x-raw-red'\n     * - 'image/x-raw-sigma'\n     * - 'image/x-raw-sony'\n     * - 'image/x-xbitmap'\n     * - 'image/x-xpixmap'\n     * - 'image/x-xwindowdump'\n     * - 'image/svg+xml'\n     * - 'application/eps'\n     * - 'application/illustrator'\n     * - 'application/pdf'\n     * - 'application/vnd.ms-excel'\n     * - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'\n     * - 'application/vnd.openxmlformats-officedocument.spreadsheetml.template'\n     * - 'application/vnd.ms-excel.addin.macroenabled.12'\n     * - 'application/vnd.ms-excel.sheet.binary.macroenabled.12'\n     * - 'application/vnd.ms-excel.sheet.macroenabled.12'\n     * - 'application/vnd.ms-excel.template.macroenabled.12'\n     * - 'application/vnd.sun.xml.calc'\n     * - 'application/vnd.sun.xml.calc.template'\n     * - 'application/vnd.ms-outlook'\n     * - 'application/msword'\n     * - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'\n     * - 'application/vnd.openxmlformats-officedocument.wordprocessingml.template'\n     * - 'application/vnd.ms-word.document.macroenabled.12'\n     * - 'application/vnd.ms-word.template.macroenabled.12'\n     * - 'application/vnd.sun.xml.writer'\n     * - 'application/vnd.sun.xml.writer.template'\n     * - 'application/rtf'\n     * - 'text/rtf'\n     * - 'application/vnd.ms-powerpoint'\n     * - 'application/vnd.openxmlformats-officedocument.presentationml.presentation'\n     * - 'application/vnd.openxmlformats-officedocument.presentationml.template'\n     * - 'application/vnd.openxmlformats-officedocument.presentationml.slideshow'\n     * - 'application/vnd.oasis.opendocument.presentation'\n     * - 'application/vnd.oasis.opendocument.presentation-template'\n     * - 'application/vnd.openxmlformats-officedocument.presentationml.slide'\n     * - 'application/vnd.sun.xml.impress'\n     * - 'application/vnd.sun.xml.impress.template'\n     * - 'application/vnd.oasis.opendocument.spreadsheet'\n     * - 'application/vnd.oasis.opendocument.spreadsheet-template'\n     * - 'application/vnd.ms-powerpoint.addin.macroenabled.12'\n     * - 'application/vnd.ms-powerpoint.presentation.macroenabled.12'\n     * - 'application/vnd.ms-powerpoint.slide.macroenabled.12'\n     * - 'application/vnd.ms-powerpoint.slideshow.macroenabled.12'\n     * - 'application/vnd.ms-powerpoint.template.macroenabled.12'\n     * - 'video/mp4'\n     * - 'video/3gpp'\n     * - 'video/3gpp2'\n     * - 'video/mp2t'\n     * - 'video/mpeg'\n     * - 'video/mpeg2'\n     * - 'video/ogg'\n     * - 'video/quicktime'\n     * - 'video/webm'\n     * - 'video/x-flv'\n     * - 'video/x-m4v'\n     * - 'video/x-ms-asf'\n     * - 'video/x-ms-wmv'\n     * - 'video/x-msvideo'\n     * - 'video/x-rad-screenplay'\n     * - 'video/x-sgi-movie'\n     * - 'video/x-matroska'\n     * - 'audio/mpeg'\n     * - 'audio/ogg'\n     * - 'audio/wav'\n     * - 'audio/basic'\n     * - 'audio/mp3'\n     * - 'audio/mp4'\n     * - 'audio/vnd.adobe.soundbooth'\n     * - 'audio/vorbis'\n     * - 'audio/x-aiff'\n     * - 'audio/x-flac'\n     * - 'audio/x-ms-wma'\n     * - 'audio/x-wav'\n     * - 'x-world/x-vrml'\n     * - 'text/plain'\n     * - 'application/vnd.oasis.opendocument.text'\n     * - 'application/vnd.oasis.opendocument.text-template'\n     * - 'application/x-javascript'\n     * - 'application/json'\n     * - 'text/csv'\n     * - 'text/xml'\n     * - 'text/html'\n     * - 'text/css'\n     * - 'application/x-compressed'\n     * - 'application/x-zip-compressed'\n     * - 'application/zip'\n     * - 'application/x-tar'\n     * - 'application/vnd.apple.keynote'\n     * - 'application/vnd.apple.pages'\n     * - 'application/vnd.apple.numbers'\n     * - 'application/vnd.visio'\n     * - 'application/wordperfect'\n     * - 'application/x-cpio'\n     * - 'multipart/related'\n     *\n     * </details>\n     *\n     *\n     */\n    @Input()\n    mimeType: string = DefaultIcon.UNKNOWN;\n\n    constructor(\n        // ThumbnailService is required to display icons\n        // eslint-disable-next-line @typescript-eslint/no-unused-vars\n        thumbnailService: ThumbnailService\n    ) {}\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "img {\n    all: inherit;\n}\n",
+                    "styleUrl": "./mime-type-icon.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "thumbnailService",
+                        "type": "ThumbnailService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 182,
+                "jsdoctags": [
+                    {
+                        "name": "thumbnailService",
+                        "type": "ThumbnailService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "<img [src]=\"mimeType | hxpMimeTypeIcon\" [alt]=\"mimeType\" />\n"
+        },
+        {
+            "name": "SearchActionIconComponent",
+            "id": "component-SearchActionIconComponent-d6a1a3517398e56df829639e4b1e697b5b674428c3a9f13f61a7e909d779fe74f2274c80f357e93903f519d33617fbd6dba8eec0bc6207fbd72cfdc121daf47d",
+            "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "hxp-search-action-icon",
+            "styleUrls": [
+                "./search-action-icon.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./search-action-icon.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "actionAlt",
+                    "defaultValue": "''",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 1609,
+                            "end": 1636,
+                            "kind": 344,
+                            "id": 0,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "tagName": {
+                                "pos": 1610,
+                                "end": 1614,
+                                "kind": 80,
+                                "id": 0,
+                                "flags": 16842752,
+                                "transformFlags": 0,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 1615,
+                                "end": 1623,
+                                "kind": 309,
+                                "id": 0,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "type": {
+                                    "pos": 1616,
+                                    "end": 1622,
+                                    "kind": 154,
+                                    "id": 0,
+                                    "flags": 16777216,
+                                    "transformFlags": 1
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nA custom text for HTML <img> alt attribute.\n\n",
+                    "description": "<p>A custom text for HTML <img> alt attribute.</p>\n",
+                    "line": 59,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "actionIcon",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 1447,
+                            "end": 1469,
+                            "kind": 344,
+                            "id": 0,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "tagName": {
+                                "pos": 1448,
+                                "end": 1452,
+                                "kind": 80,
+                                "id": 0,
+                                "flags": 16842752,
+                                "transformFlags": 0,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 1453,
+                                "end": 1461,
+                                "kind": 309,
+                                "id": 0,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "type": {
+                                    "pos": 1454,
+                                    "end": 1460,
+                                    "kind": 154,
+                                    "id": 0,
+                                    "flags": 16777216,
+                                    "transformFlags": 1
+                                }
+                            }
+                        },
+                        {
+                            "pos": 1469,
+                            "end": 1499,
+                            "kind": 327,
+                            "id": 0,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "tagName": {
+                                "pos": 1470,
+                                "end": 1477,
+                                "kind": 80,
+                                "id": 0,
+                                "flags": 16842752,
+                                "transformFlags": 0,
+                                "escapedText": "default"
+                            },
+                            "comment": "<p>&#39;SEARCH&#39;</p>\n"
+                        }
+                    ],
+                    "rawdescription": "\n\nIcon to display: `SEARCH` or `CLEAR`.\n\n",
+                    "description": "<p>Icon to display: <code>SEARCH</code> or <code>CLEAR</code>.</p>\n",
+                    "line": 52,
+                    "type": "SearchIcon",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "<p>Component representing a search action icon.</p>\n<p>To use the <code>SearchActionIconComponent</code>, you need first to import the component in your module</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-ts\">import { SearchActionIconComponent } from &#39;&#64;alfresco/adf-hx-content-services/icons&#39;;\n&#64;NgModule({\n    imports: [\n        SearchActionIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}</code></pre></div><p>Then use it in your Angular template as shown in the example below:</p>\n<b>Example :</b><div><pre class=\"line-numbers\"><code class=\"language-html\"> &lt;hxp-search-action-icon&gt;&lt;/hxp-search-action-icon&gt;</code></pre></div>",
+            "rawdescription": "\n\nComponent representing a search action icon.\n\nTo use the `SearchActionIconComponent`, you need first to import the component in your module\n\n```ts\nimport { SearchActionIconComponent } from '@alfresco/adf-hx-content-services/icons';\n@NgModule({\n    imports: [\n        SearchActionIconComponent,\n        ...\n    ],\n   [...]\n})\nexport class AppModule {}\n```\n\nThen use it in your Angular template as shown in the example below:\n\n```html\n <hxp-search-action-icon></hxp-search-action-icon>\n```\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, OnChanges } from '@angular/core';\nimport { SearchIcon, SearchIconAssets } from '../configs/search-icons.config';\nimport { TranslateService } from '@ngx-translate/core';\nimport { MatIconRegistry } from '@angular/material/icon';\nimport { DomSanitizer } from '@angular/platform-browser';\n\n/**\n * Component representing a search action icon.\n *\n * To use the `SearchActionIconComponent`, you need first to import the component in your module\n *\n * ```ts\n * import { SearchActionIconComponent } from '@alfresco/adf-hx-content-services/icons';\n * @NgModule({\n *     imports: [\n *         SearchActionIconComponent,\n *         ...\n *     ],\n *    [...]\n * })\n * export class AppModule {}\n * ```\n *\n * Then use it in your Angular template as shown in the example below:\n *\n * @example\n *  <hxp-search-action-icon></hxp-search-action-icon>\n *\n */\n@Component({\n    selector: 'hxp-search-action-icon',\n    templateUrl: './search-action-icon.component.html',\n    styleUrls: ['./search-action-icon.component.scss'],\n    standalone: true,\n})\nexport class SearchActionIconComponent implements OnChanges {\n    /**\n     * Icon to display: `SEARCH` or `CLEAR`.\n     * @type {string}\n     * @default 'SEARCH'\n     *\n     */\n    @Input()\n    actionIcon: SearchIcon;\n    /**\n     * A custom text for HTML <img> alt attribute.\n     * @type {string}\n     *\n     */\n    @Input()\n    actionAlt = '';\n\n    protected alt = '';\n    protected iconAssetPath: string;\n\n    constructor(private translateService: TranslateService, private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {\n        this.actionIcon = 'SEARCH';\n        this.iconAssetPath = SearchIconAssets[this.actionIcon];\n        const icons: Record<string, string> = {\n            search_calendar: 'assets/search-icons/Calendar_search.svg',\n            search_clear: 'assets/search-icons/Clear.svg',\n            search_glass: 'assets/search-icons/Search.svg',\n            search_arrow_left: 'assets/search-icons/Arrow_left.svg',\n            repository_search: 'assets/search-icons/Repository_search.svg',\n        };\n\n        for (const [iconName, iconPath] of Object.entries(icons)) {\n            this.matIconRegistry.addSvgIcon(iconName, this.domSanitizer.bypassSecurityTrustResourceUrl(iconPath));\n        }\n    }\n\n    ngOnChanges() {\n        this.iconAssetPath = SearchIconAssets[this.actionIcon];\n        this.alt =\n            this.actionAlt ||\n            (this.actionIcon === 'SEARCH'\n                ? this.translateService.instant('SEARCH.ICON.SEARCH')\n                : this.translateService.instant('SEARCH.ICON.CLEAR_INPUT'));\n    }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "img {\n    display: block;\n}\n",
+                    "styleUrl": "./search-action-icon.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "translateService",
+                        "type": "TranslateService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "matIconRegistry",
+                        "type": "MatIconRegistry",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "domSanitizer",
+                        "type": "DomSanitizer",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 62,
+                "jsdoctags": [
+                    {
+                        "name": "translateService",
+                        "type": "TranslateService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "matIconRegistry",
+                        "type": "MatIconRegistry",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "domSanitizer",
+                        "type": "DomSanitizer",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "implements": [
+                "OnChanges"
+            ],
+            "templateData": "<img [src]=\"iconAssetPath\" [alt]=\"alt\">\n"
+        }
+    ],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "AlternativeText",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionAlt: 'A custom text for HTML <img> alt attribute',\n    },\n}"
+            },
+            {
+                "name": "Clear",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionIcon: 'CLEAR',\n    },\n}"
+            },
+            {
+                "name": "config",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/.storybook/main.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "StorybookConfig",
+                "defaultValue": "{\n    stories: ['../**/*.stories.@(js|jsx|ts|tsx)'],\n    addons: ['@storybook/addon-essentials'],\n\n    staticDirs: [{ from: '../assets', to: '/assets' }],\n\n    framework: {\n        name: '@storybook/angular',\n        options: {},\n    },\n\n    docs: {\n        autodocs: true,\n    },\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Expanded",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: FolderIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        isExpanded: true,\n    },\n}"
+            },
+            {
+                "name": "MimeTypeIcon",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: MimeTypeIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        mimeType: 'image/png',\n    },\n}"
+            },
+            {
+                "name": "mimeTypeIcons",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Record<string, string>",
+                "defaultValue": "{\n    [DefaultIcon.UNKNOWN]: './assets/images/Generic.svg',\n    ...mimeTypeLinkedImages,\n}"
+            },
+            {
+                "name": "NotExpanded",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: FolderIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        isExpanded: false,\n    },\n}"
+            },
+            {
+                "name": "Search",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionIcon: 'SEARCH',\n    },\n}"
+            },
+            {
+                "name": "UnknownMimeType",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n    render: (args: MimeTypeIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        mimeType: DefaultIcon.UNKNOWN,\n    },\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [],
+        "enumerations": [],
+        "groupedVariables": {
+            "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts": [
+                {
+                    "name": "AlternativeText",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionAlt: 'A custom text for HTML <img> alt attribute',\n    },\n}"
+                },
+                {
+                    "name": "Clear",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionIcon: 'CLEAR',\n    },\n}"
+                },
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "Search",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/search-action-icon/search-action-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: SearchActionIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        actionIcon: 'SEARCH',\n    },\n}"
+                }
+            ],
+            "libs/adf/enterprise/adf-hx-content-services/icons/.storybook/main.ts": [
+                {
+                    "name": "config",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/.storybook/main.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "StorybookConfig",
+                    "defaultValue": "{\n    stories: ['../**/*.stories.@(js|jsx|ts|tsx)'],\n    addons: ['@storybook/addon-essentials'],\n\n    staticDirs: [{ from: '../assets', to: '/assets' }],\n\n    framework: {\n        name: '@storybook/angular',\n        options: {},\n    },\n\n    docs: {\n        autodocs: true,\n    },\n}"
+                }
+            ],
+            "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts": [
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "Expanded",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: FolderIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        isExpanded: true,\n    },\n}"
+                },
+                {
+                    "name": "NotExpanded",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/folder-icon/folder-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: FolderIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        isExpanded: false,\n    },\n}"
+                }
+            ],
+            "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts": [
+                {
+                    "name": "MimeTypeIcon",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: MimeTypeIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        mimeType: 'image/png',\n    },\n}"
+                },
+                {
+                    "name": "mimeTypeIcons",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Record<string, string>",
+                    "defaultValue": "{\n    [DefaultIcon.UNKNOWN]: './assets/images/Generic.svg',\n    ...mimeTypeLinkedImages,\n}"
+                },
+                {
+                    "name": "UnknownMimeType",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "libs/adf/enterprise/adf-hx-content-services/icons/src/lib/mime-type-icon/mime-type-icon.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n    render: (args: MimeTypeIconComponent) => ({\n        props: args,\n    }),\n    args: {\n        mimeType: DefaultIcon.UNKNOWN,\n    },\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {}
+    }
+}

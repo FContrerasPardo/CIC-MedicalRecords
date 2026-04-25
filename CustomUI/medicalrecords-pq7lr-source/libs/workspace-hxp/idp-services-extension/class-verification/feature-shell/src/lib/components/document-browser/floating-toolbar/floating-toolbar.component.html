@@ -1,0 +1,36 @@
+<ng-container>
+    <div
+        id="footerToolbar"
+        class="idp-footer-toolbar"
+        [class.idp-collapsed-width]="isCollapsed"
+    >
+        <button
+            mat-icon-button
+            class="idp-footer-toolbar__collapse-button"
+            [matTooltip]="
+                'IDP_CLASS_VERIFICATION.FLOATING_TOOLBAR.' + (isCollapsed ? 'EXPAND_BUTTON_TOOLTIP' : 'COLLAPSE_BUTTON_TOOLTIP') | translate
+            "
+            (click)="onCollapse()"
+        >
+            <mat-icon [svgIcon]="isCollapsed ? 'chevron_double_right' : 'chevron_double_left'" />
+        </button>
+        @if (!isCollapsed) {
+            @let toolbarMessageTemplate = toolbarMessageTemplate$ | async;
+            <span class="idp-footer-toolbar__select-text">{{
+                toolbarMessageTemplate?.key ? (toolbarMessageTemplate?.key | translate: toolbarMessageTemplate?.args) : ''
+            }}</span>
+            @for (item of (toolbarActionItems$ | async) ?? []; track item.action) {
+                <button
+                    mat-icon-button
+                    class="idp-footer-toolbar__button material-icons-outlined"
+                    [attr.data-automation-id]="'idp-footer-toolbar-' + item.icon"
+                    [disabled]="item.disabled"
+                    [matTooltip]="item.tooltip"
+                    (click)="onActionClicked(item)"
+                >
+                    <mat-icon [svgIcon]="item.icon" />
+                </button>
+            }
+        }
+    </div>
+</ng-container>

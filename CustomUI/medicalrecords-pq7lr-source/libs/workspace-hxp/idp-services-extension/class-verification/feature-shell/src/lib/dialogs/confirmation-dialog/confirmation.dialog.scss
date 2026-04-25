@@ -1,0 +1,48 @@
+@use '@angular/material' as mat;
+
+.idp-confirmation-dialog {
+    $padding-y: 16px;
+    $padding-x: 24px;
+
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+    &__title {
+        font: var(--mat-sys-title-large);
+        padding: $padding-y $padding-x;
+    }
+
+    &__content {
+        padding: 0 $padding-x $padding-y;
+        font: var(--mat-sys-body-large);
+    }
+
+    &__footer {
+        display: flex;
+        gap: 8px;
+        padding: $padding-y $padding-x;
+    }
+
+    &__confirm-button {
+        &--primary {
+            @include mat.button-overrides(
+                (
+                    container-color: var(--mat-sys-primary),
+                    label-text-color: var(--mat-sys-on-primary),
+                )
+            );
+        }
+
+        &--warn {
+            @include mat.button-overrides(
+                (
+                    container-color: var(--sat-sys-important-loud-container),
+                    label-text-color: var(--sat-sys-on-important-loud-container),
+                )
+            );
+        }
+    }
+}

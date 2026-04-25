@@ -1,0 +1,71 @@
+@if (!(screenLoading$ | async)) {
+    <div
+        class="idp-class-verification-root"
+        cdkTrapFocus
+        cdkTrapFocusAutoCapture
+    >
+        <div class="idp-header-container">
+            <hyland-idp-task-header>
+                @if (isDocumentImportEnabled$ | async) {
+                    <hyland-idp-upload-document-button
+                        hylandIdpTaskHeaderLeadingContent
+                        [acceptedFileExtensions]="importAcceptedFileExtensions"
+                        [disabled]="(isDocumentImportRunning$ | async) ?? false"
+                        (uploadDocuments)="onUploadDocuments($event)"
+                    />
+                }
+            </hyland-idp-task-header>
+        </div>
+        <div class="idp-content-container">
+            <div class="idp-content-container__document-browser">
+                <hyland-idp-class-list />
+            </div>
+            <div class="idp-content-container__viewer">
+                <hyland-idp-class-verification-viewer />
+            </div>
+        </div>
+        <div class="idp-footer-container">
+            @let isAutoNextTaskChecked = (isAutoNextTaskChecked$ | async) ?? undefined;
+            <mat-checkbox
+                data-automation-id="idp-class-open-next-task-checkbox"
+                [checked]="isAutoNextTaskChecked"
+                (change)="onNextTaskCheckboxCheckedChanged()"
+                >{{ 'IDP_CLASS_VERIFICATION.TASK_ACTIONS.OPEN_NEXT_TASK' | translate }}</mat-checkbox
+            >
+            <span class="idp-footer-container__buttons">
+                @let showUnclaim = taskShowUnclaim$ | async;
+                @let unclaimEnabled = taskUnclaimEnabled$ | async;
+                @if (showUnclaim) {
+                    <button
+                        mat-stroked-button
+                        data-automation-id="idp-class-unclaim-button"
+                        [disabled]="!unclaimEnabled"
+                        (click)="onUnclaim()"
+                    >
+                        {{ 'IDP_CLASS_VERIFICATION.TASK_ACTIONS.UNCLAIM' | translate }}
+                    </button>
+                }
+                <button
+                    mat-stroked-button
+                    data-automation-id="idp-class-save-button"
+                    [disabled]="!(taskCanSave$ | async)"
+                    (click)="onSave()"
+                >
+                    {{ 'IDP_CLASS_VERIFICATION.TASK_ACTIONS.SAVE' | translate }}
+                </button>
+                <button
+                    mat-flat-button
+                    data-automation-id="idp-class-submit-button"
+                    [disabled]="!(taskCanComplete$ | async)"
+                    (click)="onSubmit(isAutoNextTaskChecked)"
+                >
+                    {{ 'IDP_CLASS_VERIFICATION.TASK_ACTIONS.SUBMIT' | translate }}
+                </button>
+            </span>
+        </div>
+    </div>
+} @else {
+    <div class="idp-class-verification-root__progress">
+        <mat-progress-spinner mode="indeterminate" />
+    </div>
+}

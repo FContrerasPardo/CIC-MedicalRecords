@@ -1,0 +1,56 @@
+<mat-toolbar class="hxp-governance-toolbar">
+    <mat-toolbar-row>
+        <div class="hxp-governance-toolbar-left">
+            @if (hasSelection) {
+                <ng-content select="[toolbar-left]">
+                    <span class="hxp-governance-toolbar-selected">
+                        {{ 'GOVERNANCE.SEARCH_RESULTS.SELECTED_RESULTS_COUNT' | translate: { selected: selectedCount } }}
+                    </span>
+                    <button
+                        mat-icon-button
+                        [attr.aria-label]="clearAllLabel | translate"
+                        [disabled]="!hasSelection"
+                        (click)="clearAll()"
+                    >
+                        <mat-icon svgIcon="x_large" />
+                    </button>
+                </ng-content>
+
+                @if (showDivider) {
+                    <mat-divider
+                        class="hxp-governance-toolbar-divider"
+                        vertical
+                    />
+                }
+
+                <div class="hxp-governance-toolbar-selected-left">
+                    <ng-content select="[toolbar-selected-left-actions]" />
+                </div>
+            } @else {
+                <ng-content select="[toolbar-no-selection-left]">
+                    <span class="hxp-governance-toolbar-selected">
+                        {{ 'GOVERNANCE.SEARCH_RESULTS.SELECTED_RESULTS_COUNT' | translate: { selected: selectedCount } }}
+                    </span>
+                    <button
+                        mat-icon-button
+                        [attr.aria-label]="clearAllLabel | translate"
+                        [disabled]="!hasSelection"
+                        (click)="clearAll()"
+                    >
+                        <mat-icon svgIcon="x_large" />
+                    </button>
+                </ng-content>
+            }
+
+            <div class="hxp-governance-toolbar-spacer"></div>
+
+            <div class="hxp-governance-toolbar-actions">
+                @if (hasSelection) {
+                    <ng-content select="[toolbar-actions]" />
+                } @else {
+                    <ng-content select="[toolbar-no-selection-actions]" />
+                }
+            </div>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>

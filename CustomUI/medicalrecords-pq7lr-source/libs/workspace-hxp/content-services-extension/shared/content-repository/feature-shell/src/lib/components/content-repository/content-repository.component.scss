@@ -1,0 +1,31 @@
+.hxp-content-repository-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.hxp-document-permission-level {
+    padding: 2px 5px;
+    border-radius: var(--mat-sys-corner-extra-small);
+    border: 1px solid var(--mat-sys-surface-container-lowest);
+    font: var(--mat-sys-label-large);
+
+    &.hxp-permission-everything {
+        background: var(--sat-sys-cat-purple-container);
+        color: var(--sat-sys-on-cat-purple-container);
+    }
+
+    &.hxp-permission-readWrite {
+        background: var(--sat-sys-cat-green-container);
+        color: var(--sat-sys-on-cat-green-container);
+    }
+
+    &.hxp-permission-read {
+        background: var(--sat-sys-cat-blue-container);
+        color: var(--sat-sys-on-cat-blue-container);
+    }
+
+    &.hxp-permission-none {
+        background-color: #f4f4f5;
+    }
+}

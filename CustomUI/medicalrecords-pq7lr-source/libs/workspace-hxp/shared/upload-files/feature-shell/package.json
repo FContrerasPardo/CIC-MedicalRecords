@@ -1,0 +1,18 @@
+{
+  "name": "@hxp/workspace-hxp/shared/upload-files/feature-shell",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": ">=19.2.18",
+    "@angular/core": ">=19.2.18",
+    "@angular/material": ">=19.2.19",
+    "@angular/cdk": ">=19.2.19",
+    "rxjs": ">=7.8.2",
+    "minimatch": ">=9.0.1",
+    "@alfresco/adf-core": ">=8.5.0-0",
+    "@ngx-translate/core": ">=17.0.0",
+    "@alfresco/adf-hx-content-services/api": ">=0.0.1",
+    "@alfresco/adf-hx-content-services/icons": ">=0.0.1",
+    "@hxp/shared-hxp/services": ">=0.0.1",
+    "@hylandsoftware/hxcs-js-client": ">=2.0.1"
+  }
+}

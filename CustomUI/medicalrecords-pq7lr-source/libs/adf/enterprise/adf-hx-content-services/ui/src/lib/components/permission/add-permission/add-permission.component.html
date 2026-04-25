@@ -1,0 +1,81 @@
+<div class="hxp-add-permission">
+    <div class="hxp-permission-dialog-input-area">
+        <mat-form-field
+            hideRequiredMarker
+            class="hxp-permission-dialog-input-area-form-field"
+        >
+            <mat-label>
+                <ng-content select="[title]" />
+            </mat-label>
+            <input
+                matInput
+                id="hxp-add-permissions-text-search"
+                [formControl]="form.controls.search"
+                type="text"
+                [matAutocomplete]="auto"
+                md-select-on-focus
+            />
+            <mat-icon
+                svgIcon="arrow_submenu_down"
+                matSuffix
+            />
+
+            <mat-autocomplete
+                autoActiveFirstOption
+                #auto="matAutocomplete"
+                (optionSelected)="selectSuggestion($event)"
+                [displayWith]="getEntityLabel"
+                class="hxp-user-panel"
+            >
+                <mat-option *ngIf="loading; else display_suggestions">
+                    <mat-spinner diameter="25" />
+                </mat-option>
+                <ng-template #display_suggestions>
+                    <mat-option
+                        *ngFor="let suggestion of suggestions; trackBy: suggestionTrackBy"
+                        [value]="suggestion"
+                    >
+                        {{ suggestion.entityLabel }}
+                    </mat-option>
+                </ng-template>
+            </mat-autocomplete>
+            <mat-hint>{{ searchPlaceholderText }}</mat-hint>
+            <mat-error>{{ searchPlaceholderText }}</mat-error>
+        </mat-form-field>
+    </div>
+    <div class="hxp-permission-dialog-input-area">
+        <mat-form-field
+            hideRequiredMarker
+            class="hxp-permission-dialog-input-area-form-field"
+        >
+            <mat-label>
+                {{ 'PERMISSIONS_MANAGEMENT_ACTION.PERMISSIONS_TABLE.LABEL.PERMISSION' | translate }}
+            </mat-label>
+            <mat-select
+                id="hxp-permission-select"
+                class="hxp-permission-dialog-input"
+                [formControl]="form.controls.permission"
+                [disableOptionCentering]="true"
+                panelClass="hxp-permission-panel"
+            >
+                <mat-option
+                    *ngFor="let permission of permissionLabels | keyvalue: originalOrder"
+                    [value]="permission.key"
+                >
+                    {{ permission.value | translate }}
+                </mat-option>
+            </mat-select>
+            <mat-hint>{{ 'PERMISSIONS_MANAGEMENT_ACTION.PERMISSIONS_TABLE.SELECT_PERMISSION' | translate }}</mat-hint>
+            <mat-error>{{ 'PERMISSIONS_MANAGEMENT_ACTION.PERMISSIONS_TABLE.SELECT_PERMISSION' | translate }}</mat-error>
+        </mat-form-field>
+    </div>
+    <button
+        (click)="addPermission()"
+        id="hxp-add-permission-button"
+        class="hxp-permission-dialog-button"
+        mat-stroked-button
+        [disabled]="!form.valid"
+    >
+        {{ addButtonLabel }}
+    </button>
+</div>

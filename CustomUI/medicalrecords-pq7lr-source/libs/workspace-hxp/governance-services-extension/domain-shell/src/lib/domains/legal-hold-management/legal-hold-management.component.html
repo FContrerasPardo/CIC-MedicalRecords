@@ -1,0 +1,221 @@
+<div
+    class="hxp-governance-legal-hold-container"
+    [ngClass]="'hxp-clicked-from-' + clickedFrom.toLowerCase()"
+>
+    @if (viewMode === ViewMode.Records) {
+        <!-- LEGAL RECORDS VIEW-->
+        <hxp-legal-hold-records
+            [selectedCase]="selectedCase"
+            [clickedFrom]="clickedFrom"
+            (backToCasesEvent)="backToCases()"
+            (actionContextChanged)="handleChildActionContextChange($event)"
+            (sidebarToggle)="onSidebarToggle($event)"
+        />
+    } @else if (viewMode === ViewMode.Cases) {
+        <!-- LEGAL CASES VIEW-->
+        <div class="hxp-governance-legal-hold-title mat-headline-medium">
+            <span>{{ 'GOVERNANCE.LEGAL_HOLD.HEADER' | translate }}</span>
+            <hxp-search-box
+                class="hxp-governance-search-box-right"
+                data-automation-id="hxp-gov-legal-hold-search"
+                [placeholder]="'GOVERNANCE.LEGAL_HOLD.SEARCH_PLACEHOLDER' | translate"
+                [searchText]="searchText"
+                (inputChange)="onSearchInputChange($event)"
+                [disabled]="isLoading || allCases.length === 0"
+            />
+        </div>
+    }
+    @if (!noResults) {
+        <div class="hxp-governance-legal-hold-container-inner">
+            <hxp-action-toolbar
+                [selectedCount]="selectedCount"
+                [hasSelection]="hasSelection"
+                [clearAll]="clearAll"
+                [showDivider]="false"
+            >
+                <div
+                    toolbar-no-selection-left
+                    class="hxp-governance-toolbar-no-selection-left"
+                ></div>
+                <hxp-create-legal-hold-case-button
+                    toolbar-actions
+                    [clickedFrom]="clickedFrom"
+                    data-automation-id="hxp-gov-legal-hold-create"
+                />
+                <hxp-edit-legal-hold-case-button
+                    toolbar-actions
+                    class="hxp-legal-case-edit-button"
+                    [legalActionContext]="legalActionContext"
+                    data-automation-id="hxp-gov-legal-hold-edit"
+                />
+                <hxp-create-legal-hold-case-button
+                    toolbar-no-selection-actions
+                    [clickedFrom]="clickedFrom"
+                />
+            </hxp-action-toolbar>
+            @if (isLoading) {
+                <hxp-table-skeleton-loader />
+            }
+            <div class="hxp-governance-legal-hold-table-wrapper">
+                <hxp-entity-list
+                    #legalCasesList
+                    [records]="legalCases"
+                    [sorting]="{ active: sortColumn, direction: sortDirection }"
+                    (selectionChanged)="onSelectionChanged($event)"
+                    (sortingChanged)="onSortingChanged($event)"
+                    [rowIdKey]="'legalCaseId'"
+                    [selectAllEnabled]="false"
+                    [showSelection]="clickedFrom === 'Record'"
+                >
+                    <hxp-data-column
+                        key="folderIcon"
+                        title=""
+                        headerAriaLabel="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.TYPE"
+                        width="1%"
+                    >
+                        <ng-template let-case="$implicit">
+                            <mat-icon svgIcon="folder" />
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="legalCaseName"
+                        title="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.CASE_NAME"
+                        width="20%"
+                    >
+                        <ng-template let-case="$implicit">
+                            <span class="hxp-legal-case-name">
+                                @for (segment of getHighlightSegments(case.legalCaseName); track $index) {
+                                    @if (segment.match) {
+                                        <mark>{{ segment.text }}</mark>
+                                    } @else {
+                                        <span>{{ segment.text }}</span>
+                                    }
+                                }
+                            </span>
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="legalCaseReason"
+                        title="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.REASON_FOR_HOLD"
+                        width="20%"
+                    >
+                        <ng-template let-case="$implicit">
+                            <span class="hxp-legal-case-reason">
+                                @for (segment of getHighlightSegments(case.legalCaseReason); track $index) {
+                                    @if (segment.match) {
+                                        <mark>{{ segment.text }}</mark>
+                                    } @else {
+                                        <span>{{ segment.text }}</span>
+                                    }
+                                }
+                            </span>
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="recordsCount"
+                        title="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.TOTAL_RECORDS_HELD"
+                        width="15%"
+                    >
+                        <ng-template let-case="$implicit">
+                            @if (case.recordsCount > 0) {
+                                <button
+                                    class="hxp-governance-legal-hold-records-count"
+                                    (click)="onCaseCountClick(case)"
+                                    [attr.aria-label]="
+                                        'GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.TOTAL_RECORDS_HELD_ARIA'
+                                            | translate: { caseName: case.legalCaseName, count: case.recordsCount }
+                                    "
+                                >
+                                    {{ case.recordsCount }}
+                                </button>
+                            } @else {
+                                <span>{{ case.recordsCount }}</span>
+                            }
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="createdAt"
+                        title="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.DATE_OF_CREATION"
+                        width="15%"
+                    >
+                        <ng-template let-case="$implicit">
+                            {{ case.createdAt | date }}
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="createdByUsername"
+                        title="GOVERNANCE.LEGAL_HOLD.TABLE.COLUMNS.CREATOR"
+                        width="30%"
+                    />
+                    <hxp-data-column
+                        key="actions"
+                        title=""
+                        headerAriaLabel="GOVERNANCE.LEGAL_HOLD.ACTIONS"
+                        width="5%"
+                    >
+                        <ng-template let-legalCase="$implicit">
+                            <button
+                                mat-icon-button
+                                (click)="$event.stopPropagation()"
+                                [matMenuTriggerFor]="legalCaseActionsMenu"
+                                [matMenuTriggerData]="{ legalCase: legalCase }"
+                                [attr.aria-label]="'GOVERNANCE.LEGAL_HOLD.ACTIONS' | translate"
+                            >
+                                <mat-icon svgIcon="more_vert" />
+                            </button>
+                        </ng-template>
+                    </hxp-data-column>
+                </hxp-entity-list>
+
+                <mat-menu
+                    #legalCaseActionsMenu="matMenu"
+                    yPosition="below"
+                    [overlapTrigger]="false"
+                >
+                    <ng-template
+                        matMenuContent
+                        let-legalCase="legalCase"
+                    >
+                        <button
+                            mat-menu-item
+                            (click)="onEditLegalHoldCaseFromRow(legalCase)"
+                        >
+                            <mat-icon svgIcon="pencil" />
+                            <span>{{ 'GOVERNANCE.SIDEBAR.BUTTONS.EDIT' | translate }}</span>
+                        </button>
+                    </ng-template>
+                </mat-menu>
+            </div>
+            <div class="hxp-governance-legal-hold-paginator-container">
+                <hxp-results-paginator
+                    [pageSize]="pageSize"
+                    [pageSizeOptions]="[25, 50, 100]"
+                    [previousDisabled]="previousDisabled"
+                    [nextDisabled]="nextDisabled"
+                    (pageSizeChange)="onPageSizeChange($event)"
+                    (nextPage)="loadNextPage()"
+                    (previousPage)="loadPreviousPage()"
+                />
+            </div>
+        </div>
+    } @else if (hasError) {
+        <hxp-governance-error (buttonClick)="onRetry()" />
+    } @else {
+        <div class="hxp-legal-hold-empty-state">
+            <div class="hxp-governance-legal-hold-table-no-results">
+                <img
+                    src="assets/icons/Empty.svg"
+                    [alt]="'GOVERNANCE.LEGAL_HOLD.TABLE.NO_RECORDS_FOUND' | translate"
+                />
+                @if (!searchText) {
+                    <span class="mat-headline-small">{{ 'GOVERNANCE.LEGAL_HOLD.TABLE.NO_RECORDS_FOUND' | translate }}</span>
+                } @else {
+                    <span class="mat-headline-small">
+                        {{ 'GOVERNANCE.LEGAL_HOLD.TABLE.NO_RECORDS_FOUND_FILTERED' | translate }}
+                    </span>
+                }
+            </div>
+            <hxp-create-legal-hold-case-button [clickedFrom]="clickedFrom" />
+        </div>
+    }
+</div>

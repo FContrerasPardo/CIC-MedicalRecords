@@ -1,0 +1,12 @@
+<div
+    mat-dialog-content
+    class="hxp-permissions-management-dialog"
+>
+    <hxp-permission-management-container
+        [document]="document"
+        [parentDocument]="parentDocument"
+        (cancelEvent)="cancel($event)"
+        (closeEvent)="close($event)"
+        (restoreEvent)="restore()"
+    />
+</div>

@@ -1,0 +1,12 @@
+#hxp-viewer {
+    .adf-viewer-sidebar {
+        min-width: 436px;
+        display: block;
+        height: 100%;
+    }
+
+    /** To be removed once https://hyland.atlassian.net/browse/AAE-40728 is completed */
+    .adf-viewer-sidebars .adf-viewer__sidebar:has(hxp-permissions-management-panel) {
+        width: 450px;
+    }
+}

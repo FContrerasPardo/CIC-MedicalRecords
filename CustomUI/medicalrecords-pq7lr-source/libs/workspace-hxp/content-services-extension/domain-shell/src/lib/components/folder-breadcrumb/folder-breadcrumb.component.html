@@ -1,0 +1,30 @@
+<div class="hxp-folder-breadcrumb">
+    <ng-container *ngIf="breadcrumbData; else loadingFolderTemplate">
+        <div class="hxp-current-folder">
+            <button
+                mat-icon-button
+                *ngIf="breadcrumbData.currentFolder.sys_parentId"
+                data-automation-id="folder-breadcrumb-back-button"
+                (click)="selectFolderBack(breadcrumbData.parentFolder)"
+                [attr.aria-label]="'FOLDER_BREADCRUMB.GO_BACK' | translate"
+            >
+                <mat-icon svgIcon="arrow_left" />
+            </button>
+            <span data-automation-id="folder-breadcrumb-current-folder">{{ breadcrumbData.currentFolder | getFolderLabel }}</span>
+        </div>
+        <div
+            class="hxp-sub-folder"
+            *ngFor="let subfolder of breadcrumbData.subFolders; trackBy: getFolderId"
+            (click)="selectFolder(subfolder)"
+        >
+            <hxp-folder-icon />
+            <span>{{ subfolder.sys_title || subfolder.sys_name }}</span>
+        </div>
+    </ng-container>
+</div>
+<ng-template #loadingFolderTemplate>
+    <div class="hxp-current-folder hxp-loading-folder">
+        <mat-spinner [diameter]="24" />
+        <span *ngIf="selectedTargetFolder">{{ selectedTargetFolder | getFolderLabel }}</span>
+    </div>
+</ng-template>

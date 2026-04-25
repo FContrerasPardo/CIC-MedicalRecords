@@ -1,0 +1,19 @@
+<button
+    mat-button
+    class="hxp-governance-action-button"
+    [disabled]="!isAvailable"
+    [attr.aria-label]="
+        (isPanelOpen ? 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.PROPERTY_PANE_CLOSE' : 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.PROPERTY_PANE_OPEN') | translate
+    "
+    [matTooltip]="
+        (isPanelOpen ? 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.PROPERTY_PANE_CLOSE' : 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.PROPERTY_PANE_OPEN') | translate
+    "
+    [matTooltipDisabled]="!isAvailable"
+    (click)="togglePane()"
+>
+    <mat-icon
+        class="hxp-governance-action-icon"
+        [svgIcon]="isPanelOpen ? 'panel_open' : 'panel_close'"
+    />
+    <span>{{ 'GOVERNANCE.SEARCH.TOOLBAR.BUTTONS.DETAILS' | translate }}</span>
+</button>

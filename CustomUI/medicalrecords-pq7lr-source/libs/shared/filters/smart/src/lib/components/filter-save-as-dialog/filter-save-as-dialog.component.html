@@ -1,0 +1,49 @@
+<span
+    mat-dialog-title
+    class="hxp-filter-save-as-dialog__title"
+>
+    {{ title }}
+</span>
+
+<mat-form-field class="hxp-filter-save-as-dialog__content">
+    <input
+        matInput
+        [formControl]="nameControl"
+        type="text"
+        [placeholder]="'FILTERS.DIALOG.PLACEHOLDER' | translate"
+        data-automation-id="hxp-filter-save-as-dialog-name"
+        (keydown.enter)="onSave()"
+    />
+    @if (nameControl.hasError('required') && nameControl.touched) {
+        <mat-error data-automation-id="hxp-filter-save-as-dialog-required-error">
+            {{ 'FILTERS.DIALOG.ERROR.REQUIRED' | translate }}
+        </mat-error>
+    }
+    @if (nameControl.hasError('duplicateName')) {
+        <mat-error data-automation-id="hxp-filter-save-as-dialog-duplicate-error">
+            {{ 'FILTERS.DIALOG.ERROR.DUPLICATE_NAME' | translate }}
+        </mat-error>
+    }
+</mat-form-field>
+
+<div
+    class="hxp-filter-save-as-dialog__actions"
+    mat-dialog-actions
+    align="end"
+>
+    <button
+        mat-button
+        (click)="dialogRef.close()"
+        data-automation-id="hxp-filter-save-as-dialog-cancel"
+    >
+        {{ 'FILTERS.DIALOG.CANCEL' | translate }}
+    </button>
+    <button
+        mat-flat-button
+        [disabled]="!nameControl.valid"
+        (click)="onSave()"
+        data-automation-id="hxp-filter-save-as-dialog-save"
+    >
+        {{ 'FILTERS.DIALOG.SAVE' | translate }}
+    </button>
+</div>

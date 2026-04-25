@@ -1,0 +1,118 @@
+@use 'mat-selectors' as ms;
+
+.hxp-document-location-search-filter-container {
+    height: 468px;
+    width: 370px;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+}
+
+.hxp-document-location-search-filter-list {
+    max-height: 360px;
+    overflow-y: scroll;
+}
+
+.hxp-document-location-search-filter-list-option-title {
+    display: flex !important; /* because mat-list-option overrides it */
+    flex-direction: row;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.hxp-document-location-search-filter-no-results {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    h2 {
+        margin: 0;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+.hxp-document-location-search-filter-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.hxp-document-location-search-filter-tree {
+    overflow: auto;
+}
+
+.hxp-document-location-search-filter-folder-icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.hxp-document-location-search-filter-summary {
+    padding: 22px 0 20px;
+
+    &-list {
+        width: 100%;
+        max-height: 110px;
+        overflow-y: scroll;
+
+        &-prefix {
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        &-colon {
+            display: flex;
+            align-items: center;
+        }
+
+        &-item {
+            min-height: auto;
+            height: 18px;
+            background-color: var(--mat-sys-primary-container) !important;
+
+            padding: {
+                top: 3px;
+                bottom: 3px;
+            }
+
+            &__label {
+                color: var(--mat-sys-primary);
+            }
+
+            button {
+                margin: 0;
+            }
+        }
+
+        &-remove-item-icon {
+            --mdc-icon-size: 12px;
+
+            color: var(--mat-sys-primary);
+            opacity: 1;
+            display: flex;
+        }
+
+        /* https://github.com/angular/components/issues/26584 */
+        ::ng-deep {
+            #{ms.$mat-standard-chip ms.$mat-mdc-evolution-chip__cell--primary},
+            #{ms.$mat-standard-chip ms.$mat-mdc-evolution-chip__action--primary},
+            #{ms.$mat-standard-chip ms.$mat-chip-action-label} {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+        }
+    }
+}

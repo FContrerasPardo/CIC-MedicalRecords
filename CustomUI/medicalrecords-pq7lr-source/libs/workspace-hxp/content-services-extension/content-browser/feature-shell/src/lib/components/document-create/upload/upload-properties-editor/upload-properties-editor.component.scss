@@ -1,0 +1,88 @@
+.hxp-workspace-upload-properties-editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+
+    &__empty {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+
+        span {
+            width: 240px;
+            text-align: center;
+        }
+    }
+
+    &__edit {
+        flex: 1 1 auto;
+
+        form {
+            display: flex;
+            flex-direction: column;
+
+            button {
+                align-self: flex-end;
+            }
+        }
+
+        &__mixed_content {
+            display: flex;
+            flex-direction: column;
+
+            &__title::after {
+                content: ' *';
+                color: var(--mat-sys-error);
+            }
+
+            &__panel {
+                margin: 10px 0;
+                padding-left: 10px;
+
+                button {
+                    padding: 0;
+                    white-space: normal;
+                    line-height: normal;
+                    text-align: start;
+                }
+            }
+        }
+    }
+
+    &__toast-container {
+        display: flex;
+    }
+
+    &__toast {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        box-sizing: border-box;
+        margin: 24px;
+        padding: 5px 10px;
+        background-color: var(--mat-sys-surface);
+        color: var(--mat-sys-on-surface);
+        border: 2px solid var(--sat-sys-on-success-container);
+        border-radius: 10px;
+        gap: 10px;
+
+        &__done-icon {
+            margin: 0 10px;
+            color: var(--sat-sys-on-success-container);
+        }
+
+        &__message {
+            flex: 1 1 auto;
+        }
+
+        &__dismiss-action {
+            color: var(--mat-sys-on-surface-variant);
+        }
+    }
+}
+
+.hxp-workspace-upload-properties-editor-form {
+    gap: 16px;
+}

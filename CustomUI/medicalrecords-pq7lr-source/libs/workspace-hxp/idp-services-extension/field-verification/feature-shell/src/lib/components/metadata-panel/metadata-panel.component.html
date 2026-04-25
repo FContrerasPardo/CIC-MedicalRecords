@@ -1,0 +1,219 @@
+<ng-template
+    #fieldValidationTemplate
+    let-field
+>
+    @if (field.validationSummary?.isActive()) {
+        <sat-status-tag
+            class="idp-field-status"
+            [status]="field.isValid ? 'success' : 'important'"
+            [attr.data-test-status]="field.isValid ? 'success' : 'error'"
+            [attr.data-automation-id]="'idp-field-validation-status-' + field.id"
+        >
+            {{ field.validationSummary.message | translate: field.validationSummary.getAttributesAsJsonObj() }}
+        </sat-status-tag>
+    }
+</ng-template>
+
+<div
+    id="metadata-container"
+    *ngIf="documentFields$ | async as documentFields"
+>
+    <div
+        class="idp-validation-overlay"
+        *ngIf="isValidationProcessRunning$ | async"
+    >
+        <mat-progress-spinner
+            data-automation-id="idp-validation-progress-spinner"
+            mode="indeterminate"
+        />
+        <p class="idp-validation-message">{{ 'EXTRACTION.VERIFICATION.METADATA_PANEL.VALIDATING_FIELDS' | translate }}</p>
+    </div>
+
+    <div class="idp-header">
+        <h1 class="idp-title">{{ 'EXTRACTION.VERIFICATION.METADATA_PANEL.TITLE' | translate }}</h1>
+        <div class="idp-spacer"></div>
+        <button
+            mat-icon-button
+            [disabled]="!canUndo() || (isValidationProcessRunning$ | async)"
+            (click)="onUndo()"
+            [matTooltip]="undoTooltip"
+            data-automation-id="idp-field-undo-button"
+        >
+            <mat-icon svgIcon="undo" />
+        </button>
+        <button
+            mat-icon-button
+            [disabled]="!canRedo() || (isValidationProcessRunning$ | async)"
+            (click)="onRedo()"
+            [matTooltip]="redoTooltip"
+            data-automation-id="idp-field-redo-button"
+        >
+            <mat-icon svgIcon="redo" />
+        </button>
+    </div>
+
+    @if (isFormContextLoading$ | async) {
+        <div
+            class="idp-form-loading"
+            data-automation-id="idp-form-loading-spinner"
+        >
+            <mat-progress-spinner
+                mode="indeterminate"
+                [diameter]="32"
+            />
+        </div>
+    }
+    <ng-container *hylandIdpWaitFor="formContext$ as formContext">
+        <form
+            *ngIf="formContext; else fallback"
+            autocomplete="off"
+            class="idp-cloud-form-wrapper"
+            [class.idp-disabled]="isValidationProcessRunning$ | async"
+        >
+            <ng-template
+                #fieldStatusTemplate
+                let-widget
+            >
+                @if (widget.isInvalidFieldRequired()) {
+                    <sat-status-tag
+                        class="idp-field-status"
+                        status="important"
+                        data-test-status="error"
+                        [attr.data-automation-id]="'idp-field-validation-status-' + widget.field.id"
+                    >
+                        {{ 'FORM.FIELD.REQUIRED' | translate: widget.field.validationSummary.getAttributesAsJsonObj() }}
+                    </sat-status-tag>
+                } @else {
+                    <ng-container *ngTemplateOutlet="fieldValidationTemplate; context: { $implicit: widget.field }" />
+                }
+            </ng-template>
+
+            <adf-cloud-form
+                #cloudForm
+                class="idp-metadata-cloud-form"
+                [appName]="formContext.appName"
+                [formId]="formContext.id"
+                [showSaveButton]="false"
+                [showCompleteButton]="false"
+                [showRefreshButton]="false"
+                [showValidationIcon]="false"
+                [showTitle]="false"
+                [data]="formData$ | async"
+                (formLoaded)="formLoaded.next(cloudForm)"
+                [adf-field-status-template]="fieldStatusTemplate"
+            />
+        </form>
+    </ng-container>
+
+    <ng-template #fallback>
+        {{ formLoaded.next(undefined) }}
+        <form
+            class="idp-metadata-fields-form"
+            autocomplete="off"
+        >
+            <div class="idp-fields-container">
+                <div
+                    *ngFor="let field of documentFields; trackBy: trackField; let i = index"
+                    class="idp-form-field form-field-{{ field.id }}"
+                    [id]="field.id"
+                    [class.idp-has-issue]="field.hasIssue"
+                    [class.idp-is-selected]="isFieldSelected(field, activeField$ | async)"
+                    [attr.data-automation-id]="'field-has-issue' + field.id"
+                >
+                    <ng-container [ngSwitch]="field.dataType">
+                        <ng-container *ngSwitchCase="'Table'">
+                            <hyland-idp-metadata-table-field
+                                [id]="field.id"
+                                class="idp-metadata-table-field"
+                                (click)="onShowTable(field.id)"
+                            />
+                        </ng-container>
+                        <ng-container *ngSwitchDefault>
+                            <ng-container *ngIf="fieldIgnoreForReviewMap$ | async as ignoreForReviewMap">
+                                <mat-form-field
+                                    floatLabel="always"
+                                    *ngIf="field.dataType !== 'Table' && !ignoreForReviewMap[field.id]"
+                                >
+                                    <mat-label class="idp-form-field-label">
+                                        {{ field.name }}
+                                        <ng-container *ngIf="fieldIgnoreForAutoMap$ | async as ignoreMap">
+                                            <mat-icon
+                                                *ngIf="ignoreMap[field.id]"
+                                                svgIcon="lock"
+                                                class="idp-field-lock-icon"
+                                                [matTooltip]="'EXTRACTION.VERIFICATION.FIELD_IGNORED_FOR_AUTO' | translate"
+                                                data-automation-id="field-ignored-for-auto-icon"
+                                            />
+                                        </ng-container>
+                                    </mat-label>
+                                    <input
+                                        matInput
+                                        #metadataInput
+                                        [id]="field.id"
+                                        [attr.aria-label]="field.name"
+                                        class="idp-form-field-input"
+                                        [class.idp-has-issue]="field.hasIssue"
+                                        [type]="field.dataType"
+                                        [name]="field.id"
+                                        [value]="field.value ?? ''"
+                                        [attr.data-automation-id]="'idp-field-' + field.id"
+                                        (keydown)="onFieldKeyDown($event, field, metadataInput.value)"
+                                        (focus)="onFieldFocus(field)"
+                                        (input)="onFieldInput(field, metadataInput)"
+                                        (focusout)="onFieldFocusOut(field, metadataInput.value)"
+                                    />
+                                </mat-form-field>
+                            </ng-container>
+                            <hyland-idp-extraction-result
+                                class="idp-extraction-result"
+                                [field]="field"
+                            />
+                        </ng-container>
+                    </ng-container>
+                </div>
+            </div>
+        </form>
+    </ng-template>
+</div>
+
+<ng-template
+    #tableContentTemplate
+    let-field="field"
+>
+    <div class="hxp-custom-content">
+        <!-- Transform the field before using it -->
+        @let tableContext = field.id | tableContext | async;
+        @if (tableContext) {
+            @if (tableContext.rowCount === 0) {
+                <div>
+                    <button
+                        mat-raised-button
+                        class="idp-add-table-button"
+                        tabindex="-1"
+                        [attr.data-table-id]="tableContext.transformedFieldId"
+                        (click)="addTable(tableContext.transformedFieldId)"
+                        [attr.data-automation-id]="'idp-add-table-button-' + tableContext.transformedFieldId"
+                    >
+                        <mat-icon svgIcon="table" />
+                        {{ 'EXTRACTION.VERIFICATION.METADATA_TABLE.ADD_TABLE' | translate }}
+                    </button>
+                </div>
+            } @else {
+                <div>
+                    <span
+                        class="idp-table-data-text"
+                        [attr.data-automation-id]="'idp-table-row-count-' + tableContext.transformedFieldId"
+                    >
+                        {{ tableContext.rowCount }}
+                        {{
+                            tableContext.rowCount === 1
+                                ? ('EXTRACTION.VERIFICATION.METADATA_TABLE.TABLE_ROWS_FOUND_SINGULAR' | translate)
+                                : ('EXTRACTION.VERIFICATION.METADATA_TABLE.TABLE_ROWS_FOUND_PLURAL' | translate)
+                        }}
+                    </span>
+                </div>
+            }
+        }
+    </div>
+    <ng-container *ngTemplateOutlet="fieldValidationTemplate; context: { $implicit: field }" />
+</ng-template>

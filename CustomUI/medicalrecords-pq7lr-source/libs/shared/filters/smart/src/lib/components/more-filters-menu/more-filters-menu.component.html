@@ -1,0 +1,75 @@
+<div
+    class="hxp-more-filters-menu"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+>
+    <div class="hxp-more-filters-menu__content">
+        <mat-form-field class="hxp-more-filters-menu__search-field">
+            <mat-label>
+                {{ 'FILTERS.MENU.SEARCH' | translate }}
+            </mat-label>
+            <input
+                [formControl]="searchInput"
+                matInput
+                type="text"
+                data-automation-id="hxp-more-filters-menu-search-input"
+            />
+            @if (searchInput.value) {
+                <button
+                    matSuffix
+                    mat-icon-button
+                    (click)="searchInput.setValue('')"
+                    type="button"
+                    [attr.aria-label]="'FILTERS.MENU.CLEAR_SEARCH' | translate"
+                >
+                    <mat-icon svgIcon="x_large" />
+                </button>
+            }
+        </mat-form-field>
+
+        <form
+            [formGroup]="filterVisibilitiesForm"
+            class="hxp-more-filters-menu__list"
+        >
+            @for (filter of filteredFilters(); track filter.name) {
+                <div
+                    class="hxp-more-filters-menu__list-item"
+                    data-automation-id="hxp-more-filters-menu-list-item"
+                >
+                    <mat-checkbox
+                        formControlName="{{ filter.name }}"
+                        [attr.data-automation-id]="'hxp-more-filters-menu-checkbox-' + filter.name"
+                    >
+                        <div>{{ filter.translationKey | translate }}</div>
+                        <div
+                            class="hxp-more-filters-menu__description"
+                            [attr.data-automation-id]="'hxp-more-filters-menu-checkbox-' + filter.name + '-description'"
+                        >
+                            {{ filter?.description }}
+                        </div>
+                    </mat-checkbox>
+                </div>
+            }
+        </form>
+    </div>
+
+    <mat-divider class="hxp-more-filters-menu__divider" />
+
+    <div class="hxp-more-filters-menu__actions">
+        <button
+            mat-button
+            type="button"
+            (click)="filterVisibilitiesForm.reset(initialFormState)"
+            data-automation-id="hxp-more-filters-menu-clear-selection-button"
+        >
+            {{ 'FILTERS.MENU.CLEAR_SELECTION' | translate }}
+        </button>
+        <button
+            mat-flat-button
+            (click)="onUpdate()"
+            data-automation-id="hxp-more-filters-menu-update-button"
+        >
+            {{ 'FILTERS.MENU.UPDATE' | translate }}
+        </button>
+    </div>
+</div>

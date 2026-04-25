@@ -1,0 +1,384 @@
+{
+    "GOVERNANCE": {
+        "SIDENAV": {
+            "TITLE": "Governação",
+            "ARIA_LABEL": "Governance navigation menu"
+        },
+        "HEADER": {
+            "TITLE": "Governação"
+        },
+        "TABS": {
+            "RECORDS": "Gestão de Registos",
+            "LEGAL_HOLD": "Gestão de Bloqueios Legais",
+            "DASHBOARD": "Painel"
+        },
+        "LEGAL_HOLD": {
+            "TITLE": "Gestão de Bloqueios Legais",
+            "HEADER": "Incidente de Suspensão Legal",
+            "TABLE": {
+                "COLUMNS": {
+                    "CASE_NAME": "Incidente de Suspensão Legal",
+                    "REASON_FOR_HOLD": "Motivo da Suspensão",
+                    "TOTAL_RECORDS_HELD": "Total de Registos Mantidos",
+                    "DATE_OF_CREATION": "Data de Criação",
+                    "CREATOR": "Criador"
+                },
+                "NO_RECORDS_FOUND": "Ainda não tem nenhum incidente de retenção legal.",
+                "NO_RECORDS_FOUND_FILTERED": "Nenhum incidente de suspensão legal corresponde ao seu filtro de pesquisa."
+            },
+            "CREATE_BUTTON": "Criar Incidente de Suspensão Legal",
+            "SEARCH_PLACEHOLDER": "Procurar Nome do Incidente da Suspensão Legal",
+            "CLEAR_ALL": "Eliminar tudo",
+            "SELECTED": "Selecionado"
+        },
+        "LEGAL_RECORDS": {
+            "NO_RECORDS_FOUND": "Não existe nenhum registo legal para mostrar.",
+            "NO_RECORDS_FOUND_FILTERED": "Nenhum registo legal corresponde ao seu filtro de pesquisa.",
+            "SEARCH_RECORDS_PLACEHOLDER": "Pesquisar registos",
+            "BACK": "Voltar para casos de suspensão legal"
+        },
+        "SEARCH": {
+            "FILTERS": {
+                "ARIA-LABEL": {
+                    "CLEAR_INPUT": "Limpar entrada",
+                    "CLEAR_SEARCH": "Limpar pesquisa",
+                    "FILTERS_LIST": "Lista de filtros",
+                    "REMOVE": "Remover filtro"
+                },
+                "SELECTED": "{{selected}} selecionado(s)",
+                "RESULTS_FOUND_PLURAL": "{{count}} Resultados encontrados",
+                "RESULTS_FOUND_SINGLE": "{{count}} Resultado encontrado",
+                "CATEGORY": {
+                    "LABEL": "Categoria"
+                },
+                "CREATOR": {
+                    "LABEL": "Criador"
+                },
+                "DATA_SOURCE": {
+                    "LABEL": "Fonte de Dados"
+                },
+                "MODIFIER": {
+                    "LABEL": "Modificador"
+                },
+                "STATUS": {
+                    "LABEL": "Estado"
+                },
+                "LEGAL_CASE": {
+                    "LABEL": "Legal Case"
+                },
+                "NO_SEARCH_RESULTS": {
+                    "MESSAGE": "Não foram encontrados resultados correspondentes"
+                },
+                "PLACEHOLDER": "Pesquisar",
+                "CUTOFF": {
+                    "LABEL": "Corte"
+                },
+                "DISPOSITION": {
+                    "LABEL": "Data de Disposição"
+                },
+                "DATE": {
+                    "ARIA-LABEL": {
+                        "DEFAULT_OPTIONS_LIST": "Lista de opções de data disponíveis"
+                    },
+                    "OPTIONS": {
+                        "TOMORROW": "Amanhã",
+                        "NEXT_WEEK": "Próxima semana",
+                        "NEXT_MONTH": "Próximo mês",
+                        "NEXT_YEAR": "Próximo ano",
+                        "CUSTOM_DATE": {
+                            "LABEL": "Data personalizada",
+                            "VALUES": {
+                                "AFTER": "Depois",
+                                "BEFORE": "Antes",
+                                "SINCE_TO_DATE": "Desde {{afterDate}} até {{beforeDate}}",
+                                "SINCE_TO_TODAY": "Desde {{date}} até hoje",
+                                "UNTIL_DATE": "Até {{date}}"
+                            }
+                        },
+                        "BUTTON": {
+                            "CLEAR": {
+                                "ARIA_LABEL": {
+                                    "AFTER": "Limpar depois da data",
+                                    "BEFORE": "Limpar antes da data"
+                                }
+                            }
+                        },
+                        "ERRORS": {
+                            "BEFORE_DATE_TOO_EARLY": "A data anterior não pode ser anterior à data posterior",
+                            "AFTER_DATE_TOO_LATE": "A data posterior não pode ser posterior à data anterior",
+                            "INVALID_DATE_FORMAT": "Introduza um formato de data válido MM/DD/AAAA"
+                        }
+                    }
+                }
+            },
+            "TOOLBAR": {
+                "BUTTONS": {
+                    "DELETE": "Eliminar Registos Selecionados",
+                    "LEGAL_HOLD_CASE": "Adicionar registos selecionados a uma suspensão legal",
+                    "PROPERTY_PANE_OPEN": "Ver propriedade",
+                    "PROPERTY_PANE_CLOSE": "Ocultar propriedade",
+                    "EDIT_LEGAL_HOLD_CASE": "Editar Incidente de Suspensão Legal"
+                }
+            }
+        },
+        "SEARCH_RESULTS": {
+            "BUTTONS": {
+                "RESET": {
+                    "LABEL": "Redefinir"
+                },
+                "SEARCH": {
+                    "LABEL": "Pesquisar"
+                },
+                "SELECT_ALL": {
+                    "LABEL": "Selecionar tudo"
+                },
+                "UNSELECT_ALL": {
+                    "LABEL": "Desmarcar tudo"
+                },
+                "SELECT_ROW": {
+                    "LABEL": "Selecionar linha"
+                },
+                "SELECT_ROW_WITH_ID": {
+                    "LABEL": "Selecionar linha com ID {{id}}"
+                }
+            },
+            "INITIAL_STATE": {
+                "LABEL": "Procurar registos utilizando a filtragem avançada",
+                "ICON": "Procurar registos utilizando a filtragem avançada"
+            },
+            "NO_RESULTS": {
+                "ICON": "Não foram encontrados registos para os filtros selecionados. Ajuste os seus critérios de pesquisa e tente novamente.",
+                "LABEL": "Não foram encontrados registos para os filtros selecionados. Ajuste os seus critérios de pesquisa e tente novamente."
+            },
+            "RESULTS_LIST": {
+                "COUNT_PLURAL": "{{count}} Resultados encontrados",
+                "COUNT_SINGLE": "{{count}} Resultado encontrado",
+                "WAITING_FOR_ADJUSTMENT": "A aguardar ajustes",
+                "INDEFINITE": "Indefinido",
+                "COLUMNS": {
+                    "NAME": "Nome do Registo",
+                    "DATA_SOURCE": "Fonte de Dados",
+                    "CATEGORY": "Categoria",
+                    "CUTOFF_DATE": "Data de Corte",
+                    "DISPOSITION_DATE": "Data de Disposição",
+                    "DISPOSITION": "Disposição",
+                    "STATUS": "Estado",
+                    "ADDED_ON": "Data Adicionada Em",
+                    "ADDED_BY": "Adicionado Por"
+                },
+                "ITEMS_PER_PAGE": "Itens por página:",
+                "NEXT_PAGE": "Página seguinte",
+                "PREVIOUS_PAGE": "Página anterior"
+            },
+            "SELECTED_RESULTS_COUNT": "{{selected}} selecionado(s)",
+            "ERROR": {
+                "TITLE": "Algo correu mal",
+                "LABEL": "Se continuar a ocorrer, verifique a ligação ou contacte o administrador",
+                "RETRY": "Tente novamente",
+                "BUTTON_ARIA_LABEL": "Tente novamente"
+            }
+        },
+        "SEARCH_FILTERS": {
+            "CONTENT_ID": {
+                "LABEL": "ID de conteúdo",
+                "PLACEHOLDER": "Introduza ID de Conteúdo",
+                "ERROR": "Introduza um ID de Conteúdo válido."
+            },
+            "RECORD_NAME": {
+                "LABEL": "Nome do Registo",
+                "PLACEHOLDER": "Introduzir Nome de Registo",
+                "ERROR": "Introduza um Nome de Registo válido."
+            }
+        },
+        "SIDEBAR": {
+            "EDIT_TITLE": "Editar Propriedades de Registo",
+            "TABS": {
+                "PROPERTIES": "Propriedades"
+            },
+            "SECTIONS": {
+                "RECORD_PROPERTIES": "Propriedades de Registo"
+            },
+            "BUTTONS": {
+                "EDIT": "Editar",
+                "CANCEL": "Cancelar",
+                "SAVE": "Guardar",
+                "CLEAR": "Limpar",
+                "CLOSE": "Fechar Barra Lateral",
+                "TOGGLE": "Expandir/Fechar"
+            },
+            "FIELDS": {
+                "CUTOFF_DATE": "Data de Corte",
+                "INCOMPLETE": "Incompleto"
+            },
+            "DATEPICKER": {
+                "CLEAR": "Limpar",
+                "CANCEL": "Cancelar",
+                "APPLY": "OK"
+            },
+            "LINKED_CASE": "Incidentes de Suspensão Legal associados"
+        },
+        "DELETE_DIALOG": {
+            "TITLE": "Confirmar exclusão",
+            "CONTENT": "Tem a certeza de que deseja eliminar os registos selecionados?",
+            "CANCEL": "Cancelar",
+            "DELETE": "Eliminar"
+        },
+        "LEGAL_DIALOG": {
+            "TITLE": "Incidente de Suspensão Legal",
+            "CANCEL": "Cancelar",
+            "ASSIGN": "Adicionar Registos à Seleção",
+            "INFO_ADD_RECORDS": "{{count}} ficheiro será adicionado à suspensão legal selecionada",
+            "INFO_ADD_RECORDS_plural": "{{count}} ficheiros serão adicionados à suspensão legal selecionada",
+            "BACK": "Back"
+        },
+        "CREATE_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Criar Incidente de Suspensão Legal",
+            "NAME": "Nome",
+            "REASON": "Motivo",
+            "DESCRIPTION": "Descrição",
+            "CANCEL": "Cancelar",
+            "CREATE": "Criar Incidente de Suspensão Legal",
+            "ERRORS": {
+                "MAX_LENGTH_EXCEEDED": "O comprimento máximo de {{max}} caracteres foi excedido."
+            }
+        },
+        "EDIT_LEGAL_HOLD_CASE_DIALOG": {
+            "TITLE": "Editar Incidente de Suspensão Legal",
+            "EDIT": "Editar Incidente de Suspensão Legal"
+        },
+        "UNSAVED_CHANGES_DIALOG": {
+            "TITLE": "Alterações não salvas",
+            "CONTENT": "Você tem alterações não salvas. Para revisá-los e salvá-los, clique em 'Manter Edição'. Para descartar as alterações, clique em 'Fechar sem salvar'.",
+            "DISCARD": "Fechar sem Salvar",
+            "KEEP": "Continuar Editando"
+        },
+        "NOTIFICATIONS": {
+            "RECORD_DELETE_SUCCESS": "Registo(s) eliminado(s) com sucesso!",
+            "RECORD_DELETE_ERROR": "Falha ao eliminar a propriedade. Tente novamente.",
+            "RECORD_DELETE_PARTIAL": "{{successCount}} registos eliminados, {{failureCount}} com falhas.",
+            "PROPERTY_UPDATE_SUCCESS": "Propriedade atualizada com sucesso",
+            "PROPERTY_UPDATE_ERROR": "Falha ao atualizar a propriedade. Tente novamente.",
+            "LEGAL_HOLD_CASE_CREATE_SUCCESS": "Suspensão do Incidente Legal criada com sucesso",
+            "LEGAL_HOLD_CASE_CREATE_ERROR": "Falha ao criar a Suspensão do Incidente Legal. Tente novamente.",
+            "LEGAL_HOLD_CASE_NAME_EXISTS": "Já existe um incidente de suspensão legal com este nome.",
+            "LEGAL_HOLD_ASSIGNMENT_ERROR": "Falha ao atribuir registos à suspensão legal. Tente novamente.",
+            "LEGAL_HOLD_ASSIGNMENT_SUCCESS": "Your request to add records to legal case(s) has been successfully submitted. The process has started and may take some time to complete.",
+            "LEGAL_HOLD_CASE_EDIT_SUCCESS": "Incidente de Suspensão Legal atualizado com sucesso",
+            "LEGAL_HOLD_CASE_EDIT_ERROR": "Falha ao criar Incidente de Suspensão Legal. Tente novamente.",
+            "PROPERTY_UPDATE_TIMEOUT": "Tempo limite: a atualização da propriedade do registo ainda está a ser processada. Clique em atualizar ou verifique a propriedade em alguns instantes.",
+            "STATUS_UPDATE_SUCCESS": "Estado do registo atualizado com sucesso.",
+            "STATUS_UPDATE_ERROR": "Falha ao atualizar o estado do registo.",
+            "STATUS_UPDATE_TIMEOUT": "Tempo limite: ainda estão a ser adicionados registos ao caso de retenção legal selecionado. Clique em atualizar ou verifique o estado do registo dentro de alguns instantes.",
+            "RETENTION_ADJUSTMENT_SUCCESS": "O seu pedido para ajustar a retenção foi enviado com sucesso. O processo foi iniciado e pode demorar algum tempo para ser concluído."
+        },
+        "SEARCH_INPUT": {
+            "SEARCH": "Pesquisar",
+            "CLEAR": "Limpar"
+        },
+        "DASHBOARD": {
+            "LAST_REFRESH": "Última atualização",
+            "REFRESH": "Atualizar",
+            "EXPORT_PPT": "Exportar",
+            "RECORD_HEALTH": "Registo de estado de funcionamento",
+            "RECORD_HEALTH_SUBTITLE": "Vista holística de estados de registo",
+            "TOTAL": "Total",
+            "TOTAL_RECORDS": "Total de Registos",
+            "VIEW_RECORDS": "Clicar aqui para ver registos",
+            "RECORDS_BY_STATUS": "Registos por estado",
+            "ACTIVE_RETENTION_STATUS": "Estado de retenção ativa",
+            "ACTIVE_RETENTION_SUBTITLE": "Monitorizar retenção de conteúdos entre categorias",
+            "INCOMPLETE_RECORD": "Registo incompleto",
+            "INCOMPLETE_SUBTITLE": "Controlar e corrigir registos incompletos entre categorias",
+            "CUTOFF_TRACKER": "Controlador de corte",
+            "CUTOFF_SUBTITLE": "Registos com data de corte no mês selecionado",
+            "DISPOSITION_TRACKER": "Rastreador de disposição",
+            "DISPOSITION_SUBTITLE": "Registos com eliminação em mês selecionado",
+            "UNDER_RETENTION": "Em retenção",
+            "MISSING_PROPERTY": "Propriedade em falta",
+            "READY_TO_CUTOFF": "Pronto para cortar",
+            "DUE_FOR_DISPOSITION": "Vencido para eliminação",
+            "ALL_CATEGORIES": "Todas as categorias",
+            "ALL_STATUS": "Todas as tarefas",
+            "ALL_MONTHS": "Todos os meses",
+            "NO_DATA": "Não há dados disponíveis",
+            "SELECT_CATEGORY": "Selecionar categoria",
+            "SEARCH_PLACEHOLDER": "Pesquisar...",
+            "LOADING": "A carregar",
+            "NO_RESULTS_FOUND": "Nenhum resultado encontrado",
+            "SELECT_MONTH": "Selecionar mês",
+            "THIS_MONTH": "Este mês",
+            "SORT_HIGH_TO_LOW": "Alto para baixo",
+            "SORT_LOW_TO_HIGH": "Baixo para alto",
+            "NEXT_PAGE": "Página seguinte",
+            "PREVIOUS_PAGE": "Página anterior",
+            "LEGAL_HOLD_SUMMARY": "Active Legal Hold Cases",
+            "LEGAL_HOLD_SUBTITLE": "Overview of records on legal hold",
+            "LEGAL_HOLD_TOOLTIP": "On Hold Records",
+            "EMPTY": {
+                "RECORD_HEALTH": "Sem registos para rastrear",
+                "ACTIVE_RETENTION": "Sem registos em retenção",
+                "MISSING_PROPERTIES": "Sem registos com propriedades em falta",
+                "CUTOFF_TRACKER": "Não há registos no estado Pronto para corte",
+                "DISPOSITION_TRACKER": "Nenhum registo no estado de disposição alcançada",
+                "LEGAL_HOLD_SUMMARY": "No Records on Legal Hold"
+            },
+            "PPT": {
+                "INTRO": {
+                    "TITLE": "Resumo do Painel de Governação",
+                    "REPORTING_DATE": "Data do relatório",
+                    "PRODUCT_LINE": "Governação de Conteúdos e Registos"
+                },
+                "RECORD_HEALTH": {
+                    "TITLE": "Visão geral do estado dos registos",
+                    "SUB_TITLE": "Visão holística dos estados dos registos por categoria",
+                    "TOTAL_RECORDS": "Total de Registos",
+                    "RECORDS_BY_STATUS": "Registos por estado",
+                    "DONUT_SERIES_LABEL": "Registos"
+                },
+                "COMMON": {
+                    "CATEGORY_OVERVIEW": "Visão geral por categoria",
+                    "TABLE": {
+                        "CATEGORY": "Categoria",
+                        "TOTAL_RECORDS": "Total de Registos",
+                        "LEGAL_CASE_NAME": "Legal Case Name"
+                    },
+                    "LEGEND": {
+                        "TOTAL": "Total"
+                    }
+                },
+                "WIDGETS": {
+                    "ACTIVE_RETENTION": {
+                        "TITLE": "Estado de retenção ativa",
+                        "SUB_TITLE": "Monitorizar retenção de conteúdos entre categorias",
+                        "CAPTION": "Top 10 categorias com mais registos em retenção",
+                        "VALUE_LABEL": "Em retenção"
+                    },
+                    "MISSING_PROPERTIES": {
+                        "TITLE": "Registos incompletos",
+                        "SUB_TITLE": "Categorias com propriedades obrigatórias em falta",
+                        "CAPTION": "Top 10 categorias com mais registos incompletos",
+                        "VALUE_LABEL": "Incompleto"
+                    },
+                    "CUTOFF_TRACKER": {
+                        "TITLE": "Controlador de corte",
+                        "SUB_TITLE": "Registos próximos da data de corte",
+                        "CAPTION": "Top 10 categorias com mais registos prontos para corte",
+                        "VALUE_LABEL": "Prontos para corte"
+                    },
+                    "DISPOSITION_TRACKER": {
+                        "TITLE": "Rastreador de disposição",
+                        "SUB_TITLE": "Registos com eliminação prevista",
+                        "CAPTION": "Top 10 categorias com mais registos com eliminação prevista",
+                        "VALUE_LABEL": "Vencido para eliminação"
+                    },
+                    "LEGAL_HOLD_SUMMARY": {
+                        "TITLE": "Legal Hold Summary",
+                        "SUB_TITLE": "Overview of records on legal hold",
+                        "CAPTION": "Shows records currently on hold by legal case",
+                        "VALUE_LABEL": "Em espera"
+                    }
+                }
+            }
+        }
+    }
+}

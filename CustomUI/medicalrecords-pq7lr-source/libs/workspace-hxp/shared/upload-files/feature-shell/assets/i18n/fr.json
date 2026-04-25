@@ -1,0 +1,163 @@
+{
+    "HXP_FILE_UPLOAD": {
+        "BUTTON": {
+            "MINIMIZE": "Réduire",
+            "MAXIMIZE": "Agrandir",
+            "CLOSE": "Fermer",
+            "STOP_ALL": "Arrêter les chargements",
+            "STOP_FILE": "Arrêter le chargement",
+            "UPLOAD_SUCCESSFUL": "Chargement réussi"
+        },
+        "STATUS": {
+            "FILE_CANCELED_STATUS": "Annulé",
+            "FILE_DONE_STATUS": "Chargé"
+        },
+        "CONFIRMATION": {
+            "BUTTON": {
+                "CANCEL": "Oui",
+                "CONTINUE": "Non"
+            },
+            "MESSAGE": {
+                "TITLE": "Arrêter le chargement",
+                "TEXT": "Arrêter et annuler tous les chargements en cours et en attente."
+            }
+        },
+        "ARIA-LABEL": {
+            "VERSION": "Version du fichier {{ version }}",
+            "DIALOG": "Charger la liste",
+            "DIALOG_MAXIMIZE": "Agrandir la boîte de dialogue de chargement",
+            "DIALOG_MINIMIZE": "Réduire la boîte de dialogue de chargement",
+            "DIALOG_CLOSE": "Fermer la boîte de dialogue de chargement",
+            "STOP_ALL": "Arrêter les chargements",
+            "UPLOAD_SUCCESSFUL": "Fichier {{ file }} chargé avec succès",
+            "STOP_FILE": "Arrêter le fichier {{ file }}",
+            "STOP_FILE_UPLOAD": "Arrêter le chargement du fichier {{ file }}",
+            "UPLOAD_FILE_ERROR": "Erreur de chargement {{ error }}",
+            "CONFIRMATION": {
+                "CANCEL": "Confirmer l'annulation",
+                "CONTINUE": "Continuer le chargement"
+            }
+        }
+    },
+    "FILE_UPLOAD": {
+        "BUTTON": {
+            "UPLOAD_FILE": "Charger le fichier",
+            "UPLOAD_FOLDER": "Charger le dossier",
+            "PERMISSION_CHECK_ERROR": "Erreur lors de la vérification de l'autorisation."
+        },
+        "VERSION": {
+            "MESSAGES": {
+                "NO_ACCEPTED_FILE_TYPES": "Veuillez noter que le paramètre « acceptedFilesType » n'a aucun effet pour les chargements de nouvelles versions. Le type de fichier sera identique à celui du fichier d'origine.",
+                "INCOMPATIBLE_VERSION": "Seul un fichier du même type peut être chargé en tant que nouvelle version."
+            }
+        },
+        "MESSAGES": {
+            "UPLOAD_CANCELED": "Chargement annulé",
+            "UPLOAD_PROGRESS": "Chargement de {{ completed }} / {{ total }}",
+            "UPLOAD_ERROR": "Échec de {{ total }} chargement",
+            "UPLOAD_ERRORS": "Échec de {{ total }} chargements",
+            "PROGRESS": "Chargement en cours…",
+            "FOLDER_ALREADY_EXIST": "Le dossier {0} existe déjà",
+            "FOLDER_NOT_SUPPORTED": "Le chargement de dossiers n'est pas pris en charge par votre navigateur. Essayez un autre navigateur",
+            "REMOVE_FILE_ERROR": "{{ fileName }} n'a pas pu être supprimé, réessayez ou vérifiez auprès de votre équipe informatique.",
+            "REMOVE_FILES_ERROR": "{{ total }} fichiers n'ont pas pu être supprimés, réessayez ou vérifiez auprès de votre équipe informatique.",
+            "EXCEED_MAX_FILE_SIZE": "Le fichier {{ fileName }} est plus volumineux que la taille de fichier autorisée"
+        },
+        "ACTION": {
+            "UNDO": "Annuler"
+        },
+        "ERRORS": {
+            "GENERIC": "Le chargement a échoué. Contactez le service informatique si le problème persiste",
+            "500": "Erreur serveur interne, veuillez réessayer ou contacter l'assistance informatique [500]",
+            "504": "Le serveur a dépassé le délai imparti, réessayez ou contactez l'assistance informatique [504]",
+            "403": "Autorisations insuffisantes pour le chargement à cet emplacement [403]",
+            "404": "L'emplacement de chargement n'existe plus [404]",
+            "409": "Un fichier du même nom existe déjà [409]"
+        },
+        "ARIA-LABEL": {
+            "ERROR": "Erreur de chargement"
+        }
+    },
+    "PROCESS_CLOUD_EXTENSION": {
+        "SETTINGS": {
+            "PSC_AVAILABILITY_HEADER": "Extensions : automatisation des processus",
+            "PSC_AVAILABILITY_TITLE": "Activer les extensions d'automatisation des processus"
+        },
+        "BREADCRUMB": {
+            "ROOT": "Gestion des processus",
+            "START_PROCESS_CLOUD": "Démarrer le processus",
+            "TASK_LIST_CLOUD": "Liste de tâches",
+            "ACTIONS": {
+                "INFO-TOOLTIP": "Afficher les détails",
+                "CLOSE-TOOLTIP": "Fermer",
+                "PRINT": "Imprimer le formulaire"
+            }
+        },
+        "MENU": {
+            "CREATE_NEW_PROCESS": "Démarrer le processus",
+            "CREATE_PROCESS_NOT_ALLOWED": "Impossible de créer un nouveau processus"
+        },
+        "ERROR": {
+            "NO_FORM": "Aucun formulaire défini pour la définition de processus",
+            "CAN_NOT_ATTACH": "Impossible de joindre le contenu sélectionné"
+        },
+        "SNACKBAR": {
+            "PROCESS-CREATED": "Processus '{{ processName }}' créé",
+            "BACKEND_SERVICE_ERROR": "Une erreur réseau inconnue s'est produite. Les fonctionnalités associées à l'automatisation des processus sont désactivées.",
+            "LINKED_PROCESS_ERROR": "Échec de la liaison des processus enfants au processus parent"
+        },
+        "SIDE_NAV_TITLE": "Gestion des processus",
+        "TASK_LIST": {
+            "TASKS": "Tâches",
+            "ACTIONS": {
+                "TASK_DETAILS": "Afficher les détails",
+                "PROCESS_HISTORY": "Historique des processus"
+            }
+        },
+        "TASK_DETAILS": {
+            "ASSIGNEE": {
+                "TITLE": "Modifier la personne assignée",
+                "CLOSE": "Fermer",
+                "ASSIGN": "Assigner",
+                "SUCCESS": "La personne assignée à la tâche a bien été modifiée",
+                "FAILED": "Un problème est survenu lors de l'assignation de l'utilisateur. Réessayez d'assigner l'utilisateur."
+            },
+            "INFO_DRAWER_TAB_DETAILS_TITLE": "Détails"
+        },
+        "PROCESS_LIST": {
+            "PROCESSES": "Processus",
+            "ACTIONS": {
+                "PROCESS_DETAILS": "Afficher les détails",
+                "CANCEL_MESSAGE": "Le processus a été annulé",
+                "CANCEL_ERROR_MESSAGE": "L'annulation du processus a échoué. Veuillez réessayer",
+                "CANCEL_TOOLTIP": "Annuler le processus"
+            },
+            "PROPERTIES": {
+                "STARTED_BY": "Commencé par"
+            }
+        },
+        "PROCESS_FILTER": {
+            "FILTER_SAVED": "Le filtre a été enregistré",
+            "FILTER_DELETED": "Le filtre a été supprimé"
+        },
+        "TASK_FORM": {
+            "FORM_COMPLETED": "La tâche a été terminée",
+            "FORM_SAVED": "Le formulaire a été enregistré",
+            "FORM_ACTION": "Action '{{ outcome }}'"
+        },
+        "TASK_FILTER": {
+            "FILTER_SAVED": "Le filtre a été enregistré",
+            "FILTER_DELETED": "Le filtre a été supprimé"
+        },
+        "DIALOG": {
+            "PROCESS": {
+                "TITLE": "Annuler le processus",
+                "MESSAGE": "Voulez-vous vraiment annuler ce processus ?"
+            },
+            "NEW_PROCESS": "Nouveau processus",
+            "CONFIRM": "Confirmer",
+            "CLOSE": "Fermer",
+            "ERROR": "Impossible de charger les définitions de processus ; vérifiez que vous disposez des droits d'accès correspondants."
+        }
+    }
+}

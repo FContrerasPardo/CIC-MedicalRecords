@@ -1,0 +1,10 @@
+<button
+    mat-menu-item
+    (click)="toggleTheme($event)"
+    [attr.aria-label]="(theme() === 'light' ? 'HEADER.ACTIONS.THEME_SWITCH.DARK_LABEL' : 'HEADER.ACTIONS.THEME_SWITCH.LIGHT_LABEL') | translate"
+>
+    <mat-icon [adf-icon]="theme() === 'light' ? 'dark_mode' : 'light_mode'" />
+    <span>
+        {{ (theme() === 'light' ? 'HEADER.ACTIONS.THEME_SWITCH.DARK' : 'HEADER.ACTIONS.THEME_SWITCH.LIGHT') | translate }}
+    </span>
+</button>

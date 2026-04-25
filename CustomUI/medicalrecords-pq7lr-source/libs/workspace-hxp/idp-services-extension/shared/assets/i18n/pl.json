@@ -1,0 +1,33 @@
+{
+    "IDP": {
+        "REJECT_DIALOG": {
+            "TITLE": "Oznacz dokument",
+            "DESCRIPTION": "Ten dokument nie zostanie uwzględniony w procesie wyodrębniania partii, jeśli zostanie oznaczony. Sprawdź, czy na pewno chcesz to zrobić.\n\nPodaj uzasadnienie oznaczenia",
+            "REASON_LABEL": "Powód oznaczenia",
+            "CANCEL_BUTTON": "Anuluj",
+            "REMOVE_BUTTON": "Usuń znacznik",
+            "REJECT_BUTTON": "Zapisz",
+            "SEARCH_PLACEHOLDER": "Wyszukaj powód...",
+            "REJECT_NOTE": {
+                "LABEL": "Notatka dotycząca oznaczenia",
+                "PLACEHOLDER": "Wprowadź notatkę dotyczącą oznaczenia…",
+                "ARIA_LABEL": "Wprowadź notatkę dotyczącą oznaczenia",
+                "HINT": "Maks. liczba znaków: {{max}}"
+            }
+        },
+        "SHORTCUT_DIALOG": {
+            "TITLE": "Skróty klawiaturowe",
+            "SEARCH_PLACEHOLDER": "Wyszukaj skrót...",
+            "NO_RESULTS": "Nie znaleziono wyników"
+        },
+        "DISCARD_DIALOG": {
+            "TITLE": "Odrzuć zmiany",
+            "DESCRIPTION": "Masz niezapisane zmiany. Niezapisane zmiany zostaną utracone, jeśli opuścisz tę stronę.",
+            "CANCEL_BUTTON": "Anuluj",
+            "DISCARD_BUTTON": "Odrzuć zmiany"
+        },
+        "FILTERABLE_SELECTION_LIST": {
+            "SEARCH_ARIA_LABEL": "Search"
+        }
+    }
+}

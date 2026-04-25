@@ -1,0 +1,206 @@
+@let showInitialState = initialState && !isLoading && !hasError;
+@let showNoResults = noResults && !isLoading && !initialState && !hasError;
+@let showNoMoreResults = noResults && !isLoading && initialState && !hasError;
+@let showResults = !initialState && !noResults && !isLoading && !hasError;
+@let errorState = hasError && !isLoading;
+<div class="hxp-governance-search-results-container">
+    <div class="hxp-governance-results-left-panel">
+        <div class="hxp-governance-search-results-header">
+            <div class="hxp-governance-search-results-header-actions">
+                <div class="hxp-governance-search-results-header-actions_filters">
+                    <hxp-governance-search-data-source-filter data-automation-id="hxp-gov-data-source-filter" />
+                    <hxp-governance-search-category-filter data-automation-id="hxp-gov-category-filter" />
+                    <hxp-governance-cutoff-search-filter data-automation-id="hxp-gov-cutoff-filter" />
+                    <hxp-governance-disposition-search-filter data-automation-id="hxp-gov-disposition-filter" />
+                    <hxp-governance-search-status-filter data-automation-id="hxp-gov-status-filter" />
+                    <!-- Creator filter needs to added here https://hyland.atlassian.net/browse/CICGOV-731 -->
+                    <hxp-governance-search-modifier-filter />
+                    <!-- Content ID facet to be added later https://hyland.atlassian.net/browse/CICGOV-186 -->
+                    <hxp-record-name-search-filter />
+                </div>
+                <div class="hxp-governance-search-results-header-actions_buttons">
+                    <button
+                        id="hxp-governance-search-results-reset-button"
+                        mat-button
+                        [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.BUTTONS.RESET.LABEL' | translate"
+                        [disabled]="!hasPendingChanges"
+                        (click)="reset()"
+                    >
+                        {{ 'GOVERNANCE.SEARCH_RESULTS.BUTTONS.RESET.LABEL' | translate }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        @if (showInitialState) {
+            <div class="hxp-governance-search-results-initial-state">
+                <img
+                    src="assets/icons/Initial.svg"
+                    [alt]="'GOVERNANCE.SEARCH_RESULTS.INITIAL_STATE.ICON' | translate"
+                    class="hxp-governance-search-results-initial-state_icon"
+                />
+                <span class="hxp-governance-search-results-initial-state_label hxp-title-large">
+                    {{ 'GOVERNANCE.SEARCH_RESULTS.INITIAL_STATE.LABEL' | translate }}
+                </span>
+            </div>
+        }
+        @if (showNoResults) {
+            <div class="hxp-governance-search-results-no-results">
+                <img
+                    src="assets/icons/Empty.svg"
+                    [alt]="'GOVERNANCE.SEARCH_RESULTS.NO_RESULTS.ICON' | translate"
+                    class="hxp-governance-search-results-no-results_icon"
+                />
+                <span class="hxp-governance-search-results-no-results_label">
+                    {{ 'GOVERNANCE.SEARCH_RESULTS.NO_RESULTS.LABEL' | translate }}
+                </span>
+            </div>
+        }
+        @if (isLoading && !initialState && !noResults) {
+            <hxp-table-skeleton-loader />
+        }
+        @if (errorState) {
+            <hxp-governance-error (buttonClick)="onRetry()" />
+        }
+        @if (showResults || showNoMoreResults) {
+            <hxp-action-toolbar
+                [selectedCount]="selectedCount"
+                [hasSelection]="hasSelection"
+                [clearAll]="clearAll"
+            >
+                <hxp-record-delete-button
+                    toolbar-selected-left-actions
+                    [actionContext]="actionContext"
+                    data-automation-id="hxp-gov-toolbar-delete"
+                />
+                <hxp-add-legal-hold-button
+                    toolbar-actions
+                    [actionContext]="actionContext"
+                    data-automation-id="hxp-gov-toolbar-legal-hold"
+                />
+                <hxp-record-properties-button
+                    toolbar-actions
+                    [actionContext]="actionContext"
+                    data-automation-id="hxp-gov-toolbar-properties"
+                />
+            </hxp-action-toolbar>
+            <div class="hxp-record-list">
+                <hxp-entity-list
+                    #recordList
+                    [records]="records"
+                    [selectAllEnabled]="true"
+                    (selectionChanged)="onSelectionChanged($event)"
+                >
+                    <hxp-data-column key="icon">
+                        <ng-template let-record="$implicit">
+                            @if (record.isProcessing) {
+                                <mat-spinner
+                                    diameter="20"
+                                    [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.PROCESSING_RECORD' | translate"
+                                />
+                            } @else if (record.status === RecordStatus.OnHold && !record.hasCredential) {
+                                <mat-icon svgIcon="shield_clock" />
+                            } @else if (record.status === RecordStatus.OnHold && record.hasCredential) {
+                                <mat-icon svgIcon="shield_lock" />
+                            } @else {
+                                <mat-icon svgIcon="document" />
+                            }
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="fileName"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.NAME"
+                    />
+                    <hxp-data-column
+                        key="categoryId"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.CATEGORY"
+                    >
+                        <ng-template let-record="$implicit">
+                            {{ record.categoryId | recordCategoryLabel }}
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="environmentDataSourceId"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.DATA_SOURCE"
+                        width="12%"
+                    >
+                        <ng-template let-record="$implicit">
+                            <div class="hxp-record-list-data-source-column">
+                                <mat-icon svgIcon="cloud" />
+                                <span>{{ record.environmentDataSourceId | recordDataSourceLabel }}</span>
+                            </div>
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="cutOffDate"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.CUTOFF_DATE"
+                        width="12%"
+                    >
+                        <ng-template let-record="$implicit">
+                            {{ record.cutOffDate | date }}
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="retainUntil"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.DISPOSITION_DATE"
+                        width="12%"
+                    >
+                        <ng-template let-record="$implicit">
+                            @if (record) {
+                                @if (record?.retainUntil === RETAIN_UNTIL_LOADING) {
+                                    <mat-spinner
+                                        diameter="20"
+                                        [attr.aria-label]="'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.LOADING_DISPOSITION_DATE' | translate"
+                                    />
+                                } @else if (
+                                    record?.retainUntil === INFINITE_RETAIN_UNTIL && record?.contentMetadata?.retentionAdjustmentPropertyName
+                                ) {
+                                    {{ 'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.WAITING_FOR_ADJUSTMENT' | translate }}
+                                } @else if (
+                                    record?.retainUntil === INFINITE_RETAIN_UNTIL && !record?.contentMetadata?.retentionAdjustmentPropertyName
+                                ) {
+                                    {{ 'GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.INDEFINITE' | translate }}
+                                } @else {
+                                    {{ record?.retainUntil | date }}
+                                }
+                            }
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="disposition"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.DISPOSITION"
+                        width="12%"
+                    >
+                        <ng-template let-record="$implicit">
+                            {{ record.disposition | recordDispositionLabel }}
+                        </ng-template>
+                    </hxp-data-column>
+                    <hxp-data-column
+                        key="status"
+                        title="GOVERNANCE.SEARCH_RESULTS.RESULTS_LIST.COLUMNS.STATUS"
+                        width="12%"
+                    >
+                        <ng-template let-record="$implicit">
+                            <span
+                                class="hxp-governance-record-status"
+                                [class]="record.status | recordStatusClass"
+                            >
+                                {{ record.status | recordStatusLabel }}
+                            </span>
+                        </ng-template>
+                    </hxp-data-column>
+                </hxp-entity-list>
+            </div>
+            <div class="hxp-governance-legal-hold-paginator-container">
+                <hxp-results-paginator
+                    [pageSize]="pageSize"
+                    [pageSizeOptions]="[25, 50, 100]"
+                    [previousDisabled]="currentPageIndex === 0"
+                    [nextDisabled]="isNextDisabled()"
+                    (pageSizeChange)="onPageSizeChange($event)"
+                    (nextPage)="loadNextPage()"
+                    (previousPage)="loadPreviousPage()"
+                />
+            </div>
+        }
+    </div>
+</div>

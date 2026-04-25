@@ -1,0 +1,14 @@
+{
+    "generators": {
+        "hxp-library": {
+            "factory": "./generators/hxp-library/hxp-library",
+            "schema": "./generators/hxp-library/schema.json",
+            "description": "Standard generator for creating libraries in the monorepo"
+        },
+        "alfresco-playwright": {
+            "factory": "./generators/alfresco-playwright/alfresco-playwright",
+            "schema": "./generators/alfresco-playwright/schema.json",
+            "description": "alfresco-playwright generator"
+        }
+    }
+}

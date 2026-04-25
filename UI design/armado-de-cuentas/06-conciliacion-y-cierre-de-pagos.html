@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Etapa 6 — Seguimiento de Pago, Conciliación y Cierre - Hyland Cuentas Médicas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#c8daff",
+                        "on-tertiary-container": "#d8d7ff",
+                        "primary-container": "#005eb8",
+                        "inverse-surface": "#213145",
+                        "on-primary-fixed": "#001b3d",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary-container": "#006f69",
+                        "inverse-primary": "#a9c7ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface-variant": "#424752",
+                        "surface": "#f8f9ff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "primary-fixed": "#d6e3ff",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f8f9ff",
+                        "primary": "#00478d",
+                        "outline-variant": "#c2c6d4",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-surface": "#0b1c30",
+                        "tertiary-container": "#4a4cd7",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-low": "#eff4ff",
+                        "secondary": "#006a64",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-secondary-fixed-variant": "#00504b",
+                        "on-primary-fixed-variant": "#00468c",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#302fbf",
+                        "surface-container-high": "#dce9ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary-fixed-dim": "#50dad1",
+                        "outline": "#727783",
+                        "on-secondary-fixed": "#00201e",
+                        "primary-fixed-dim": "#a9c7ff",
+                        "surface-tint": "#005db6",
+                        "secondary-fixed": "#72f7ed",
+                        "background": "#f8f9ff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#6ef4ea"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "sm": "16px",
+                        "margin": "32px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "lg": "40px"
+                    },
+                    "fontFamily": {
+                        "title-sm": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "label-caps": ["Manrope"],
+                        "body-sm": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "title-sm": ["18px", { "lineHeight": "1.5", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .ambient-shadow { box-shadow: 0 8px 32px 0 rgba(0, 94, 184, 0.06); }
+        .ambient-shadow-high { box-shadow: 0 16px 48px 0 rgba(0, 94, 184, 0.12); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopNavBar -->
+<nav class="bg-white/80 backdrop-blur-xl dark:bg-slate-950/80 font-['Manrope'] text-sm tracking-tight font-medium docked full-width top-0 z-50 border-b border-slate-200/60 dark:border-slate-800/60 shadow-[0_8px_30px_rgb(0,94,184,0.04)] sticky top-0">
+<div class="flex justify-between items-center w-full h-16 px-8 max-w-[1440px] mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<span class="text-xl font-extrabold tracking-tighter text-blue-700 dark:text-blue-400">Hyland Cuentas Médicas</span>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-8 h-full">
+<a class="text-slate-500 dark:text-slate-400 pb-4 mt-4 hover:text-blue-600 dark:hover:text-blue-300 transition-all active:scale-95 transition-transform duration-200 flex flex-col justify-end h-full" href="#">Intake</a>
+<a class="text-slate-500 dark:text-slate-400 pb-4 mt-4 hover:text-blue-600 dark:hover:text-blue-300 transition-all active:scale-95 transition-transform duration-200 flex flex-col justify-end h-full" href="#">Analysis</a>
+<a class="text-slate-500 dark:text-slate-400 pb-4 mt-4 hover:text-blue-600 dark:hover:text-blue-300 transition-all active:scale-95 transition-transform duration-200 flex flex-col justify-end h-full" href="#">Approval</a>
+<a class="text-slate-500 dark:text-slate-400 pb-4 mt-4 hover:text-blue-600 dark:hover:text-blue-300 transition-all active:scale-95 transition-transform duration-200 flex flex-col justify-end h-full" href="#">Execution</a>
+<a class="text-slate-500 dark:text-slate-400 pb-4 mt-4 hover:text-blue-600 dark:hover:text-blue-300 transition-all active:scale-95 transition-transform duration-200 flex flex-col justify-end h-full" href="#">Review</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 pb-4 mt-4 flex flex-col justify-end h-full font-bold" href="#">Completed</a>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="text-slate-500 hover:text-primary transition-colors p-2 rounded-full hover:bg-slate-100">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-500 hover:text-primary transition-colors p-2 rounded-full hover:bg-slate-100">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm overflow-hidden border-2 border-white shadow-sm ml-2">
+<img alt="Provider Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a female medical professional with a friendly smile, well-lit, shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGKMzWuWDvgXBDdDH5lCv9KFf2nEvc77lnX86tP87Qo2IvgO8qh1fV60D5i2Uy72gXWGkevUgn56ZJD-9Q3r5zqgxgRH5sBfzNUgOa1shgtnnKYfMuz1wyPPfMVit26IenpZbS2TLy5OC4nj4j-01sQVXYRRIUlB415BNOaGItip2_3ZSg_3qcTz2LpGMOfDzF9ns3OxcucC2Fq9KNNRmRmE0P-s-LM5swMy_yXwd4nnK-v_6ul3DJky0Fr8lykvaD-8Tihnsm9tY"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-[1440px] mx-auto px-8 py-margin">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-margin gap-6">
+<div>
+<p class="font-label-caps text-label-caps text-primary mb-1 uppercase tracking-widest">Etapa 6</p>
+<h1 class="font-headline-md text-headline-md text-on-background">Conciliación y Cierre de Pagos</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Revisión final de cuentas conciliadas, montos recuperados y cierre oficial de expedientes de facturación frente a las aseguradoras.</p>
+</div>
+<div class="glass-panel rounded-xl p-4 border border-outline-variant/30 ambient-shadow flex gap-6 items-center">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Monto Recuperado (Mes)</p>
+<p class="font-title-sm text-title-sm text-secondary font-bold">$1,245,890.00 USD</p>
+</div>
+<div class="h-10 w-px bg-outline-variant/50"></div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Fecha de Cierre</p>
+<p class="font-title-sm text-title-sm text-on-background">24 Nov 2023</p>
+</div>
+</div>
+</header>
+<!-- Summary Cards (Row 1) - Bento Style -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-margin">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-sm border border-outline-variant/40 ambient-shadow relative overflow-hidden group hover:border-primary/30 transition-colors">
+<div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Facturado</p>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-on-background">$4,500,000.00</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="text-xs font-semibold text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 12%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">vs mes anterior</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-sm border border-outline-variant/40 ambient-shadow relative overflow-hidden group hover:border-error/30 transition-colors">
+<div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-error" style="font-variation-settings: 'FILL' 1;">money_off</span>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined">money_off</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Glosado Inicial</p>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-on-background">$850,000.00</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="text-xs font-semibold text-error flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 4%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">requiere atención</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-sm border border-outline-variant/40 ambient-shadow relative overflow-hidden group hover:border-tertiary/30 transition-colors">
+<div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-tertiary" style="font-variation-settings: 'FILL' 1;">gavel</span>
+</div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Recuperado x Apelación</p>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-on-background">$620,500.00</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="text-xs font-semibold text-secondary flex items-center"><span class="material-symbols-outlined text-[14px]">check_circle</span> 73%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant text-xs">tasa de éxito</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-primary rounded-xl p-sm border border-primary-container ambient-shadow relative overflow-hidden group">
+<!-- Abstract background decoration -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
+<div class="absolute bottom-0 left-0 w-24 h-24 bg-secondary/20 rounded-full blur-xl transform -translate-x-5 translate-y-5"></div>
+<div class="flex items-center gap-3 mb-4 relative z-10">
+<div class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<p class="font-label-caps text-label-caps text-primary-fixed uppercase">Monto Final Pagado</p>
+</div>
+<div class="relative z-10">
+<p class="font-headline-md text-headline-md text-white">$4,270,500.00</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-body-sm text-body-sm text-primary-fixed-dim text-xs">94.9% del total facturado</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-white/20 rounded-full h-1.5 mt-3">
+<div class="bg-secondary-fixed h-1.5 rounded-full" style="width: 95%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area: Table and Dashboard -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-margin">
+<!-- Table Section (Takes up 2 columns) -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant/40 ambient-shadow overflow-hidden flex flex-col h-full">
+<div class="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-white sticky top-0 z-10">
+<h2 class="font-title-sm text-title-sm text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">list_alt</span>
+                        Cuentas Cerradas Recientes
+                    </h2>
+<div class="flex gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-9 pr-4 py-1.5 bg-surface rounded-lg border-outline-variant/50 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-64 font-body-sm" placeholder="Buscar ID o Aseguradora..." type="text"/>
+</div>
+<button class="p-1.5 rounded-lg border border-outline-variant/50 text-on-surface-variant hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface text-on-surface-variant border-b border-outline-variant/30">
+<th class="p-4 font-label-caps text-label-caps uppercase w-24">Claim ID</th>
+<th class="p-4 font-label-caps text-label-caps uppercase">Aseguradora</th>
+<th class="p-4 font-label-caps text-label-caps uppercase text-right">Facturado</th>
+<th class="p-4 font-label-caps text-label-caps uppercase text-right">Pagado Final</th>
+<th class="p-4 font-label-caps text-label-caps uppercase text-right">Diferencia</th>
+<th class="p-4 font-label-caps text-label-caps uppercase text-center w-32">Estado</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-outline-variant/20 hover:bg-surface/50 transition-colors">
+<td class="p-4 font-semibold text-primary">#CLM-8924</td>
+<td class="p-4 text-on-background font-medium">Seguros Atlas - GMM</td>
+<td class="p-4 text-right text-on-surface-variant">$45,000.00</td>
+<td class="p-4 text-right font-medium text-on-background">$45,000.00</td>
+<td class="p-4 text-right text-outline">$0.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container/30 text-secondary border border-secondary/20 w-full justify-center">
+                                        Conciliado
+                                    </span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface/50 transition-colors bg-surface-bright">
+<td class="p-4 font-semibold text-primary">#CLM-8925</td>
+<td class="p-4 text-on-background font-medium">GNP Seguros Médicos</td>
+<td class="p-4 text-right text-on-surface-variant">$12,500.00</td>
+<td class="p-4 text-right font-medium text-on-background">$11,800.00</td>
+<td class="p-4 text-right text-error font-medium">-$700.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container/30 text-secondary border border-secondary/20 w-full justify-center">
+                                        Conciliado
+                                    </span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface/50 transition-colors">
+<td class="p-4 font-semibold text-primary">#CLM-8928</td>
+<td class="p-4 text-on-background font-medium">MetLife México</td>
+<td class="p-4 text-right text-on-surface-variant">$89,200.00</td>
+<td class="p-4 text-right font-medium text-on-background">$80,000.00</td>
+<td class="p-4 text-right text-error font-medium">-$9,200.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/50 w-full justify-center">
+                                        Pendiente
+                                    </span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface/50 transition-colors bg-surface-bright">
+<td class="p-4 font-semibold text-primary">#CLM-8931</td>
+<td class="p-4 text-on-background font-medium">Mapfre Tepeyac</td>
+<td class="p-4 text-right text-on-surface-variant">$34,100.00</td>
+<td class="p-4 text-right font-medium text-on-background">$34,100.00</td>
+<td class="p-4 text-right text-outline">$0.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container/30 text-secondary border border-secondary/20 w-full justify-center">
+                                        Conciliado
+                                    </span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/20 hover:bg-surface/50 transition-colors">
+<td class="p-4 font-semibold text-primary">#CLM-8933</td>
+<td class="p-4 text-on-background font-medium">AXA Seguros Corporativo</td>
+<td class="p-4 text-right text-on-surface-variant">$156,000.00</td>
+<td class="p-4 text-right font-medium text-on-background">$150,500.00</td>
+<td class="p-4 text-right text-error font-medium">-$5,500.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-surface-container-high text-on-surface-variant border border-outline-variant/50 w-full justify-center">
+                                        Pendiente
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-surface/50 transition-colors bg-surface-bright">
+<td class="p-4 font-semibold text-primary">#CLM-8940</td>
+<td class="p-4 text-on-background font-medium">Zurich Santander</td>
+<td class="p-4 text-right text-on-surface-variant">$22,000.00</td>
+<td class="p-4 text-right font-medium text-on-background">$22,000.00</td>
+<td class="p-4 text-right text-outline">$0.00</td>
+<td class="p-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary-container/30 text-secondary border border-secondary/20 w-full justify-center">
+                                        Conciliado
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant/30 bg-surface-bright flex justify-between items-center text-xs text-on-surface-variant mt-auto">
+<span>Mostrando 6 de 142 registros</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-surface-container disabled:opacity-50" disabled=""><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="p-1 rounded hover:bg-surface-container"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Financial Recovery Dashboard (Takes 1 column) -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/40 ambient-shadow p-sm flex flex-col h-full">
+<h2 class="font-title-sm text-title-sm text-on-background mb-4 flex items-center gap-2 border-b border-outline-variant/30 pb-3">
+<span class="material-symbols-outlined text-tertiary">pie_chart</span>
+                    Recuperación por Payer
+                </h2>
+<div class="flex-grow flex flex-col justify-center gap-5 mt-2">
+<!-- Payer 1 -->
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-background font-medium">GNP Seguros Médicos</span>
+<span class="font-label-caps text-label-caps text-secondary font-bold">96%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 96%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-outline">Recuperado: $1.2M</span>
+<span class="text-[10px] text-outline">Glosa Final: $50K</span>
+</div>
+</div>
+<!-- Payer 2 -->
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-background font-medium">AXA Seguros</span>
+<span class="font-label-caps text-label-caps text-tertiary font-bold">92%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-tertiary h-2 rounded-full" style="width: 92%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-outline">Recuperado: $980K</span>
+<span class="text-[10px] text-outline">Glosa Final: $85K</span>
+</div>
+</div>
+<!-- Payer 3 -->
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-background font-medium">MetLife México</span>
+<span class="font-label-caps text-label-caps text-secondary font-bold">98%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 98%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-outline">Recuperado: $850K</span>
+<span class="text-[10px] text-outline">Glosa Final: $17K</span>
+</div>
+</div>
+<!-- Payer 4 -->
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-background font-medium">Seguros Atlas</span>
+<span class="font-label-caps text-label-caps text-error font-bold">85%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-error h-2 rounded-full" style="width: 85%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] text-outline">Recuperado: $450K</span>
+<span class="text-[10px] text-outline">Glosa Final: $79K</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/30 bg-surface/50 rounded-lg p-3 text-center">
+<p class="text-xs text-on-surface-variant font-medium">Eficiencia Global de Cobranza</p>
+<p class="font-headline-md text-headline-md text-primary mt-1">94.9%</p>
+</div>
+</div>
+</div>
+<!-- Action Buttons Bar -->
+<div class="bg-white/80 backdrop-blur-md rounded-xl p-4 border border-outline-variant/30 ambient-shadow flex flex-wrap justify-end gap-4 items-center sticky bottom-4 z-40">
+<span class="text-sm text-on-surface-variant mr-auto font-medium hidden md:inline-block">Acciones de Cierre de Ciclo</span>
+<button class="px-6 py-2.5 rounded-lg border-2 border-outline-variant/50 text-on-surface-variant font-label-caps text-label-caps uppercase hover:bg-surface transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">sim_card_download</span>
+                Exportar a ERP
+            </button>
+<button class="px-6 py-2.5 rounded-lg bg-surface-container text-primary font-label-caps text-label-caps uppercase hover:bg-primary-fixed border border-primary/20 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">description</span>
+                Generar Acta de Cierre
+            </button>
+<button class="px-6 py-2.5 rounded-lg bg-primary text-white font-label-caps text-label-caps uppercase hover:bg-on-primary-fixed shadow-md transition-all hover:-translate-y-0.5 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+                Cerrar Expediente Legal
+            </button>
+</div>
+</main>
+</body></html>

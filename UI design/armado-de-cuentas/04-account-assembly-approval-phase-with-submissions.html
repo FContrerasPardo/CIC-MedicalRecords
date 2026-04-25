@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Assembly - Hyland Cuentas Médicas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#005eb8",
+                        "secondary-fixed": "#72f7ed",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-surface": "#213145",
+                        "on-secondary-fixed": "#00201e",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "primary-fixed": "#d6e3ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed-variant": "#00468c",
+                        "on-primary-fixed": "#001b3d",
+                        "background": "#f8f9ff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#006f69",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#4a4cd7",
+                        "surface-dim": "#cbdbf5",
+                        "secondary-fixed-dim": "#50dad1",
+                        "outline": "#727783",
+                        "on-surface-variant": "#424752",
+                        "surface-tint": "#005db6",
+                        "on-secondary-fixed-variant": "#00504b",
+                        "on-error-container": "#93000a",
+                        "on-background": "#0b1c30",
+                        "inverse-primary": "#a9c7ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "on-surface": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#eff4ff",
+                        "surface-variant": "#d3e4fe",
+                        "secondary": "#006a64",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c2c6d4",
+                        "primary": "#00478d",
+                        "tertiary": "#302fbf",
+                        "on-primary-container": "#c8daff",
+                        "on-tertiary-fixed": "#07006c",
+                        "primary-fixed-dim": "#a9c7ff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#6ef4ea",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-container": "#d8d7ff",
+                        "surface": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "base": "4px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "xs": "8px",
+                        "sm": "16px",
+                        "margin": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Manrope"],
+                        "body-sm": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "title-sm": ["Manrope"],
+                        "label-caps": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-sm": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "title-sm": ["18px", { "lineHeight": "1.5", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .inner-glow {
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+        .ambient-shadow {
+            box-shadow: 0 12px 36px -4px rgba(0, 94, 184, 0.06), 0 4px 12px -2px rgba(0, 94, 184, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 border-b border-slate-200/50 shadow-[0_20px_50px_rgba(0,94,184,0.08)] bg-white/80 backdrop-blur-xl">
+<div class="flex items-center justify-between px-8 h-20 max-w-[1440px] mx-auto w-full">
+<div class="text-lg font-black text-blue-800">Hyland Cuentas Médicas</div>
+<div class="flex space-x-8 font-manrope text-sm font-medium tracking-tight h-full items-center">
+<a class="text-slate-500 py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full" href="#">Intake</a>
+<a class="text-slate-500 py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full" href="#">Analysis</a>
+<a class="text-blue-700 border-b-2 border-blue-700 font-bold py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full mt-[2px]" href="#">Approval</a>
+<a class="text-slate-500 py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full" href="#">Execution</a>
+<a class="text-slate-500 py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full" href="#">Review</a>
+<a class="text-slate-500 py-5 hover:text-blue-600 transition-colors duration-200 active:scale-95 transform transition-all cursor-pointer flex items-center h-full" href="#">Completed</a>
+</div>
+<div class="flex items-center space-x-6">
+<button class="font-manrope text-sm font-medium tracking-tight text-slate-500 hover:text-blue-600 transition-colors">Analytics</button>
+<button class="font-manrope text-sm font-medium tracking-tight text-slate-500 hover:text-blue-600 transition-colors">Configuration</button>
+<div class="flex items-center space-x-4 ml-4 pl-4 border-l border-slate-200">
+<span class="material-symbols-outlined text-slate-500 hover:text-blue-600 cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-blue-600 cursor-pointer transition-colors">settings</span>
+<img alt="Provider Profile" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm cursor-pointer" data-alt="professional headshot of a female doctor in a bright clinical setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbuick8DQLWe97Yxz3M1HTdx3PYi_wQYXv4MlF1sFF6dKExBjpq4Uc_YMAx1cAMdcDAzniy2SDP4lrzND5IJrIloBZv9H6eoV507jr_j5Nj_3hQjFu8FwcBeORIchr8nYrl7EOMBlD4cdu7ShepcDMz2c1Obqrusjiz8Cvj6UBwurYjRUbKNITv1DHuvV26OP4s3nNYEZtLbnUseh8rjRuCRexMzmd5PVvllMLzo5RExiUv7f1TDXYga-Vqaieuh9pvuiSDy23PzQ"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-[1440px] mx-auto pt-[120px] px-margin pb-xl">
+<!-- Page Header -->
+<header class="mb-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex-1">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-xs">Account Assembly</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Finalize the billing package by verifying validated claims and selecting the target transmission format for institutional submission.</p>
+</div>
+<div class="flex items-center bg-white border border-slate-200 rounded-xl px-8 py-4 shadow-sm min-w-max h-fit">
+<div class="flex flex-col border-r border-slate-200 pr-8 mr-8">
+<span class="font-bold text-slate-500 text-[12px] tracking-wider uppercase mb-1">Claims Ready</span>
+<span class="font-extrabold text-[#00478d] text-3xl font-display">2,841</span>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-slate-500 text-[12px] tracking-wider uppercase mb-1">Total Batch Amount</span>
+<span class="font-extrabold text-[#0b1c30] text-3xl font-display">$4,105,820.00</span>
+</div>
+</div>
+</header>
+<!-- Layout Grid -->
+<div class="grid grid-cols-12 gap-gutter items-start">
+<!-- Left Canvas (Main Workflow) -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<!-- Package Format Section -->
+<section>
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-title-sm text-title-sm text-on-surface">Package Format</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">REQUIRED STEP</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-sm">
+<!-- Active Card -->
+<div class="bg-surface-container-low border-[2px] border-primary rounded-xl p-md relative overflow-hidden cursor-pointer shadow-[0_4px_12px_rgba(0,94,184,0.08)] transition-all">
+<div class="absolute top-sm right-sm text-primary">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-12 h-12 rounded-lg bg-primary-fixed/50 flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-primary text-[28px]">description</span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-1">RIPS</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Standard MinSalud format for domestic institutional billing and reporting.</p>
+</div>
+<!-- Inactive Card -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md relative overflow-hidden cursor-pointer hover:border-outline hover:shadow-sm transition-all group">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-sm group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[28px]">code_blocks</span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-1">XML FHIR</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">HL7 modern interoperability standard for integrated health networks.</p>
+</div>
+<!-- Inactive Card -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md relative overflow-hidden cursor-pointer hover:border-outline hover:shadow-sm transition-all group">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center mb-sm group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[28px]">data_object</span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-1">EDI 837</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">International standard for electronic healthcare claim submission.</p>
+</div>
+</div>
+</section>
+<!-- Claims Table Section -->
+<section class="bg-surface rounded-xl border border-outline-variant/60 ambient-shadow overflow-hidden flex flex-col">
+<div class="p-md border-b border-outline-variant/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50">
+<div>
+<h2 class="font-title-sm text-title-sm text-on-surface">Pre-Validated Claims</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Select the verified claims to include in this batch.</p>
+</div>
+<div class="relative w-full sm:w-auto">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full sm:w-72 pl-10 pr-4 py-2 bg-surface-bright border border-outline-variant/60 rounded-lg font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-shadow" placeholder="Search by ID or Patient..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-lowest border-b border-outline-variant/40">
+<tr>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant w-[60px]">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer" type="checkbox"/>
+</th>
+<th class="py-3 px-sm font-label-caps text-label-caps text-on-surface-variant">Claim ID</th>
+<th class="py-3 px-sm font-label-caps text-label-caps text-on-surface-variant">Patient Name</th>
+<th class="py-3 px-sm font-label-caps text-label-caps text-on-surface-variant">Service Date</th>
+<th class="py-3 px-sm font-label-caps text-label-caps text-on-surface-variant text-right">Billed Amount</th>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant text-center">Clearance</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 bg-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-md">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface font-medium">HCM-23910-A</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface">Roberto Mendez</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface-variant">Oct 14, 2023</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface text-right font-medium">$4,250.00</td>
+<td class="py-4 px-md text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-caps text-label-caps border border-secondary-container">Approved</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-bright/50 hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-md">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface font-medium">HCM-23911-B</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface">Elena Rojas</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface-variant">Oct 14, 2023</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface text-right font-medium">$1,120.50</td>
+<td class="py-4 px-md text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-caps text-label-caps border border-secondary-container">Approved</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-md">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface font-medium">HCM-23914-C</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface">Carlos Santamaria</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface-variant">Oct 12, 2023</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface text-right font-medium">$8,400.00</td>
+<td class="py-4 px-md text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-caps text-label-caps border border-outline-variant/40">Review Req.</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-bright/50 hover:bg-surface-bright transition-colors group">
+<td class="py-4 px-md">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface font-medium">HCM-23918-D</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface">Valeria Gomez</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface-variant">Oct 11, 2023</td>
+<td class="py-4 px-sm font-body-sm text-body-sm text-on-surface text-right font-medium">$350.00</td>
+<td class="py-4 px-md text-center">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/30 text-secondary font-label-caps text-label-caps border border-secondary-container">Approved</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm border-t border-outline-variant/40 bg-surface-bright flex justify-between items-center text-body-sm text-on-surface-variant">
+<span>Showing 4 of 24 pre-validated claims</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<span class="px-2">Page 1 of 6</span>
+<button class="p-1 rounded hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- Active Submissions Section -->
+</div>
+<!-- Right Canvas (Sidebar / Action Context) -->
+<aside class="col-span-12 lg:col-span-4 relative flex flex-col gap-sm">
+<!-- Sticky Container -->
+<div class="sticky top-[120px] bg-gradient-to-b from-white to-surface-container-low rounded-xl border border-outline-variant/50 ambient-shadow p-md flex flex-col backdrop-blur-md">
+<h2 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+                        Selection Summary
+                    </h2>
+<!-- Hero Metric -->
+<div class="bg-surface-bright rounded-lg p-md mb-md border border-outline-variant/30 text-center">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">Total Selected Value</p>
+<p class="font-display-lg text-display-lg text-primary tracking-tight">$5,720.50</p>
+</div>
+<!-- Detail Metrics -->
+<div class="space-y-4 mb-lg px-2">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">fact_check</span>
+                                Selected Claims
+                            </span>
+<span class="font-title-sm text-title-sm text-on-surface">3</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">category</span>
+                                Package Format
+                            </span>
+<span class="font-title-sm text-title-sm text-on-surface">RIPS</span>
+</div>
+<div class="flex justify-between items-center pb-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">domain</span>
+                                Target Entity
+                            </span>
+<span class="font-title-sm text-title-sm text-on-surface">SaludTotal EPS</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-auto space-y-3 pt-4">
+<button class="w-full bg-primary text-on-primary font-title-sm text-title-sm py-3.5 px-4 rounded-lg hover:bg-surface-tint inner-glow transition-all duration-200 flex justify-center items-center gap-2 shadow-md">
+<span class="material-symbols-outlined text-[20px]">package_2</span>
+                            Generate Package
+                        </button>
+<button class="w-full bg-transparent border-[1.5px] border-primary text-primary font-title-sm text-title-sm py-3 px-4 rounded-lg hover:bg-primary-fixed/20 transition-colors duration-200">
+                            Save Draft
+                        </button>
+</div>
+</div>
+<!-- Total Approved Value Card -->
+<div class="bg-[#eef2ff] rounded-xl border border-outline-variant/30 p-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">Total Approved Value</p>
+<p class="font-display-lg text-[40px] leading-tight font-extrabold text-primary tracking-tight mb-4">$6,920.50</p>
+<div class="flex items-center gap-2 text-[#006f69]">
+<span class="material-symbols-outlined text-[20px]">trending_up</span>
+<span class="font-body-md text-body-md">100% Match with Intake</span>
+</div>
+</div>
+</aside>
+</div><section class="mt-lg">
+<h2 class="font-title-sm text-title-sm text-on-surface mb-sm">Active Submissions</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-sm">
+<!-- Card 1 -->
+<div class="bg-surface border border-outline-variant/60 rounded-xl p-md">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center font-title-sm text-primary">AE</div>
+<h3 class="font-title-sm text-title-sm text-on-surface">Aetna Global</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#72f7ed] text-[#006f69] font-label-caps text-[10px] font-bold tracking-wider uppercase">Processing</span>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant mb-2">
+<span>Batch PKG-882</span>
+<span class="text-on-surface font-medium">65%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2">
+<div class="bg-[#006f69] h-2 rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface border border-outline-variant/60 rounded-xl p-md">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center font-title-sm text-primary">BC</div>
+<h3 class="font-title-sm text-title-sm text-on-surface">BlueCross</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#72f7ed] text-[#006f69] font-label-caps text-[10px] font-bold tracking-wider uppercase">Transmitting</span>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant mb-2">
+<span>Batch PKG-883</span>
+<span class="text-on-surface font-medium">90%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2">
+<div class="bg-[#006f69] h-2 rounded-full" style="width: 90%"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface border border-outline-variant/60 rounded-xl p-md">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center font-title-sm text-primary">SU</div>
+<h3 class="font-title-sm text-title-sm text-on-surface">SURA</h3>
+</div>
+<span class="inline-flex items-center px-2 py-1 rounded bg-[#e6f4ea] text-[#1e8e3e] font-label-caps text-[10px] font-bold tracking-wider uppercase">Accepted</span>
+</div>
+<div class="flex items-center justify-between text-body-sm text-on-surface-variant mb-2">
+<span>Batch PKG-880</span>
+<span class="text-on-surface font-medium">100%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2">
+<div class="bg-[#1e8e3e] h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

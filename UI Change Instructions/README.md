@@ -1,67 +1,101 @@
-# Automate-Custom-UI
+# Automate Custom UI - CIC Medical Records
 
-## Apps You Will Need or Want
-- Visual Studio Code (or similar code editing app) - (Highly Recommended)
-  - Download VSCode [here](https://code.visualstudio.com/download).
+Esta carpeta conserva las instrucciones usadas para crear, adaptar, empaquetar y
+actualizar una Custom UI de Hyland Automate. Para este repo, la ruta principal
+no es crear una app desde cero: es trabajar sobre la plantilla fuente exportada
+desde Automate en:
 
-## Pre-Requisite Installations (NEEDED)
-I will break this guide down into 2 sections, MAC OS users and Windows users. Proceed to the section that applies to you.
+```text
+C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+```
 
-### MAC OS:
-1. Install Node.js  
-   - Open a Terminal Window and enter the following command to install npm:
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-```
-2. This command will set the HOME global variable:
-```
-"$HOME/.nvm/nvm.sh"
-```
-3. Install NVM: _Run this command in Terminal_
-```
-nvm install 22
-```
-4. Run this command after installation to ensure Node.js is installed and check version: (should display version 22)
-```
-node -v
-```
-5. Verify npm version: (Should display v10+, but as long as a version displays then you have npm)
-```
-npm --v
-```
-**This should be all that is necessary to create a Custom UI. Continue to the Generate a Custom UI Guide at the bottom of the page.**
+## Entorno recomendado
 
+- Windows con ruta corta: `C:\CIC-MedicalRecords`.
+- Visual Studio Code o editor equivalente.
+- Node.js `24.14.0`.
+- npm `11.9.x`.
 
-### Windows:
-1. Install Node.js:  
-   - Navigate to this url [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
-     - On that page, at the top of the code box, use the drop-down selectors to set the following configuration: _Get node.js ```v22.17.0(LTS)``` for ```Windows``` using ```Chocolatey``` with ```npm```_. You will use the commands in the code box to complete the next few steps.
-     - Open the **Powershell** application on your machine **in Adminstration Mode**.
-     - In Powershell, paste and run the **first** command, which will install node.js.
-     - **IMPORTANT**: Close Powershell and re-open in **Admin Mode** after this installs.
-     - Paste and run the second command.
-     - You should now be able to run the version commands to ensure bothnode and npm are installed. ```node -v``` and ```npm -v```.
-2. While still in Powershell, run this command to set the HOME global variable:
-```
-"$HOME/.nvm/nvm.sh"
-```
-3. Install NVM: _Complete the following process_
-   - Navigate to [this webpage](https://github.com/coreybutler/nvm-windows/releases).
-   - Under the latest version of the nvm installer, find the hyperlink that is titled: **nvm-setup.exe**
-_Use this screenshot as a guide_
-![alt text](images/nvm-windows.jpeg "Select the nvm installer")
-   - Run the downloaded .exe file and follow the install wizard.  
-**NOTE:** You may now open Visual Studio Code and use the embedded Terminal window within VSCode for an easier experience moving forward. **Be sure to launch VS Code in Administration mode, which will provide the Terminal window with authority to install additional packets later on.** Once VSCode is opened, you can open a terminal window from within the application by selecting **Terminal** from the top drop-down options, then selecting **New Terminal**. The following commands can also be run in Powershell (in Admin mode). 
-4. Run this command after installation to ensure Node.js is installed and check version: (should display version 22)
-```
-node -v
-```
-5. Verify npm version: (Should display v10+, but as long as a version displays then you have npm)
-```
-npm --v
-```
-**This should be all that is necessary to create a Custom UI. Continue to the Generate a Custom UI Guide at the bottom of the page.**
+Nota: algunas guias generales de Hyland mencionan Node 22. La plantilla
+`medicalrecords-pq7lr-source` tiene `engines` en `package.json` y exige Node 24.
 
+## Flujo local validado
 
-## Continue on to Generate a Custom UI
-[Create a Custom UI](/Create-Custom-UI.md)
+```powershell
+cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+npm ci
+npm run setenv -- -c workspace-hxp:_customApp
+npm run nx:run-target -- workspace-hxp:preserve
+npm run nx:run-target -- workspace-hxp:build:development
+npm start workspace-hxp -- --host localhost --port 4200 --open=false
+```
+
+Abrir:
+
+```text
+http://localhost:4200/
+```
+
+No usar `127.0.0.1` para login local por posibles errores CORS con el IDP.
+
+## Fuente de verdad de Automate
+
+La configuracion de desarrollo local esta en:
+
+```text
+CustomUI/medicalrecords-pq7lr-source/config/contexts.json5
+```
+
+El archivo generado:
+
+```text
+CustomUI/medicalrecords-pq7lr-source/apps/workspace-hxp/.env
+```
+
+no se versiona. Se regenera desde `contexts.json5`.
+
+## Rama de trabajo
+
+Usar `codex/integration` como branch de integracion para cambios de UI. Mantener
+`main` como base estable para poder volver rapido si una prueba de plugin,
+widget o packaging rompe el workspace.
+
+## Autor para generadores
+
+Cuando se use `@hyland/extend`, el autor del proyecto debe ser:
+
+```text
+Fernando Contreras
+```
+
+Ejemplo:
+
+```powershell
+npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando Contreras" --addTranslations true
+```
+
+## Documentos incluidos
+
+- `GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+  flujo base para crear/descargar la Custom UI y generar `.env`.
+- `GLS-Creating a Plugin Page-250426-135339.pdf`: creacion de paginas de plugin.
+- `GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets para formularios
+  cuando el diseno de Studio Modeler lo requiera.
+- `GLS-Packaging a Custom UI-250426-135225.pdf`: build, zip y subida a Automate.
+- `GLS-Update a Custom UI-250426-135603.pdf`: actualizar una Custom UI existente;
+  aplicar siempre con branch/backup previo.
+- `GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
+  alternativa desde cero; queda como referencia futura.
+- `Create-Custom-UI.md`: guia historica del flujo inicial.
+- `Changing-Angular-UI.md`: guia historica para reemplazar Home. En esta demo se
+  prefiere plugin/extension antes de reemplazar el shell base.
+
+## Criterio de implementacion para esta demo
+
+- Crear un plugin `medical-records`.
+- Registrar una ruta `/medical-records`.
+- Conservar rutas nativas de Automate como tareas, procesos, start process y
+  process details.
+- Migrar las pantallas de `UI design/` a Angular/SCSS mantenible.
+- Evitar pegar HTML exportado de Stitch con CDN externos.
+- Empaquetar con `workspace-hxp:pack-build` antes de subir a Automate.

@@ -36,6 +36,16 @@ Los mockups visuales que se van a migrar a componentes Angular estan en:
 UI design/
 ```
 
+La rama recomendada para cambios de UI es:
+
+```text
+codex/integration
+```
+
+`main` se mantiene como punto estable. Antes de cambios grandes en la plantilla
+o en generadores de Hyland, trabajar en `codex/integration` permite volver
+rapido a una base conocida si una iteracion rompe el build.
+
 ## Importante para usar el repo desde git
 
 Git no debe incluir dependencias instaladas ni artefactos locales generados.
@@ -69,7 +79,11 @@ Esto es necesario porque el `package.json` referencia varios paquetes con
 - npm `11.9.x`.
 - Acceso a los registries npm requeridos por el `package-lock.json`.
 
-La plantilla trae `.nvmrc`, asi que con nvm for Windows se puede usar:
+La plantilla trae `.nvmrc` y el `package.json` exige Node `>=24.14.0 <25.0.0`
+y npm `>=11.9.0 <12.0.0`. Algunas guias Hyland mencionan Node 22, pero esta
+plantilla concreta debe ejecutarse con Node 24.
+
+Con nvm for Windows se puede usar:
 
 ```powershell
 cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
@@ -143,6 +157,16 @@ npm start workspace-hxp
 El target `serve` ejecuta antes `workspace-hxp:preserve`, que genera
 `apps/workspace-hxp/.tmp/app.config.json` a partir del `.env`.
 
+Para validar autenticacion local, usar siempre:
+
+```text
+http://localhost:4200/
+```
+
+No usar `127.0.0.1` para este proyecto; puede provocar errores CORS con el IDP
+de Hyland. Con el modulo de local development activo y desplegado en Automate,
+la app debe redirigir a la pantalla de login de Content Innovation Cloud.
+
 ## Validar y compilar
 
 Validar la generacion de configuracion:
@@ -165,6 +189,32 @@ npm run nx:run-target -- workspace-hxp:pack-build
 
 Los outputs quedan bajo `dist/` y no se versionan en git.
 
+## Crear el plugin de Medical Records
+
+La ruta recomendada es crear una extension/plugin dentro de la plantilla en vez
+de reemplazar el shell base de Automate. El autor para los generadores debe ser:
+
+```text
+Fernando Contreras
+```
+
+Comando base previsto:
+
+```powershell
+cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando Contreras" --addTranslations true
+```
+
+El proyecto generado se espera como `medical-records` y la carpeta como:
+
+```text
+libs/plugins/medical-records/
+```
+
+Para paginas o widgets posteriores, usar el nombre real del proyecto generado
+por Nx. En esta plantilla, las pruebas de generador indican que el nombre del
+plugin no agrega automaticamente el prefijo `plugins-`.
+
 ## Estructura del repo
 
 ```text
@@ -177,6 +227,11 @@ Los outputs quedan bajo `dist/` y no se versionan en git.
 |   `-- medicalrecords-pq7lr-source/
 |-- UI Change Instructions/
 |   |-- GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf
+|   |-- GLS-Creating a Plugin Page-250426-135339.pdf
+|   |-- GLS-Creating Custom Forms Widget-250426-135447.pdf
+|   |-- GLS-Packaging a Custom UI-250426-135225.pdf
+|   |-- GLS-Update a Custom UI-250426-135603.pdf
+|   |-- GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf
 |   |-- Create-Custom-UI.md
 |   `-- Changing-Angular-UI.md
 |-- UI design/
@@ -208,6 +263,16 @@ Los outputs quedan bajo `dist/` y no se versionan en git.
 - `UI Change Instructions/`: guias operativas para Custom UI.
 - `UI Change Instructions/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   instructivo original revisado para el flujo `.env` / `contexts.json5`.
+- `UI Change Instructions/GLS-Creating a Plugin Page-250426-135339.pdf`:
+  guia de paginas dentro de plugins.
+- `UI Change Instructions/GLS-Creating Custom Forms Widget-250426-135447.pdf`:
+  referencia para widgets de formularios cuando Studio Modeler lo requiera.
+- `UI Change Instructions/GLS-Packaging a Custom UI-250426-135225.pdf`:
+  referencia de empaquetado y subida a Automate.
+- `UI Change Instructions/GLS-Update a Custom UI-250426-135603.pdf`:
+  referencia para actualizar una Custom UI existente con respaldo/branch previo.
+- `UI Change Instructions/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`:
+  opcion futura para crear desde cero, no usada como ruta principal actual.
 - `CustomUI/medicalrecords-pq7lr-source/developer-docs/local-development/env-setup.md`:
   detalle del generador de `.env`.
 - `CustomUI/medicalrecords-pq7lr-source/README.md`: README original de la

@@ -211,3 +211,26 @@ IDP, ECM, Agentes IA, Automate, Case Management y Knowledge Discovery operan int
 Como primer avance de implementación y alineación visual, ya se validó la integración con Stitch MCP y se exportó un lote inicial de interfaces de referencia para las líneas de trabajo de armado de cuentas y gestión de convenios.
 
 Los artefactos de referencia quedaron organizados en `UI design/`, con versiones HTML y PNG por pantalla, para servir como insumo de diseño en las siguientes iteraciones de la Custom UI.
+
+## Nota tecnica de Custom UI
+
+La implementacion principal de la demo se construye sobre la plantilla fuente
+exportada desde Automate:
+
+`CustomUI/medicalrecords-pq7lr-source/`
+
+La carpeta `CustomUI/workspace-hxp-edited/` queda como referencia de un build
+previo, no como base editable principal.
+
+Para conservar la integracion con Automate:
+
+- `config/contexts.json5` es la fuente de verdad del mapping `_customApp`.
+- `apps/workspace-hxp/.env` se genera localmente y no se versiona.
+- El desarrollo local debe probarse en `http://localhost:4200/`.
+- La ruta `127.0.0.1` no debe usarse para login local por riesgo de CORS.
+- El branch recomendado para iteraciones de UI es `codex/integration`.
+- El autor para generadores Hyland/Nx es `Fernando Contreras`.
+
+La primera experiencia personalizada se plantea como plugin `medical-records`
+con ruta `/medical-records`, conservando las rutas nativas de Automate para
+tareas, procesos, inicio de procesos y seguimiento.

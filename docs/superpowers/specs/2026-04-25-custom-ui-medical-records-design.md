@@ -8,6 +8,9 @@ Construir la primera version editable de la Custom UI de Cuentas Medicas dentro 
 
 La carpeta principal de trabajo es `C:\CIC-MedicalRecords`.
 
+La rama de trabajo para esta iteracion es `codex/integration`; `main` se
+mantiene como base estable.
+
 La nueva plantilla fuente esta en:
 
 `CustomUI/medicalrecords-pq7lr-source/`
@@ -45,6 +48,12 @@ La alternativa de crear una app desde cero queda registrada como opcion futura. 
 Crear un plugin Angular limpio dentro de la plantilla:
 
 `libs/plugins/medical-records`
+
+El autor para el generador sera `Fernando Contreras`.
+
+Comando previsto:
+
+`npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando Contreras" --addTranslations true`
 
 El plugin se registrara en `libs/plugins/index.ts` y se integrara al shell mediante los generadores de `@hyland/extend` o mediante una estructura equivalente compatible con ellos.
 
@@ -177,8 +186,9 @@ Validaciones minimas:
 Antes de empaquetar para Automate:
 
 - Ejecutar una instalacion limpia con `npm ci` si se requiere reproducibilidad total.
-- Ejecutar `npm run pack-build workspace-hxp`.
+- Ejecutar `npm run nx:run-target -- workspace-hxp:pack-build`.
 - Validar que `dist/workspace-hxp.zip` se genere y no exceda el limite operativo de subida.
+- Subir el zip siguiendo `UI Change Instructions/GLS-Packaging a Custom UI-250426-135225.pdf`.
 
 ## Riesgos
 
@@ -186,6 +196,9 @@ Antes de empaquetar para Automate:
 - El HTML de Stitch contiene dependencias CDN; copiarlas directamente podria fallar en Automate o aumentar fragilidad.
 - El zip final puede crecer si se agregan assets innecesarios.
 - La navegacion real hacia procesos depende de que la configuracion de Automate siga vigente y que la sesion local pueda autenticarse.
+- La documentacion de app en blanco existe y puede dar mas control, pero todavia
+  no es el camino principal porque la plantilla ya preserva shell, auth,
+  configuracion y packaging.
 
 ## Fuera de Alcance
 

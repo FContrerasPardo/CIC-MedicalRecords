@@ -1,0 +1,843 @@
+<section class="medical-records-experience" aria-label="Process Overview Dashboard">
+    <div class="dashboard-shell">
+        <header class="experience-header">
+            <div class="brand-cluster">
+                <span class="brand-name">Hyland Cuentas Medicas</span>
+                <nav class="top-links" aria-label="Medical records quick links">
+                    <a href="#">Configuracion de Convenios</a>
+                    <a href="#">Analitica de Procesos</a>
+                </nav>
+            </div>
+
+            <div class="header-actions">
+                <button type="button" class="icon-button" aria-label="Notifications">
+                    <span class="material-icons">notifications</span>
+                </button>
+                <button type="button" class="icon-button" aria-label="User profile">
+                    <span class="material-icons">account_circle</span>
+                </button>
+                <button type="button" class="ghost-action">Export Report</button>
+                <button type="button" class="primary-action" routerLink="/medical-records/intake">New Intake</button>
+            </div>
+        </header>
+
+        <section class="process-heading">
+            <h1>{{ activePhase.key === 'overview' ? 'Process Overview Dashboard' : activeDetail.title }}</h1>
+            <p *ngIf="activePhase.key !== 'overview'">{{ activeDetail.description }}</p>
+
+            <nav class="phase-nav" aria-label="Medical records phase navigation">
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records"
+                    [class.active]="activePhase.key === 'overview'"
+                    [class.completed]="activePhase.order > 0"
+                >Overview</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/intake"
+                    [class.active]="activePhase.key === 'intake'"
+                    [class.completed]="activePhase.order > 1"
+                >Intake</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/analysis"
+                    [class.active]="activePhase.key === 'analysis'"
+                    [class.completed]="activePhase.order > 2"
+                >Analysis</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/approval"
+                    [class.active]="activePhase.key === 'approval'"
+                    [class.completed]="activePhase.order > 3"
+                >Approval</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/execution"
+                    [class.active]="activePhase.key === 'execution'"
+                    [class.completed]="activePhase.order > 4"
+                >Execution</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/review"
+                    [class.active]="activePhase.key === 'review'"
+                    [class.completed]="activePhase.order > 5"
+                >Review</a>
+                <span class="material-icons nav-separator">chevron_right</span>
+                <a
+                    class="phase-link"
+                    routerLink="/medical-records/completed"
+                    [class.active]="activePhase.key === 'completed'"
+                >Completed</a>
+            </nav>
+        </section>
+
+        <ng-container *ngIf="activePhase.key === 'overview'; else nonOverviewWorkspace">
+            <section class="section-block">
+                <h2>Insights</h2>
+                <div class="insights-grid">
+                    <article class="spotlight-card recovery-card">
+                        <div class="card-title-row">
+                            <h3>Total Recovery Rate</h3>
+                            <span class="round-icon material-icons">trending_up</span>
+                        </div>
+                        <strong>87.4%</strong>
+                        <p>Target: 90% by Q3. Showing a 2.1% increase from last month.</p>
+                    </article>
+
+                    <article class="spotlight-card productivity-card">
+                        <div class="card-title-row">
+                            <div>
+                                <h3>Productivity by Hour</h3>
+                                <p>Daily processing volume</p>
+                            </div>
+                            <div class="segment-control">
+                                <span>Today</span>
+                                <span>Week</span>
+                            </div>
+                        </div>
+                        <div class="bar-chart" aria-label="Productivity by hour chart">
+                            <span
+                                *ngFor="let bar of chartBars; let index = index; trackBy: trackByIndex"
+                                [class.alt]="index % 2 === 0"
+                                [style.height.%]="bar"
+                            ></span>
+                        </div>
+                        <div class="chart-axis">
+                            <span>12am</span>
+                            <span>4am</span>
+                            <span>8am</span>
+                            <span>12pm</span>
+                            <span>4pm</span>
+                            <span>8pm</span>
+                        </div>
+                    </article>
+
+                    <article class="spotlight-card completion-card">
+                        <div class="card-title-row">
+                            <h3>Process Completion</h3>
+                            <span class="round-icon material-icons">check_circle</span>
+                        </div>
+                        <strong>95%</strong>
+                        <p>Projected 98% efficiency based on current automation rates.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <h2>Performance Metrics</h2>
+                <div class="metrics-grid">
+                    <article class="metric-card" *ngFor="let metric of performanceMetrics">
+                        <span>{{ metric.label }}</span>
+                        <strong>{{ metric.value }}</strong>
+                        <p [class.negative]="!metric.positive">
+                            <span class="material-icons">{{ metric.positive ? 'arrow_outward' : 'south_east' }}</span>
+                            {{ metric.helper }}
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block attention-section">
+                <div class="attention-header">
+                    <div class="attention-title">
+                        <h2>Attention Required</h2>
+                        <span>3 Critical</span>
+                    </div>
+                    <div class="attention-tools">
+                        <label class="search-box">
+                            <span class="material-icons">search</span>
+                            <input type="text" placeholder="Search accounts..." aria-label="Search accounts" />
+                        </label>
+                        <button type="button" class="filter-button">
+                            <span class="material-icons">tune</span>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="attention-list">
+                    <article class="attention-item" *ngFor="let item of attentionItems" [ngClass]="'tone-' + item.tone">
+                        <div class="attention-icon">
+                            <span class="material-icons">{{ item.icon }}</span>
+                        </div>
+                        <div>
+                            <strong>{{ item.title }}</strong>
+                            <p>{{ item.subtitle }}</p>
+                        </div>
+                        <small>{{ item.meta }}</small>
+                    </article>
+                </div>
+            </section>
+        </ng-container>
+
+        <ng-template #nonOverviewWorkspace>
+            <ng-container [ngSwitch]="activePhase.key">
+                <section *ngSwitchCase="'intake'" class="intake-workspace">
+                    <div class="patient-header">
+                        <div class="patient-identity">
+                            <div class="avatar-card">
+                                <span class="material-icons">medical_services</span>
+                            </div>
+                            <div>
+                                <div class="patient-title-row">
+                                    <h2>Elena Rodriguez</h2>
+                                    <span class="state-pill success"><i></i> Intake Active</span>
+                                </div>
+                                <div class="patient-meta">
+                                    <span><span class="material-icons">badge</span> MRN: 948-201-8X</span>
+                                    <span><span class="material-icons">cake</span> DOB: 14/08/1975 (48y)</span>
+                                    <span><span class="material-icons">account_balance</span> BlueCross Platinum</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="phase-actions">
+                            <button type="button" class="ghost-action">
+                                <span class="material-icons">upload_file</span>
+                                Upload
+                            </button>
+                            <button type="button" class="primary-action" routerLink="/medical-records/analysis">
+                                Proceed to Analysis
+                                <span class="material-icons">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="intake-grid">
+                        <div class="intake-main">
+                            <div class="intake-stats">
+                                <article class="intake-stat-card">
+                                    <div>
+                                        <span>Total Documents</span>
+                                        <strong>14</strong>
+                                        <p><span class="material-icons">trending_up</span> +2 from yesterday</p>
+                                    </div>
+                                    <span class="material-icons">folder_copy</span>
+                                </article>
+                                <article class="intake-stat-card">
+                                    <div>
+                                        <span>Verified</span>
+                                        <strong>11</strong>
+                                        <p class="positive">Ready for coding</p>
+                                    </div>
+                                    <span class="material-icons">verified</span>
+                                </article>
+                                <article class="intake-stat-card warning">
+                                    <div>
+                                        <span>Pending Review</span>
+                                        <strong>3</strong>
+                                        <p><span class="material-icons">warning</span> Requires attention</p>
+                                    </div>
+                                    <span class="material-icons">pending_actions</span>
+                                </article>
+                            </div>
+
+                            <article class="document-repository">
+                                <div class="repository-header">
+                                    <div>
+                                        <h2>Document Repository</h2>
+                                        <p>Unified expediente intake package</p>
+                                    </div>
+                                    <button type="button" class="filter-button">
+                                        <span class="material-icons">tune</span>
+                                        Sort
+                                    </button>
+                                </div>
+
+                                <div class="document-list">
+                                    <div class="document-row verified">
+                                        <span class="material-icons">description</span>
+                                        <div>
+                                            <strong>Epicrisis - Hospital San Javier</strong>
+                                            <p>Uploaded today, OCR 98% confidence</p>
+                                        </div>
+                                        <em>Verified</em>
+                                    </div>
+                                    <div class="document-row verified">
+                                        <span class="material-icons">receipt_long</span>
+                                        <div>
+                                            <strong>Factura Electronica FE-88291</strong>
+                                            <p>Linked to 14 billed services</p>
+                                        </div>
+                                        <em>Verified</em>
+                                    </div>
+                                    <div class="document-row pending">
+                                        <span class="material-icons">assignment_late</span>
+                                        <div>
+                                            <strong>Autorizacion Secundaria</strong>
+                                            <p>Missing payer confirmation for procedure 47562</p>
+                                        </div>
+                                        <em>Pending</em>
+                                    </div>
+                                    <div class="document-row">
+                                        <span class="material-icons">science</span>
+                                        <div>
+                                            <strong>Laboratory Results Bundle</strong>
+                                            <p>8 pages classified as diagnostic support</p>
+                                        </div>
+                                        <em>Ready</em>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <aside class="intake-side">
+                            <article class="extraction-card">
+                                <span class="eyebrow">Extracted Data</span>
+                                <h2>Clinical Index</h2>
+                                <dl>
+                                    <div>
+                                        <dt>Primary Diagnosis</dt>
+                                        <dd>K80.2 - Cholelithiasis</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Procedure</dt>
+                                        <dd>47562 - Laparoscopic cholecystectomy</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Admission</dt>
+                                        <dd>Emergency / 2 day stay</dd>
+                                    </div>
+                                </dl>
+                            </article>
+
+                            <article class="compliance-card">
+                                <span class="material-icons">shield</span>
+                                <h3>Compliance Readiness</h3>
+                                <strong>82%</strong>
+                                <p>One authorization document is required before automated analysis.</p>
+                            </article>
+                        </aside>
+                    </div>
+                </section>
+
+                <section *ngSwitchCase="'analysis'" class="analysis-workspace">
+                    <header class="analysis-header">
+                        <span class="eyebrow">AI Pre-validation</span>
+                        <h2>Analysis Phase</h2>
+                        <p>Review automated findings and resolve identified risks before proceeding to manual approval.</p>
+                    </header>
+
+                    <div class="analysis-summary">
+                        <article class="glass-stat-card">
+                            <span>Inconsistencies</span>
+                            <strong>3</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Missing Docs</span>
+                            <strong>1</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Tariff Deviations</span>
+                            <strong>2</strong>
+                        </article>
+                    </div>
+
+                    <article class="risk-console">
+                        <div class="risk-score">
+                            <span>Glosa Risk Score</span>
+                            <strong>82<small>/100</small></strong>
+                        </div>
+                        <div class="risk-copy">
+                            <span class="state-pill danger">
+                                <span class="material-icons">warning</span>
+                                High Risk
+                            </span>
+                            <p>AI analysis indicates high probability of glosa due to authorization, coding, and tariff inconsistencies. Manual review is strongly recommended before approval.</p>
+                            <div class="risk-metrics">
+                                <span><strong>1,402</strong> Analyzed Claims</span>
+                                <span><strong>$342,890.00</strong> Total Value</span>
+                                <span><strong>24</strong> Human Review</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <div class="analysis-grid">
+                        <article class="billed-items-card">
+                            <div class="repository-header">
+                                <div>
+                                    <h2>Billed Items Pre-validation</h2>
+                                    <p>AI findings mapped against payer policies, CUPS codes, and clinical support.</p>
+                                </div>
+                                <button type="button" class="filter-button">
+                                    <span class="material-icons">tune</span>
+                                    Filter
+                                </button>
+                            </div>
+
+                            <div class="billed-list">
+                                <div class="billed-row high">
+                                    <span>47562</span>
+                                    <div>
+                                        <strong>Laparoscopic cholecystectomy</strong>
+                                        <p>Authorization document does not match payer policy.</p>
+                                    </div>
+                                    <em>$2.4M</em>
+                                    <b>High</b>
+                                </div>
+                                <div class="billed-row high">
+                                    <span>890301</span>
+                                    <div>
+                                        <strong>Specialist evaluation</strong>
+                                        <p>Coding mismatch against billed service bundle.</p>
+                                    </div>
+                                    <em>$980K</em>
+                                    <b>High</b>
+                                </div>
+                                <div class="billed-row low">
+                                    <span>903815</span>
+                                    <div>
+                                        <strong>Laboratory panel</strong>
+                                        <p>Clinical support and tariff validation completed.</p>
+                                    </div>
+                                    <em>$1.2M</em>
+                                    <b>Low</b>
+                                </div>
+                            </div>
+                        </article>
+
+                        <aside class="findings-card">
+                            <span class="eyebrow">Resolution Queue</span>
+                            <h2>Recommended Actions</h2>
+                            <div class="finding-item danger">
+                                <span class="material-icons">policy</span>
+                                <div>
+                                    <strong>Validate payer authorization</strong>
+                                    <p>Attach secondary approval for BlueCross Platinum.</p>
+                                </div>
+                            </div>
+                            <div class="finding-item warning">
+                                <span class="material-icons">rule</span>
+                                <div>
+                                    <strong>Review CUPS mapping</strong>
+                                    <p>Procedure and billed item require specialist confirmation.</p>
+                                </div>
+                            </div>
+                            <div class="finding-item success">
+                                <span class="material-icons">task_alt</span>
+                                <div>
+                                    <strong>Auto-cleared support</strong>
+                                    <p>Laboratory bundle is ready for approval.</p>
+                                </div>
+                            </div>
+                            <button type="button" class="primary-action" routerLink="/medical-records/approval">
+                                Send to Approval
+                                <span class="material-icons">arrow_forward</span>
+                            </button>
+                        </aside>
+                    </div>
+                </section>
+
+                <section *ngSwitchCase="'approval'" class="approval-workspace phase-screen">
+                    <header class="phase-screen-header">
+                        <span class="eyebrow">Account assembly</span>
+                        <h2>Account Assembly</h2>
+                        <p>Build the institutional package from validated claims, choose the output format, and prepare the submission batch.</p>
+                    </header>
+
+                    <div class="approval-grid">
+                        <main class="approval-main">
+                            <article class="package-card">
+                                <div class="repository-header">
+                                    <div>
+                                        <h2>Package Format</h2>
+                                        <p>Select how this account package will be transmitted to the payer.</p>
+                                    </div>
+                                    <span class="state-pill success"><i></i> RIPS selected</span>
+                                </div>
+
+                                <div class="format-grid">
+                                    <button type="button" class="format-card active">
+                                        <span class="material-icons">fact_check</span>
+                                        <strong>RIPS</strong>
+                                        <p>Institutional billing package with payer-ready validation.</p>
+                                    </button>
+                                    <button type="button" class="format-card">
+                                        <span class="material-icons">description</span>
+                                        <strong>PDF Bundle</strong>
+                                        <p>Human-readable support package for manual review.</p>
+                                    </button>
+                                    <button type="button" class="format-card">
+                                        <span class="material-icons">folder_zip</span>
+                                        <strong>ZIP Evidence</strong>
+                                        <p>Documents, invoices, and audit evidence in one file.</p>
+                                    </button>
+                                </div>
+                            </article>
+
+                            <article class="claims-card">
+                                <div class="repository-header">
+                                    <div>
+                                        <h2>Pre-Validated Claims</h2>
+                                        <p>Claims cleared by intake and analysis, ready for assembly.</p>
+                                    </div>
+                                    <button type="button" class="filter-button">
+                                        <span class="material-icons">tune</span>
+                                        Filter
+                                    </button>
+                                </div>
+
+                                <div class="claim-table" role="table">
+                                    <div class="claim-row claim-head" role="row">
+                                        <span>Claim</span>
+                                        <span>Service</span>
+                                        <span>Value</span>
+                                        <span>Status</span>
+                                    </div>
+                                    <div class="claim-row" role="row">
+                                        <strong>CLM-7701</strong>
+                                        <span>Laparoscopic cholecystectomy</span>
+                                        <span>$8.2M</span>
+                                        <em>Selected</em>
+                                    </div>
+                                    <div class="claim-row" role="row">
+                                        <strong>CLM-7716</strong>
+                                        <span>Specialist hospitalization bundle</span>
+                                        <span>$12.1M</span>
+                                        <em>Selected</em>
+                                    </div>
+                                    <div class="claim-row needs-review" role="row">
+                                        <strong>CLM-7740</strong>
+                                        <span>Emergency authorization support</span>
+                                        <span>$4.8M</span>
+                                        <em>Review</em>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article class="submission-stack">
+                                <div class="submission-card active">
+                                    <span class="material-icons">send</span>
+                                    <div>
+                                        <strong>BlueCross institutional batch</strong>
+                                        <p>24 claims, 14 supporting documents, 1 pending reviewer signoff.</p>
+                                    </div>
+                                    <b>Ready</b>
+                                </div>
+                                <div class="submission-card">
+                                    <span class="material-icons">schedule</span>
+                                    <div>
+                                        <strong>Sanitas outpatient bundle</strong>
+                                        <p>Queued after current RIPS validation completes.</p>
+                                    </div>
+                                    <b>Queued</b>
+                                </div>
+                            </article>
+                        </main>
+
+                        <aside class="approval-side">
+                            <article class="approval-total">
+                                <span>Total Approved Value</span>
+                                <strong>$31.5M</strong>
+                                <p>Includes 24 selected claims and 3 reviewer notes.</p>
+                            </article>
+                            <article class="action-context-card">
+                                <span class="eyebrow">Action Context</span>
+                                <h3>Submission Summary</h3>
+                                <dl>
+                                    <div>
+                                        <dt>Claims selected</dt>
+                                        <dd>24 / 27</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Evidence attached</dt>
+                                        <dd>14 documents</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Format</dt>
+                                        <dd>RIPS + evidence ZIP</dd>
+                                    </div>
+                                </dl>
+                                <button type="button" class="primary-action" routerLink="/medical-records/execution">
+                                    Generate Batch
+                                    <span class="material-icons">arrow_forward</span>
+                                </button>
+                            </article>
+                        </aside>
+                    </div>
+                </section>
+
+                <section *ngSwitchCase="'execution'" class="execution-workspace phase-screen">
+                    <header class="phase-screen-header">
+                        <span class="eyebrow">Appeals management</span>
+                        <h2>Unified Appeals Management</h2>
+                        <p>Draft appeal responses with clinical context, denial reasons, precedents, and supporting documents.</p>
+                    </header>
+
+                    <div class="execution-grid">
+                        <aside class="appeal-list">
+                            <div class="repository-header compact">
+                                <div>
+                                    <h2>Pending Appeals</h2>
+                                    <p>Prioritized by value and SLA.</p>
+                                </div>
+                            </div>
+                            <button type="button" class="appeal-item active">
+                                <span>APL-3309</span>
+                                <strong>Authorization denial</strong>
+                                <p>SURA - $2.9M - Due today</p>
+                            </button>
+                            <button type="button" class="appeal-item">
+                                <span>APL-3301</span>
+                                <strong>Tariff discrepancy</strong>
+                                <p>Allianz - $1.2M - 2 days</p>
+                            </button>
+                            <button type="button" class="appeal-item">
+                                <span>APL-3316</span>
+                                <strong>Clinical support request</strong>
+                                <p>Sanitas - $740K - Sent</p>
+                            </button>
+                        </aside>
+
+                        <main class="appeal-editor">
+                            <article class="denial-context">
+                                <span class="state-pill danger">
+                                    <span class="material-icons">warning</span>
+                                    Denial reason detected
+                                </span>
+                                <h3>Procedure authorization rejected by payer</h3>
+                                <p>The denial cites missing authorization for procedure 47562. Intake evidence contains emergency admission and secondary support documents that can be used for the appeal.</p>
+                            </article>
+
+                            <article class="justification-card">
+                                <div class="repository-header">
+                                    <div>
+                                        <h2>AI Appeal Justification</h2>
+                                        <p>Editable clinical and contractual argument generated from the expediente.</p>
+                                    </div>
+                                    <span class="state-pill success"><i></i> 91% confidence</span>
+                                </div>
+                                <div class="justification-body">
+                                    <p>Based on the emergency admission notes, clinical evolution, and payer policy clause 4.3, the performed procedure was medically necessary and supported by the attached diagnostic evidence.</p>
+                                    <p>The appeal should request reversal of the glosa and recognition of the billed value because the authorization exception applies to urgent surgical care.</p>
+                                </div>
+                                <div class="phase-actions">
+                                    <button type="button" class="ghost-action">Attach Evidence</button>
+                                    <button type="button" class="primary-action" routerLink="/medical-records/review">
+                                        Submit Appeal
+                                        <span class="material-icons">arrow_forward</span>
+                                    </button>
+                                </div>
+                            </article>
+                        </main>
+
+                        <aside class="precedent-stack">
+                            <article class="precedent-card">
+                                <span class="eyebrow">Knowledge Discovery</span>
+                                <h3>Similar successful precedents</h3>
+                                <div class="precedent-match">
+                                    <strong>Case PRE-1084</strong>
+                                    <p>Emergency surgery appeal approved by SURA.</p>
+                                    <b>92% match</b>
+                                </div>
+                                <div class="precedent-match">
+                                    <strong>Case PRE-0921</strong>
+                                    <p>Authorization exception accepted for urgent admission.</p>
+                                    <b>87% match</b>
+                                </div>
+                            </article>
+                            <article class="support-card">
+                                <span class="material-icons">folder_open</span>
+                                <h3>Supporting Documents</h3>
+                                <p>Epicrisis, operative note, emergency admission, authorization request, and invoice FE-88291.</p>
+                            </article>
+                        </aside>
+                    </div>
+                </section>
+
+                <section *ngSwitchCase="'review'" class="review-workspace phase-screen">
+                    <header class="phase-screen-header">
+                        <span class="eyebrow">Final audit console</span>
+                        <h2>Final Review & Audit Phase</h2>
+                        <p>Confirm the full audit trail, discrepancy breakdown, quality health, and final close readiness.</p>
+                    </header>
+
+                    <div class="review-summary">
+                        <article class="glass-stat-card">
+                            <span>Claims Audited</span>
+                            <strong>12,400</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Audit Accuracy</span>
+                            <strong>99.2%</strong>
+                        </article>
+                        <article class="glass-stat-card warning">
+                            <span>Open Exceptions</span>
+                            <strong>18</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Ready to Close</span>
+                            <strong>96%</strong>
+                        </article>
+                    </div>
+
+                    <div class="review-grid">
+                        <article class="audit-log-card">
+                            <div class="repository-header">
+                                <div>
+                                    <h2>Audit Logs</h2>
+                                    <p>Traceable final checks before the account can be completed.</p>
+                                </div>
+                                <button type="button" class="filter-button">
+                                    <span class="material-icons">download</span>
+                                    Export
+                                </button>
+                            </div>
+                            <div class="audit-log">
+                                <div class="audit-row">
+                                    <span class="material-icons">verified</span>
+                                    <div>
+                                        <strong>Evidence package verified</strong>
+                                        <p>System check completed by Hyland validation service.</p>
+                                    </div>
+                                    <time>09:42</time>
+                                </div>
+                                <div class="audit-row warning">
+                                    <span class="material-icons">rule</span>
+                                    <div>
+                                        <strong>Specialist note requested</strong>
+                                        <p>Manual reviewer added one clarification note.</p>
+                                    </div>
+                                    <time>10:18</time>
+                                </div>
+                                <div class="audit-row">
+                                    <span class="material-icons">payments</span>
+                                    <div>
+                                        <strong>Payment reconciliation previewed</strong>
+                                        <p>Expected recovered value aligned with payer agreement.</p>
+                                    </div>
+                                    <time>11:05</time>
+                                </div>
+                            </div>
+                        </article>
+
+                        <aside class="review-side">
+                            <article class="quality-card">
+                                <span class="eyebrow">Quality Health</span>
+                                <strong>Healthy</strong>
+                                <p>All required evidence categories are present. Exception count is within closure threshold.</p>
+                            </article>
+                            <article class="breakdown-card">
+                                <h3>Discrepancy Breakdown</h3>
+                                <div class="breakdown-line"><span>Authorization</span><b>7</b></div>
+                                <div class="breakdown-line"><span>Coding</span><b>5</b></div>
+                                <div class="breakdown-line"><span>Tariff</span><b>4</b></div>
+                                <div class="breakdown-line"><span>Documents</span><b>2</b></div>
+                            </article>
+                            <article class="timeline-card">
+                                <h3>Action Timeline</h3>
+                                <p>Intake -> Analysis -> Approval -> Execution -> Review</p>
+                            </article>
+                        </aside>
+                    </div>
+
+                    <div class="sticky-action-bar">
+                        <button type="button" class="ghost-action" routerLink="/medical-records/execution">Back to Execution</button>
+                        <button type="button" class="primary-action" routerLink="/medical-records/completed">
+                            Finalize Audit
+                            <span class="material-icons">arrow_forward</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section *ngSwitchCase="'completed'" class="completed-workspace phase-screen">
+                    <header class="phase-screen-header">
+                        <span class="eyebrow">Payment reconciliation</span>
+                        <h2>Conciliacion y Cierre de Pagos</h2>
+                        <p>Close reconciled accounts, validate recovered value, and leave finance-ready evidence for the completed cycle.</p>
+                    </header>
+
+                    <div class="payment-summary">
+                        <article class="glass-stat-card">
+                            <span>Recovered Value</span>
+                            <strong>$74.6M</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Closed Accounts</span>
+                            <strong>312</strong>
+                        </article>
+                        <article class="glass-stat-card">
+                            <span>Avg Days to Pay</span>
+                            <strong>42</strong>
+                        </article>
+                        <article class="glass-stat-card warning">
+                            <span>Pending Difference</span>
+                            <strong>$2.3M</strong>
+                        </article>
+                    </div>
+
+                    <div class="payment-grid">
+                        <article class="payment-table-card">
+                            <div class="repository-header">
+                                <div>
+                                    <h2>Payment Reconciliation</h2>
+                                    <p>Accounts with payment evidence and close status.</p>
+                                </div>
+                                <span class="state-pill success"><i></i> Closing cycle</span>
+                            </div>
+                            <div class="payment-table" role="table">
+                                <div class="payment-row payment-head" role="row">
+                                    <span>Account</span>
+                                    <span>Payer</span>
+                                    <span>Recovered</span>
+                                    <span>Status</span>
+                                </div>
+                                <div class="payment-row" role="row">
+                                    <strong>CLS-6101</strong>
+                                    <span>SURA</span>
+                                    <span>$15.4M</span>
+                                    <em>Closed</em>
+                                </div>
+                                <div class="payment-row" role="row">
+                                    <strong>CLS-6118</strong>
+                                    <span>Nueva EPS</span>
+                                    <span>$4.8M</span>
+                                    <em>Paid</em>
+                                </div>
+                                <div class="payment-row pending" role="row">
+                                    <strong>CLS-6126</strong>
+                                    <span>Allianz</span>
+                                    <span>$12.1M</span>
+                                    <em>Difference</em>
+                                </div>
+                            </div>
+                        </article>
+
+                        <aside class="recovery-dashboard">
+                            <article class="recovery-total">
+                                <span class="eyebrow">Financial Recovery</span>
+                                <strong>87.4%</strong>
+                                <p>Projected recovery against submitted value for the current payer cycle.</p>
+                            </article>
+                            <div class="payer-stack">
+                                <div class="payer-row">
+                                    <span>SURA</span>
+                                    <b style="width: 92%"></b>
+                                    <em>92%</em>
+                                </div>
+                                <div class="payer-row">
+                                    <span>Sanitas</span>
+                                    <b style="width: 84%"></b>
+                                    <em>84%</em>
+                                </div>
+                                <div class="payer-row">
+                                    <span>Allianz</span>
+                                    <b style="width: 77%"></b>
+                                    <em>77%</em>
+                                </div>
+                            </div>
+                            <div class="phase-actions">
+                                <button type="button" class="ghost-action">Download Summary</button>
+                                <button type="button" class="primary-action">Close Cycle</button>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+            </ng-container>
+        </ng-template>
+    </div>
+</section>

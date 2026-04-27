@@ -1,0 +1,11 @@
+<div class="stepper-container">
+  <div class="stepper-track"></div>
+  <div class="step" *ngFor="let step of steps"
+       [ngClass]="{'completed': isCompleted(step.id), 'current': isCurrent(step.id)}"
+       (click)="onStepClick(step.id)">
+    <div class="step-icon">
+      <span class="material-icons">{{ step.icon }}</span>
+    </div>
+    <div class="step-label">{{ step.label }}</div>
+  </div>
+</div>

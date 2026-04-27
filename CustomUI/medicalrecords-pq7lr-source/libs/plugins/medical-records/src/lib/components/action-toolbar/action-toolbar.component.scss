@@ -1,0 +1,59 @@
+.action-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+    .toolbar-title h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .toolbar-actions {
+        display: flex;
+        gap: 12px;
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+
+            .material-icons {
+                font-size: 18px;
+            }
+
+            &.btn-primary {
+                background: #2563eb;
+                color: white;
+
+                &:hover {
+                    background: #1d4ed8;
+                }
+            }
+
+            &.btn-secondary {
+                background: #f1f5f9;
+                color: #475569;
+                padding: 8px; /* icon only */
+
+                &:hover {
+                    background: #e2e8f0;
+                }
+            }
+        }
+    }
+}

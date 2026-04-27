@@ -1,0 +1,43 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.medical-records-menu-item {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    justify-content: flex-start;
+    padding: 0 20px;
+    border-radius: 0;
+    color: #2f3340;
+    font: inherit;
+}
+
+.medical-records-menu-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.medical-records-menu-item mat-icon {
+    margin-right: 14px;
+    flex: 0 0 auto;
+    color: #005eb8;
+}
+
+.medical-records-menu-item--active {
+    color: #005eb8;
+    background: rgba(0, 94, 184, 0.1);
+    font-weight: 700;
+}
+
+.medical-records-menu-icon {
+    color: #005eb8;
+}
+
+.medical-records-menu-icon--active {
+    background: rgba(0, 94, 184, 0.12);
+}

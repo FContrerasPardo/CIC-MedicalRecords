@@ -1,0 +1,14 @@
+<div class="data-panel">
+  <div class="panel-header" *ngIf="title">
+    <div class="panel-title">
+      <span class="material-icons">{{ icon }}</span>
+      <h3>{{ title }}</h3>
+    </div>
+    <div class="panel-actions">
+      <ng-content select="[panel-actions]"></ng-content>
+    </div>
+  </div>
+  <div class="panel-body">
+    <ng-content></ng-content>
+  </div>
+</div>

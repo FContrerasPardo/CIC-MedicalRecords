@@ -234,3 +234,18 @@ Para conservar la integracion con Automate:
 La primera experiencia personalizada se plantea como plugin `medical-records`
 con ruta `/medical-records`, conservando las rutas nativas de Automate para
 tareas, procesos, inicio de procesos y seguimiento.
+
+El plugin debe partir del mecanismo oficial `@hyland/extend:plugin` para
+aprovechar el shell, autenticacion, procesos, repositorio, assets, traducciones
+y empaquetado de la plantilla Hyland. Si el generador no puede ejecutarse por
+dependencias locales incompletas, el scaffold manual debe seguir el codigo del
+generador versionado en la plantilla y quedar documentado en:
+
+`docs/custom-ui/medical-records-plugin.md`
+
+Los comandos de instalacion, generacion, build y serve de la plantilla Hyland no
+deben ejecutarse dentro del sandbox de una IA. Se valido que el sandbox genera
+falsos `EPERM` en Node/Nx. Ejecutar localmente en Windows contra
+`http://localhost:4200/`. Los hallazgos detallados estan en:
+
+`docs/custom-ui/local-development-findings.md`

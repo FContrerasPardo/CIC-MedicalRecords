@@ -260,6 +260,16 @@
             "input": "libs/shared-hxp/navigation/header/i18n",
             "output": "assets/navigation/header/i18n",
             "glob": "**/*"
+          },
+          {
+            "input": "libs/plugins/medical-records/assets",
+            "output": "assets/medical-records",
+            "glob": "**/*"
+          },
+          {
+            "input": "libs/plugins/medical-records/assets",
+            "output": "/assets/plugins/",
+            "glob": "medical-records.extension.json"
           }
         ],
         "styles": [
@@ -416,7 +426,9 @@
     },
     "stylelint": {}
   },
-  "implicitDependencies": [],
+  "implicitDependencies": [
+    "medical-records"
+  ],
   "tags": [
     "scope:workspace-hxp",
     "type:app",

@@ -147,6 +147,11 @@ verdad para el mapeo de Automate debe ser `config/contexts.json5`.
 
 ## Ejecutar localmente
 
+Nota para asistentes IA: no ejecutar los comandos de esta seccion dentro del
+sandbox. En esta plantilla se valido que el sandbox bloquea operaciones de Node
+y Nx (`child_process.spawn` y `fs.rename`), generando falsos errores `EPERM`.
+Ejecutar siempre en el entorno local de Windows, usando Node 24/npm 11.9.
+
 Servidor local:
 
 ```powershell
@@ -166,6 +171,12 @@ http://localhost:4200/
 No usar `127.0.0.1` para este proyecto; puede provocar errores CORS con el IDP
 de Hyland. Con el modulo de local development activo y desplegado en Automate,
 la app debe redirigir a la pantalla de login de Content Innovation Cloud.
+
+Los hallazgos de errores de desarrollo local estan documentados en:
+
+```text
+docs/custom-ui/local-development-findings.md
+```
 
 ## Validar y compilar
 
@@ -215,6 +226,12 @@ Para paginas o widgets posteriores, usar el nombre real del proyecto generado
 por Nx. En esta plantilla, las pruebas de generador indican que el nombre del
 plugin no agrega automaticamente el prefijo `plugins-`.
 
+El criterio tecnico y el estado actual del scaffold estan documentados en:
+
+```text
+docs/custom-ui/medical-records-plugin.md
+```
+
 ## Estructura del repo
 
 ```text
@@ -226,18 +243,24 @@ plugin no agrega automaticamente el prefijo `plugins-`.
 |   |-- medicalrecords-pq7lr.zip
 |   `-- medicalrecords-pq7lr-source/
 |-- UI Change Instructions/
-|   |-- GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf
-|   |-- GLS-Creating a Plugin Page-250426-135339.pdf
-|   |-- GLS-Creating Custom Forms Widget-250426-135447.pdf
-|   |-- GLS-Packaging a Custom UI-250426-135225.pdf
-|   |-- GLS-Update a Custom UI-250426-135603.pdf
-|   |-- GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf
+|   |-- reference-docs/
+|   |   `-- hyland/
+|   |       |-- GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf
+|   |       |-- GLS-Creating a Plugin Page-250426-135339.pdf
+|   |       |-- GLS-Creating Custom Forms Widget-250426-135447.pdf
+|   |       |-- GLS-Packaging a Custom UI-250426-135225.pdf
+|   |       |-- GLS-Update a Custom UI-250426-135603.pdf
+|   |       `-- GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf
 |   |-- Create-Custom-UI.md
 |   `-- Changing-Angular-UI.md
 |-- UI design/
 |   |-- armado-de-cuentas/
 |   `-- gestion-de-convenios/
+|-- artifacts/
+|   |-- logs/custom-ui/
+|   `-- screenshots/custom-ui/
 `-- docs/
+    |-- custom-ui/
     `-- superpowers/specs/
 ```
 
@@ -261,19 +284,21 @@ plugin no agrega automaticamente el prefijo `plugins-`.
 ## Documentacion de referencia
 
 - `UI Change Instructions/`: guias operativas para Custom UI.
-- `UI Change Instructions/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   instructivo original revisado para el flujo `.env` / `contexts.json5`.
-- `UI Change Instructions/GLS-Creating a Plugin Page-250426-135339.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`:
   guia de paginas dentro de plugins.
-- `UI Change Instructions/GLS-Creating Custom Forms Widget-250426-135447.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`:
   referencia para widgets de formularios cuando Studio Modeler lo requiera.
-- `UI Change Instructions/GLS-Packaging a Custom UI-250426-135225.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`:
   referencia de empaquetado y subida a Automate.
-- `UI Change Instructions/GLS-Update a Custom UI-250426-135603.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`:
   referencia para actualizar una Custom UI existente con respaldo/branch previo.
-- `UI Change Instructions/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`:
   opcion futura para crear desde cero, no usada como ruta principal actual.
 - `CustomUI/medicalrecords-pq7lr-source/developer-docs/local-development/env-setup.md`:
   detalle del generador de `.env`.
 - `CustomUI/medicalrecords-pq7lr-source/README.md`: README original de la
   plantilla Hyland/Alfresco.
+- `docs/custom-ui/medical-records-plugin.md`: decision tecnica y estado del
+  plugin oficial `medical-records`.

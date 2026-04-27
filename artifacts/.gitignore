@@ -1,0 +1,11 @@
+# Generated diagnostics stay local.
+logs/**/*.log
+screenshots/**/*
+
+# Keep the folder contract visible in git.
+!README.md
+!.gitignore
+!logs/
+!logs/custom-ui/
+!screenshots/
+!screenshots/custom-ui/

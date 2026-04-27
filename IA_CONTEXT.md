@@ -30,6 +30,11 @@ en este repositorio.
 - Branch de trabajo recomendado: `codex/integration`.
 - `main` queda como base estable.
 - La plantilla exige Node `>=24.14.0 <25.0.0` y npm `>=11.9.0 <12.0.0`.
+- Regla obligatoria para IA: no ejecutar `npm ci`, `setenv`, `nx`, `serve`,
+  `build`, `pack-build` ni generadores Hyland dentro del sandbox. En esta
+  plantilla el sandbox bloquea `child_process.spawn` y `fs.rename`, generando
+  falsos `EPERM`. Estos comandos deben correr en el entorno local de Windows,
+  sobre `http://localhost:4200/`, con permisos fuera de sandbox.
 - `config/contexts.json5` es la fuente de verdad para `_customApp`.
 - `apps/workspace-hxp/.env` se genera con `npm run setenv -- -c workspace-hxp:_customApp` y no se commitea.
 - `workspace-hxp:preserve` fue validado correctamente.
@@ -62,14 +67,14 @@ El bloque `_customApp` en `contexts.json5` contiene:
 
 ## Documentacion revisada
 
-- `GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   flujo base, contexts y `.env`.
-- `GLS-Creating a Plugin Page-250426-135339.pdf`: paginas de plugin.
-- `GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets de formulario
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: paginas de plugin.
+- `UI Change Instructions/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets de formulario
   si Studio Modeler lo requiere.
-- `GLS-Packaging a Custom UI-250426-135225.pdf`: empaquetado/subida.
-- `GLS-Update a Custom UI-250426-135603.pdf`: actualizacion con branch/backup.
-- `GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: opcion
+- `UI Change Instructions/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: empaquetado/subida.
+- `UI Change Instructions/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizacion con branch/backup.
+- `UI Change Instructions/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: opcion
   desde cero para evaluar mas adelante.
 
 ## Como debe actuar una IA en este repo
@@ -83,14 +88,54 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - Proteger la integracion de Automate: `contexts.json5`, `.env` generado,
   rutas nativas, auth y packaging.
 - Si se agregan dependencias o assets, validar impacto en build y zip final.
+- Si aparece `spawn EPERM`, rename `EPERM` bajo `.nx/workspace-data`, o falla
+  Nx worker en sandbox, no diagnosticarlo como falla del plugin: revisar
+  `docs/custom-ui/local-development-findings.md` y repetir local/no sandbox.
 
 ## Checklist rapido
 
 1. El cambio respeta el alcance funcional de `CONTEXT.md`.
-2. El comando se ejecuto en `CustomUI/medicalrecords-pq7lr-source/`.
+2. El comando se ejecuto local/no sandbox en `CustomUI/medicalrecords-pq7lr-source/`.
 3. Se uso Node 24/npm 11.9 para build o generadores.
 4. Se preservo `config/contexts.json5`.
 5. Se valido `workspace-hxp:preserve`.
 6. Se valido `workspace-hxp:build:development`.
 7. Si se prueba login, se usa `http://localhost:4200/`.
 8. Si el cambio afecta despliegue, se valida `workspace-hxp:pack-build`.
+
+## Hallazgos de desarrollo local
+
+El detalle de errores y conclusiones esta documentado en:
+
+```text
+docs/custom-ui/local-development-findings.md
+```
+
+Resumen para futuras IAs:
+
+- Global Node/npm puede no servir; esta plantilla requiere Node 24/npm 11.9.
+- `node_modules` incompleto provoca fallas de `nx` faltante.
+- Procesos antiguos `nx`, `run-executor` o `esbuild` pueden bloquear
+  dependencias nativas durante `npm ci`.
+- El `.env` incorrecto puede romper autenticacion; regenerarlo desde
+  `config/contexts.json5`.
+- `workspace-hxp:preserve` viene de la plantilla original y genera
+  `apps/workspace-hxp/.tmp/app.config.json`.
+- La copia limpia `medicalrecords-pq7lr-clean-test` es solo diagnostica; el zip
+  original venia con `contexts.json5` vacio. Luego de restaurar `_customApp`,
+  regenerar `.env` y levantar en `localhost:4200`, el usuario valido que la
+  copia limpia funciona en el explorador.
+- Luego se bajo la copia limpia y se levanto la ruta principal
+  `medicalrecords-pq7lr-source` con el plugin `medical-records` activo. El build
+  compilo, `/`, `/medical-records` y `/app.config.json` respondieron HTTP 200.
+- Procesos Node esperados con el proyecto principal levantado: un `nx.js serve`
+  y un `nx\bin\run-executor.js` bajo `medicalrecords-pq7lr-source`. Procesos
+  `stitch-mcp-auto` son separados y pertenecen al flujo de Stitch MCP.
+- El problema de scroll confirmado el 2026-04-27 era vertical dentro del panel
+  principal de `medical-records`, no horizontal. La solucion validada por el
+  usuario fue mantener el scroll en el plugin: `:host` con alto calculado contra
+  el chrome de Workspace y `.medical-records-experience` con `height: 100%` y
+  `overflow-y: auto`. No restaurar `min-height: 100vh` en ese route host.
+- Artefactos generados o diagnosticos no deben quedar en la raiz. Usar
+  `artifacts/logs/custom-ui/` para logs locales de `workspace-hxp` y
+  `artifacts/screenshots/custom-ui/` para capturas temporales de validacion.

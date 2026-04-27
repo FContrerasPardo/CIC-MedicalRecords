@@ -1,0 +1,14 @@
+<div class="action-toolbar">
+  <div class="toolbar-title">
+    <h2>{{ title }}</h2>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn btn-secondary" (click)="onSecondaryClick()">
+      <span class="material-icons">more_vert</span>
+    </button>
+    <button class="btn btn-primary" (click)="onPrimaryClick()">
+      <span class="material-icons">{{ primaryActionIcon }}</span>
+      {{ primaryActionLabel }}
+    </button>
+  </div>
+</div>

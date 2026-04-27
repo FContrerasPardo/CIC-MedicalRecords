@@ -140,6 +140,9 @@
       "@plugins": [
         "libs/plugins/index.ts"
       ],
+      "@plugins/medical-records": [
+        "libs/plugins/medical-records/src/index.ts"
+      ],
       "@alfresco-dbp/shared-filters-services": [
         "libs/shared/filters/services/src/index.ts"
       ],

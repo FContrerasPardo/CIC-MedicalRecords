@@ -5,10 +5,4 @@
  * agreement is prohibited.
  */
 
-import { NgModule } from '@angular/core';
-import { MedicalRecordsModule } from './medical-records/src/lib/medical-records.module';
-
-@NgModule({
-    imports: [MedicalRecordsModule],
-})
-export class PluginsModule {}
+export * from './lib/medical-records.module';

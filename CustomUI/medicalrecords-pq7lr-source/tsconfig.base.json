@@ -209,6 +209,9 @@
       "@plugins": [
         "libs/plugins/index.ts"
       ],
+      "@plugins/medical-records": [
+        "libs/plugins/medical-records/src/index.ts"
+      ],
       "package.json": [
         "./package.json"
       ]

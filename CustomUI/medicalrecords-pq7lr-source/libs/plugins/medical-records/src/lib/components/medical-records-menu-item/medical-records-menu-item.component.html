@@ -1,0 +1,25 @@
+<ng-container *ngIf="isExpanded(); else collapsedItem">
+    <button
+        mat-button
+        type="button"
+        class="medical-records-menu-item"
+        [class.medical-records-menu-item--active]="isActive()"
+        (click)="navigateToPage()"
+    >
+        <mat-icon aria-hidden="true">medical_services</mat-icon>
+        <span>Cuentas Medicas</span>
+    </button>
+</ng-container>
+
+<ng-template #collapsedItem>
+    <button
+        mat-icon-button
+        type="button"
+        class="medical-records-menu-icon"
+        [class.medical-records-menu-icon--active]="isActive()"
+        aria-label="Cuentas Medicas"
+        (click)="navigateToPage()"
+    >
+        <mat-icon aria-hidden="true">medical_services</mat-icon>
+    </button>
+</ng-template>

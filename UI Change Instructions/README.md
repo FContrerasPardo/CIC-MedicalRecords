@@ -21,6 +21,10 @@ Nota: algunas guias generales de Hyland mencionan Node 22. La plantilla
 
 ## Flujo local validado
 
+Los comandos de este flujo deben correr localmente en Windows, no dentro del
+sandbox de una IA. El sandbox produjo falsos `EPERM` al ejecutar Node/Nx porque
+bloquea `child_process.spawn` y `fs.rename`.
+
 ```powershell
 cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
 npm ci
@@ -76,15 +80,15 @@ npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando 
 
 ## Documentos incluidos
 
-- `GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+- `reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   flujo base para crear/descargar la Custom UI y generar `.env`.
-- `GLS-Creating a Plugin Page-250426-135339.pdf`: creacion de paginas de plugin.
-- `GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets para formularios
+- `reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: creacion de paginas de plugin.
+- `reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets para formularios
   cuando el diseno de Studio Modeler lo requiera.
-- `GLS-Packaging a Custom UI-250426-135225.pdf`: build, zip y subida a Automate.
-- `GLS-Update a Custom UI-250426-135603.pdf`: actualizar una Custom UI existente;
+- `reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: build, zip y subida a Automate.
+- `reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizar una Custom UI existente;
   aplicar siempre con branch/backup previo.
-- `GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
+- `reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
   alternativa desde cero; queda como referencia futura.
 - `Create-Custom-UI.md`: guia historica del flujo inicial.
 - `Changing-Angular-UI.md`: guia historica para reemplazar Home. En esta demo se
@@ -99,3 +103,15 @@ npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando 
 - Migrar las pantallas de `UI design/` a Angular/SCSS mantenible.
 - Evitar pegar HTML exportado de Stitch con CDN externos.
 - Empaquetar con `workspace-hxp:pack-build` antes de subir a Automate.
+
+La decision tecnica y el estado del scaffold del plugin quedan documentados en:
+
+```text
+docs/custom-ui/medical-records-plugin.md
+```
+
+Los errores y hallazgos de entorno local quedan documentados en:
+
+```text
+docs/custom-ui/local-development-findings.md
+```

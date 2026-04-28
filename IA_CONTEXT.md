@@ -35,6 +35,11 @@ en este repositorio.
   plantilla el sandbox bloquea `child_process.spawn` y `fs.rename`, generando
   falsos `EPERM`. Estos comandos deben correr en el entorno local de Windows,
   sobre `http://localhost:4200/`, con permisos fuera de sandbox.
+- Metodo recomendado para `workspace-hxp`: usar el `node.exe` del runtime
+  `C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin`,
+  anteponer ese directorio al `PATH`, desactivar `NX_DAEMON` y
+  `NX_ISOLATE_PLUGINS`, y ejecutar `.\node_modules\nx\bin\nx.js serve` sin
+  depender del Node global de Windows.
 - `config/contexts.json5` es la fuente de verdad para `_customApp`.
 - `apps/workspace-hxp/.env` se genera con `npm run setenv -- -c workspace-hxp:_customApp` y no se commitea.
 - `workspace-hxp:preserve` fue validado correctamente.
@@ -61,6 +66,21 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - Nombre previsto del plugin: `medical-records`.
 - Autor para generadores: `Fernando Contreras`.
 - Ruta prevista: `/medical-records`.
+- El scaffold actual de `medical-records` fue creado manualmente siguiendo el
+  patron del generador Hyland, no ejecutando directamente
+  `@hyland/extend:plugin`.
+- Las pantallas de fases fueron implementadas manualmente en
+  `medical-records-shell` para igualar Stitch, no generadas con
+  `@hyland/extend:page`.
+- La equivalencia de `--addTranslations true` se mantiene mediante
+  `provideTranslations('medical-records', 'assets/medical-records')` y archivos
+  `libs/plugins/medical-records/assets/i18n/*.json`.
+- El 2026-04-27 se validaron los generadores oficiales con `--dry-run`.
+  Resultado: `@hyland/extend:page` crea una pagina minima, menu item,
+  page module y config de extension; no agrega funcionalidad avanzada de
+  procesos/repositorio/auth. Para este proyecto conviene mantener el plugin
+  actual y absorber solo patrones utiles del generador. Detalle:
+  `docs/custom-ui/hyland-generator-reference.md`.
 - No reemplazar rutas nativas de Automate salvo decision explicita.
 - No copiar HTML crudo de Stitch; reinterpretar las pantallas en Angular/SCSS.
 - La guia de app en blanco queda como referencia futura, no como camino actual.
@@ -80,6 +100,12 @@ El bloque `_customApp` en `contexts.json5` contiene:
 ## Como debe actuar una IA en este repo
 
 - Trabajar siempre en `C:\CIC-MedicalRecords`, no en la copia vieja de OneDrive.
+- Priorizar modo ahorro de tokens: respuestas breves, no repetir contexto ya
+  documentado, leer solo los archivos necesarios y evitar busquedas amplias si
+  el alcance ya esta claro.
+- No ejecutar builds, tests, servidores ni validaciones visuales salvo que el
+  usuario lo pida o exista riesgo tecnico alto. Si se ejecutan, resumir solo el
+  resultado importante.
 - Antes de cambios de UI, revisar `UI Change Instructions/` y la especificacion
   en `docs/superpowers/specs/`.
 - Antes de cambios de negocio, revisar `CONTEXT.md`.
@@ -136,6 +162,12 @@ Resumen para futuras IAs:
   usuario fue mantener el scroll en el plugin: `:host` con alto calculado contra
   el chrome de Workspace y `.medical-records-experience` con `height: 100%` y
   `overflow-y: auto`. No restaurar `min-height: 100vh` en ese route host.
+- El cambio de idioma del shell Hyland no actualiza texto hardcodeado dentro del
+  plugin. Para que el plugin reaccione al selector de idioma, los textos deben
+  estar en `assets/i18n/*.json` y el HTML debe usar `| translate`. Ya quedaron
+  traducibles el item de menu, top links, acciones principales, fases, titulos
+  de paginas, descripciones superiores, secciones/cards/metrica principales del
+  overview.
 - Artefactos generados o diagnosticos no deben quedar en la raiz. Usar
   `artifacts/logs/custom-ui/` para logs locales de `workspace-hxp` y
   `artifacts/screenshots/custom-ui/` para capturas temporales de validacion.

@@ -40,6 +40,13 @@ libs/shared/plugins/src/generators/shared/normalize-options.ts
 tools/shared/generators/utils/add-project-defaults.ts
 ```
 
+Important generator parity finding:
+
+- The plugin was **not** created by running `npx nx generate @hyland/extend:plugin --name medical-records --author "..." --addTranslations true`.
+- The current scaffold manually includes the important translation equivalent: `provideTranslations('medical-records', 'assets/medical-records')` in `MedicalRecordsModule`.
+- The medical-records screens were **not** created with `npx nx generate @hyland/extend:page --pluginName medical-records --pageName ...`.
+- The screens were custom-built inside `medical-records-shell` to match the Stitch designs and then wired to the Hyland extension route `/medical-records/:phase`.
+
 ## Files Registered
 
 The scaffold registers:
@@ -49,6 +56,44 @@ The scaffold registers:
 - `medical-records` as an implicit dependency of `workspace-hxp`.
 - `@plugins/medical-records` in `tsconfig.base.json` and `tsconfig.adf.json`.
 - Translation assets under `libs/plugins/medical-records/assets/i18n`.
+
+## Translation Behavior
+
+On 2026-04-27, the language menu was validated against the plugin. The Hyland shell was changing language, but the plugin content did not because the template still used hardcoded labels even though translation assets existed.
+
+The root cause was template-level, not provider-level:
+
+- `MedicalRecordsModule` already imported `TranslateModule`.
+- `MedicalRecordsModule` already registered `provideTranslations('medical-records', 'assets/medical-records')`.
+- The i18n files existed, but only contained `PLUGIN_MESSAGE`.
+- The shell and menu templates did not use `| translate` for the visible medical-records labels.
+
+The first translation pass now covers the navigation and primary title layer:
+
+- Automate left navigation item: `Cuentas Medicas` / `Medical Accounts`.
+- Medical records brand and top links.
+- Global plugin actions: export report, new intake, filter, search, notifications, user profile aria labels.
+- Phase navigation: overview, intake, analysis, approval, execution, review, completed.
+- Top page titles and descriptions for every phase.
+- Overview dashboard section titles, main cards, and performance metric labels/helpers.
+- Translation dictionaries were populated for `de`, `en`, `es`, `fr`, `it`, `pl`, and `pt`.
+
+Remaining scope:
+
+- Clinical sample data, patient names, payer names, mock account rows, and deeper phase-body copy are still hardcoded intentionally because they represent demo/business content rather than the primary navigation/title layer.
+- If those texts must also change with the language selector, add keys under `MEDICAL_RECORDS` and replace each literal with the `translate` pipe.
+
+## Hyland Generator Reference Check
+
+On 2026-04-27, the official plugin and page generators were validated with `--dry-run` to compare the current implementation against the documented Hyland flow without modifying the dirty workspace.
+
+Detailed findings are documented in:
+
+```text
+docs/custom-ui/hyland-generator-reference.md
+```
+
+Conclusion: the official page generator is useful as a registration reference, but it does not provide additional process/repository/auth UI functionality beyond the extension wiring. The current `medical-records` plugin should not be replaced by the generated page template. Continue using the current plugin and selectively borrow generator patterns where they help.
 
 ## Local Execution Finding
 

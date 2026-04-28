@@ -152,7 +152,36 @@ sandbox. En esta plantilla se valido que el sandbox bloquea operaciones de Node
 y Nx (`child_process.spawn` y `fs.rename`), generando falsos errores `EPERM`.
 Ejecutar siempre en el entorno local de Windows, usando Node 24/npm 11.9.
 
-Servidor local:
+### Levantar la aplicacion local con Node explicito
+
+Cuando se quiera asegurar Node 24 sin depender del Node global de Windows, este
+es el metodo recomendado para levantar la app principal `workspace-hxp`:
+
+```powershell
+$work = "C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source"
+$nodeBin = "C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+
+Set-Location $work
+
+$env:PATH = "$nodeBin;$env:PATH"
+$env:NX_DAEMON = "false"
+$env:NX_ISOLATE_PLUGINS = "false"
+
+$portProcess = Get-NetTCPConnection -LocalPort 4200 -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty OwningProcess -Unique
+
+if ($portProcess) {
+  Stop-Process -Id $portProcess -Force
+}
+
+& "$nodeBin\node.exe" ".\node_modules\nx\bin\nx.js" serve workspace-hxp --host localhost --port 4200 --open=false
+```
+
+Este flujo fija el runtime Node en la sesion actual, evita depender de la
+instalacion global de Windows y levanta `workspace-hxp` de forma controlada
+sobre `http://localhost:4200/`.
+
+Servidor local equivalente si la shell ya esta usando Node 24/npm 11.9:
 
 ```powershell
 cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source

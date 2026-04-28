@@ -7,7 +7,7 @@
         (click)="navigateToPage()"
     >
         <mat-icon aria-hidden="true">medical_services</mat-icon>
-        <span>Cuentas Medicas</span>
+        <span>{{ 'MEDICAL_RECORDS.NAV.MENU_ITEM' | translate }}</span>
     </button>
 </ng-container>
 
@@ -17,7 +17,7 @@
         type="button"
         class="medical-records-menu-icon"
         [class.medical-records-menu-icon--active]="isActive()"
-        aria-label="Cuentas Medicas"
+        [attr.aria-label]="'MEDICAL_RECORDS.NAV.MENU_ITEM' | translate"
         (click)="navigateToPage()"
     >
         <mat-icon aria-hidden="true">medical_services</mat-icon>

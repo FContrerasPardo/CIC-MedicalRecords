@@ -1,12 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { NativeAutomationReference } from '../../models/medical-record.model';
+import { MedicalRecordService } from '../../services/medical-record.service';
 
 type MedicalRecordsPhaseKey = 'overview' | 'intake' | 'analysis' | 'approval' | 'execution' | 'review' | 'completed';
 
 interface PhaseNavigationItem {
     key: MedicalRecordsPhaseKey;
     label: string;
+    labelKey: string;
     route: string;
     order: number;
 }
@@ -14,7 +17,9 @@ interface PhaseNavigationItem {
 interface PhaseDetail {
     eyebrow: string;
     title: string;
+    titleKey: string;
     description: string;
+    descriptionKey: string;
     status: string;
     statusTone: 'blue' | 'amber' | 'green' | 'red';
     primaryAction: string;
@@ -27,6 +32,11 @@ interface PhaseDetail {
     tableRows: Array<{ id: string; patient: string; insurer: string; amount: string; status: string; risk: string }>;
 }
 
+interface NativeNavigationItem {
+    id?: string;
+    nativeReference?: NativeAutomationReference;
+}
+
 @Component({
   selector: 'medical-records-shell',
   standalone: false,
@@ -37,13 +47,13 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     private routeSubscription?: Subscription;
 
     readonly phases: PhaseNavigationItem[] = [
-        { key: 'overview', label: 'Overview', route: '', order: 0 },
-        { key: 'intake', label: 'Intake', route: 'intake', order: 1 },
-        { key: 'analysis', label: 'Analysis', route: 'analysis', order: 2 },
-        { key: 'approval', label: 'Approval', route: 'approval', order: 3 },
-        { key: 'execution', label: 'Execution', route: 'execution', order: 4 },
-        { key: 'review', label: 'Review', route: 'review', order: 5 },
-        { key: 'completed', label: 'Completed', route: 'completed', order: 6 },
+        { key: 'overview', label: 'Overview', labelKey: 'MEDICAL_RECORDS.PHASES.OVERVIEW', route: '', order: 0 },
+        { key: 'intake', label: 'Intake', labelKey: 'MEDICAL_RECORDS.PHASES.INTAKE', route: 'intake', order: 1 },
+        { key: 'analysis', label: 'Analysis', labelKey: 'MEDICAL_RECORDS.PHASES.ANALYSIS', route: 'analysis', order: 2 },
+        { key: 'approval', label: 'Approval', labelKey: 'MEDICAL_RECORDS.PHASES.APPROVAL', route: 'approval', order: 3 },
+        { key: 'execution', label: 'Execution', labelKey: 'MEDICAL_RECORDS.PHASES.EXECUTION', route: 'execution', order: 4 },
+        { key: 'review', label: 'Review', labelKey: 'MEDICAL_RECORDS.PHASES.REVIEW', route: 'review', order: 5 },
+        { key: 'completed', label: 'Completed', labelKey: 'MEDICAL_RECORDS.PHASES.COMPLETED', route: 'completed', order: 6 },
     ];
 
     readonly overviewMetrics = [
@@ -54,18 +64,19 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     ];
 
     readonly performanceMetrics = [
-        { label: 'Total Processes', value: '1,245', helper: '3.4% Increase', positive: true },
-        { label: 'Completed', value: '980', helper: '2.1% Increase', positive: true },
-        { label: 'Pending', value: '215', helper: '1.1% Decrease', positive: false },
-        { label: 'Error Rate', value: '4.2%', helper: '0.8% Increase', positive: false },
-        { label: 'User Activity', value: '8,950', helper: '5.2% Increase', positive: true },
-        { label: 'SLA Compliance', value: '92%', helper: '1.2% Increase', positive: true },
-        { label: 'Avg Days to Pmt', value: '42', helper: '3 improvement', positive: true },
-        { label: 'Execution Queue', value: '120', helper: '2% Decrease', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.TOTAL_PROCESSES', value: '1,245', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_3_4', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.COMPLETED', value: '980', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_2_1', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.PENDING', value: '215', helperKey: 'MEDICAL_RECORDS.METRICS.DECREASE_1_1', positive: false },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.ERROR_RATE', value: '4.2%', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_0_8', positive: false },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.USER_ACTIVITY', value: '8,950', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_5_2', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.SLA_COMPLIANCE', value: '92%', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_1_2', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.AVG_DAYS_TO_PAYMENT', value: '42', helperKey: 'MEDICAL_RECORDS.METRICS.IMPROVEMENT_3', positive: true },
+        { labelKey: 'MEDICAL_RECORDS.METRICS.EXECUTION_QUEUE', value: '120', helperKey: 'MEDICAL_RECORDS.METRICS.DECREASE_2', positive: true },
     ];
 
     readonly attentionItems = [
         {
+            id: 'ACT-8921-A',
             icon: 'description',
             tone: 'red',
             title: 'ACT-8921-A - Secondary Auth Missing',
@@ -73,6 +84,7 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
             meta: 'Analysis Phase - 4 Days',
         },
         {
+            id: 'ACT-4410-B',
             icon: 'receipt_long',
             tone: 'orange',
             title: 'ACT-4410-B - Coding Mismatch',
@@ -80,6 +92,7 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
             meta: 'Review Phase - 1 Day',
         },
         {
+            id: 'ACT-5012-C',
             icon: 'gavel',
             tone: 'amber',
             title: 'ACT-5012-C - Manual Sign-off',
@@ -115,7 +128,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         overview: {
             eyebrow: 'Command center',
             title: 'Process Overview Dashboard',
+            titleKey: 'MEDICAL_RECORDS.PAGES.OVERVIEW.TITLE',
             description: 'Unified operational cockpit for medical billing, glosa prevention, audit readiness, and recovery performance.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.OVERVIEW.DESCRIPTION',
             status: 'Live operations',
             statusTone: 'blue',
             primaryAction: 'New Intake',
@@ -138,7 +153,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         intake: {
             eyebrow: 'Document capture',
             title: 'Expediente Unificado - Intake',
+            titleKey: 'MEDICAL_RECORDS.PAGES.INTAKE.TITLE',
             description: 'Capture, classify, and structure clinical documents before automated validation begins.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.INTAKE.DESCRIPTION',
             status: 'Intake Active',
             statusTone: 'blue',
             primaryAction: 'Proceed to Analysis',
@@ -161,7 +178,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         analysis: {
             eyebrow: 'AI pre-validation',
             title: 'Analysis Phase',
+            titleKey: 'MEDICAL_RECORDS.PAGES.ANALYSIS.TITLE',
             description: 'Review automated findings and resolve risk signals before the account moves to approval.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.ANALYSIS.DESCRIPTION',
             status: 'High glosa probability',
             statusTone: 'red',
             primaryAction: 'Review Contract',
@@ -184,7 +203,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         approval: {
             eyebrow: 'Account assembly',
             title: 'Approval Phase',
+            titleKey: 'MEDICAL_RECORDS.PAGES.APPROVAL.TITLE',
             description: 'Finalize the billing package, verify validated claims, and select the target transmission format.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.APPROVAL.DESCRIPTION',
             status: 'Claims ready',
             statusTone: 'green',
             primaryAction: 'Generate RIPS',
@@ -207,7 +228,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         execution: {
             eyebrow: 'Appeals management',
             title: 'Execution Phase',
+            titleKey: 'MEDICAL_RECORDS.PAGES.EXECUTION.TITLE',
             description: 'Generate clinical justifications and send traceable appeal packages for denied claims.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.EXECUTION.DESCRIPTION',
             status: 'Appeals in progress',
             statusTone: 'amber',
             primaryAction: 'Generate Appeal',
@@ -230,7 +253,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         review: {
             eyebrow: 'Final audit console',
             title: 'Final Review & Audit Phase',
+            titleKey: 'MEDICAL_RECORDS.PAGES.REVIEW.TITLE',
             description: 'Review finalized claims and verify reconciliation metrics for the active cycle.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.REVIEW.DESCRIPTION',
             status: 'Audit active',
             statusTone: 'blue',
             primaryAction: 'Final Approval',
@@ -253,7 +278,9 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         completed: {
             eyebrow: 'Payment reconciliation',
             title: 'Completed Phase',
+            titleKey: 'MEDICAL_RECORDS.PAGES.COMPLETED.TITLE',
             description: 'Close reconciled accounts, track recovered value, and update the billing intelligence loop.',
+            descriptionKey: 'MEDICAL_RECORDS.PAGES.COMPLETED.DESCRIPTION',
             status: 'Cycle closing',
             statusTone: 'green',
             primaryAction: 'Close Expedient',
@@ -278,7 +305,11 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     activePhase = this.phases[0];
     activeDetail = this.phaseDetails.overview;
 
-    constructor(private readonly route: ActivatedRoute) {}
+    constructor(
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
+        private readonly medicalRecordService: MedicalRecordService
+    ) {}
 
     ngOnInit(): void {
         this.routeSubscription = this.route.paramMap.subscribe((paramMap) => {
@@ -303,6 +334,33 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
 
     trackByIndex(index: number): number {
         return index;
+    }
+
+    openStartProcess(item?: NativeNavigationItem): void {
+        const reference = this.resolveNativeReference(item);
+        void this.router.navigateByUrl(this.medicalRecordService.getStartProcessUrl(reference));
+    }
+
+    openTaskDetails(item?: NativeNavigationItem): void {
+        const reference = this.resolveNativeReference(item);
+        void this.router.navigateByUrl(this.medicalRecordService.getTaskDetailsUrl(reference));
+    }
+
+    openProcessDetails(item?: NativeNavigationItem): void {
+        const reference = this.resolveNativeReference(item);
+        void this.router.navigateByUrl(this.medicalRecordService.getProcessDetailsUrl(reference));
+    }
+
+    openDocument(item?: NativeNavigationItem): void {
+        const reference = this.resolveNativeReference(item);
+        void this.router.navigateByUrl(this.medicalRecordService.getDocumentUrl(reference));
+    }
+
+    private resolveNativeReference(item?: NativeNavigationItem): NativeAutomationReference {
+        return {
+            ...this.medicalRecordService.getNativeReference(item?.id),
+            ...item?.nativeReference,
+        };
     }
 
 }

@@ -244,24 +244,34 @@ C:\CIC-MedicalRecords\artifacts\logs\custom-ui\workspace-hxp.plugin.serve.err.lo
 No usar `.codex/logs` para redireccionar procesos de Windows, porque puede
 tener permisos insuficientes.
 
-## Comando local recomendado
+## Levantar la aplicacion local con Node explicito
 
-Si el objetivo es levantar la app desde una IA, pedir ejecucion local/no sandbox
-y usar una variante equivalente a:
+Cuando se quiera asegurar Node 24 sin depender del Node global de Windows, el
+metodo recomendado para la aplicacion principal `workspace-hxp` es:
 
 ```powershell
-$node = 'C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
-$work = 'C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source'
-$out = 'C:\CIC-MedicalRecords\artifacts\logs\custom-ui\workspace-hxp.serve.log'
-$err = 'C:\CIC-MedicalRecords\artifacts\logs\custom-ui\workspace-hxp.serve.err.log'
-$env:PATH = 'C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin;' + $env:PATH
-$env:NX_DAEMON = 'false'
-$env:NX_ISOLATE_PLUGINS = 'false'
-Start-Process -FilePath $node -ArgumentList @('.\node_modules\nx\bin\nx.js','serve','workspace-hxp','--host','localhost','--port','4200','--open=false') -WorkingDirectory $work -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError $err
+$work = "C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source"
+$nodeBin = "C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+
+Set-Location $work
+
+$env:PATH = "$nodeBin;$env:PATH"
+$env:NX_DAEMON = "false"
+$env:NX_ISOLATE_PLUGINS = "false"
+
+$portProcess = Get-NetTCPConnection -LocalPort 4200 -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty OwningProcess -Unique
+
+if ($portProcess) {
+  Stop-Process -Id $portProcess -Force
+}
+
+& "$nodeBin\node.exe" ".\node_modules\nx\bin\nx.js" serve workspace-hxp --host localhost --port 4200 --open=false
 ```
 
-Antes de levantar otra copia en el mismo puerto, validar si `localhost:4200` ya
-esta ocupado por un proceso Node anterior.
+Este flujo usa el runtime Node 24 validado para la plantilla, ajusta el `PATH`
+solo en la sesion actual, evita depender del Node global de Windows y libera el
+puerto `4200` antes de levantar `workspace-hxp`.
 
 ## Validacion de UI del plugin
 

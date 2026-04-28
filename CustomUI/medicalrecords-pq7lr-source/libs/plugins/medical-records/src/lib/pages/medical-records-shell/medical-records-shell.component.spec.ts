@@ -3,17 +3,15 @@ import { join } from 'path';
 
 describe('MedicalRecordsShellComponent template', () => {
     const template = readFileSync(join(__dirname, 'medical-records-shell.component.html'), 'utf8');
+    const component = readFileSync(join(__dirname, 'medical-records-shell.component.ts'), 'utf8');
+    const service = readFileSync(join(__dirname, '..', '..', 'services', 'medical-record.service.ts'), 'utf8');
 
-    it('renders the Stitch dashboard shell instead of the placeholder', () => {
-        expect(template).toContain('Hyland Cuentas Medicas');
-        expect(template).toContain('Process Overview Dashboard');
-        expect(template).toContain('Overview');
-        expect(template).toContain('Intake');
-        expect(template).toContain('Analysis');
-        expect(template).toContain('Approval');
-        expect(template).toContain('Execution');
-        expect(template).toContain('Review');
-        expect(template).toContain('Completed');
+    it('renders the Stitch dashboard shell with translation-aware navigation', () => {
+        expect(template).toContain("{{ 'MEDICAL_RECORDS.BRAND' | translate }}");
+        expect(template).toContain("{{ activeDetail.titleKey | translate }}");
+        expect(template).toContain('*ngFor="let phase of phases; trackBy: trackByPhase"');
+        expect(template).toContain('{{ phase.labelKey | translate }}');
+        expect(template).toContain("{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}");
         expect(template).not.toContain('Medical Records Demo');
         expect(template).not.toContain('Automate menu');
     });
@@ -37,5 +35,20 @@ describe('MedicalRecordsShellComponent template', () => {
         expect(template).toContain('class="completed-workspace phase-screen"');
         expect(template).toContain('Conciliacion y Cierre de Pagos');
         expect(template).toContain('Payment Reconciliation');
+    });
+
+    it('wires medical records actions to native Automate navigation handlers', () => {
+        expect(component).toContain('openStartProcess');
+        expect(component).toContain('openTaskDetails');
+        expect(component).toContain('openProcessDetails');
+        expect(component).toContain('openDocument');
+        expect(template).toContain('(click)="openStartProcess()"');
+        expect(template).toContain('(click)="openTaskDetails(item)"');
+        expect(template).toContain('(click)="openProcessDetails({ id:');
+        expect(template).toContain('(click)="openDocument()');
+    });
+
+    it('uses the native Document AI Process start form for new intake', () => {
+        expect(service).toContain("medicalAccountStartProcessName = 'Document AI Process'");
     });
 });

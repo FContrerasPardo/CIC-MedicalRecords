@@ -1,3 +1,97 @@
 {
-    "PLUGIN_MESSAGE": "Ceci est un message de plug-in"
+    "PLUGIN_MESSAGE": "Ceci est un message de plug-in",
+    "MEDICAL_RECORDS": {
+        "BRAND": "Hyland Comptes Medicaux",
+        "NAV": {
+            "MENU_ITEM": "Comptes Medicaux",
+            "PHASE_NAV_ARIA": "Navigation des phases des dossiers medicaux",
+            "QUICK_LINKS_ARIA": "Liens rapides des dossiers medicaux"
+        },
+        "TOP_LINKS": {
+            "AGREEMENTS": "Configuration des accords",
+            "ANALYTICS": "Analyse des processus"
+        },
+        "ACTIONS": {
+            "EXPORT_REPORT": "Exporter le rapport",
+            "FILTER": "Filtrer",
+            "NEW_INTAKE": "Nouvelle admission",
+            "NOTIFICATIONS": "Notifications",
+            "SEARCH_ACCOUNTS": "Rechercher des comptes...",
+            "USER_PROFILE": "Profil utilisateur"
+        },
+        "PHASES": {
+            "OVERVIEW": "Apercu",
+            "INTAKE": "Admission",
+            "ANALYSIS": "Analyse",
+            "APPROVAL": "Approbation",
+            "EXECUTION": "Execution",
+            "REVIEW": "Revue",
+            "COMPLETED": "Termine"
+        },
+        "PAGES": {
+            "OVERVIEW": {
+                "TITLE": "Tableau de bord du processus",
+                "DESCRIPTION": "Poste operationnel unifie pour la facturation medicale, la prevention des glosas, la preparation d'audit et la performance de recouvrement."
+            },
+            "INTAKE": {
+                "TITLE": "Dossier Unifie - Admission",
+                "DESCRIPTION": "Capturer, classer et structurer les documents cliniques avant le debut de la validation automatisee."
+            },
+            "ANALYSIS": {
+                "TITLE": "Phase d'analyse",
+                "DESCRIPTION": "Revoir les resultats automatises et resoudre les signaux de risque avant l'approbation."
+            },
+            "APPROVAL": {
+                "TITLE": "Phase d'approbation",
+                "DESCRIPTION": "Finaliser le paquet de facturation, verifier les reclamations validees et choisir le format de transmission."
+            },
+            "EXECUTION": {
+                "TITLE": "Phase d'execution",
+                "DESCRIPTION": "Generer des justifications cliniques et envoyer des dossiers d'appel tracables pour les reclamations refusees."
+            },
+            "REVIEW": {
+                "TITLE": "Revue finale et audit",
+                "DESCRIPTION": "Verifier les reclamations finalisees et les metriques de rapprochement du cycle actif."
+            },
+            "COMPLETED": {
+                "TITLE": "Phase terminee",
+                "DESCRIPTION": "Clore les comptes rapproches, suivre la valeur recouvree et mettre a jour la boucle d'intelligence de facturation."
+            }
+        },
+        "SECTIONS": {
+            "ATTENTION_REQUIRED": "Attention requise",
+            "CRITICAL_COUNT": "3 critiques",
+            "INSIGHTS": "Indicateurs",
+            "PERFORMANCE_METRICS": "Metriques de performance"
+        },
+        "CARDS": {
+            "DAILY_PROCESSING_VOLUME": "Volume quotidien de traitement",
+            "PROCESS_COMPLETION": "Achevement du processus",
+            "PROCESS_COMPLETION_HELPER": "Efficacite projetee de 98% selon les taux d'automatisation actuels.",
+            "PRODUCTIVITY_BY_HOUR": "Productivite par heure",
+            "PRODUCTIVITY_CHART_ARIA": "Graphique de productivite par heure",
+            "TODAY": "Aujourd'hui",
+            "TOTAL_RECOVERY_RATE": "Taux total de recouvrement",
+            "TOTAL_RECOVERY_RATE_HELPER": "Objectif: 90% au T3. Hausse de 2.1% par rapport au mois dernier.",
+            "WEEK": "Semaine"
+        },
+        "METRICS": {
+            "AVG_DAYS_TO_PAYMENT": "Jours moy. paiement",
+            "COMPLETED": "Termines",
+            "DECREASE_1_1": "Baisse de 1.1%",
+            "DECREASE_2": "Baisse de 2%",
+            "ERROR_RATE": "Taux d'erreur",
+            "EXECUTION_QUEUE": "File d'execution",
+            "IMPROVEMENT_3": "Amelioration de 3",
+            "INCREASE_0_8": "Hausse de 0.8%",
+            "INCREASE_1_2": "Hausse de 1.2%",
+            "INCREASE_2_1": "Hausse de 2.1%",
+            "INCREASE_3_4": "Hausse de 3.4%",
+            "INCREASE_5_2": "Hausse de 5.2%",
+            "PENDING": "En attente",
+            "SLA_COMPLIANCE": "Conformite SLA",
+            "TOTAL_PROCESSES": "Processus totaux",
+            "USER_ACTIVITY": "Activite utilisateur"
+        }
+    }
 }

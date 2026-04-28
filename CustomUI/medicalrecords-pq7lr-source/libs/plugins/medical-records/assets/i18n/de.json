@@ -1,3 +1,97 @@
 {
-    "PLUGIN_MESSAGE": "Dies ist eine Plugin-Nachricht"
+    "PLUGIN_MESSAGE": "Dies ist eine Plugin-Nachricht",
+    "MEDICAL_RECORDS": {
+        "BRAND": "Hyland Medizinische Konten",
+        "NAV": {
+            "MENU_ITEM": "Medizinische Konten",
+            "PHASE_NAV_ARIA": "Navigation der Phasen medizinischer Konten",
+            "QUICK_LINKS_ARIA": "Schnelllinks medizinischer Konten"
+        },
+        "TOP_LINKS": {
+            "AGREEMENTS": "Vertragskonfiguration",
+            "ANALYTICS": "Prozessanalyse"
+        },
+        "ACTIONS": {
+            "EXPORT_REPORT": "Bericht exportieren",
+            "FILTER": "Filtern",
+            "NEW_INTAKE": "Neue Aufnahme",
+            "NOTIFICATIONS": "Benachrichtigungen",
+            "SEARCH_ACCOUNTS": "Konten suchen...",
+            "USER_PROFILE": "Benutzerprofil"
+        },
+        "PHASES": {
+            "OVERVIEW": "Ubersicht",
+            "INTAKE": "Aufnahme",
+            "ANALYSIS": "Analyse",
+            "APPROVAL": "Freigabe",
+            "EXECUTION": "Ausfuhrung",
+            "REVIEW": "Prufung",
+            "COMPLETED": "Abgeschlossen"
+        },
+        "PAGES": {
+            "OVERVIEW": {
+                "TITLE": "Prozessubersicht Dashboard",
+                "DESCRIPTION": "Einheitliches operatives Cockpit fur medizinische Abrechnung, Glosa-Pravention, Audit-Bereitschaft und Recovery-Leistung."
+            },
+            "INTAKE": {
+                "TITLE": "Einheitliche Akte - Aufnahme",
+                "DESCRIPTION": "Klinische Dokumente erfassen, klassifizieren und strukturieren, bevor die automatisierte Validierung beginnt."
+            },
+            "ANALYSIS": {
+                "TITLE": "Analysephase",
+                "DESCRIPTION": "Automatisierte Ergebnisse prufen und Risikosignale losen, bevor das Konto zur Freigabe geht."
+            },
+            "APPROVAL": {
+                "TITLE": "Freigabephase",
+                "DESCRIPTION": "Abrechnungspaket finalisieren, validierte Anspruche prufen und das Ubertragungsformat auswahlen."
+            },
+            "EXECUTION": {
+                "TITLE": "Ausfuhrungsphase",
+                "DESCRIPTION": "Klinische Begrundungen erstellen und nachvollziehbare Widerspruchspakete fur abgelehnte Anspruche senden."
+            },
+            "REVIEW": {
+                "TITLE": "Endprufung und Audit",
+                "DESCRIPTION": "Finalisierte Anspruche prufen und Abstimmungsmetriken fur den aktiven Zyklus verifizieren."
+            },
+            "COMPLETED": {
+                "TITLE": "Abgeschlossene Phase",
+                "DESCRIPTION": "Abgestimmte Konten schliessen, Recovery-Wert verfolgen und die Abrechnungsintelligenz aktualisieren."
+            }
+        },
+        "SECTIONS": {
+            "ATTENTION_REQUIRED": "Aufmerksamkeit erforderlich",
+            "CRITICAL_COUNT": "3 kritisch",
+            "INSIGHTS": "Einblicke",
+            "PERFORMANCE_METRICS": "Leistungsmetriken"
+        },
+        "CARDS": {
+            "DAILY_PROCESSING_VOLUME": "Tagliches Verarbeitungsvolumen",
+            "PROCESS_COMPLETION": "Prozessabschluss",
+            "PROCESS_COMPLETION_HELPER": "Prognostizierte Effizienz von 98% basierend auf aktuellen Automatisierungsraten.",
+            "PRODUCTIVITY_BY_HOUR": "Produktivitat pro Stunde",
+            "PRODUCTIVITY_CHART_ARIA": "Diagramm Produktivitat pro Stunde",
+            "TODAY": "Heute",
+            "TOTAL_RECOVERY_RATE": "Gesamte Recovery-Rate",
+            "TOTAL_RECOVERY_RATE_HELPER": "Ziel: 90% bis Q3. Zeigt 2.1% Steigerung gegenuber dem Vormonat.",
+            "WEEK": "Woche"
+        },
+        "METRICS": {
+            "AVG_DAYS_TO_PAYMENT": "Durchschn. Zahlungstage",
+            "COMPLETED": "Abgeschlossen",
+            "DECREASE_1_1": "1.1% Ruckgang",
+            "DECREASE_2": "2% Ruckgang",
+            "ERROR_RATE": "Fehlerrate",
+            "EXECUTION_QUEUE": "Ausfuhrungswarteschlange",
+            "IMPROVEMENT_3": "3 Verbesserung",
+            "INCREASE_0_8": "0.8% Steigerung",
+            "INCREASE_1_2": "1.2% Steigerung",
+            "INCREASE_2_1": "2.1% Steigerung",
+            "INCREASE_3_4": "3.4% Steigerung",
+            "INCREASE_5_2": "5.2% Steigerung",
+            "PENDING": "Ausstehend",
+            "SLA_COMPLIANCE": "SLA-Erfullung",
+            "TOTAL_PROCESSES": "Prozesse gesamt",
+            "USER_ACTIVITY": "Benutzeraktivitat"
+        }
+    }
 }

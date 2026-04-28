@@ -1,3 +1,97 @@
 {
-    "PLUGIN_MESSAGE": "Este es un mensaje de complemento"
+    "PLUGIN_MESSAGE": "Este es un mensaje de complemento",
+    "MEDICAL_RECORDS": {
+        "BRAND": "Hyland Cuentas Medicas",
+        "NAV": {
+            "MENU_ITEM": "Cuentas Medicas",
+            "PHASE_NAV_ARIA": "Navegacion de fases de cuentas medicas",
+            "QUICK_LINKS_ARIA": "Accesos rapidos de cuentas medicas"
+        },
+        "TOP_LINKS": {
+            "AGREEMENTS": "Configuracion de Convenios",
+            "ANALYTICS": "Analitica de Procesos"
+        },
+        "ACTIONS": {
+            "EXPORT_REPORT": "Exportar reporte",
+            "FILTER": "Filtrar",
+            "NEW_INTAKE": "Nuevo ingreso",
+            "NOTIFICATIONS": "Notificaciones",
+            "SEARCH_ACCOUNTS": "Buscar cuentas...",
+            "USER_PROFILE": "Perfil de usuario"
+        },
+        "PHASES": {
+            "OVERVIEW": "Resumen",
+            "INTAKE": "Ingreso",
+            "ANALYSIS": "Analisis",
+            "APPROVAL": "Aprobacion",
+            "EXECUTION": "Ejecucion",
+            "REVIEW": "Revision",
+            "COMPLETED": "Completado"
+        },
+        "PAGES": {
+            "OVERVIEW": {
+                "TITLE": "Tablero de Resumen del Proceso",
+                "DESCRIPTION": "Centro operativo unificado para facturacion medica, prevencion de glosas, preparacion de auditoria y desempeno de recuperacion."
+            },
+            "INTAKE": {
+                "TITLE": "Expediente Unificado - Ingreso",
+                "DESCRIPTION": "Captura, clasifica y estructura documentos clinicos antes de iniciar la validacion automatizada."
+            },
+            "ANALYSIS": {
+                "TITLE": "Fase de Analisis",
+                "DESCRIPTION": "Revisa hallazgos automatizados y resuelve senales de riesgo antes de mover la cuenta a aprobacion."
+            },
+            "APPROVAL": {
+                "TITLE": "Fase de Aprobacion",
+                "DESCRIPTION": "Finaliza el paquete de facturacion, verifica reclamaciones validadas y selecciona el formato de transmision."
+            },
+            "EXECUTION": {
+                "TITLE": "Fase de Ejecucion",
+                "DESCRIPTION": "Genera justificaciones clinicas y envia paquetes de apelacion trazables para reclamaciones negadas."
+            },
+            "REVIEW": {
+                "TITLE": "Revision Final y Auditoria",
+                "DESCRIPTION": "Revisa reclamaciones finalizadas y verifica metricas de conciliacion para el ciclo activo."
+            },
+            "COMPLETED": {
+                "TITLE": "Fase Completada",
+                "DESCRIPTION": "Cierra cuentas conciliadas, mide el valor recuperado y actualiza el ciclo de inteligencia de facturacion."
+            }
+        },
+        "SECTIONS": {
+            "ATTENTION_REQUIRED": "Atencion Requerida",
+            "CRITICAL_COUNT": "3 Criticas",
+            "INSIGHTS": "Indicadores",
+            "PERFORMANCE_METRICS": "Metricas de Desempeno"
+        },
+        "CARDS": {
+            "DAILY_PROCESSING_VOLUME": "Volumen diario de procesamiento",
+            "PROCESS_COMPLETION": "Finalizacion del Proceso",
+            "PROCESS_COMPLETION_HELPER": "Eficiencia proyectada de 98% con base en las tasas actuales de automatizacion.",
+            "PRODUCTIVITY_BY_HOUR": "Productividad por Hora",
+            "PRODUCTIVITY_CHART_ARIA": "Grafica de productividad por hora",
+            "TODAY": "Hoy",
+            "TOTAL_RECOVERY_RATE": "Tasa Total de Recuperacion",
+            "TOTAL_RECOVERY_RATE_HELPER": "Meta: 90% para Q3. Muestra un aumento de 2.1% frente al mes anterior.",
+            "WEEK": "Semana"
+        },
+        "METRICS": {
+            "AVG_DAYS_TO_PAYMENT": "Dias prom. de pago",
+            "COMPLETED": "Completados",
+            "DECREASE_1_1": "1.1% Disminucion",
+            "DECREASE_2": "2% Disminucion",
+            "ERROR_RATE": "Tasa de error",
+            "EXECUTION_QUEUE": "Cola de ejecucion",
+            "IMPROVEMENT_3": "Mejora de 3",
+            "INCREASE_0_8": "0.8% Aumento",
+            "INCREASE_1_2": "1.2% Aumento",
+            "INCREASE_2_1": "2.1% Aumento",
+            "INCREASE_3_4": "3.4% Aumento",
+            "INCREASE_5_2": "5.2% Aumento",
+            "PENDING": "Pendientes",
+            "SLA_COMPLIANCE": "Cumplimiento SLA",
+            "TOTAL_PROCESSES": "Procesos totales",
+            "USER_ACTIVITY": "Actividad de usuario"
+        }
+    }
 }

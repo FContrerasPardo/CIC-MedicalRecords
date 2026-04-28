@@ -1,3 +1,97 @@
 {
-    "PLUGIN_MESSAGE": "This is a plugin message"
+    "PLUGIN_MESSAGE": "This is a plugin message",
+    "MEDICAL_RECORDS": {
+        "BRAND": "Hyland Medical Accounts",
+        "NAV": {
+            "MENU_ITEM": "Medical Accounts",
+            "PHASE_NAV_ARIA": "Medical records phase navigation",
+            "QUICK_LINKS_ARIA": "Medical records quick links"
+        },
+        "TOP_LINKS": {
+            "AGREEMENTS": "Agreement Configuration",
+            "ANALYTICS": "Process Analytics"
+        },
+        "ACTIONS": {
+            "EXPORT_REPORT": "Export Report",
+            "FILTER": "Filter",
+            "NEW_INTAKE": "New Intake",
+            "NOTIFICATIONS": "Notifications",
+            "SEARCH_ACCOUNTS": "Search accounts...",
+            "USER_PROFILE": "User profile"
+        },
+        "PHASES": {
+            "OVERVIEW": "Overview",
+            "INTAKE": "Intake",
+            "ANALYSIS": "Analysis",
+            "APPROVAL": "Approval",
+            "EXECUTION": "Execution",
+            "REVIEW": "Review",
+            "COMPLETED": "Completed"
+        },
+        "PAGES": {
+            "OVERVIEW": {
+                "TITLE": "Process Overview Dashboard",
+                "DESCRIPTION": "Unified operational cockpit for medical billing, glosa prevention, audit readiness, and recovery performance."
+            },
+            "INTAKE": {
+                "TITLE": "Unified Record - Intake",
+                "DESCRIPTION": "Capture, classify, and structure clinical documents before automated validation begins."
+            },
+            "ANALYSIS": {
+                "TITLE": "Analysis Phase",
+                "DESCRIPTION": "Review automated findings and resolve risk signals before the account moves to approval."
+            },
+            "APPROVAL": {
+                "TITLE": "Approval Phase",
+                "DESCRIPTION": "Finalize the billing package, verify validated claims, and select the target transmission format."
+            },
+            "EXECUTION": {
+                "TITLE": "Execution Phase",
+                "DESCRIPTION": "Generate clinical justifications and send traceable appeal packages for denied claims."
+            },
+            "REVIEW": {
+                "TITLE": "Final Review & Audit Phase",
+                "DESCRIPTION": "Review finalized claims and verify reconciliation metrics for the active cycle."
+            },
+            "COMPLETED": {
+                "TITLE": "Completed Phase",
+                "DESCRIPTION": "Close reconciled accounts, track recovered value, and update the billing intelligence loop."
+            }
+        },
+        "SECTIONS": {
+            "ATTENTION_REQUIRED": "Attention Required",
+            "CRITICAL_COUNT": "3 Critical",
+            "INSIGHTS": "Insights",
+            "PERFORMANCE_METRICS": "Performance Metrics"
+        },
+        "CARDS": {
+            "DAILY_PROCESSING_VOLUME": "Daily processing volume",
+            "PROCESS_COMPLETION": "Process Completion",
+            "PROCESS_COMPLETION_HELPER": "Projected 98% efficiency based on current automation rates.",
+            "PRODUCTIVITY_BY_HOUR": "Productivity by Hour",
+            "PRODUCTIVITY_CHART_ARIA": "Productivity by hour chart",
+            "TODAY": "Today",
+            "TOTAL_RECOVERY_RATE": "Total Recovery Rate",
+            "TOTAL_RECOVERY_RATE_HELPER": "Target: 90% by Q3. Showing a 2.1% increase from last month.",
+            "WEEK": "Week"
+        },
+        "METRICS": {
+            "AVG_DAYS_TO_PAYMENT": "Avg Days to Pmt",
+            "COMPLETED": "Completed",
+            "DECREASE_1_1": "1.1% Decrease",
+            "DECREASE_2": "2% Decrease",
+            "ERROR_RATE": "Error Rate",
+            "EXECUTION_QUEUE": "Execution Queue",
+            "IMPROVEMENT_3": "3 improvement",
+            "INCREASE_0_8": "0.8% Increase",
+            "INCREASE_1_2": "1.2% Increase",
+            "INCREASE_2_1": "2.1% Increase",
+            "INCREASE_3_4": "3.4% Increase",
+            "INCREASE_5_2": "5.2% Increase",
+            "PENDING": "Pending",
+            "SLA_COMPLIANCE": "SLA Compliance",
+            "TOTAL_PROCESSES": "Total Processes",
+            "USER_ACTIVITY": "User Activity"
+        }
+    }
 }

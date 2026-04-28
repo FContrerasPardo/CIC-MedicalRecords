@@ -1,3 +1,97 @@
 {
-    "PLUGIN_MESSAGE": "To jest komunikat wtyczki"
+    "PLUGIN_MESSAGE": "To jest komunikat wtyczki",
+    "MEDICAL_RECORDS": {
+        "BRAND": "Hyland Konta Medyczne",
+        "NAV": {
+            "MENU_ITEM": "Konta Medyczne",
+            "PHASE_NAV_ARIA": "Nawigacja faz kont medycznych",
+            "QUICK_LINKS_ARIA": "Szybkie linki kont medycznych"
+        },
+        "TOP_LINKS": {
+            "AGREEMENTS": "Konfiguracja umow",
+            "ANALYTICS": "Analityka procesow"
+        },
+        "ACTIONS": {
+            "EXPORT_REPORT": "Eksportuj raport",
+            "FILTER": "Filtruj",
+            "NEW_INTAKE": "Nowe przyjecie",
+            "NOTIFICATIONS": "Powiadomienia",
+            "SEARCH_ACCOUNTS": "Szukaj kont...",
+            "USER_PROFILE": "Profil uzytkownika"
+        },
+        "PHASES": {
+            "OVERVIEW": "Przeglad",
+            "INTAKE": "Przyjecie",
+            "ANALYSIS": "Analiza",
+            "APPROVAL": "Zatwierdzenie",
+            "EXECUTION": "Wykonanie",
+            "REVIEW": "Kontrola",
+            "COMPLETED": "Zakonczone"
+        },
+        "PAGES": {
+            "OVERVIEW": {
+                "TITLE": "Panel przegladu procesu",
+                "DESCRIPTION": "Zunifikowany pulpit operacyjny dla rozliczen medycznych, zapobiegania glosom, gotowosci audytu i wydajnosci odzysku."
+            },
+            "INTAKE": {
+                "TITLE": "Zunifikowany rekord - Przyjecie",
+                "DESCRIPTION": "Przechwytuj, klasyfikuj i strukturyzuj dokumenty kliniczne przed automatyczna walidacja."
+            },
+            "ANALYSIS": {
+                "TITLE": "Faza analizy",
+                "DESCRIPTION": "Przejrzyj wyniki automatyczne i rozwiaz sygnaly ryzyka przed zatwierdzeniem."
+            },
+            "APPROVAL": {
+                "TITLE": "Faza zatwierdzenia",
+                "DESCRIPTION": "Sfinalizuj pakiet rozliczeniowy, sprawdz zatwierdzone roszczenia i wybierz format transmisji."
+            },
+            "EXECUTION": {
+                "TITLE": "Faza wykonania",
+                "DESCRIPTION": "Generuj uzasadnienia kliniczne i wysylaj sledzone pakiety odwolawcze dla odrzuconych roszczen."
+            },
+            "REVIEW": {
+                "TITLE": "Kontrola koncowa i audyt",
+                "DESCRIPTION": "Przejrzyj sfinalizowane roszczenia i zweryfikuj metryki uzgodnienia aktywnego cyklu."
+            },
+            "COMPLETED": {
+                "TITLE": "Faza zakonczona",
+                "DESCRIPTION": "Zamknij uzgodnione konta, sledz odzyskana wartosc i zaktualizuj petle inteligencji rozliczen."
+            }
+        },
+        "SECTIONS": {
+            "ATTENTION_REQUIRED": "Wymaga uwagi",
+            "CRITICAL_COUNT": "3 krytyczne",
+            "INSIGHTS": "Wglady",
+            "PERFORMANCE_METRICS": "Metryki wydajnosci"
+        },
+        "CARDS": {
+            "DAILY_PROCESSING_VOLUME": "Dzienny wolumen przetwarzania",
+            "PROCESS_COMPLETION": "Zakonczenie procesu",
+            "PROCESS_COMPLETION_HELPER": "Prognozowana efektywnosc 98% na podstawie aktualnych wskaznikow automatyzacji.",
+            "PRODUCTIVITY_BY_HOUR": "Produktywnosc na godzine",
+            "PRODUCTIVITY_CHART_ARIA": "Wykres produktywnosci na godzine",
+            "TODAY": "Dzisiaj",
+            "TOTAL_RECOVERY_RATE": "Calkowity wskaznik odzysku",
+            "TOTAL_RECOVERY_RATE_HELPER": "Cel: 90% do Q3. Wzrost o 2.1% wobec poprzedniego miesiaca.",
+            "WEEK": "Tydzien"
+        },
+        "METRICS": {
+            "AVG_DAYS_TO_PAYMENT": "Sr. dni do platnosci",
+            "COMPLETED": "Zakonczone",
+            "DECREASE_1_1": "Spadek 1.1%",
+            "DECREASE_2": "Spadek 2%",
+            "ERROR_RATE": "Wskaznik bledow",
+            "EXECUTION_QUEUE": "Kolejka wykonania",
+            "IMPROVEMENT_3": "Poprawa o 3",
+            "INCREASE_0_8": "Wzrost 0.8%",
+            "INCREASE_1_2": "Wzrost 1.2%",
+            "INCREASE_2_1": "Wzrost 2.1%",
+            "INCREASE_3_4": "Wzrost 3.4%",
+            "INCREASE_5_2": "Wzrost 5.2%",
+            "PENDING": "Oczekujace",
+            "SLA_COMPLIANCE": "Zgodnosc SLA",
+            "TOTAL_PROCESSES": "Procesy lacznie",
+            "USER_ACTIVITY": "Aktywnosc uzytkownika"
+        }
+    }
 }

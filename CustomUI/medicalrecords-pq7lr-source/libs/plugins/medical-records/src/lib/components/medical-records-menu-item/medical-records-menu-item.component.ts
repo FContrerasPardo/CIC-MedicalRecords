@@ -11,12 +11,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationEnd, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 
 @Component({
     selector: 'medical-records-menu-item',
     standalone: true,
-    imports: [NgIf, MatButtonModule, MatIconModule],
+    imports: [NgIf, MatButtonModule, MatIconModule, TranslateModule],
     templateUrl: './medical-records-menu-item.component.html',
     styleUrls: ['./medical-records-menu-item.component.scss'],
 })

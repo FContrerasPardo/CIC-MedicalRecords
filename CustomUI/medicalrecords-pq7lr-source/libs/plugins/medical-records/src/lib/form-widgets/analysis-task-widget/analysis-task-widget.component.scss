@@ -1,0 +1,134 @@
+.analysis-task-widget {
+    display: block;
+}
+
+.analysis-task-widget__card,
+.analysis-task-widget__empty {
+    border: 1px solid #d6dde6;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    padding: 24px;
+}
+
+.analysis-task-widget__eyebrow,
+.analysis-task-widget__footer,
+.analysis-task-widget__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.analysis-task-widget__phase,
+.analysis-task-widget__schema {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.analysis-task-widget__phase {
+    background: #d9f2e4;
+    color: #155d41;
+}
+
+.analysis-task-widget__schema {
+    background: #edf2f7;
+    color: #334155;
+}
+
+.analysis-task-widget__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.analysis-task-widget__header h2,
+.analysis-task-widget__finding h3,
+.analysis-task-widget__empty h2 {
+    margin: 0;
+    color: #0f172a;
+}
+
+.analysis-task-widget__subtitle,
+.analysis-task-widget__finding p,
+.analysis-task-widget__footer,
+.analysis-task-widget__empty p {
+    margin: 8px 0 0;
+    color: #475569;
+}
+
+.analysis-task-widget__meta {
+    min-width: 180px;
+    flex-direction: column;
+    align-items: flex-end;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.analysis-task-widget__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.analysis-task-widget__metric,
+.analysis-task-widget__finding {
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+}
+
+.analysis-task-widget__metric span,
+.analysis-task-widget__label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.analysis-task-widget__metric strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 22px;
+    color: #0f172a;
+}
+
+.analysis-task-widget__finding {
+    margin-top: 20px;
+}
+
+.analysis-task-widget__footer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+@media (max-width: 720px) {
+    .analysis-task-widget__card,
+    .analysis-task-widget__empty {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .analysis-task-widget__header {
+        flex-direction: column;
+    }
+
+    .analysis-task-widget__meta {
+        min-width: auto;
+        align-items: flex-start;
+    }
+}

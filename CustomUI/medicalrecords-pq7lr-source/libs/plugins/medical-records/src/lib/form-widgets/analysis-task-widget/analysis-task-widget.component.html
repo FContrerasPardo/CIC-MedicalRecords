@@ -1,0 +1,59 @@
+<section class="analysis-task-widget" [attr.data-form-field-id]="formFieldId">
+  <ng-container *ngIf="casePayload as caseData; else emptyState">
+    <article class="analysis-task-widget__card">
+      <div class="analysis-task-widget__eyebrow">
+        <span class="analysis-task-widget__phase">{{ phaseLabel | titlecase }}</span>
+        <span class="analysis-task-widget__schema" *ngIf="caseData.schemaVersion">Schema v{{ caseData.schemaVersion }}</span>
+      </div>
+
+      <div class="analysis-task-widget__header">
+        <div>
+          <p class="analysis-task-widget__label">Caso</p>
+          <h2>{{ caseId }}</h2>
+          <p class="analysis-task-widget__subtitle">{{ patientName }}</p>
+        </div>
+        <div class="analysis-task-widget__meta">
+          <span>{{ payerName }}</span>
+          <span>{{ planName }}</span>
+        </div>
+      </div>
+
+      <div class="analysis-task-widget__grid">
+        <div class="analysis-task-widget__metric">
+          <span>Facturado</span>
+          <strong>{{ (totalBilled ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
+        </div>
+        <div class="analysis-task-widget__metric">
+          <span>Esperado</span>
+          <strong>{{ (totalExpected ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
+        </div>
+        <div class="analysis-task-widget__metric">
+          <span>Glosado</span>
+          <strong>{{ (totalGlosado ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
+        </div>
+      </div>
+
+      <div class="analysis-task-widget__finding" *ngIf="primaryFinding as finding">
+        <p class="analysis-task-widget__label">Hallazgo principal</p>
+        <h3>{{ finding.title ?? 'Hallazgo sin titulo' }}</h3>
+        <p>{{ finding.type ?? 'Sin tipo' }} / {{ finding.severity ?? 'Sin severidad' }}</p>
+      </div>
+
+      <div class="analysis-task-widget__footer">
+        <span>{{ findings.length }} hallazgo(s)</span>
+        <span *ngIf="updatedAt">Actualizado {{ updatedAt | date:'mediumDate' }}</span>
+      </div>
+    </article>
+  </ng-container>
+</section>
+
+<ng-template #emptyState>
+  <article class="analysis-task-widget__empty">
+    <p class="analysis-task-widget__label">Analysis task widget</p>
+    <h2>Sin case_payload disponible</h2>
+    <p>
+      Este widget espera un JSON en el valor del campo actual o en un campo del formulario
+      llamado <code>case_payload</code>.
+    </p>
+  </article>
+</ng-template>

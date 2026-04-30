@@ -1,0 +1,493 @@
+<section class="intake-account-widget" [attr.data-form-field-id]="formFieldId">
+  <ng-container *ngIf="!viewModel.meta.parseError; else parseErrorState">
+    <nav class="stage-nav" aria-label="Medical records stages">
+      <ng-container *ngFor="let stage of viewModel.stageNav.stages">
+        <span class="stage-pill" [class.active]="stage.active" [class.completed]="stage.completed">
+          {{ stage.label }}
+        </span>
+      </ng-container>
+    </nav>
+
+    <section class="alias-banner" *ngIf="viewModel.patientResolution.showAliasBanner">
+      <span class="material-icons">merge_type</span>
+      <div>
+        <strong>OCR reconciliation applied</strong>
+        <p>{{ viewModel.patientResolution.message }}</p>
+      </div>
+    </section>
+
+    <section class="patient-selector-card" *ngIf="viewModel.patientSelector.visible">
+      <div class="card-header">
+        <div>
+          <span class="eyebrow">Patient selector</span>
+          <h2>Patients included in this batch</h2>
+        </div>
+        <span class="verified-pill">
+          <span class="material-icons">groups</span>
+          {{ viewModel.patientSelector.totalPatients }} patients
+        </span>
+      </div>
+
+      <div class="patient-selector-grid">
+        <button
+          type="button"
+          class="patient-option"
+          *ngFor="let option of viewModel.patientSelector.options"
+          [class.active]="option.selected"
+          [attr.data-tone]="option.tone"
+          (click)="selectPatient(option.key)"
+        >
+          <strong>{{ option.label }}</strong>
+          <span>{{ option.subtitle ?? 'Demographics pending' }}</span>
+          <small>{{ option.serviceCount }} services - {{ option.documentCount }} docs</small>
+        </button>
+      </div>
+    </section>
+
+    <header class="patient-header-card">
+      <div class="patient-identity">
+        <div class="avatar-chip">{{ viewModel.header.patientInitials }}</div>
+
+        <div class="identity-copy">
+          <div class="title-row">
+            <h1>{{ viewModel.header.patientName ?? 'Patient pending' }}</h1>
+            <span
+              class="state-pill"
+              [attr.data-tone]="viewModel.summary.readyForAnalysis ? 'success' : (viewModel.summary.missingRequirements > 0 ? 'danger' : 'warning')"
+            >
+              {{ viewModel.header.intakeStatus }}
+            </span>
+            <span class="read-only-pill" *ngIf="isReadOnly">Read only</span>
+          </div>
+
+          <div class="patient-meta">
+            <span><span class="material-icons">badge</span> MRN: {{ viewModel.header.mrn ?? 'Pending' }}</span>
+            <span><span class="material-icons">fingerprint</span> ID: {{ viewModel.header.patientId ?? 'Pending' }}</span>
+            <span>
+              <span class="material-icons">cake</span>
+              DOB: {{ viewModel.header.dob ?? 'Pending' }}<ng-container *ngIf="viewModel.header.ageLabel"> ({{ viewModel.header.ageLabel }})</ng-container>
+            </span>
+            <span><span class="material-icons">local_hospital</span> {{ viewModel.header.provider ?? 'Provider pending' }}</span>
+            <span><span class="material-icons">receipt_long</span> Invoice: {{ viewModel.header.invoiceNumber ?? 'Pending' }}</span>
+            <span><span class="material-icons">event</span> Admission: {{ viewModel.header.admissionDate ?? 'Pending' }}</span>
+            <span><span class="material-icons">event_available</span> Discharge: {{ viewModel.header.dischargeDate ?? 'Pending' }}</span>
+            <span><span class="material-icons">verified_user</span> {{ viewModel.header.insurancePlan ?? 'Insurance pending' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="schema-hints">
+          <span class="schema-pill" *ngFor="let hint of viewModel.meta.schemaHints">{{ hint }}</span>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="ghost-action" disabled [attr.aria-disabled]="true">
+            <span class="material-icons">upload_file</span>
+            Upload
+          </button>
+          <button
+            type="button"
+            class="primary-action"
+            [class.blocked]="!viewModel.readiness.readyForAnalysis"
+            disabled
+            [attr.aria-disabled]="true"
+          >
+            Proceed to Analysis
+            <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="summary-grid">
+      <article class="summary-card">
+        <span>Total Services</span>
+        <strong>{{ viewModel.summary.totalServices }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Total Procedures</span>
+        <strong>{{ viewModel.summary.totalProcedures }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Total Documents Found</span>
+        <strong>{{ viewModel.summary.totalDocumentsFound }}</strong>
+      </article>
+
+      <article class="summary-card warning">
+        <span>Missing Requirements</span>
+        <strong>{{ viewModel.summary.missingRequirements }}</strong>
+      </article>
+
+      <article class="summary-card" [class.warning]="viewModel.summary.pendingReviewCount > 0">
+        <span>Pending Review</span>
+        <strong>{{ viewModel.summary.pendingReviewCount }}</strong>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <article class="service-explorer-card">
+        <div class="card-header">
+          <div>
+            <span class="eyebrow">Services</span>
+            <h2>Services Explorer</h2>
+          </div>
+          <span class="verified-pill">
+            <span class="material-icons">format_list_bulleted</span>
+            {{ totalFilteredItems }} filtered
+          </span>
+        </div>
+
+        <div class="filter-toolbar">
+          <label class="filter-field filter-field--wide">
+            <span>Search service</span>
+            <input type="text" [value]="searchTerm" (input)="updateSearchTerm($event)" placeholder="Service, CUP or description" />
+          </label>
+
+          <label class="filter-field">
+            <span>Status</span>
+            <select [value]="statusFilter" (change)="updateStatusFilter($event)">
+              <option value="">All</option>
+              <option *ngFor="let option of viewModel.serviceExplorer.filters.statuses" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Service</span>
+            <select [value]="serviceFilter" (change)="updateServiceFilter($event)">
+              <option value="">All</option>
+              <option *ngFor="let option of viewModel.serviceExplorer.filters.serviceNames" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Invoice</span>
+            <select [value]="invoiceFilter" (change)="updateInvoiceFilter($event)">
+              <option value="">All</option>
+              <option *ngFor="let option of viewModel.serviceExplorer.filters.invoices" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Coverage</span>
+            <select [value]="coverageFilter" (change)="updateCoverageFilter($event)">
+              <option value="">All</option>
+              <option *ngFor="let option of viewModel.serviceExplorer.filters.coverages" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>From</span>
+            <input type="date" [value]="dateFrom" (change)="updateDateFrom($event)" />
+          </label>
+
+          <label class="filter-field">
+            <span>To</span>
+            <input type="date" [value]="dateTo" (change)="updateDateTo($event)" />
+          </label>
+        </div>
+
+        <div class="service-table-shell" *ngIf="viewModel.serviceExplorer.items.length; else emptyServices">
+          <ng-container *ngIf="pagedServiceItems.length; else emptyFilteredServices">
+            <div class="service-table">
+              <div class="service-table__head">
+                <span>Date</span>
+                <span>Service</span>
+                <span>CUP</span>
+                <span>Description</span>
+                <span>Qty</span>
+                <span>Price</span>
+                <span>Total</span>
+                <span>Coverage</span>
+                <span>Status</span>
+                <span>Invoice</span>
+              </div>
+
+              <div class="service-table__row" *ngFor="let item of pagedServiceItems">
+                <span>{{ item.serviceDate ?? 'Pending' }}</span>
+                <strong>{{ item.serviceName ?? 'Unnamed service' }}</strong>
+                <span>{{ item.cup ?? '—' }}</span>
+                <span>{{ item.description ?? '—' }}</span>
+                <span>{{ item.quantity ?? '—' }}</span>
+                <span>{{ item.price ?? '—' }}</span>
+                <span>{{ item.total ?? item.price ?? '—' }}</span>
+                <span>{{ item.coverage ?? '—' }}</span>
+                <span class="service-status" [attr.data-tone]="item.tone">{{ item.derivedStatus }}</span>
+                <span>{{ item.invoiceNumber ?? '—' }}</span>
+              </div>
+            </div>
+
+            <div class="pagination-bar">
+              <div class="pagination-copy">
+                Showing {{ visibleRangeStart }}-{{ visibleRangeEnd }} of {{ totalFilteredItems }} services
+              </div>
+
+              <div class="pagination-actions">
+                <label class="page-size-field">
+                  <span>Rows</span>
+                  <select [value]="pageSize" (change)="updatePageSize($event)">
+                    <option *ngFor="let option of viewModel.serviceExplorer.pageSizeOptions" [value]="option">{{ option }}</option>
+                  </select>
+                </label>
+
+                <button type="button" class="ghost-action small" (click)="goToPreviousPage()" [disabled]="safeCurrentPage <= 1">
+                  Previous
+                </button>
+                <span class="page-indicator">Page {{ safeCurrentPage }} / {{ totalPages }}</span>
+                <button type="button" class="ghost-action small" (click)="goToNextPage()" [disabled]="safeCurrentPage >= totalPages">
+                  Next
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </article>
+
+      <article class="document-control-card">
+        <div class="card-header">
+          <div>
+            <span class="eyebrow">Repository</span>
+            <h2>Document Control Center</h2>
+          </div>
+          <span class="verified-pill">
+            <span class="material-icons">verified</span>
+            Verified {{ viewModel.documentControl.verifiedCount }}
+          </span>
+        </div>
+
+        <div class="document-control-body" *ngIf="(viewModel.documentControl.items.length + viewModel.documentControl.missingItems.length) > 0; else emptyDocumentCenter">
+          <div class="document-list" *ngIf="viewModel.documentControl.items.length">
+            <article class="document-card" *ngFor="let item of viewModel.documentControl.items" [attr.data-tone]="item.tone">
+              <div class="document-card-header">
+                <div class="document-icon">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="document-copy">
+                  <strong>{{ item.documentName }}</strong>
+                  <p>
+                    {{ item.documentType }}
+                    <ng-container *ngIf="item.linkedProcedureName">
+                      - Linked to {{ item.linkedProcedureName }}
+                    </ng-container>
+                  </p>
+                </div>
+                <span class="document-badge" [attr.data-tone]="item.tone">{{ item.extractionBadge }}</span>
+              </div>
+
+              <div class="document-highlights" *ngIf="item.extractedFields.length">
+                <div class="document-highlight" *ngFor="let highlight of item.extractedFields">
+                  <span>{{ highlight.label }}</span>
+                  <strong>{{ highlight.value }}</strong>
+                </div>
+              </div>
+
+              <div class="document-footer">
+                <div class="document-metadata">
+                  <span *ngIf="item.dateReceived">Received {{ item.dateReceived }}</span>
+                  <span *ngIf="item.confidence !== null">Confidence {{ item.confidence }}%</span>
+                  <span>{{ item.status }}</span>
+                </div>
+                <button type="button" class="view-action" disabled [attr.aria-disabled]="true">{{ item.viewLabel }}</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="missing-documents" *ngIf="viewModel.documentControl.missingItems.length">
+            <article class="missing-card" *ngFor="let item of viewModel.documentControl.missingItems">
+              <div class="missing-header">
+                <div class="missing-icon">
+                  <span class="material-icons">warning</span>
+                </div>
+                <div>
+                  <strong>{{ item.documentName }}</strong>
+                  <p>Linked to {{ item.linkedProcedureName }}</p>
+                </div>
+                <span class="missing-pill">{{ item.status }}</span>
+              </div>
+
+              <div class="missing-actions">
+                <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">{{ item.primaryActionLabel }}</button>
+                <button type="button" class="primary-action small blocked" disabled [attr.aria-disabled]="true">{{ item.secondaryActionLabel }}</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="insights-grid">
+      <article class="procedure-summary-card">
+        <div class="card-header">
+          <div>
+            <span class="eyebrow">Coverage</span>
+            <h2>Support Coverage by Procedure</h2>
+          </div>
+        </div>
+
+        <div class="coverage-list" *ngIf="viewModel.procedureSummary.items.length; else emptyCoverage">
+          <article class="coverage-row" *ngFor="let item of viewModel.procedureSummary.items" [attr.data-tone]="item.tone">
+            <div class="coverage-main">
+              <strong>{{ item.procedureName ?? 'Detected procedure' }}</strong>
+              <p *ngIf="item.procedureCode">CUP {{ item.procedureCode }}</p>
+              <p>{{ item.serviceCount }} service(s)</p>
+            </div>
+
+            <div class="coverage-groups">
+              <div class="chip-group">
+                <span class="chip-label">Required</span>
+                <div class="chip-stack">
+                  <span class="data-chip" *ngFor="let requirement of item.requiredDocs">{{ requirement }}</span>
+                </div>
+              </div>
+
+              <div class="chip-group" *ngIf="item.presentDocs.length">
+                <span class="chip-label">Present</span>
+                <div class="chip-stack">
+                  <span class="data-chip success" *ngFor="let present of item.presentDocs">{{ present }}</span>
+                </div>
+              </div>
+
+              <div class="chip-group" *ngIf="item.missingDocs.length">
+                <span class="chip-label">Missing</span>
+                <div class="chip-stack">
+                  <span class="data-chip danger" *ngFor="let missing of item.missingDocs">{{ missing }}</span>
+                </div>
+              </div>
+            </div>
+
+            <span class="coverage-status" [attr.data-tone]="item.tone">{{ item.supportStatus }}</span>
+          </article>
+        </div>
+      </article>
+
+      <div class="insights-stack">
+        <article class="ai-extraction-card">
+          <div class="card-header">
+            <div>
+              <span class="eyebrow">AI extraction</span>
+              <h2>Extraction Engine</h2>
+            </div>
+            <span class="confidence-pill" *ngIf="viewModel.aiExtraction.confidenceSummary">{{ viewModel.aiExtraction.confidenceSummary }}</span>
+          </div>
+
+          <div class="status-strip">
+            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.extractionStatus)">
+              <span>Extraction</span>
+              <strong>{{ getStatusLabel(viewModel.aiExtraction.extractionStatus) }}</strong>
+            </div>
+            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.classificationStatus)">
+              <span>Classification</span>
+              <strong>{{ getStatusLabel(viewModel.aiExtraction.classificationStatus) }}</strong>
+            </div>
+            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.separationStatus)">
+              <span>Separation</span>
+              <strong>{{ getStatusLabel(viewModel.aiExtraction.separationStatus) }}</strong>
+            </div>
+          </div>
+
+          <div class="signal-block">
+            <span>Predicted diagnoses</span>
+            <div class="chip-stack" *ngIf="viewModel.aiExtraction.predictedDiagnoses.length; else emptyDiagnoses">
+              <span class="data-chip" *ngFor="let diagnosis of viewModel.aiExtraction.predictedDiagnoses">{{ diagnosis }}</span>
+            </div>
+          </div>
+
+          <div class="signal-block">
+            <span>Predicted procedures</span>
+            <div class="chip-stack" *ngIf="viewModel.aiExtraction.predictedProcedures.length; else emptyPredictedProcedures">
+              <span class="data-chip" *ngFor="let procedure of viewModel.aiExtraction.predictedProcedures">{{ procedure }}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="readiness-card" [class.ready]="viewModel.readiness.readyForAnalysis">
+          <span class="eyebrow">Readiness</span>
+          <h2>Analysis readiness</h2>
+
+          <div class="readiness-score">
+            <strong>{{ viewModel.readiness.score }}%</strong>
+            <span class="state-pill" [attr.data-tone]="viewModel.readiness.readyForAnalysis ? 'success' : 'warning'">
+              {{ viewModel.readiness.statusLabel }}
+            </span>
+          </div>
+
+          <div class="blocker-list" *ngIf="viewModel.readiness.blockers.length; else readyState">
+            <div class="blocker-row" *ngFor="let blocker of viewModel.readiness.blockers">
+              <span class="material-icons">warning</span>
+              <p>{{ blocker }}</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="review-alerts-card" *ngIf="viewModel.reviewAlerts.length">
+      <div class="card-header">
+        <div>
+          <span class="eyebrow">Review alerts</span>
+          <h2>Attention required</h2>
+        </div>
+      </div>
+
+      <div class="alerts-list">
+        <article class="alert-row" *ngFor="let alert of viewModel.reviewAlerts" [attr.data-tone]="alert.tone">
+          <strong>{{ alert.title }}</strong>
+          <p>{{ alert.description }}</p>
+        </article>
+      </div>
+    </section>
+  </ng-container>
+</section>
+
+<ng-template #parseErrorState>
+  <article class="state-card state-card--error">
+    <span class="eyebrow">batchState error</span>
+    <h2>Unable to render intake dashboard</h2>
+    <p>{{ viewModel.meta.parseErrorMessage }}</p>
+  </article>
+</ng-template>
+
+<ng-template #emptyServices>
+  <div class="state-card">
+    <strong>No services detected</strong>
+    <p>The widget did not find billed service rows inside batchState for the selected account.</p>
+  </div>
+</ng-template>
+
+<ng-template #emptyFilteredServices>
+  <div class="state-card">
+    <strong>No services match the current filters</strong>
+    <p>Try clearing one or more filters to inspect the full list of billed services.</p>
+  </div>
+</ng-template>
+
+<ng-template #emptyDocumentCenter>
+  <div class="state-card">
+    <strong>No mapped documents</strong>
+    <p>Add supporting documents to visualize the control center for this medical account.</p>
+  </div>
+</ng-template>
+
+<ng-template #emptyCoverage>
+  <div class="state-card">
+    <strong>No support coverage available</strong>
+    <p>Support coverage will appear once the widget can infer services from the selected account.</p>
+  </div>
+</ng-template>
+
+<ng-template #emptyDiagnoses>
+  <p class="empty-inline">No predicted diagnoses found yet.</p>
+</ng-template>
+
+<ng-template #emptyPredictedProcedures>
+  <p class="empty-inline">No predicted procedures found yet.</p>
+</ng-template>
+
+<ng-template #readyState>
+  <div class="ready-copy">
+    <span class="material-icons">check_circle</span>
+    <p>This account has the minimum support package to advance into Analysis.</p>
+  </div>
+</ng-template>

@@ -1,10 +1,3 @@
-/*
- * Copyright 2005-2026 Hyland Software, Inc. and its affiliates. All rights reserved.
- * License rights for this program may be obtained from Hyland Software, Inc. and its affiliates.
- * pursuant to a written agreement and any use of this program without such an
- * agreement is prohibited.
- */
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -18,6 +11,9 @@ import { WorkflowStepperComponent } from './components/workflow-stepper/workflow
 import { ActionToolbarComponent } from './components/action-toolbar/action-toolbar.component';
 import { DataPanelComponent } from './components/data-panel/data-panel.component';
 import { MedicalRecordsMenuItemComponent } from './components/medical-records-menu-item/medical-records-menu-item.component';
+import { CustomWidgetModule } from './form-widgets/custom-widget/custom-widget.module'
+import { AnalysisTaskWidgetModule } from './form-widgets/analysis-task-widget/analysis-task-widget.module';
+import { IntakeAccountWidgetModule } from './form-widgets/intake-account-widget/intake-account-widget.module'
 
 @NgModule({
     declarations: [
@@ -32,7 +28,10 @@ import { MedicalRecordsMenuItemComponent } from './components/medical-records-me
         CommonModule,
         TranslateModule,
         RouterModule,
-        MedicalRecordsMenuItemComponent
+        MedicalRecordsMenuItemComponent,
+        AnalysisTaskWidgetModule,
+        CustomWidgetModule,
+        IntakeAccountWidgetModule
     ],
     providers: [
         provideExtensionConfig(['medical-records.extension.json']),

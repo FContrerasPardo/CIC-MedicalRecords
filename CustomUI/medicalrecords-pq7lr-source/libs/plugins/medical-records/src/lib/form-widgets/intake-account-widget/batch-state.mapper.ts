@@ -2,20 +2,19 @@ import {
     BatchStateDocument,
     BatchStateField,
     BatchStateSource,
-    BatchStateTable,
     BatchStateTableCell,
-    IdpBatchStageStatus,
+    IdpBatchStageStatus
 } from './batch-state.model';
 import {
-    IntakeAccountAiExtractionViewModel,
-    IntakeAccountDocumentControlItemViewModel,
     IntakeAccountDocumentHighlightViewModel,
-    IntakeAccountMissingDocumentViewModel,
-    IntakeAccountProcedureSummaryItemViewModel,
+    IntakeAccountDocumentItemViewModel,
     IntakeAccountReviewAlertViewModel,
     IntakeAccountServiceItemViewModel,
+    IntakeAccountSummaryCardViewModel,
     IntakeAccountTone,
+    IntakeServiceFilterKey,
     IntakeAccountViewModel,
+    IntakeServiceStatus
 } from './intake-account-view.model';
 
 type DocumentKind = 'billing' | 'authorization' | 'admission' | 'objection' | 'pathology' | 'lab' | 'other';
@@ -33,18 +32,13 @@ interface DocumentProfile {
     admissionDate: string | null;
     dischargeDate: string | null;
     insurancePlan: string | null;
-    totalBilled: string | null;
-    arsAmount: string | null;
-    patientAmount: string | null;
-    arsBalance: string | null;
-    patientBalance: string | null;
 }
 
 interface ServiceSeedRow {
     id: string;
     serviceDate: string | null;
     serviceDateValue: Date | null;
-    serviceName: string | null;
+    serviceCode: string | null;
     cup: string | null;
     description: string | null;
     quantity: string | null;
@@ -53,11 +47,11 @@ interface ServiceSeedRow {
     coverage: string | null;
     patientName: string | null;
     invoiceNumber: string | null;
-    sourceDocument: string | null;
-    procedureKey: string;
-    totalAmountValue: number | null;
-    coverageAmountValue: number | null;
-    copayAmountValue: number | null;
+    sourceDocumentName: string;
+    sourceDocumentId: string;
+    sourceDocumentKind: DocumentKind;
+    sourceDocumentConfidence: number | null;
+    sourceDocumentReviewRequired: boolean;
 }
 
 interface AccountSeed {
@@ -77,17 +71,18 @@ interface AccountCluster extends AccountSeed {
     assistedMerged: boolean;
 }
 
-interface SummarySupportInfo {
-    requiredDocs: string[];
-    presentDocs: string[];
-    missingDocs: string[];
+interface SupportCoverageInfo {
+    requiredDocuments: string[];
+    presentDocuments: string[];
+    missingDocuments: string[];
+    completionPercent: number;
     tone: IntakeAccountTone;
-    supportStatus: string;
 }
 
 const EMPTY_MESSAGE = 'No fue posible leer batchState. Verifica que el formulario reciba un JSON valido.';
-const SUPPORTED_PAGE_SIZES = [10, 25, 50];
 const STAGES = ['Intake', 'Analysis', 'Approval', 'Execution', 'Review', 'Completed'];
+const LOW_CONFIDENCE_THRESHOLD = 0.9;
+const DEFAULT_FILTER: IntakeServiceFilterKey = 'all';
 
 const BILLING_FIELDS = {
     patientName: ['Nombre del Paciente', 'Paciente'],
@@ -100,14 +95,68 @@ const BILLING_FIELDS = {
     admissionDate: ['Fecha Admision', 'Fecha de Admision', 'Fecha Ingreso'],
     dischargeDate: ['Fecha De Alta', 'Fecha de Alta', 'Fecha Egreso'],
     insurancePlan: ['Plan', 'Contratante', 'ARS', 'Aseguradora'],
-    totalBilled: ['Monto total Facturado', 'Monto Total Facturado', 'Total Facturado'],
-    arsAmount: ['Monto Facturado al ARS', 'Monto Facturado ARS', 'Monto ARS'],
-    patientAmount: ['Monto Facturado al Paciente', 'Monto Paciente'],
-    arsBalance: ['Balance del ARS', 'Balance ARS'],
-    patientBalance: ['Balance del Paciente', 'Balance Paciente'],
 } as const;
 
-const DIAGNOSIS_FIELD_ALIASES = ['Diagnostico', 'Diagnostico Principal', 'Diagnosticos', 'Impresion Diagnostica'];
+const DOCUMENT_HIGHLIGHT_ALIASES = [
+    { label: 'Factura', aliases: ['Numero de Factura', 'Factura', 'No. Factura'] },
+    { label: 'Monto total', aliases: ['Monto total Facturado', 'Monto Total Facturado', 'Total Facturado'] },
+    { label: 'Monto paciente', aliases: ['Monto Facturado al Paciente', 'Monto Paciente', 'Balance del Paciente'] },
+    { label: 'Diagnóstico', aliases: ['Diagnostico', 'Diagnostico Principal', 'Impresion Diagnostica'] },
+    { label: 'Paciente', aliases: ['Nombre del Paciente', 'Paciente'] },
+    { label: 'Autorización', aliases: ['Numero de Autorizacion', 'Autorizacion', 'Authorization Number'] },
+];
+
+const MAX_DOCUMENT_HIGHLIGHTS = 12;
+
+const DOCUMENT_HIGHLIGHT_ALIASES_BY_KIND: Record<DocumentKind, Array<{ label: string; aliases: string[] }>> = {
+    billing: [
+        { label: 'Prestador', aliases: ['Nombre del Prestador', 'Prestador'] },
+        { label: 'Record', aliases: ['Record'] },
+        { label: 'Motivo de visita', aliases: ['Motivo de la Visita'] },
+        { label: 'Monto ARS', aliases: ['Monto Facturado a ARS', 'Monto ARS'] },
+        { label: 'Balance ARS', aliases: ['Balance ARS'] },
+        { label: 'Balance paciente', aliases: ['Balance del Paciente'] },
+        { label: 'Fecha admision', aliases: ['Fecha Admision', 'Fecha Admisión', 'Fecha de Admision', 'Fecha de Admisión'] },
+        { label: 'Fecha alta', aliases: ['Fecha De Alta', 'Fecha de Alta'] },
+    ],
+    authorization: [
+        { label: 'Carnet', aliases: ['No. Carnet', 'Numero de Carnet'] },
+        { label: 'Contratante', aliases: ['Contratante'] },
+        { label: 'Plan', aliases: ['Plan'] },
+        { label: 'Total', aliases: ['Total'] },
+        { label: 'Fecha', aliases: ['Fecha'] },
+    ],
+    admission: [
+        { label: 'Prestador', aliases: ['Nombre del Prestador', 'Prestador'] },
+        { label: 'Record', aliases: ['Record'] },
+        { label: 'Cedula', aliases: ['Cedula'] },
+        { label: 'Fecha admision', aliases: ['Fecha Admision', 'Fecha Admisión', 'Fecha de Admision', 'Fecha de Admisión'] },
+    ],
+    objection: [
+        { label: 'Prestador', aliases: ['Nombre del Prestador'] },
+        { label: 'Codigo PSS', aliases: ['Codigo PSS', 'Código PSS'] },
+        { label: 'Procedimientos objetados', aliases: ['Procedimientos Objetados'] },
+        { label: 'Monto objecion', aliases: ['Monto de Objecion', 'Monto de Objeción'] },
+        { label: 'Valor total glosado', aliases: ['Valor Total Glosado'] },
+        { label: 'Respuesta del prestador', aliases: ['Respuesta del prestador'] },
+        { label: 'Fecha aceptacion', aliases: ['Fecha de aceptacion del prestador', 'Fecha de aceptación del prestador'] },
+    ],
+    pathology: [
+        { label: 'Prestador', aliases: ['Nombre del Prestador'] },
+        { label: 'Estudio', aliases: ['Estudio Realizado', 'Estudio'] },
+        { label: 'Nota', aliases: ['Nota'] },
+        { label: 'Fecha reporte', aliases: ['Fecha de reporte'] },
+    ],
+    lab: [
+        { label: 'Prestador', aliases: ['Nombre del Prestador'] },
+        { label: 'Cedula', aliases: ['Cedula'] },
+        { label: 'Record', aliases: ['Record'] },
+        { label: 'Estudio', aliases: ['Estudio'] },
+        { label: 'Hallazgos', aliases: ['Hallazgos'] },
+        { label: 'Conclusion', aliases: ['Conclusion', 'Conclusión'] },
+    ],
+    other: [],
+};
 
 export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSource, selectedPatientKey: string | null): IntakeAccountViewModel {
     const documents = Array.isArray(batchState.documents) ? batchState.documents.filter(Boolean) : [];
@@ -117,31 +166,17 @@ export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSour
     }
 
     const clusters = buildAccountClusters(documents).filter((cluster) => isRenderableCluster(cluster));
-    const sortedClusters = sortClusters(clusters);
-    const selectedCluster = resolveSelectedCluster(sortedClusters, selectedPatientKey);
+    const selectedCluster = resolveSelectedCluster(sortClusters(clusters), selectedPatientKey);
 
     if (!selectedCluster) {
         return createEmptyIntakeAccountViewModel('No fue posible asociar documentos a una cuenta medica.');
     }
 
-    const procedureSummaries = buildProcedureSummaries(selectedCluster);
-    const procedureSupportMap = new Map(procedureSummaries.map((item) => [item.id, item]));
-    const serviceItems = buildServiceExplorerItems(selectedCluster, procedureSupportMap);
-    const documentControlItems = buildDocumentControlItems(selectedCluster, procedureSummaries);
-    const missingDocumentItems = buildMissingDocumentItems(procedureSummaries);
-    const reviewAlerts = buildReviewAlerts(batchState, selectedCluster, procedureSummaries);
-    const readiness = buildReadiness(batchState, selectedCluster, procedureSummaries, reviewAlerts);
-    const aiExtraction = buildAiExtraction(batchState, selectedCluster, procedureSummaries);
-    const verifiedCount = documentControlItems.filter((item) => item.tone === 'success' || item.tone === 'neutral').length;
-    const pendingReviewCount = getBlockingReviewAlertCount(reviewAlerts);
-    const summary = {
-        totalServices: selectedCluster.services.length,
-        totalProcedures: procedureSummaries.length,
-        totalDocumentsFound: selectedCluster.documents.length,
-        missingRequirements: procedureSummaries.reduce((total, item) => total + item.missingDocs.length, 0),
-        pendingReviewCount,
-        readyForAnalysis: readiness.readyForAnalysis,
-    };
+    const services = buildServiceItems(selectedCluster);
+    const documentsView = buildDocumentItems(selectedCluster, batchState);
+    const alerts = buildAlerts(batchState, selectedCluster, services, documentsView);
+    const readiness = buildReadiness(batchState, services, alerts);
+    const summaryCards = buildSummaryCards(services, documentsView.length, readiness);
 
     return {
         stageNav: {
@@ -154,10 +189,10 @@ export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSour
             })),
         },
         patientSelector: {
-            visible: sortedClusters.length > 1,
+            visible: clusters.length > 1,
             selectedKey: selectedCluster.key,
-            totalPatients: sortedClusters.length,
-            options: sortedClusters.map((cluster) => ({
+            totalPatients: clusters.length,
+            options: sortClusters(clusters).map((cluster) => ({
                 key: cluster.key,
                 label: getCanonicalPatientName(cluster) ?? 'Cuenta sin paciente',
                 subtitle: buildPatientOptionSubtitle(cluster),
@@ -180,35 +215,19 @@ export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSour
             admissionDate: pickProfileValue(selectedCluster, 'admissionDate'),
             dischargeDate: pickProfileValue(selectedCluster, 'dischargeDate'),
             insurancePlan: pickProfileValue(selectedCluster, 'insurancePlan'),
-            intakeStatus: readiness.readyForAnalysis ? 'Ready for Analysis' : (summary.missingRequirements > 0 ? 'Support Pending' : 'Review in Progress'),
+            intakeStatus: readiness.readyForAnalysis ? 'Ready for Analysis' : readiness.statusLabel,
         },
-        summary,
-        serviceExplorer: {
-            items: serviceItems,
-            filters: {
-                statuses: uniqueSortedStrings(serviceItems.map((item) => item.derivedStatus)),
-                serviceNames: uniqueSortedStrings(serviceItems.map((item) => item.serviceName ?? item.description)),
-                invoices: uniqueSortedStrings(serviceItems.map((item) => item.invoiceNumber)),
-                coverages: uniqueSortedStrings(serviceItems.map((item) => item.coverage)),
-            },
-            pageSizeOptions: SUPPORTED_PAGE_SIZES,
-        },
-        documentControl: {
-            items: documentControlItems,
-            missingItems: missingDocumentItems,
-            verifiedCount,
-        },
-        procedureSummary: {
-            items: procedureSummaries,
-        },
-        aiExtraction,
-        reviewAlerts,
+        summaryCards,
+        activeFilter: DEFAULT_FILTER,
+        services,
+        documents: documentsView,
         readiness,
+        alerts,
         meta: {
             parseError: false,
             parseErrorMessage: null,
-            emptyState: !selectedCluster.documents.length,
-            schemaHints: buildSchemaHints(sortedClusters.length, selectedCluster),
+            emptyState: services.length === 0 && documentsView.length === 0,
+            schemaHints: buildSchemaHints(clusters.length, selectedCluster, services.length),
         },
     };
 }
@@ -251,47 +270,20 @@ export function createEmptyIntakeAccountViewModel(message = EMPTY_MESSAGE): Inta
             insurancePlan: null,
             intakeStatus: 'Pending batchState',
         },
-        summary: {
-            totalServices: 0,
-            totalProcedures: 0,
-            totalDocumentsFound: 0,
-            missingRequirements: 0,
-            pendingReviewCount: 0,
-            readyForAnalysis: false,
+        summaryCards: {
+            primary: [],
+            secondary: [],
         },
-        serviceExplorer: {
-            items: [],
-            filters: {
-                statuses: [],
-                serviceNames: [],
-                invoices: [],
-                coverages: [],
-            },
-            pageSizeOptions: SUPPORTED_PAGE_SIZES,
-        },
-        documentControl: {
-            items: [],
-            missingItems: [],
-            verifiedCount: 0,
-        },
-        procedureSummary: {
-            items: [],
-        },
-        aiExtraction: {
-            predictedDiagnoses: [],
-            predictedProcedures: [],
-            extractionStatus: null,
-            classificationStatus: null,
-            separationStatus: null,
-            confidenceSummary: null,
-        },
-        reviewAlerts: [],
+        activeFilter: DEFAULT_FILTER,
+        services: [],
+        documents: [],
         readiness: {
             score: 0,
             readyForAnalysis: false,
             statusLabel: 'Pending batchState',
             blockers: [],
         },
+        alerts: [],
         meta: {
             parseError: true,
             parseErrorMessage: message,
@@ -349,22 +341,26 @@ function buildAccountClusters(documents: BatchStateDocument[]): AccountCluster[]
 function buildSeedsFromDocument(document: BatchStateDocument): AccountSeed[] {
     const kind = getDocumentKind(document.className);
     const profile = extractDocumentProfile(document, kind);
-    const services = extractServiceRows(document, profile.invoiceNumber);
+    const services = extractServiceRows(document, kind, profile.invoiceNumber);
 
     if (kind === 'billing' && services.length) {
         const groups = groupServicesByPatientName(services, profile.patientName);
-        return groups.map((group, index) => createSeedFromDocument(document, kind, {
-            ...profile,
-            patientName: group.patientName,
-        }, group.services, `${document.id}-group-${index}`));
+        return groups.map((group, index) => createSeedFromDocument(
+            document,
+            {
+                ...profile,
+                patientName: group.patientName,
+            },
+            group.services,
+            `${document.id}-group-${index}`
+        ));
     }
 
-    return [createSeedFromDocument(document, kind, profile, services, document.id)];
+    return [createSeedFromDocument(document, profile, services, document.id)];
 }
 
 function createSeedFromDocument(
     document: BatchStateDocument,
-    _kind: DocumentKind,
     profile: DocumentProfile,
     services: ServiceSeedRow[],
     key: string
@@ -408,8 +404,7 @@ function findBestClusterMatch(clusters: AccountCluster[], seed: AccountSeed): { 
 }
 
 function scoreClusterMatch(cluster: AccountCluster, seed: AccountSeed): { score: number; assistedMerged: boolean } {
-    const sharedPatientId = intersectNormalized(cluster.patientIds, seed.patientIds);
-    if (sharedPatientId) {
+    if (intersectNormalized(cluster.patientIds, seed.patientIds)) {
         return { score: 100, assistedMerged: false };
     }
 
@@ -417,8 +412,7 @@ function scoreClusterMatch(cluster: AccountCluster, seed: AccountSeed): { score:
         return { score: -1, assistedMerged: false };
     }
 
-    const sharedMrn = intersectNormalized(cluster.mrns, seed.mrns);
-    if (sharedMrn) {
+    if (intersectNormalized(cluster.mrns, seed.mrns)) {
         return { score: 90, assistedMerged: false };
     }
 
@@ -426,16 +420,11 @@ function scoreClusterMatch(cluster: AccountCluster, seed: AccountSeed): { score:
         return { score: -1, assistedMerged: false };
     }
 
-    const sharedInvoice = intersectNormalized(cluster.invoices, seed.invoices);
-    if (sharedInvoice) {
+    if (intersectNormalized(cluster.invoices, seed.invoices)) {
         return { score: 80, assistedMerged: false };
     }
 
-    if (hasConflictingProviders(cluster.providers, seed.providers)) {
-        return { score: -1, assistedMerged: false };
-    }
-
-    if (hasConflictingDates(cluster.signalDates, seed.signalDates)) {
+    if (hasConflictingProviders(cluster.providers, seed.providers) || hasConflictingDates(cluster.signalDates, seed.signalDates)) {
         return { score: -1, assistedMerged: false };
     }
 
@@ -457,353 +446,222 @@ function mergeSeedIntoCluster(cluster: AccountCluster, seed: AccountSeed, assist
     cluster.profiles.push(...seed.profiles);
     cluster.documents.push(...seed.documents);
     cluster.services.push(...seed.services);
-    cluster.names = uniqueNormalizedMerge(cluster.names, seed.names);
-    cluster.patientIds = uniqueNormalizedMerge(cluster.patientIds, seed.patientIds);
-    cluster.mrns = uniqueNormalizedMerge(cluster.mrns, seed.mrns);
-    cluster.invoices = uniqueNormalizedMerge(cluster.invoices, seed.invoices);
-    cluster.providers = uniqueNormalizedMerge(cluster.providers, seed.providers);
-    cluster.signalDates = uniqueDatesMerge(cluster.signalDates, seed.signalDates);
+    cluster.names = uniqueStrings([...cluster.names, ...seed.names]);
+    cluster.patientIds = uniqueStrings([...cluster.patientIds, ...seed.patientIds]);
+    cluster.mrns = uniqueStrings([...cluster.mrns, ...seed.mrns]);
+    cluster.invoices = uniqueStrings([...cluster.invoices, ...seed.invoices]);
+    cluster.providers = uniqueStrings([...cluster.providers, ...seed.providers]);
+    cluster.signalDates = uniqueDates([...cluster.signalDates, ...seed.signalDates]);
     cluster.assistedMerged = cluster.assistedMerged || assistedMerged;
 }
 
-function extractDocumentProfile(document: BatchStateDocument, sourceKind: DocumentKind): DocumentProfile {
-    return {
-        sourceKind,
-        sourcePriority: getDocumentPriority(sourceKind),
-        patientName: findFieldValue(document.fields, BILLING_FIELDS.patientName),
-        patientId: findFieldValue(document.fields, BILLING_FIELDS.patientId),
-        mrn: findFieldValue(document.fields, BILLING_FIELDS.mrn),
-        dob: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.dob)),
-        ageLabel: findFieldValue(document.fields, BILLING_FIELDS.ageLabel),
-        provider: findFieldValue(document.fields, BILLING_FIELDS.provider),
-        invoiceNumber: findFieldValue(document.fields, BILLING_FIELDS.invoiceNumber),
-        admissionDate: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.admissionDate)),
-        dischargeDate: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.dischargeDate)),
-        insurancePlan: findFieldValue(document.fields, BILLING_FIELDS.insurancePlan),
-        totalBilled: findFieldValue(document.fields, BILLING_FIELDS.totalBilled),
-        arsAmount: findFieldValue(document.fields, BILLING_FIELDS.arsAmount),
-        patientAmount: findFieldValue(document.fields, BILLING_FIELDS.patientAmount),
-        arsBalance: findFieldValue(document.fields, BILLING_FIELDS.arsBalance),
-        patientBalance: findFieldValue(document.fields, BILLING_FIELDS.patientBalance),
-    };
+function buildServiceItems(cluster: AccountCluster): IntakeAccountServiceItemViewModel[] {
+    return sortServices(cluster.services)
+        .map((service) => toServiceCard(cluster, service))
+        .filter((service): service is IntakeAccountServiceItemViewModel => Boolean(service));
 }
 
-function extractServiceRows(document: BatchStateDocument, invoiceNumber: string | null): ServiceSeedRow[] {
-    const serviceTables = (document.tables ?? []).filter((table) => normalizeKey(table.name).includes('TABLA DE SERVICIOS FACTURADOS'));
-
-    return serviceTables.reduce<ServiceSeedRow[]>((collection, table) => {
-        const rows = (table.records ?? [])
-            .map((row, index) => toServiceSeedRow(document, table, row.records ?? [], invoiceNumber, index))
-            .filter((item): item is ServiceSeedRow => Boolean(item));
-        collection.push(...rows);
-        return collection;
-    }, []);
-}
-
-function toServiceSeedRow(
-    document: BatchStateDocument,
-    _table: BatchStateTable,
-    cells: BatchStateTableCell[],
-    invoiceNumber: string | null,
-    index: number
-): ServiceSeedRow | null {
-    const rowMap = new Map<string, string>();
-
-    for (const cell of cells) {
-        const key = normalizeKey(cell.recordName ?? cell.name);
-        const value = toDisplayValue(cell.value);
-        if (key) {
-            rowMap.set(key, value ?? '');
-        }
-    }
-
-    const serviceDateRaw = rowMap.get('FECHA') ?? null;
-    const serviceName = rowMap.get('SERVICIO') ?? null;
-    const cup = rowMap.get('CUP') || rowMap.get('CUPS') || null;
-    const description = rowMap.get('DESCRIPCION') ?? null;
-    const quantity = rowMap.get('CANTIDAD') ?? null;
-    const price = rowMap.get('PRECIO') ?? null;
-    const total = rowMap.get('TOTAL') ?? null;
-    const coverage = rowMap.get('COBERTURA') ?? null;
-    const patientName = rowMap.get('PACIENTE') ?? null;
-
-    if (!serviceDateRaw && !serviceName && !cup && !description && !quantity && !price && !total && !coverage && !patientName) {
+function toServiceCard(cluster: AccountCluster, service: ServiceSeedRow): IntakeAccountServiceItemViewModel | null {
+    if (!hasRenderableServiceContent(service)) {
         return null;
     }
 
-    const serviceDateValue = parseFlexibleDate(serviceDateRaw);
-    const displayDate = serviceDateValue ? formatDate(serviceDateValue) : trimOrNull(serviceDateRaw);
-    const totalAmountValue = toNumberValue(total ?? price);
-    const coverageAmountValue = toNumberValue(coverage);
-    const copayAmountValue = totalAmountValue !== null && coverageAmountValue !== null ? Math.max(totalAmountValue - coverageAmountValue, 0) : null;
-    const procedureKey = normalizeIdentifier(cup || serviceName || description || `${document.id}-${index}`);
+    const coverage = resolveSupportCoverage(cluster, service);
+    const hasReviewRequired = service.sourceDocumentReviewRequired || cluster.documents.some((document) =>
+        coverage.requiredDocuments.includes(mapDocumentKindLabel(getDocumentKind(document.className))) && isDocumentReviewPending(document)
+    );
+    const hasLowConfidence = typeof service.sourceDocumentConfidence === 'number' && service.sourceDocumentConfidence < LOW_CONFIDENCE_THRESHOLD;
+    const supportStatus = resolveServiceStatus(coverage, hasReviewRequired, hasLowConfidence);
+    const tone = mapServiceStatusTone(supportStatus);
+    const confidencePercent = typeof service.sourceDocumentConfidence === 'number' ? Math.round(service.sourceDocumentConfidence * 100) : null;
+    const alerts = buildServiceAlerts(coverage, hasReviewRequired, hasLowConfidence, confidencePercent);
 
     return {
-        id: `${document.id}-service-${index}`,
-        serviceDate: displayDate,
-        serviceDateValue,
-        serviceName: trimOrNull(serviceName),
-        cup: trimOrNull(cup),
-        description: trimOrNull(description),
-        quantity: trimOrNull(quantity),
-        price: trimOrNull(price),
-        total: trimOrNull(total),
-        coverage: trimOrNull(coverage),
-        patientName: trimOrNull(patientName),
-        invoiceNumber: trimOrNull(invoiceNumber),
-        sourceDocument: document.className ?? document.name ?? 'Documento',
-        procedureKey,
-        totalAmountValue,
-        coverageAmountValue,
-        copayAmountValue,
+        id: service.id,
+        serviceDate: service.serviceDate,
+        serviceCode: service.serviceCode,
+        cup: service.cup,
+        description: service.description,
+        quantity: service.quantity,
+        price: service.price,
+        total: service.total,
+        coverage: service.coverage,
+        invoiceNumber: service.invoiceNumber,
+        category: inferServiceCategory(service),
+        supportStatus,
+        completionPercent: coverage.completionPercent,
+        requiredDocuments: coverage.requiredDocuments,
+        presentDocuments: coverage.presentDocuments,
+        missingDocuments: coverage.missingDocuments,
+        extractionSource: service.sourceDocumentName,
+        classificationConfidence: confidencePercent,
+        confidenceSummary: confidencePercent !== null ? `${confidencePercent}% classification confidence` : null,
+        alerts,
+        tone,
+        hasReviewRequired,
+        hasLowConfidence,
     };
 }
 
-function groupServicesByPatientName(services: ServiceSeedRow[], fallbackPatientName: string | null): Array<{ patientName: string | null; services: ServiceSeedRow[] }> {
-    const groups = new Map<string, ServiceSeedRow[]>();
-
-    for (const service of services) {
-        const patientName = trimOrNull(service.patientName) ?? trimOrNull(fallbackPatientName);
-        const key = normalizeIdentifier(patientName || 'single-account');
-        if (!groups.has(key)) {
-            groups.set(key, []);
-        }
-        groups.get(key)?.push(service);
-    }
-
-    return Array.from(groups.values()).map((groupServices) => ({
-        patientName: trimOrNull(groupServices.find((item) => item.patientName)?.patientName) ?? trimOrNull(fallbackPatientName),
-        services: groupServices,
-    }));
-}
-
-function buildProcedureSummaries(cluster: AccountCluster): IntakeAccountProcedureSummaryItemViewModel[] {
-    const groups = new Map<string, ServiceSeedRow[]>();
-
-    for (const service of cluster.services) {
-        if (!groups.has(service.procedureKey)) {
-            groups.set(service.procedureKey, []);
-        }
-        groups.get(service.procedureKey)?.push(service);
-    }
-
-    return Array.from(groups.entries())
-        .map(([procedureKey, services]) => {
-            const representative = services[0];
-            const supportInfo = resolveSupportCoverage(cluster, services);
-            const hasPendingReview = cluster.documents.some((document) => isDocumentReviewPending(document));
-
-            return {
-                id: procedureKey,
-                procedureCode: representative.cup,
-                procedureName: representative.description ?? representative.serviceName,
-                serviceCount: services.length,
-                lastServiceDate: sortServices(services)[0]?.serviceDate ?? representative.serviceDate,
-                requiredDocs: supportInfo.requiredDocs,
-                presentDocs: supportInfo.presentDocs,
-                missingDocs: supportInfo.missingDocs,
-                supportStatus: supportInfo.supportStatus,
-                tone: supportInfo.tone,
-                hasPendingReview,
-            };
-        })
-        .sort((left, right) => {
-            const leftDate = parseFlexibleDate(left.lastServiceDate);
-            const rightDate = parseFlexibleDate(right.lastServiceDate);
-            if (leftDate && rightDate) {
-                return rightDate.getTime() - leftDate.getTime();
-            }
-            return (right.serviceCount - left.serviceCount) || compareNullableStrings(left.procedureName, right.procedureName);
-        });
-}
-
-function resolveSupportCoverage(cluster: AccountCluster, services: ServiceSeedRow[]): SummarySupportInfo {
-    const anchor = services[0];
-    const descriptionSignal = normalizeKey(`${anchor.serviceName ?? ''} ${anchor.description ?? ''}`);
-    const presentDocLabels = uniqueSortedStrings(cluster.documents.map((document) => mapDocumentKindLabel(getDocumentKind(document.className))));
-    const requiredDocs = new Set<string>(['Factura y Desglose']);
-
-    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'admission') || /ADMISION|HOSP|INGRESO|CUARTA PLANTA|CUIDADO INT|PRIVADO/.test(descriptionSignal)) {
-        requiredDocs.add('Planilla de Admisión');
-    }
-
-    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'authorization') || /AUTORIZ|AMBULATORIO|PROCEDIMIENTO|CIRUG|QUIR/.test(descriptionSignal)) {
-        requiredDocs.add('Formato de Autorización');
-    }
-
-    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'lab') || /RADIO|RAYO|ULTRA|SONO|LAB|RX/.test(descriptionSignal)) {
-        requiredDocs.add('Laboratorios');
-    }
-
-    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'pathology') || /PATOLOG|BIOPS/.test(descriptionSignal)) {
-        requiredDocs.add('Reporte de Patología');
-    }
-
-    const requiredDocsList = Array.from(requiredDocs);
-    const presentDocs = requiredDocsList.filter((required) => presentDocLabels.includes(required));
-    const missingDocs = requiredDocsList.filter((required) => !presentDocLabels.includes(required));
-    const hasPendingReview = cluster.documents.some((document) => isDocumentReviewPending(document));
-
-    if (missingDocs.length) {
-        return {
-            requiredDocs: requiredDocsList,
-            presentDocs,
-            missingDocs,
-            tone: 'danger',
-            supportStatus: 'Missing Support',
-        };
-    }
-
-    if (hasPendingReview) {
-        return {
-            requiredDocs: requiredDocsList,
-            presentDocs,
-            missingDocs,
-            tone: 'warning',
-            supportStatus: 'Pending Review',
-        };
-    }
-
-    return {
-        requiredDocs: requiredDocsList,
-        presentDocs,
-        missingDocs,
-        tone: 'success',
-        supportStatus: 'Complete',
-    };
-}
-
-function buildServiceExplorerItems(
-    cluster: AccountCluster,
-    procedureSupportMap: Map<string, IntakeAccountProcedureSummaryItemViewModel>
-): IntakeAccountServiceItemViewModel[] {
-    return sortServices(cluster.services).map((service) => {
-        const support = procedureSupportMap.get(service.procedureKey);
-        const derivedStatus = support?.missingDocs.length
-            ? 'Missing Support'
-            : (cluster.documents.some((document) => isDocumentReviewPending(document)) ? 'Pending Review' : 'Ready');
-        const tone: IntakeAccountTone = derivedStatus === 'Missing Support'
-            ? 'danger'
-            : (derivedStatus === 'Pending Review' ? 'warning' : 'success');
-
-        return {
-            id: service.id,
-            serviceDate: service.serviceDate,
-            serviceName: service.serviceName,
-            cup: service.cup,
-            description: service.description,
-            quantity: service.quantity,
-            price: service.price,
-            total: service.total,
-            coverage: service.coverage,
-            invoiceNumber: service.invoiceNumber,
-            sourceDocument: service.sourceDocument,
-            derivedStatus,
-            tone,
-            procedureKey: service.procedureKey,
-            totalAmountValue: service.totalAmountValue,
-            coverageAmountValue: service.coverageAmountValue,
-            copayAmountValue: service.copayAmountValue,
-        };
-    });
-}
-
-function buildDocumentControlItems(
-    cluster: AccountCluster,
-    procedureSummaries: IntakeAccountProcedureSummaryItemViewModel[]
-): IntakeAccountDocumentControlItemViewModel[] {
-    const topProcedure = procedureSummaries[0];
-
+function buildDocumentItems(cluster: AccountCluster, batchState: BatchStateSource): IntakeAccountDocumentItemViewModel[] {
     return cluster.documents
         .map((document) => {
             const tone = getDocumentTone(document);
-            const extractionBadge = tone === 'danger'
-                ? 'Rejected'
-                : (tone === 'warning' ? 'Pending Review' : 'Verified');
-            const status = tone === 'danger'
-                ? 'Rejected by IDP'
-                : (tone === 'warning' ? 'Needs review' : 'Ready');
+            const confidencePercent = typeof document.classificationConfidence === 'number' ? Math.round(document.classificationConfidence * 100) : null;
+            const reviewStatus = resolveDocumentReviewStatus(document);
+            const contentReference = resolveDocumentContentReference(document, batchState);
 
             return {
                 id: document.id,
-                documentName: document.className ?? document.name ?? 'Document',
-                documentType: document.className ?? 'Supporting document',
-                linkedProcedureCode: topProcedure?.procedureCode ?? null,
-                linkedProcedureName: topProcedure?.procedureName ?? null,
-                status,
-                dateReceived: normalizeDateDisplay(document.receivedAt ?? document.createdAt ?? document.updatedAt ?? null),
-                extractedFields: buildDocumentHighlights(document),
-                extractionBadge,
-                confidence: toPercentageValue(document.classificationConfidence),
+                name: document.name || document.className || 'Document',
+                className: document.className || 'Supporting document',
+                repositoryNodeId: contentReference?.nodeId ?? null,
+                mimeType: contentReference?.mimeType ?? null,
+                contentFileReferenceIndex: contentReference?.contentFileReferenceIndex ?? null,
+                sourcePageIndex: contentReference?.sourcePageIndex ?? null,
+                status: reviewStatus || (tone === 'warning' ? 'Low Confidence' : 'Complete'),
+                classificationStatus: document.className ? 'Classified' : getBatchStateStatusLabel(batchState.classificationStatus),
+                extractionStatus: ((document.fields?.length ?? 0) || (document.tables?.length ?? 0)) ? 'Extracted' : getBatchStateStatusLabel(batchState.extractionStatus),
+                classificationConfidence: confidencePercent,
+                extractionReviewStatus: document.extractionReviewStatus ?? null,
+                separationReviewStatus: document.separationReviewStatus ?? null,
+                extractedHighlights: buildDocumentHighlights(document),
                 tone,
-                viewLabel: 'View',
+                viewLabel: 'View document',
             };
         })
-        .sort((left, right) => compareTonePriority(left.tone, right.tone) || compareNullableStrings(left.documentName, right.documentName));
+        .sort((left, right) => compareTonePriority(left.tone, right.tone) || compareNullableStrings(left.className, right.className));
 }
 
-function buildMissingDocumentItems(procedureSummaries: IntakeAccountProcedureSummaryItemViewModel[]): IntakeAccountMissingDocumentViewModel[] {
-    const items: IntakeAccountMissingDocumentViewModel[] = [];
+function resolveDocumentContentReference(document: BatchStateDocument, batchState: BatchStateSource): {
+    nodeId: string | null;
+    mimeType: string | null;
+    contentFileReferenceIndex: number | null;
+    sourcePageIndex: number | null;
+} | null {
+    const references = Array.isArray(batchState.contentFileReferences) ? batchState.contentFileReferences : [];
+    const pages = Array.isArray(document.pages) ? document.pages : [];
 
-    for (const procedure of procedureSummaries) {
-        for (const missingDocument of procedure.missingDocs) {
-            items.push({
-                id: `${procedure.id}-${normalizeIdentifier(missingDocument)}`,
-                documentName: missingDocument,
-                linkedProcedureCode: procedure.procedureCode,
-                linkedProcedureName: procedure.procedureName ?? 'Procedure',
-                status: 'Missing support',
-                primaryActionLabel: 'Request Document',
-                secondaryActionLabel: 'Upload Manually',
-            });
+    for (const page of pages) {
+        if (typeof page.contentFileReferenceIndex !== 'number') {
+            continue;
         }
+
+        const reference = references[page.contentFileReferenceIndex] as { sys_id?: unknown; sysfile_blob?: { mimeType?: unknown } } | undefined;
+        const nodeId = typeof reference?.sys_id === 'string' && reference.sys_id.trim() ? reference.sys_id.trim() : null;
+        const mimeType = typeof reference?.sysfile_blob?.mimeType === 'string' && reference.sysfile_blob.mimeType.trim()
+            ? reference.sysfile_blob.mimeType.trim()
+            : null;
+
+        if (!nodeId && !mimeType) {
+            continue;
+        }
+
+        return {
+            nodeId,
+            mimeType,
+            contentFileReferenceIndex: page.contentFileReferenceIndex,
+            sourcePageIndex: typeof page.sourcePageIndex === 'number' ? page.sourcePageIndex : null,
+        };
     }
 
-    return items;
+    return null;
 }
 
-function buildAiExtraction(
-    batchState: BatchStateSource,
-    cluster: AccountCluster,
-    procedureSummaries: IntakeAccountProcedureSummaryItemViewModel[]
-): IntakeAccountAiExtractionViewModel {
-    const predictedDiagnoses = uniqueSortedStrings(
-        cluster.documents.reduce<Array<string | null>>((collection, document) => {
-            collection.push(...(document.fields ?? [])
-                .filter((field) => DIAGNOSIS_FIELD_ALIASES.some((alias) => normalizeKey(field.name).includes(normalizeKey(alias))))
-                .map((field) => toDisplayValue(field.value)));
-            return collection;
-        }, [])
-    );
-    const predictedProcedures = uniqueSortedStrings(procedureSummaries.map((item) => item.procedureName)).slice(0, 8);
-    const confidenceValues = cluster.documents
-        .map((document) => typeof document.classificationConfidence === 'number' ? document.classificationConfidence : null)
-        .filter((value): value is number => value !== null);
-    const averageConfidence = confidenceValues.length
-        ? Math.round((confidenceValues.reduce((total, value) => total + value, 0) / confidenceValues.length) * 100)
-        : null;
+function buildSummaryCards(
+    services: IntakeAccountServiceItemViewModel[],
+    totalDocuments: number,
+    readiness: IntakeAccountViewModel['readiness']
+): IntakeAccountViewModel['summaryCards'] {
+    const completeCount = services.filter((service) => service.supportStatus === 'Complete').length;
+    const missingSupportCount = services.filter((service) => service.missingDocuments.length > 0).length;
+    const pendingReviewCount = services.filter((service) => service.hasReviewRequired).length;
+    const lowConfidenceCount = services.filter((service) => service.hasLowConfidence).length;
 
+    const primary: IntakeAccountSummaryCardViewModel[] = [
+        buildSummaryCard('all', 'Total Services', `${services.length}`, 'neutral', 'View all services'),
+        buildSummaryCard('complete', 'Complete', `${completeCount}`, completeCount > 0 ? 'success' : 'neutral', 'Fully supported services'),
+        buildSummaryCard('missing-support', 'Missing Support', `${missingSupportCount}`, missingSupportCount > 0 ? 'danger' : 'neutral', 'Services with missing support'),
+        buildSummaryCard('pending-review', 'Pending Review', `${pendingReviewCount}`, pendingReviewCount > 0 ? 'warning' : 'neutral', 'Services or source docs marked for review'),
+        buildSummaryCard('low-confidence', 'Low Confidence', `${lowConfidenceCount}`, lowConfidenceCount > 0 ? 'warning' : 'neutral', 'Confidence below threshold', lowConfidenceCount > 0),
+    ];
+
+    const secondary: IntakeAccountSummaryCardViewModel[] = [
+        {
+            key: 'documents',
+            label: 'Total Documents',
+            value: `${totalDocuments}`,
+            tone: 'neutral',
+            clickable: false,
+            visible: true,
+            helperText: 'General support repository',
+        },
+        {
+            key: 'readiness',
+            label: 'Analysis Readiness',
+            value: `${readiness.score}%`,
+            tone: readiness.readyForAnalysis
+                ? 'success'
+                : (readiness.blockers.some((blocker) => normalizeKey(blocker).includes('MISSING SUPPORT') || normalizeKey(blocker).includes('REJECTED DOCUMENTS'))
+                    ? 'danger'
+                    : (readiness.blockers.length ? 'warning' : 'neutral')),
+            clickable: false,
+            visible: true,
+            helperText: buildReadinessHelperText(readiness),
+        },
+    ];
+
+    return { primary, secondary };
+}
+
+function buildSummaryCard(
+    filterKey: IntakeServiceFilterKey,
+    label: string,
+    value: string,
+    tone: IntakeAccountTone,
+    helperText: string,
+    visible = true
+): IntakeAccountSummaryCardViewModel {
     return {
-        predictedDiagnoses,
-        predictedProcedures,
-        extractionStatus: batchState.extractionStatus ?? null,
-        classificationStatus: batchState.classificationStatus ?? null,
-        separationStatus: batchState.separationStatus ?? null,
-        confidenceSummary: averageConfidence !== null ? `Avg. confidence ${averageConfidence}%` : null,
+        key: filterKey,
+        label,
+        value,
+        tone,
+        clickable: true,
+        visible,
+        helperText,
+        filterKey,
     };
 }
 
-function buildReviewAlerts(
+function buildReadinessHelperText(readiness: IntakeAccountViewModel['readiness']): string {
+    if (readiness.readyForAnalysis) {
+        return readiness.statusLabel;
+    }
+
+    if (!readiness.blockers.length) {
+        return readiness.statusLabel;
+    }
+
+    if (readiness.blockers.length === 1) {
+        return `${readiness.statusLabel}. ${readiness.blockers[0]}`;
+    }
+
+    return `${readiness.statusLabel}. ${readiness.blockers[0]} (+${readiness.blockers.length - 1} more)`;
+}
+
+function buildAlerts(
     batchState: BatchStateSource,
     cluster: AccountCluster,
-    procedureSummaries: IntakeAccountProcedureSummaryItemViewModel[]
+    services: IntakeAccountServiceItemViewModel[],
+    documents: IntakeAccountDocumentItemViewModel[]
 ): IntakeAccountReviewAlertViewModel[] {
     const alerts: IntakeAccountReviewAlertViewModel[] = [];
 
     if (cluster.assistedMerged && buildPatientResolutionViewModel(cluster).showAliasBanner) {
         alerts.push({
             title: 'OCR name reconciliation applied',
-            description: 'The widget merged close name variants into a single patient account for this intake view.',
+            description: 'The widget merged close patient name variants into a single account for Intake.',
             tone: 'warning',
         });
     }
@@ -811,116 +669,98 @@ function buildReviewAlerts(
     if (batchState.hasRejectedDocuments) {
         alerts.push({
             title: 'Rejected documents detected',
-            description: 'At least one document was rejected by IDP and should be reviewed before advancing.',
+            description: 'At least one document was rejected by IDP and should be reviewed before Analysis.',
             tone: 'danger',
         });
     }
 
-    for (const document of cluster.documents) {
-        if (isDocumentReviewPending(document)) {
-            alerts.push({
-                title: `${document.className ?? document.name ?? 'Document'} requires review`,
-                description: 'Classification, extraction or separation marked this support as pending review.',
-                tone: document.markAsRejected ? 'danger' : 'warning',
-            });
-        }
-
-        const flaggedField = (document.fields ?? []).find((field) => field.extractionReviewStatus === 'ReviewRequired');
-        if (flaggedField) {
-            alerts.push({
-                title: `Field review required in ${document.className ?? 'document'}`,
-                description: `${flaggedField.name ?? 'An extracted field'} needs human validation.`,
-                tone: 'warning',
-            });
-        }
-    }
-
-    for (const procedure of procedureSummaries.filter((item) => item.missingDocs.length > 0)) {
+    const missingSupportServices = services.filter((service) => service.missingDocuments.length > 0);
+    if (missingSupportServices.length) {
         alerts.push({
-            title: `Missing support for ${procedure.procedureName ?? 'procedure'}`,
-            description: `Missing: ${procedure.missingDocs.join(', ')}.`,
+            title: 'Missing support detected',
+            description: `${missingSupportServices.length} service(s) still require additional support documents.`,
             tone: 'danger',
         });
     }
 
-    return dedupeAlerts(alerts).slice(0, 8);
+    const pendingReviewDocuments = documents.filter((document) => document.status === 'Review Required');
+    if (pendingReviewDocuments.length) {
+        alerts.push({
+            title: 'Document review required',
+            description: `${pendingReviewDocuments.length} document(s) still have review-required signals.`,
+            tone: 'warning',
+        });
+    }
+
+    const lowConfidenceServices = services.filter((service) => service.hasLowConfidence);
+    if (lowConfidenceServices.length) {
+        alerts.push({
+            title: 'Low confidence extraction',
+            description: `${lowConfidenceServices.length} service(s) were extracted below the configured confidence threshold.`,
+            tone: 'warning',
+        });
+    }
+
+    return dedupeAlerts(alerts);
 }
 
 function buildReadiness(
     batchState: BatchStateSource,
-    cluster: AccountCluster,
-    procedureSummaries: IntakeAccountProcedureSummaryItemViewModel[],
-    reviewAlerts: IntakeAccountReviewAlertViewModel[]
-) {
+    services: IntakeAccountServiceItemViewModel[],
+    alerts: IntakeAccountReviewAlertViewModel[]
+): IntakeAccountViewModel['readiness'] {
     const blockers: string[] = [];
-    const missingRequirementCount = procedureSummaries.reduce((total, item) => total + item.missingDocs.length, 0);
-    const pendingReviewCount = getBlockingReviewAlertCount(reviewAlerts);
-    const hasRejectedDocuments = batchState.hasRejectedDocuments || cluster.documents.some((document) => document.markAsRejected);
+    const missingSupportCount = services.filter((service) => service.missingDocuments.length > 0).length;
+    const pendingReviewCount = services.filter((service) => service.hasReviewRequired).length;
+    const lowConfidenceCount = services.filter((service) => service.hasLowConfidence).length;
 
-    if (missingRequirementCount) {
-        blockers.push(`${missingRequirementCount} support requirement(s) are still missing.`);
+    if (missingSupportCount) {
+        blockers.push(`${missingSupportCount} service(s) still have missing support.`);
     }
 
     if (pendingReviewCount) {
-        blockers.push(`${pendingReviewCount} review alert(s) remain open for this account.`);
+        blockers.push(`${pendingReviewCount} service(s) still need review.`);
     }
 
-    if (hasRejectedDocuments) {
-        blockers.push('Rejected documents must be resolved before Analysis.');
+    if (batchState.hasRejectedDocuments) {
+        blockers.push('Rejected documents must be resolved before advancing to Analysis.');
     }
 
-    if (!cluster.services.length) {
-        blockers.push('No billed services were mapped for the selected account.');
+    if (!services.length) {
+        blockers.push('No billable services were mapped for this account.');
     }
 
     let score = 100;
-    score -= Math.min(missingRequirementCount * 12, 48);
-    score -= Math.min(pendingReviewCount * 8, 32);
-    if (hasRejectedDocuments) {
-        score -= 20;
-    }
-    if (!cluster.services.length) {
+    score -= Math.min(missingSupportCount * 12, 48);
+    score -= Math.min(pendingReviewCount * 8, 24);
+    score -= Math.min(lowConfidenceCount * 6, 18);
+    if (batchState.hasRejectedDocuments) {
         score -= 15;
+    }
+    if (!services.length) {
+        score -= 20;
     }
     score = Math.max(5, Math.min(score, 100));
 
     return {
         score,
         readyForAnalysis: blockers.length === 0,
-        statusLabel: blockers.length === 0 ? 'Ready for Analysis' : (missingRequirementCount ? 'Support Pending' : 'Pending Review'),
+        statusLabel: blockers.length === 0 ? 'Ready for Analysis' : (alerts.length ? 'Review in Progress' : 'Support Pending'),
         blockers,
     };
 }
 
-function buildPatientResolutionViewModel(cluster: AccountCluster) {
-    const canonicalName = getCanonicalPatientName(cluster);
+function buildPatientResolutionViewModel(cluster: AccountCluster): IntakeAccountViewModel['patientResolution'] {
     const aliases = distinctDisplayNames(cluster.names);
-    const uniqueNormalizedAliases = new Set(aliases.map((alias) => normalizeIdentifier(alias)));
-    const showAliasBanner = aliases.length > 1 && uniqueNormalizedAliases.size > 1;
+    const showAliasBanner = aliases.length > 1;
 
     return {
-        canonicalName,
+        canonicalName: getCanonicalPatientName(cluster),
         aliases,
         assistedMerged: cluster.assistedMerged,
         showAliasBanner,
-        message: showAliasBanner
-            ? `Se unificaron variantes OCR del mismo paciente: ${aliases.join(' / ')}`
-            : null,
+        message: showAliasBanner ? `Se unificaron variantes OCR del mismo paciente: ${aliases.join(' / ')}` : null,
     };
-}
-
-function buildSchemaHints(totalPatients: number, cluster: AccountCluster): string[] {
-    const hints = [
-        `${cluster.documents.length} docs`,
-        `${cluster.services.length} services`,
-        totalPatients > 1 ? `${totalPatients} patient accounts` : 'Single patient batch',
-    ];
-
-    if (cluster.assistedMerged) {
-        hints.push('OCR reconciliation');
-    }
-
-    return hints.slice(0, 4);
 }
 
 function buildPatientOptionSubtitle(cluster: AccountCluster): string | null {
@@ -943,121 +783,350 @@ function buildPatientOptionSubtitle(cluster: AccountCluster): string | null {
 }
 
 function buildDocumentHighlights(document: BatchStateDocument): IntakeAccountDocumentHighlightViewModel[] {
+    const highlights: IntakeAccountDocumentHighlightViewModel[] = [];
     const fields = document.fields ?? [];
-    const highlightFields = [
-        { label: 'Patient', aliases: BILLING_FIELDS.patientName },
-        { label: 'Record', aliases: BILLING_FIELDS.mrn },
-        { label: 'Invoice', aliases: BILLING_FIELDS.invoiceNumber },
-    ];
+    const kind = getDocumentKind(document.className);
+    const usedHighlightKeys = new Set<string>();
+    const usedFieldKeys = new Set<string>();
 
-    return highlightFields
-        .map((item) => ({
-            label: item.label,
-            value: findFieldValue(fields, item.aliases),
-        }))
-        .filter((item): item is IntakeAccountDocumentHighlightViewModel => Boolean(item.value))
-        .slice(0, 3);
-}
+    const addHighlight = (label: string, value: string | null, tone: IntakeAccountTone, field?: BatchStateField): void => {
+        const normalizedLabel = normalizeKey(label);
+        const normalizedValue = normalizeKey(value);
+        if (!normalizedLabel || !normalizedValue) {
+            return;
+        }
 
-function getCanonicalPatientName(cluster: AccountCluster): string | null {
-    return getBestNameCandidate(cluster.profiles);
-}
+        const dedupeKey = `${normalizedLabel}::${normalizedValue}`;
+        if (usedHighlightKeys.has(dedupeKey)) {
+            return;
+        }
 
-function getBestNameCandidate(profiles: DocumentProfile[]): string | null {
-    const candidates = profiles
-        .filter((profile) => trimOrNull(profile.patientName))
-        .sort((left, right) => {
-            if (left.sourcePriority !== right.sourcePriority) {
-                return left.sourcePriority - right.sourcePriority;
+        usedHighlightKeys.add(dedupeKey);
+        if (field) {
+            usedFieldKeys.add(getFieldIdentity(field));
+        }
+
+        highlights.push({
+            label,
+            value: value as string,
+            tone,
+        });
+    };
+
+    const addConfiguredHighlights = (configs: Array<{ label: string; aliases: string[] }>): void => {
+        for (const config of configs) {
+            const field = findField(fields, config.aliases);
+            if (!field) {
+                continue;
             }
 
-            return (trimOrNull(right.patientName)?.length ?? 0) - (trimOrNull(left.patientName)?.length ?? 0);
-        });
+            addHighlight(
+                config.label,
+                toDisplayValue(field.value),
+                field.extractionReviewStatus === 'ReviewRequired' ? 'warning' : 'neutral',
+                field
+            );
+        }
+    };
 
-    return trimOrNull(candidates[0]?.patientName);
-}
+    addConfiguredHighlights(DOCUMENT_HIGHLIGHT_ALIASES_BY_KIND[kind] ?? []);
+    addConfiguredHighlights(DOCUMENT_HIGHLIGHT_ALIASES);
 
-function pickProfileValue(cluster: AccountCluster, field: keyof DocumentProfile): string | null {
-    const candidates = cluster.profiles
-        .map((profile) => ({
-            value: trimOrNull(profile[field] as string | null),
-            priority: profile.sourcePriority,
-        }))
-        .filter((candidate) => candidate.value)
-        .sort((left, right) => {
-            if (left.priority !== right.priority) {
-                return left.priority - right.priority;
-            }
+    for (const table of document.tables ?? []) {
+        const rowCount = table.records?.length ?? 0;
+        if (!rowCount) {
+            continue;
+        }
 
-            return (right.value?.length ?? 0) - (left.value?.length ?? 0);
-        });
+        const tableLabel = normalizeKey(table.name) === normalizeKey('Tabla de Servicios facturados')
+            ? 'Servicios detectados'
+            : trimOrNull(table.name) || 'Tabla extraida';
+        const rowLabel = rowCount === 1 ? '1 fila extraida' : `${rowCount} filas extraidas`;
 
-    return candidates[0]?.value ?? null;
-}
-
-function resolveAgeLabel(cluster: AccountCluster): string | null {
-    const explicitAge = pickProfileValue(cluster, 'ageLabel');
-    if (explicitAge) {
-        return explicitAge;
+        addHighlight(tableLabel, rowLabel, table.reviewStatus === 'ReviewRequired' ? 'warning' : 'neutral');
     }
 
-    const dob = pickProfileValue(cluster, 'dob');
-    const dobDate = parseFlexibleDate(dob);
-    if (!dobDate) {
+    for (const field of fields.filter((item) => item.extractionReviewStatus === 'ReviewRequired')) {
+        addHighlight(
+            `Review: ${trimOrNull(field.name) || trimOrNull(field.id) || 'Field'}`,
+            toDisplayValue(field.value),
+            'warning',
+            field
+        );
+    }
+
+    for (const field of fields) {
+        if (highlights.length >= MAX_DOCUMENT_HIGHLIGHTS) {
+            break;
+        }
+
+        const fieldKey = getFieldIdentity(field);
+        if (usedFieldKeys.has(fieldKey)) {
+            continue;
+        }
+
+        addHighlight(
+            trimOrNull(field.name) || trimOrNull(field.id) || 'Campo extraido',
+            toDisplayValue(field.value),
+            field.extractionReviewStatus === 'ReviewRequired' ? 'warning' : 'neutral',
+            field
+        );
+    }
+
+    return highlights.slice(0, MAX_DOCUMENT_HIGHLIGHTS);
+}
+
+function extractDocumentProfile(document: BatchStateDocument, sourceKind: DocumentKind): DocumentProfile {
+    return {
+        sourceKind,
+        sourcePriority: getDocumentPriority(sourceKind),
+        patientName: findFieldValue(document.fields, BILLING_FIELDS.patientName),
+        patientId: findFieldValue(document.fields, BILLING_FIELDS.patientId),
+        mrn: findFieldValue(document.fields, BILLING_FIELDS.mrn),
+        dob: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.dob)),
+        ageLabel: findFieldValue(document.fields, BILLING_FIELDS.ageLabel),
+        provider: findFieldValue(document.fields, BILLING_FIELDS.provider),
+        invoiceNumber: findFieldValue(document.fields, BILLING_FIELDS.invoiceNumber),
+        admissionDate: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.admissionDate)),
+        dischargeDate: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.dischargeDate)),
+        insurancePlan: findFieldValue(document.fields, BILLING_FIELDS.insurancePlan),
+    };
+}
+
+function extractServiceRows(document: BatchStateDocument, kind: DocumentKind, invoiceNumber: string | null): ServiceSeedRow[] {
+    const tables = document.tables ?? [];
+    const serviceTable = tables.find((table) => normalizeKey(table.name) === normalizeKey('Tabla de Servicios facturados'));
+    if (!serviceTable?.records?.length) {
+        return [];
+    }
+
+    return serviceTable.records
+        .map((row, index) => toServiceSeedRow(document, kind, row.records ?? [], invoiceNumber, index))
+        .filter((service): service is ServiceSeedRow => Boolean(service));
+}
+
+function toServiceSeedRow(
+    document: BatchStateDocument,
+    kind: DocumentKind,
+    cells: BatchStateTableCell[],
+    invoiceNumber: string | null,
+    index: number
+): ServiceSeedRow | null {
+    const rowMap = new Map<string, string>();
+
+    for (const cell of cells) {
+        const key = normalizeKey(cell.recordName ?? cell.name);
+        const value = toDisplayValue(cell.value);
+        if (key && value !== null) {
+            rowMap.set(key, value);
+        }
+    }
+
+    const serviceCode = trimOrNull(rowMap.get('SERVICIO') ?? null);
+    const cup = trimOrNull(rowMap.get('CUP') ?? rowMap.get('CUPS') ?? null);
+    const description = trimOrNull(rowMap.get('DESCRIPCION') ?? null);
+    const quantity = trimOrNull(rowMap.get('CANTIDAD') ?? null);
+    const price = trimOrNull(rowMap.get('PRECIO') ?? null);
+    const total = trimOrNull(rowMap.get('TOTAL') ?? null);
+    const coverage = trimOrNull(rowMap.get('COBERTURA') ?? null);
+    const patientName = trimOrNull(rowMap.get('PACIENTE') ?? null);
+    const serviceDateRaw = trimOrNull(rowMap.get('FECHA') ?? null);
+
+    if (!serviceCode && !cup && !description && !quantity && !price && !total) {
         return null;
     }
 
-    const now = new Date();
-    let age = now.getUTCFullYear() - dobDate.getUTCFullYear();
-    const monthDelta = now.getUTCMonth() - dobDate.getUTCMonth();
-    if (monthDelta < 0 || (monthDelta === 0 && now.getUTCDate() < dobDate.getUTCDate())) {
-        age -= 1;
+    const serviceDateValue = parseFlexibleDate(serviceDateRaw);
+
+    return {
+        id: `${document.id}-service-${index}`,
+        serviceDate: serviceDateValue ? formatDate(serviceDateValue) : serviceDateRaw,
+        serviceDateValue,
+        serviceCode,
+        cup,
+        description,
+        quantity,
+        price,
+        total,
+        coverage,
+        patientName,
+        invoiceNumber: trimOrNull(invoiceNumber),
+        sourceDocumentName: document.className || document.name || 'Document',
+        sourceDocumentId: document.id,
+        sourceDocumentKind: kind,
+        sourceDocumentConfidence: typeof document.classificationConfidence === 'number' ? document.classificationConfidence : null,
+        sourceDocumentReviewRequired: isDocumentReviewPending(document),
+    };
+}
+
+function groupServicesByPatientName(services: ServiceSeedRow[], fallbackPatientName: string | null): Array<{ patientName: string | null; services: ServiceSeedRow[] }> {
+    const groups = new Map<string, ServiceSeedRow[]>();
+
+    for (const service of services) {
+        const patientName = trimOrNull(service.patientName) || trimOrNull(fallbackPatientName);
+        const key = normalizeIdentifier(patientName || 'single-account');
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+        groups.get(key)?.push(service);
     }
 
-    return age >= 0 ? `${age}` : null;
+    return Array.from(groups.values()).map((groupServices) => ({
+        patientName: trimOrNull(groupServices.find((item) => item.patientName)?.patientName) || trimOrNull(fallbackPatientName),
+        services: groupServices,
+    }));
 }
 
-function sortClusters(clusters: AccountCluster[]): AccountCluster[] {
-    return [...clusters].sort((left, right) => {
-        const leftName = getCanonicalPatientName(left);
-        const rightName = getCanonicalPatientName(right);
-        return compareNullableStrings(leftName, rightName) || (right.services.length - left.services.length);
-    });
-}
+function resolveSupportCoverage(cluster: AccountCluster, service: ServiceSeedRow): SupportCoverageInfo {
+    const descriptionSignal = normalizeKey(`${service.serviceCode || ''} ${service.description || ''}`);
+    const presentLabels = uniqueStrings(cluster.documents.map((document) => mapDocumentKindLabel(getDocumentKind(document.className))));
+    const required = new Set<string>(['Factura y Desglose']);
 
-function isRenderableCluster(cluster: AccountCluster): boolean {
-    return Boolean(
-        getCanonicalPatientName(cluster)
-        || pickProfileValue(cluster, 'patientId')
-        || pickProfileValue(cluster, 'mrn')
-        || cluster.services.length
-    );
-}
-
-function resolveSelectedCluster(clusters: AccountCluster[], selectedPatientKey: string | null): AccountCluster | null {
-    if (!clusters.length) {
-        return null;
+    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'admission') || /ADMISION|HOSP|INGRESO|CUARTA PLANTA|CUIDADO INT|PRIVADO/.test(descriptionSignal)) {
+        required.add('Planilla de Admisión');
     }
 
-    return clusters.find((cluster) => cluster.key === selectedPatientKey) ?? clusters[0];
+    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'authorization') || /AUTORIZ|AMBULATORIO|PROCEDIMIENTO|CIRUG|QUIR/.test(descriptionSignal)) {
+        required.add('Formato de Autorización');
+    }
+
+    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'lab') || /RADIO|RAYO|ULTRA|SONO|LAB|RX/.test(descriptionSignal)) {
+        required.add('Laboratorios');
+    }
+
+    if (cluster.documents.some((document) => getDocumentKind(document.className) === 'pathology') || /PATOLOG|BIOPS/.test(descriptionSignal)) {
+        required.add('Reporte de Patología');
+    }
+
+    const requiredDocuments = Array.from(required);
+    const presentDocuments = requiredDocuments.filter((item) => presentLabels.includes(item));
+    const missingDocuments = requiredDocuments.filter((item) => !presentLabels.includes(item));
+    const completionPercent = requiredDocuments.length
+        ? Math.round((presentDocuments.length / requiredDocuments.length) * 100)
+        : 100;
+
+    return {
+        requiredDocuments,
+        presentDocuments,
+        missingDocuments,
+        completionPercent,
+        tone: missingDocuments.length ? (presentDocuments.length ? 'warning' : 'danger') : 'success',
+    };
 }
 
-function sortServices(services: ServiceSeedRow[]): ServiceSeedRow[] {
-    return [...services].sort((left, right) => {
-        if (left.serviceDateValue && right.serviceDateValue) {
-            return right.serviceDateValue.getTime() - left.serviceDateValue.getTime();
-        }
+function resolveServiceStatus(
+    coverage: SupportCoverageInfo,
+    hasReviewRequired: boolean,
+    hasLowConfidence: boolean
+): IntakeServiceStatus {
+    if (hasReviewRequired) {
+        return 'Review Required';
+    }
 
-        if (left.serviceDateValue) {
-            return -1;
-        }
+    if (hasLowConfidence) {
+        return 'Low Confidence';
+    }
 
-        if (right.serviceDateValue) {
-            return 1;
-        }
+    if (coverage.missingDocuments.length === 0) {
+        return 'Complete';
+    }
 
-        return compareNullableStrings(left.description ?? left.serviceName, right.description ?? right.serviceName);
-    });
+    if (coverage.presentDocuments.length === 0) {
+        return 'Missing Support';
+    }
+
+    return 'Partial';
+}
+
+function mapServiceStatusTone(status: IntakeServiceStatus): IntakeAccountTone {
+    switch (status) {
+        case 'Complete':
+            return 'success';
+        case 'Partial':
+        case 'Low Confidence':
+        case 'Review Required':
+            return 'warning';
+        case 'Missing Support':
+            return 'danger';
+        default:
+            return 'neutral';
+    }
+}
+
+function buildServiceAlerts(
+    coverage: SupportCoverageInfo,
+    hasReviewRequired: boolean,
+    hasLowConfidence: boolean,
+    confidencePercent: number | null
+): string[] {
+    const alerts: string[] = [];
+
+    if (coverage.missingDocuments.length) {
+        alerts.push(`Missing: ${coverage.missingDocuments.join(', ')}`);
+    }
+
+    if (hasReviewRequired) {
+        alerts.push('Review required in source documentation');
+    }
+
+    if (hasLowConfidence && confidencePercent !== null) {
+        alerts.push(`Low confidence: ${confidencePercent}%`);
+    }
+
+    return alerts;
+}
+
+function inferServiceCategory(service: ServiceSeedRow): string | null {
+    const signal = normalizeKey(`${service.serviceCode || ''} ${service.description || ''}`);
+
+    if (/AMBULATORIO/.test(signal)) {
+        return 'Ambulatory';
+    }
+
+    if (/HOSP|INTENSIVO|PLANTA|CUARTA/.test(signal)) {
+        return 'Inpatient';
+    }
+
+    if (/LAB|RADIO|RAYO|ULTRA|SONO|PATOLOG/.test(signal)) {
+        return 'Diagnostic';
+    }
+
+    return 'Clinical service';
+}
+
+function resolveDocumentReviewStatus(document: BatchStateDocument): string | null {
+    if (document.extractionReviewStatus === 'ReviewRequired') {
+        return 'Extraction review required';
+    }
+
+    if (document.separationReviewStatus === 'ReviewRequired') {
+        return 'Separation review required';
+    }
+
+    if (document.classificationReviewStatus === 'ReviewRequired') {
+        return 'Classification review required';
+    }
+
+    return null;
+}
+
+function getDocumentTone(document: BatchStateDocument): IntakeAccountTone {
+    if (isDocumentReviewPending(document) || document.markAsRejected) {
+        return 'danger';
+    }
+
+    if (typeof document.classificationConfidence === 'number' && document.classificationConfidence < LOW_CONFIDENCE_THRESHOLD) {
+        return 'warning';
+    }
+
+    return 'success';
+}
+
+function isDocumentReviewPending(document: BatchStateDocument): boolean {
+    return document.classificationReviewStatus === 'ReviewRequired'
+        || document.extractionReviewStatus === 'ReviewRequired'
+        || document.separationReviewStatus === 'ReviewRequired'
+        || (document.fields ?? []).some((field) => field.extractionReviewStatus === 'ReviewRequired');
 }
 
 function getDocumentKind(className: string | undefined): DocumentKind {
@@ -1109,25 +1178,6 @@ function getDocumentPriority(kind: DocumentKind): number {
     }
 }
 
-function getDocumentTone(document: BatchStateDocument): IntakeAccountTone {
-    if (document.markAsRejected) {
-        return 'danger';
-    }
-
-    if (isDocumentReviewPending(document)) {
-        return 'warning';
-    }
-
-    return 'success';
-}
-
-function isDocumentReviewPending(document: BatchStateDocument): boolean {
-    return document.classificationReviewStatus === 'ReviewRequired'
-        || document.extractionReviewStatus === 'ReviewRequired'
-        || document.separationReviewStatus === 'ReviewRequired'
-        || (document.fields ?? []).some((field) => field.extractionReviewStatus === 'ReviewRequired');
-}
-
 function mapDocumentKindLabel(kind: DocumentKind): string {
     switch (kind) {
         case 'billing':
@@ -1136,29 +1186,148 @@ function mapDocumentKindLabel(kind: DocumentKind): string {
             return 'Formato de Autorización';
         case 'admission':
             return 'Planilla de Admisión';
+        case 'objection':
+            return 'Formulario de Objeciones Auditoría Médica';
         case 'pathology':
             return 'Reporte de Patología';
         case 'lab':
             return 'Laboratorios';
-        case 'objection':
-            return 'Formulario de Objeciones Auditoría Médica';
         default:
             return 'Supporting Document';
     }
 }
 
-function findFieldValue(fields: BatchStateField[] | undefined, aliases: readonly string[]): string | null {
-    if (!fields?.length) {
+function getCanonicalPatientName(cluster: AccountCluster): string | null {
+    return getBestNameCandidate(cluster.profiles);
+}
+
+function getBestNameCandidate(profiles: DocumentProfile[]): string | null {
+    const candidates = profiles
+        .filter((profile) => trimOrNull(profile.patientName))
+        .sort((left, right) => {
+            if (left.sourcePriority !== right.sourcePriority) {
+                return left.sourcePriority - right.sourcePriority;
+            }
+
+            return (trimOrNull(right.patientName)?.length || 0) - (trimOrNull(left.patientName)?.length || 0);
+        });
+
+    return trimOrNull(candidates[0]?.patientName || null);
+}
+
+function pickProfileValue(cluster: AccountCluster, field: keyof DocumentProfile): string | null {
+    const candidates = cluster.profiles
+        .map((profile) => ({
+            value: trimOrNull(profile[field] as string | null),
+            priority: profile.sourcePriority,
+        }))
+        .filter((candidate) => candidate.value)
+        .sort((left, right) => {
+            if (left.priority !== right.priority) {
+                return left.priority - right.priority;
+            }
+
+            return (right.value?.length || 0) - (left.value?.length || 0);
+        });
+
+    return candidates[0]?.value || null;
+}
+
+function resolveAgeLabel(cluster: AccountCluster): string | null {
+    const explicitAge = pickProfileValue(cluster, 'ageLabel');
+    if (explicitAge) {
+        return explicitAge;
+    }
+
+    const dob = pickProfileValue(cluster, 'dob');
+    const dobDate = parseFlexibleDate(dob);
+    if (!dobDate) {
         return null;
     }
 
-    const normalizedAliases = aliases.map(normalizeKey);
-    const match = fields.find((field) => {
-        const fieldName = normalizeKey(field.name ?? field.id);
-        return normalizedAliases.includes(fieldName);
-    });
+    const now = new Date();
+    let age = now.getUTCFullYear() - dobDate.getUTCFullYear();
+    const monthDelta = now.getUTCMonth() - dobDate.getUTCMonth();
+    if (monthDelta < 0 || (monthDelta === 0 && now.getUTCDate() < dobDate.getUTCDate())) {
+        age -= 1;
+    }
 
-    return trimOrNull(match ? toDisplayValue(match.value) : null);
+    return age >= 0 ? `${age}` : null;
+}
+
+function buildSchemaHints(totalPatients: number, cluster: AccountCluster, totalServices: number): string[] {
+    const hints = [
+        `${cluster.documents.length} docs`,
+        `${totalServices} services`,
+        totalPatients > 1 ? `${totalPatients} patient accounts` : 'Single patient batch',
+    ];
+
+    if (cluster.assistedMerged) {
+        hints.push('OCR reconciliation');
+    }
+
+    return hints.slice(0, 4);
+}
+
+function sortClusters(clusters: AccountCluster[]): AccountCluster[] {
+    return [...clusters].sort((left, right) => {
+        const leftName = getCanonicalPatientName(left);
+        const rightName = getCanonicalPatientName(right);
+        return compareNullableStrings(leftName, rightName) || (right.services.length - left.services.length);
+    });
+}
+
+function sortServices(services: ServiceSeedRow[]): ServiceSeedRow[] {
+    return [...services].sort((left, right) => {
+        if (left.serviceDateValue && right.serviceDateValue) {
+            return left.serviceDateValue.getTime() - right.serviceDateValue.getTime();
+        }
+
+        if (left.serviceDateValue) {
+            return 1;
+        }
+
+        if (right.serviceDateValue) {
+            return -1;
+        }
+
+        return compareNullableStrings(left.description || left.serviceCode, right.description || right.serviceCode);
+    });
+}
+
+function isRenderableCluster(cluster: AccountCluster): boolean {
+    return Boolean(
+        getCanonicalPatientName(cluster)
+        || pickProfileValue(cluster, 'patientId')
+        || pickProfileValue(cluster, 'mrn')
+        || cluster.services.length
+    );
+}
+
+function resolveSelectedCluster(clusters: AccountCluster[], selectedPatientKey: string | null): AccountCluster | null {
+    if (!clusters.length) {
+        return null;
+    }
+
+    return clusters.find((cluster) => cluster.key === selectedPatientKey) || clusters[0];
+}
+
+function hasRenderableServiceContent(service: ServiceSeedRow): boolean {
+    return Boolean(service.serviceCode || service.cup || service.description || service.price || service.total);
+}
+
+function findFieldValue(fields: BatchStateField[] | undefined, aliases: readonly string[]): string | null {
+    const field = findField(fields ?? [], aliases);
+    return trimOrNull(field ? toDisplayValue(field.value) : null);
+}
+
+function findField(fields: BatchStateField[], aliases: readonly string[]): BatchStateField | null {
+    const normalizedAliases = aliases.map(normalizeKey);
+    return fields.find((field) => normalizedAliases.includes(normalizeKey(field.name || field.id))) || null;
+}
+
+function getFieldIdentity(field: BatchStateField): string {
+    return normalizeIdentifier(field.id || field.name || toDisplayValue(field.value) || 'field');
 }
 
 function extractProfileSignalDates(profile: DocumentProfile, services: ServiceSeedRow[]): Date[] {
@@ -1166,10 +1335,10 @@ function extractProfileSignalDates(profile: DocumentProfile, services: ServiceSe
         parseFlexibleDate(profile.admissionDate),
         parseFlexibleDate(profile.dischargeDate),
         parseFlexibleDate(profile.dob),
-        services.find((service) => service.serviceDateValue)?.serviceDateValue ?? null,
+        services.find((service) => service.serviceDateValue)?.serviceDateValue || null,
     ];
 
-    return dates.filter((date): date is Date => Boolean(date));
+    return dates.filter((item): item is Date => Boolean(item));
 }
 
 function hasConflictingProviders(leftProviders: string[], rightProviders: string[]): boolean {
@@ -1204,12 +1373,11 @@ function calculateNameSimilarity(leftName: string, rightName: string): number {
     }
 
     const distance = levenshteinDistance(left, right);
-    return 1 - distance / Math.max(left.length, right.length, 1);
+    return 1 - (distance / Math.max(left.length, right.length, 1));
 }
 
 function simplifyNameForComparison(value: string): string {
-    const normalized = normalizeKey(value);
-    const tokens = normalized.split(' ').filter((token) => token.length > 1);
+    const tokens = normalizeKey(value).split(' ').filter((token) => token.length > 1);
     const deduped: string[] = [];
 
     for (const token of tokens) {
@@ -1228,11 +1396,6 @@ function simplifyNameForComparison(value: string): string {
     }
 
     return deduped.join(' ');
-}
-
-function normalizeDateDisplay(value: string | null): string | null {
-    const date = parseFlexibleDate(value);
-    return date ? formatDate(date) : trimOrNull(value);
 }
 
 function parseFlexibleDate(value: string | null | undefined): Date | null {
@@ -1264,24 +1427,16 @@ function parseFlexibleDate(value: string | null | undefined): Date | null {
     return null;
 }
 
+function normalizeDateDisplay(value: string | null): string | null {
+    const parsed = parseFlexibleDate(value);
+    return parsed ? formatDate(parsed) : trimOrNull(value);
+}
+
 function formatDate(value: Date): string {
     const year = value.getUTCFullYear();
     const month = `${value.getUTCMonth() + 1}`.padStart(2, '0');
     const day = `${value.getUTCDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
-
-function createInitials(name: string | null): string {
-    if (!name) {
-        return 'MR';
-    }
-
-    const tokens = name.split(/\s+/).filter(Boolean).slice(0, 2);
-    if (!tokens.length) {
-        return 'MR';
-    }
-
-    return tokens.map((token) => token[0]?.toUpperCase() ?? '').join('');
 }
 
 function normalizeKey(value: unknown): string {
@@ -1300,6 +1455,19 @@ function normalizeIdentifier(value: unknown): string {
         .replace(/[^a-zA-Z0-9]+/g, '')
         .trim()
         .toUpperCase();
+}
+
+function createInitials(name: string | null): string {
+    if (!name) {
+        return 'MR';
+    }
+
+    return name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((token) => token[0]?.toUpperCase() || '')
+        .join('') || 'MR';
 }
 
 function trimOrNull(value: string | null | undefined): string | null {
@@ -1323,46 +1491,33 @@ function toDisplayValue(value: unknown): string | null {
     return null;
 }
 
-function toNumberValue(value: string | null | undefined): number | null {
-    const trimmed = trimOrNull(value);
-    if (!trimmed || /[\/]/.test(trimmed)) {
-        return null;
-    }
-
-    const normalized = trimmed.replace(/[^0-9,.\-]/g, '');
-    if (!normalized) {
-        return null;
-    }
-
-    const hasComma = normalized.includes(',');
-    const hasDot = normalized.includes('.');
-    let sanitized = normalized;
-
-    if (hasComma && hasDot) {
-        sanitized = normalized.replace(/,/g, '');
-    } else if (hasComma && !hasDot) {
-        sanitized = normalized.replace(/,/g, '.');
-    }
-
-    const parsed = Number(sanitized);
-    return Number.isFinite(parsed) ? parsed : null;
+function toArray(value: string | null): string[] {
+    return value ? [value] : [];
 }
 
-function toPercentageValue(value: number | null | undefined): number | null {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-        return null;
-    }
-
-    return Math.round(value * 100);
+function uniqueStrings(values: Array<string | null | undefined>): string[] {
+    return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
 }
 
-function uniqueSortedStrings(values: Array<string | null | undefined>): string[] {
-    return Array.from(new Set(values.map(trimOrNull).filter((value): value is string => Boolean(value)))).sort((left, right) => left.localeCompare(right));
+function uniqueDates(values: Date[]): Date[] {
+    const seen = new Set<number>();
+    const result: Date[] = [];
+
+    for (const value of values) {
+        const key = value.getTime();
+        if (seen.has(key)) {
+            continue;
+        }
+        seen.add(key);
+        result.push(value);
+    }
+
+    return result;
 }
 
 function distinctDisplayNames(values: string[]): string[] {
-    const result: string[] = [];
     const seen = new Set<string>();
+    const result: string[] = [];
 
     for (const value of values) {
         const trimmed = trimOrNull(value);
@@ -1381,53 +1536,29 @@ function distinctDisplayNames(values: string[]): string[] {
     return result;
 }
 
-function uniqueNormalizedMerge(left: string[], right: string[]): string[] {
-    return Array.from(new Set([...left, ...right].filter(Boolean)));
-}
-
-function uniqueDatesMerge(left: Date[], right: Date[]): Date[] {
-    const result: Date[] = [];
-    const seen = new Set<number>();
-
-    for (const item of [...left, ...right]) {
-        const key = item.getTime();
-        if (seen.has(key)) {
-            continue;
-        }
-        seen.add(key);
-        result.push(item);
-    }
-
-    return result;
-}
-
 function intersectNormalized(left: string[], right: string[]): string | null {
-    for (const item of left) {
-        if (right.includes(item)) {
-            return item;
+    for (const value of left) {
+        if (right.includes(value)) {
+            return value;
         }
     }
 
     return null;
 }
 
-function toArray(value: string | null): string[] {
-    return value ? [value] : [];
-}
-
 function compareNullableStrings(left: string | null | undefined, right: string | null | undefined): number {
-    return (left ?? '').localeCompare(right ?? '');
+    return (left || '').localeCompare(right || '');
 }
 
 function compareTonePriority(left: IntakeAccountTone, right: IntakeAccountTone): number {
-    const priority = {
+    const order: Record<IntakeAccountTone, number> = {
         danger: 0,
         warning: 1,
         neutral: 2,
         success: 3,
-    } as Record<IntakeAccountTone, number>;
+    };
 
-    return priority[left] - priority[right];
+    return order[left] - order[right];
 }
 
 function dedupeAlerts(alerts: IntakeAccountReviewAlertViewModel[]): IntakeAccountReviewAlertViewModel[] {
@@ -1444,10 +1575,6 @@ function dedupeAlerts(alerts: IntakeAccountReviewAlertViewModel[]): IntakeAccoun
     }
 
     return result;
-}
-
-function getBlockingReviewAlertCount(alerts: IntakeAccountReviewAlertViewModel[]): number {
-    return alerts.filter((alert) => alert.title !== 'OCR name reconciliation applied').length;
 }
 
 function levenshteinDistance(left: string, right: string): number {

@@ -12,7 +12,22 @@
       <span class="material-icons">merge_type</span>
       <div>
         <strong>OCR reconciliation applied</strong>
-        <p>{{ viewModel.patientResolution.message }}</p>
+        <p>{{ patientResolutionMessage }}</p>
+
+        <div class="alias-choice-group" *ngIf="aliasChoices.length > 1">
+          <span class="alias-choice-label">Use as display name</span>
+          <div class="alias-choice-list">
+            <button
+              type="button"
+              class="alias-choice"
+              *ngFor="let alias of aliasChoices"
+              [class.active]="isDisplayNameSelected(alias)"
+              (click)="selectDisplayName(alias)"
+            >
+              {{ alias }}
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -37,7 +52,7 @@
           [attr.data-tone]="option.tone"
           (click)="selectPatient(option.key)"
         >
-          <strong>{{ option.label }}</strong>
+          <strong>{{ getPatientOptionLabel(option) }}</strong>
           <span>{{ option.subtitle ?? 'Demographics pending' }}</span>
           <small>{{ option.serviceCount }} services - {{ option.documentCount }} docs</small>
         </button>
@@ -46,15 +61,12 @@
 
     <header class="patient-header-card">
       <div class="patient-identity">
-        <div class="avatar-chip">{{ viewModel.header.patientInitials }}</div>
+        <div class="avatar-chip">{{ currentDisplayInitials }}</div>
 
         <div class="identity-copy">
           <div class="title-row">
-            <h1>{{ viewModel.header.patientName ?? 'Patient pending' }}</h1>
-            <span
-              class="state-pill"
-              [attr.data-tone]="viewModel.summary.readyForAnalysis ? 'success' : (viewModel.summary.missingRequirements > 0 ? 'danger' : 'warning')"
-            >
+            <h1>{{ currentDisplayName ?? 'Patient pending' }}</h1>
+            <span class="state-pill" [attr.data-tone]="viewModel.readiness.readyForAnalysis ? 'success' : 'warning'">
               {{ viewModel.header.intakeStatus }}
             </span>
             <span class="read-only-pill" *ngIf="isReadOnly">Read only</span>
@@ -86,13 +98,7 @@
             <span class="material-icons">upload_file</span>
             Upload
           </button>
-          <button
-            type="button"
-            class="primary-action"
-            [class.blocked]="!viewModel.readiness.readyForAnalysis"
-            disabled
-            [attr.aria-disabled]="true"
-          >
+          <button type="button" class="primary-action" [class.blocked]="!viewModel.readiness.readyForAnalysis" disabled [attr.aria-disabled]="true">
             Proceed to Analysis
             <span class="material-icons">arrow_forward</span>
           </button>
@@ -100,31 +106,29 @@
       </div>
     </header>
 
-    <section class="summary-grid">
-      <article class="summary-card">
-        <span>Total Services</span>
-        <strong>{{ viewModel.summary.totalServices }}</strong>
-      </article>
+    <section class="summary-panel">
+      <div class="summary-grid">
+        <button
+          type="button"
+          class="summary-card summary-card--interactive"
+          *ngFor="let card of primarySummaryCards"
+          [class.summary-card--active]="isFilterActive(card.filterKey || 'all')"
+          [attr.data-tone]="card.tone"
+          (click)="setActiveFilter(card.filterKey || 'all', $event)"
+        >
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+          <small *ngIf="card.helperText">{{ card.helperText }}</small>
+        </button>
+      </div>
 
-      <article class="summary-card">
-        <span>Total Procedures</span>
-        <strong>{{ viewModel.summary.totalProcedures }}</strong>
-      </article>
-
-      <article class="summary-card">
-        <span>Total Documents Found</span>
-        <strong>{{ viewModel.summary.totalDocumentsFound }}</strong>
-      </article>
-
-      <article class="summary-card warning">
-        <span>Missing Requirements</span>
-        <strong>{{ viewModel.summary.missingRequirements }}</strong>
-      </article>
-
-      <article class="summary-card" [class.warning]="viewModel.summary.pendingReviewCount > 0">
-        <span>Pending Review</span>
-        <strong>{{ viewModel.summary.pendingReviewCount }}</strong>
-      </article>
+      <div class="summary-secondary-grid" *ngIf="secondarySummaryCards.length">
+        <article class="summary-card summary-card--secondary" *ngFor="let card of secondarySummaryCards" [attr.data-tone]="card.tone">
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+          <small *ngIf="card.helperText">{{ card.helperText }}</small>
+        </article>
+      </div>
     </section>
 
     <section class="main-grid">
@@ -132,310 +136,391 @@
         <div class="card-header">
           <div>
             <span class="eyebrow">Services</span>
-            <h2>Services Explorer</h2>
+            <h2>Service Explorer</h2>
           </div>
           <span class="verified-pill">
-            <span class="material-icons">format_list_bulleted</span>
-            {{ totalFilteredItems }} filtered
+            <span class="material-icons">playlist_add_check</span>
+            {{ filteredServices.length }} visible
           </span>
         </div>
 
-        <div class="filter-toolbar">
-          <label class="filter-field filter-field--wide">
-            <span>Search service</span>
-            <input type="text" [value]="searchTerm" (input)="updateSearchTerm($event)" placeholder="Service, CUP or description" />
+        <div class="explorer-toolbar">
+          <label class="search-field">
+            <span>Search services</span>
+            <input
+              type="text"
+              [value]="searchTerm"
+              (input)="updateSearchTerm($event)"
+              placeholder="Service code, CUP, description or category"
+            />
           </label>
 
-          <label class="filter-field">
-            <span>Status</span>
-            <select [value]="statusFilter" (change)="updateStatusFilter($event)">
-              <option value="">All</option>
-              <option *ngFor="let option of viewModel.serviceExplorer.filters.statuses" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="filter-field">
-            <span>Service</span>
-            <select [value]="serviceFilter" (change)="updateServiceFilter($event)">
-              <option value="">All</option>
-              <option *ngFor="let option of viewModel.serviceExplorer.filters.serviceNames" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="filter-field">
-            <span>Invoice</span>
-            <select [value]="invoiceFilter" (change)="updateInvoiceFilter($event)">
-              <option value="">All</option>
-              <option *ngFor="let option of viewModel.serviceExplorer.filters.invoices" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="filter-field">
-            <span>Coverage</span>
-            <select [value]="coverageFilter" (change)="updateCoverageFilter($event)">
-              <option value="">All</option>
-              <option *ngFor="let option of viewModel.serviceExplorer.filters.coverages" [value]="option">{{ option }}</option>
-            </select>
-          </label>
-
-          <label class="filter-field">
-            <span>From</span>
-            <input type="date" [value]="dateFrom" (change)="updateDateFrom($event)" />
-          </label>
-
-          <label class="filter-field">
-            <span>To</span>
-            <input type="date" [value]="dateTo" (change)="updateDateTo($event)" />
-          </label>
+          <button type="button" class="ghost-action small" *ngIf="searchTerm" (click)="clearSearch()">
+            Clear search
+          </button>
         </div>
 
-        <div class="service-table-shell" *ngIf="viewModel.serviceExplorer.items.length; else emptyServices">
-          <ng-container *ngIf="pagedServiceItems.length; else emptyFilteredServices">
-            <div class="service-table">
-              <div class="service-table__head">
-                <span>Date</span>
-                <span>Service</span>
-                <span>CUP</span>
-                <span>Description</span>
-                <span>Qty</span>
-                <span>Price</span>
-                <span>Total</span>
-                <span>Coverage</span>
-                <span>Status</span>
-                <span>Invoice</span>
-              </div>
+        <div class="filter-chip-row">
+          <button
+            type="button"
+            class="filter-chip"
+            *ngFor="let tab of filterTabs"
+            [class.active]="isFilterActive(tab.key)"
+            (click)="setActiveFilter(tab.key, $event)"
+          >
+            {{ tab.label }}
+            <span>{{ tab.count }}</span>
+          </button>
+        </div>
 
-              <div class="service-table__row" *ngFor="let item of pagedServiceItems">
-                <span>{{ item.serviceDate ?? 'Pending' }}</span>
-                <strong>{{ item.serviceName ?? 'Unnamed service' }}</strong>
-                <span>{{ item.cup ?? '—' }}</span>
-                <span>{{ item.description ?? '—' }}</span>
-                <span>{{ item.quantity ?? '—' }}</span>
-                <span>{{ item.price ?? '—' }}</span>
-                <span>{{ item.total ?? item.price ?? '—' }}</span>
-                <span>{{ item.coverage ?? '—' }}</span>
-                <span class="service-status" [attr.data-tone]="item.tone">{{ item.derivedStatus }}</span>
-                <span>{{ item.invoiceNumber ?? '—' }}</span>
-              </div>
-            </div>
+        <div class="service-card-list" *ngIf="viewModel.services.length; else emptyServices">
+          <ng-container *ngIf="filteredServices.length; else emptyFilteredServices">
+            <article class="service-card" *ngFor="let service of filteredServices; trackBy: trackById" [attr.data-tone]="service.tone">
+              <button type="button" class="service-card__summary" (click)="toggleServiceExpansion(service.id)">
+                <div class="service-card__title">
+                  <div>
+                    <span class="service-card__date">{{ service.serviceDate ?? 'Pending date' }}</span>
+                    <strong>{{ service.description ?? service.serviceCode ?? 'Detected service' }}</strong>
+                    <p>
+                      Code {{ service.serviceCode ?? 'N/A' }}
+                      <ng-container *ngIf="service.cup"> - CUP {{ service.cup }}</ng-container>
+                      <ng-container *ngIf="service.category"> - {{ service.category }}</ng-container>
+                    </p>
+                  </div>
+                </div>
 
-            <div class="pagination-bar">
-              <div class="pagination-copy">
-                Showing {{ visibleRangeStart }}-{{ visibleRangeEnd }} of {{ totalFilteredItems }} services
-              </div>
+                <div class="service-card__metrics">
+                  <div class="metric-pill">
+                    <span>Qty</span>
+                    <strong>{{ service.quantity ?? '—' }}</strong>
+                  </div>
+                  <div class="metric-pill">
+                    <span>Price</span>
+                    <strong>{{ service.price ?? '—' }}</strong>
+                  </div>
+                  <div class="metric-pill">
+                    <span>Completion</span>
+                    <strong>{{ service.completionPercent }}%</strong>
+                  </div>
+                  <span class="service-status" [attr.data-tone]="service.tone">{{ service.supportStatus }}</span>
+                  <span class="expand-pill">{{ isServiceExpanded(service.id) ? 'Collapse' : 'Expand' }}</span>
+                </div>
+              </button>
 
-              <div class="pagination-actions">
-                <label class="page-size-field">
-                  <span>Rows</span>
-                  <select [value]="pageSize" (change)="updatePageSize($event)">
-                    <option *ngFor="let option of viewModel.serviceExplorer.pageSizeOptions" [value]="option">{{ option }}</option>
-                  </select>
-                </label>
+              <div class="service-card__details" *ngIf="isServiceExpanded(service.id)">
+                <div class="service-detail-grid">
+                  <section class="detail-panel">
+                    <span class="eyebrow">Support package</span>
+                    <div class="chip-group">
+                      <span class="chip-label">Required</span>
+                      <div class="chip-stack">
+                        <span class="data-chip" *ngFor="let item of service.requiredDocuments">{{ item }}</span>
+                      </div>
+                    </div>
 
-                <button type="button" class="ghost-action small" (click)="goToPreviousPage()" [disabled]="safeCurrentPage <= 1">
-                  Previous
-                </button>
-                <span class="page-indicator">Page {{ safeCurrentPage }} / {{ totalPages }}</span>
-                <button type="button" class="ghost-action small" (click)="goToNextPage()" [disabled]="safeCurrentPage >= totalPages">
-                  Next
-                </button>
+                    <div class="chip-group" *ngIf="service.presentDocuments.length">
+                      <span class="chip-label">Present</span>
+                      <div class="chip-stack">
+                        <span class="data-chip success" *ngFor="let item of service.presentDocuments">{{ item }}</span>
+                      </div>
+                    </div>
+
+                    <div class="chip-group" *ngIf="service.missingDocuments.length">
+                      <span class="chip-label">Missing</span>
+                      <div class="chip-stack">
+                        <span class="data-chip danger" *ngFor="let item of service.missingDocuments">{{ item }}</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="detail-panel">
+                    <span class="eyebrow">Detection details</span>
+                    <div class="detail-list">
+                      <div>
+                        <span>Source</span>
+                        <strong>{{ service.extractionSource ?? 'Pending source' }}</strong>
+                      </div>
+                      <div>
+                        <span>Invoice</span>
+                        <strong>{{ service.invoiceNumber ?? 'Pending invoice' }}</strong>
+                      </div>
+                      <div>
+                        <span>Coverage</span>
+                        <strong>{{ service.coverage ?? 'Pending coverage' }}</strong>
+                      </div>
+                      <div>
+                        <span>Confidence</span>
+                        <strong>{{ service.confidenceSummary ?? 'Not available' }}</strong>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <section class="detail-panel" *ngIf="service.alerts.length">
+                  <span class="eyebrow">Alerts</span>
+                  <div class="alerts-inline">
+                    <span class="alert-chip" *ngFor="let alert of service.alerts">{{ alert }}</span>
+                  </div>
+                </section>
+
+                <div class="future-actions">
+                  <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">Acquire Document</button>
+                  <button
+                    type="button"
+                    class="ghost-action small"
+                    [disabled]="isReadOnly"
+                    [attr.aria-disabled]="isReadOnly"
+                    (click)="triggerNativeUpload($event)"
+                  >
+                    Upload Manually
+                  </button>
+                  <button type="button" class="primary-action small blocked" disabled [attr.aria-disabled]="true">Mark as Reviewed</button>
+                </div>
               </div>
-            </div>
+            </article>
           </ng-container>
         </div>
       </article>
 
-      <article class="document-control-card">
-        <div class="card-header">
-          <div>
-            <span class="eyebrow">Repository</span>
-            <h2>Document Control Center</h2>
+      <div class="sidebar-stack">
+        <article class="document-control-card">
+          <div class="card-header">
+            <div>
+              <span class="eyebrow">Repository</span>
+              <h2>Document Control Center</h2>
+            </div>
+            <span class="verified-pill">
+              <span class="material-icons">folder_open</span>
+              {{ viewModel.documents.length }} docs
+            </span>
           </div>
-          <span class="verified-pill">
-            <span class="material-icons">verified</span>
-            Verified {{ viewModel.documentControl.verifiedCount }}
-          </span>
+
+          <section class="capture-module-card" [attr.data-tone]="pendingUploadTone">
+            <div class="capture-module-header">
+              <div>
+                <span class="eyebrow">Capture</span>
+                <h3>Pending Support Documents</h3>
+                <p>{{ pendingUploadHelperText }}</p>
+              </div>
+              <span class="document-badge" [attr.data-tone]="pendingUploadTone">
+                {{ pendingUploadCount }} {{ pendingUploadCount === 1 ? 'pending' : 'pending' }}
+              </span>
+            </div>
+
+            <div class="capture-module-list" *ngIf="pendingUploadItems.length; else captureModuleComplete">
+              <button
+                type="button"
+                class="capture-module-item"
+                *ngFor="let item of pendingUploadItems; trackBy: trackByPendingUploadLabel"
+                [class.capture-module-item--active]="isPendingUploadFilterActive(item)"
+                (click)="togglePendingUploadFilter(item)"
+              >
+                <div class="capture-module-item__copy">
+                  <strong>{{ item.label }}</strong>
+                  <span>Required by {{ item.serviceCount }} {{ item.serviceCount === 1 ? 'service' : 'services' }}</span>
+                </div>
+                <span class="document-mini" data-tone="warning">{{ item.serviceCount }}x</span>
+              </button>
+            </div>
+
+            <p class="capture-module-message" *ngIf="uploadCaptureMessage">{{ uploadCaptureMessage }}</p>
+
+            <div class="capture-module-actions">
+              <button
+                type="button"
+                class="ghost-action small"
+                *ngIf="activePendingUploadFilterLabel"
+                (click)="clearPendingUploadFilter()"
+              >
+                Clear filter: {{ activePendingUploadFilterLabel }}
+              </button>
+              <button
+                type="button"
+                class="primary-action small capture-module-action"
+                [class.blocked]="isReadOnly"
+                [disabled]="isReadOnly"
+                [attr.aria-disabled]="isReadOnly"
+                (click)="triggerNativeUpload($event)"
+              >
+                Upload document
+              </button>
+            </div>
+          </section>
+
+          <div class="document-list" *ngIf="viewModel.documents.length; else emptyDocumentCenter">
+            <article class="document-card" *ngFor="let document of filteredDocuments; trackBy: trackById" [attr.data-tone]="document.tone">
+              <button type="button" class="document-card__summary" (click)="toggleDocumentExpansion(document.id)">
+                <div class="document-card__copy">
+                  <strong>{{ document.className }}</strong>
+                  <p>{{ document.name }}</p>
+                </div>
+
+                <div class="document-card__badges">
+                  <span class="document-badge" [attr.data-tone]="document.tone">{{ document.status }}</span>
+                  <span class="document-mini">Class: {{ document.classificationStatus }}</span>
+                  <span class="document-mini">Extract: {{ document.extractionStatus }}</span>
+                  <span class="document-mini" *ngIf="document.classificationConfidence !== null">{{ document.classificationConfidence }}%</span>
+                  <span class="expand-pill">{{ isDocumentExpanded(document.id) ? 'Collapse' : 'Expand' }}</span>
+                </div>
+              </button>
+
+              <div class="document-card__details" *ngIf="isDocumentExpanded(document.id)">
+                <div class="document-status-grid">
+                  <div>
+                    <span>Review status</span>
+                    <strong>{{ document.extractionReviewStatus ?? document.separationReviewStatus ?? 'Review not required' }}</strong>
+                  </div>
+                  <div>
+                    <span>Confidence</span>
+                    <strong>{{ document.classificationConfidence !== null ? (document.classificationConfidence + '%') : 'Not available' }}</strong>
+                  </div>
+                  <div>
+                    <span>Extracted values</span>
+                    <strong>{{ document.extractedHighlights.length }}</strong>
+                  </div>
+                  <div>
+                    <span>Content reference</span>
+                    <strong>
+                      <ng-container *ngIf="document.repositoryNodeId; else missingContentReference">
+                        Ref {{ document.contentFileReferenceIndex !== null ? document.contentFileReferenceIndex : 'N/A' }}
+                      </ng-container>
+                    </strong>
+                  </div>
+                </div>
+
+                <div class="document-highlights" *ngIf="document.extractedHighlights.length">
+                  <div class="document-highlight" *ngFor="let highlight of document.extractedHighlights" [attr.data-tone]="highlight.tone">
+                    <span>{{ highlight.label }}</span>
+                    <strong>{{ highlight.value }}</strong>
+                  </div>
+                </div>
+
+                <div class="document-actions">
+                  <button type="button" class="view-action" (click)="openDocumentViewer(document)">{{ document.viewLabel }}</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="document-viewer-modal" *ngIf="isViewerOpen && selectedViewerDocument as viewerDocument" (click)="closeDocumentViewer()">
+      <div class="document-viewer-modal__panel" (click)="$event.stopPropagation()">
+        <div class="document-viewer-modal__header">
+          <div>
+            <span class="eyebrow">Document preview</span>
+            <h2>{{ viewerDocument.className }}</h2>
+            <p>{{ viewerDocument.name }}</p>
+            <small *ngIf="selectedViewerSourceReferenceLabel">{{ selectedViewerSourceReferenceLabel }}</small>
+            <small *ngIf="selectedViewerMimeType">MIME: {{ selectedViewerMimeType }}</small>
+          </div>
+
+          <div class="document-viewer-modal__actions">
+            <button type="button" class="primary-action small" (click)="closeDocumentViewer()">Close</button>
+          </div>
         </div>
 
-        <div class="document-control-body" *ngIf="(viewModel.documentControl.items.length + viewModel.documentControl.missingItems.length) > 0; else emptyDocumentCenter">
-          <div class="document-list" *ngIf="viewModel.documentControl.items.length">
-            <article class="document-card" *ngFor="let item of viewModel.documentControl.items" [attr.data-tone]="item.tone">
-              <div class="document-card-header">
-                <div class="document-icon">
-                  <span class="material-icons">description</span>
+        <div class="document-viewer-modal__tabs">
+          <button type="button" class="filter-chip" [class.active]="isViewerPreviewPanelActive" (click)="showViewerPreviewPanel()">Preview</button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="isViewerMetadataPanelActive"
+            [disabled]="!selectedViewerNodeId"
+            [attr.aria-disabled]="!selectedViewerNodeId"
+            (click)="showViewerMetadataPanel()"
+          >
+            Metadata
+          </button>
+        </div>
+
+        <p class="document-viewer-modal__message" *ngIf="viewerStatusMessage">{{ viewerStatusMessage }}</p>
+
+        <div class="document-viewer-modal__body" *ngIf="viewerLoading; else viewerReadyState">
+          <div class="state-card document-viewer-modal__empty">
+            <strong>Loading preview</strong>
+            <p>Retrieving the repository file for this document.</p>
+          </div>
+        </div>
+
+        <ng-template #viewerReadyState>
+          <div class="document-viewer-modal__body" *ngIf="canRenderSelectedDocumentInline; else viewerUnavailable">
+            <div *ngIf="isViewerPreviewPanelActive" class="document-viewer-modal__preview-shell">
+              <div class="document-viewer-modal__preview-loading" *ngIf="viewerPreviewRendering">
+                <div class="state-card document-viewer-modal__empty document-viewer-modal__loading-state">
+                  <strong>Preparing preview</strong>
+                  <p>Rendering the document inside the intake viewer.</p>
                 </div>
-                <div class="document-copy">
-                  <strong>{{ item.documentName }}</strong>
-                  <p>
-                    {{ item.documentType }}
-                    <ng-container *ngIf="item.linkedProcedureName">
-                      - Linked to {{ item.linkedProcedureName }}
-                    </ng-container>
-                  </p>
-                </div>
-                <span class="document-badge" [attr.data-tone]="item.tone">{{ item.extractionBadge }}</span>
               </div>
 
-              <div class="document-highlights" *ngIf="item.extractedFields.length">
-                <div class="document-highlight" *ngFor="let highlight of item.extractedFields">
+              <adf-pdf-viewer
+                *ngIf="isSelectedViewerPdf; else genericInlinePreview"
+                class="document-viewer-modal__pdf-preview"
+                [blobFile]="selectedViewerBlob!"
+                [fileName]="viewerDocument.name"
+                [showToolbar]="true"
+                [allowThumbnails]="false"
+                (pagesLoaded)="handlePdfPreviewRendered()"
+                (rendered)="handlePdfPreviewRendered()"
+                (error)="handlePdfPreviewError()"
+              />
+
+              <ng-template #genericInlinePreview>
+                <adf-viewer
+                  class="document-viewer-modal__preview"
+                  [blobFile]="selectedViewerBlob!"
+                  [mimeType]="selectedViewerMimeType ?? ''"
+                  [showViewer]="true"
+                  [overlayMode]="false"
+                  [allowGoBack]="false"
+                  [allowNavigate]="false"
+                  [allowLeftSidebar]="false"
+                  [allowRightSidebar]="false"
+                  [showLeftSidebar]="false"
+                  [showRightSidebar]="false"
+                  [showToolbar]="true"
+                  [allowFullScreen]="true"
+                  [hideInfoButton]="true"
+                  [fileName]="viewerDocument.name"
+                  [title]="viewerDocument.className"
+                />
+              </ng-template>
+            </div>
+
+            <div
+              *ngIf="isViewerMetadataPanelActive"
+              class="document-viewer-modal__metadata"
+            >
+              <div class="document-viewer-modal__metadata-grid">
+                <div>
+                  <span>Repository document id</span>
+                  <strong>{{ selectedViewerNodeId }}</strong>
+                </div>
+                <div>
+                  <span>MIME type</span>
+                  <strong>{{ selectedViewerMimeType ?? 'Not available' }}</strong>
+                </div>
+                <div>
+                  <span>Review status</span>
+                  <strong>{{ viewerDocument.extractionReviewStatus ?? viewerDocument.separationReviewStatus ?? 'Review not required' }}</strong>
+                </div>
+                <div>
+                  <span>Confidence</span>
+                  <strong>{{ viewerDocument.classificationConfidence !== null ? (viewerDocument.classificationConfidence + '%') : 'Not available' }}</strong>
+                </div>
+              </div>
+
+              <div class="document-highlights" *ngIf="viewerDocument.extractedHighlights.length; else emptyViewerMetadata">
+                <div class="document-highlight" *ngFor="let highlight of viewerDocument.extractedHighlights" [attr.data-tone]="highlight.tone">
                   <span>{{ highlight.label }}</span>
                   <strong>{{ highlight.value }}</strong>
                 </div>
               </div>
-
-              <div class="document-footer">
-                <div class="document-metadata">
-                  <span *ngIf="item.dateReceived">Received {{ item.dateReceived }}</span>
-                  <span *ngIf="item.confidence !== null">Confidence {{ item.confidence }}%</span>
-                  <span>{{ item.status }}</span>
-                </div>
-                <button type="button" class="view-action" disabled [attr.aria-disabled]="true">{{ item.viewLabel }}</button>
-              </div>
-            </article>
-          </div>
-
-          <div class="missing-documents" *ngIf="viewModel.documentControl.missingItems.length">
-            <article class="missing-card" *ngFor="let item of viewModel.documentControl.missingItems">
-              <div class="missing-header">
-                <div class="missing-icon">
-                  <span class="material-icons">warning</span>
-                </div>
-                <div>
-                  <strong>{{ item.documentName }}</strong>
-                  <p>Linked to {{ item.linkedProcedureName }}</p>
-                </div>
-                <span class="missing-pill">{{ item.status }}</span>
-              </div>
-
-              <div class="missing-actions">
-                <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">{{ item.primaryActionLabel }}</button>
-                <button type="button" class="primary-action small blocked" disabled [attr.aria-disabled]="true">{{ item.secondaryActionLabel }}</button>
-              </div>
-            </article>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="insights-grid">
-      <article class="procedure-summary-card">
-        <div class="card-header">
-          <div>
-            <span class="eyebrow">Coverage</span>
-            <h2>Support Coverage by Procedure</h2>
-          </div>
-        </div>
-
-        <div class="coverage-list" *ngIf="viewModel.procedureSummary.items.length; else emptyCoverage">
-          <article class="coverage-row" *ngFor="let item of viewModel.procedureSummary.items" [attr.data-tone]="item.tone">
-            <div class="coverage-main">
-              <strong>{{ item.procedureName ?? 'Detected procedure' }}</strong>
-              <p *ngIf="item.procedureCode">CUP {{ item.procedureCode }}</p>
-              <p>{{ item.serviceCount }} service(s)</p>
-            </div>
-
-            <div class="coverage-groups">
-              <div class="chip-group">
-                <span class="chip-label">Required</span>
-                <div class="chip-stack">
-                  <span class="data-chip" *ngFor="let requirement of item.requiredDocs">{{ requirement }}</span>
-                </div>
-              </div>
-
-              <div class="chip-group" *ngIf="item.presentDocs.length">
-                <span class="chip-label">Present</span>
-                <div class="chip-stack">
-                  <span class="data-chip success" *ngFor="let present of item.presentDocs">{{ present }}</span>
-                </div>
-              </div>
-
-              <div class="chip-group" *ngIf="item.missingDocs.length">
-                <span class="chip-label">Missing</span>
-                <div class="chip-stack">
-                  <span class="data-chip danger" *ngFor="let missing of item.missingDocs">{{ missing }}</span>
-                </div>
-              </div>
-            </div>
-
-            <span class="coverage-status" [attr.data-tone]="item.tone">{{ item.supportStatus }}</span>
-          </article>
-        </div>
-      </article>
-
-      <div class="insights-stack">
-        <article class="ai-extraction-card">
-          <div class="card-header">
-            <div>
-              <span class="eyebrow">AI extraction</span>
-              <h2>Extraction Engine</h2>
-            </div>
-            <span class="confidence-pill" *ngIf="viewModel.aiExtraction.confidenceSummary">{{ viewModel.aiExtraction.confidenceSummary }}</span>
-          </div>
-
-          <div class="status-strip">
-            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.extractionStatus)">
-              <span>Extraction</span>
-              <strong>{{ getStatusLabel(viewModel.aiExtraction.extractionStatus) }}</strong>
-            </div>
-            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.classificationStatus)">
-              <span>Classification</span>
-              <strong>{{ getStatusLabel(viewModel.aiExtraction.classificationStatus) }}</strong>
-            </div>
-            <div class="status-chip" [attr.data-tone]="getStatusTone(viewModel.aiExtraction.separationStatus)">
-              <span>Separation</span>
-              <strong>{{ getStatusLabel(viewModel.aiExtraction.separationStatus) }}</strong>
             </div>
           </div>
-
-          <div class="signal-block">
-            <span>Predicted diagnoses</span>
-            <div class="chip-stack" *ngIf="viewModel.aiExtraction.predictedDiagnoses.length; else emptyDiagnoses">
-              <span class="data-chip" *ngFor="let diagnosis of viewModel.aiExtraction.predictedDiagnoses">{{ diagnosis }}</span>
-            </div>
-          </div>
-
-          <div class="signal-block">
-            <span>Predicted procedures</span>
-            <div class="chip-stack" *ngIf="viewModel.aiExtraction.predictedProcedures.length; else emptyPredictedProcedures">
-              <span class="data-chip" *ngFor="let procedure of viewModel.aiExtraction.predictedProcedures">{{ procedure }}</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="readiness-card" [class.ready]="viewModel.readiness.readyForAnalysis">
-          <span class="eyebrow">Readiness</span>
-          <h2>Analysis readiness</h2>
-
-          <div class="readiness-score">
-            <strong>{{ viewModel.readiness.score }}%</strong>
-            <span class="state-pill" [attr.data-tone]="viewModel.readiness.readyForAnalysis ? 'success' : 'warning'">
-              {{ viewModel.readiness.statusLabel }}
-            </span>
-          </div>
-
-          <div class="blocker-list" *ngIf="viewModel.readiness.blockers.length; else readyState">
-            <div class="blocker-row" *ngFor="let blocker of viewModel.readiness.blockers">
-              <span class="material-icons">warning</span>
-              <p>{{ blocker }}</p>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="review-alerts-card" *ngIf="viewModel.reviewAlerts.length">
-      <div class="card-header">
-        <div>
-          <span class="eyebrow">Review alerts</span>
-          <h2>Attention required</h2>
-        </div>
-      </div>
-
-      <div class="alerts-list">
-        <article class="alert-row" *ngFor="let alert of viewModel.reviewAlerts" [attr.data-tone]="alert.tone">
-          <strong>{{ alert.title }}</strong>
-          <p>{{ alert.description }}</p>
-        </article>
+        </ng-template>
       </div>
     </section>
   </ng-container>
@@ -458,36 +543,39 @@
 
 <ng-template #emptyFilteredServices>
   <div class="state-card">
-    <strong>No services match the current filters</strong>
-    <p>Try clearing one or more filters to inspect the full list of billed services.</p>
+    <strong>No services match the current filter</strong>
+    <p>Try a different chip or clear the search input to inspect the full account.</p>
   </div>
 </ng-template>
 
 <ng-template #emptyDocumentCenter>
   <div class="state-card">
     <strong>No mapped documents</strong>
-    <p>Add supporting documents to visualize the control center for this medical account.</p>
+    <p>Add supporting documents to visualize the medical account repository.</p>
   </div>
 </ng-template>
 
-<ng-template #emptyCoverage>
-  <div class="state-card">
-    <strong>No support coverage available</strong>
-    <p>Support coverage will appear once the widget can infer services from the selected account.</p>
+<ng-template #captureModuleComplete>
+  <div class="capture-module-empty">
+    <strong>All required supports are currently covered.</strong>
+    <p>You can still attach additional documents if the account needs more evidence.</p>
   </div>
 </ng-template>
 
-<ng-template #emptyDiagnoses>
-  <p class="empty-inline">No predicted diagnoses found yet.</p>
+<ng-template #missingContentReference>
+  No reference
 </ng-template>
 
-<ng-template #emptyPredictedProcedures>
-  <p class="empty-inline">No predicted procedures found yet.</p>
+<ng-template #viewerUnavailable>
+  <div class="state-card state-card--error document-viewer-modal__empty">
+    <strong>No preview reference available</strong>
+    <p>The selected document does not expose a resolvable repository document reference from batchState yet.</p>
+  </div>
 </ng-template>
 
-<ng-template #readyState>
-  <div class="ready-copy">
-    <span class="material-icons">check_circle</span>
-    <p>This account has the minimum support package to advance into Analysis.</p>
+<ng-template #emptyViewerMetadata>
+  <div class="state-card document-viewer-modal__empty">
+    <strong>No extracted metadata available</strong>
+    <p>This document does not expose extracted highlights for the current account view.</p>
   </div>
 </ng-template>

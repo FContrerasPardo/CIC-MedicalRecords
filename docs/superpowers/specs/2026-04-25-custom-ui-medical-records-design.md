@@ -1,5 +1,16 @@
 # Custom UI Medical Records Design
 
+Nota de estado 2026-05-03:
+
+Este documento queda como referencia visual historica de la migracion Stitch.
+La especificacion general vigente de la demo vive en
+`docs/medical-records-demo-process-specification.md`.
+
+Decision actual: el plugin `medical-records` no debe ejecutar las etapas del
+workflow como paginas internas. El plugin debe funcionar como overview y entrada
+a tareas activas. Las etapas operativas viven en formularios de Automate con
+custom widgets, por ejemplo `intake-account-widget` y `analysis-task-widget`.
+
 ## Objetivo
 
 Construir la primera version editable de la Custom UI de Cuentas Medicas dentro de la plantilla fuente exportada desde Hyland Automate, usando las pantallas de referencia de `UI design/` como guia visual y conservando la integracion nativa con Automate.
@@ -65,7 +76,8 @@ No se reemplazaran ni eliminaran las rutas nativas de Automate. Las nuevas panta
 
 Origen visual: `UI design/armado-de-cuentas/`
 
-Pantallas:
+Pantallas de referencia visual, no necesariamente paginas funcionales del
+plugin:
 
 - Dashboard de proceso
 - Expediente unificado / intake
@@ -94,22 +106,29 @@ El plugin `medical-records` tendra una ruta principal:
 
 `/medical-records`
 
-Dentro de esa experiencia se usara navegacion interna para las secciones funcionales. La ruta principal sera registrada en el sistema de extensiones para aparecer en la navegacion lateral de Hyland Workspace.
+Decision actualizada: dentro de esa experiencia no se debe usar navegacion
+interna por etapas como superficie principal del workflow. La ruta principal
+debe registrarse en el sistema de extensiones para aparecer en la navegacion
+lateral de Hyland Workspace y mostrar un overview con acceso a tareas activas.
 
-Componentes previstos:
+Las secciones funcionales de Intake, Analysis y futuras etapas deben vivir en
+formularios/widgets de Automate para mantener el control del workflow dentro de
+Studio Modeler.
 
-- `medical-records-shell`: layout interno de la experiencia personalizada.
+Componentes originalmente previstos como referencia visual:
+
+- `medical-records-shell`: layout/overview interno de la experiencia personalizada.
 - `dashboard-page`: vista general del ciclo de cuentas medicas.
-- `intake-expediente-page`: expediente unificado e intake documental.
-- `analysis-prevalidation-page`: prevalidacion IA y hallazgos.
-- `account-assembly-page`: armado, aprobacion y envio.
-- `appeals-management-page`: gestion de glosas y apelaciones.
-- `payment-closing-page`: conciliacion y cierre.
-- `agreement-config-page`: gestion de convenios con tabs internas.
+- `intake-expediente-page`: referencia visual migrada al widget de intake.
+- `analysis-prevalidation-page`: referencia visual migrada al widget de analisis.
+- `account-assembly-page`: referencia futura para un widget/tarea de aprobacion.
+- `appeals-management-page`: referencia futura para widgets/tareas de ejecucion.
+- `payment-closing-page`: referencia futura para widgets/tareas de cierre.
+- `agreement-config-page`: referencia futura para gestion de convenios.
 
 Componentes compartidos:
 
-- `workflow-stepper`: etapas Intake, Analysis, Approval, Execution, Review, Completed.
+- `workflow-stepper`: legado visual; no debe ser la navegacion principal del plugin.
 - `metric-card`: indicadores financieros, riesgo, completitud y recupero.
 - `status-badge`: estados operativos.
 - `action-toolbar`: acciones principales por pantalla.
@@ -126,13 +145,15 @@ Se conservaran las rutas y acciones existentes del plugin `process-services-clou
 - `/tasks`
 - `/processes`
 
-Las acciones de la UI personalizada navegaron hacia esas rutas cuando el flujo necesite ejecutar capacidades reales de Automate.
+Las acciones de la UI personalizada deben navegar hacia esas rutas cuando el flujo necesite ejecutar capacidades reales de Automate. Para esta demo, la accion principal del plugin debe ser abrir tareas activas o iniciar el proceso, no simular etapas dentro del plugin.
 
 Ejemplos:
 
 - `New Intake` puede navegar a `/start-process-cloud`.
 - `Open Tasks` puede navegar a `/task-list-cloud`.
 - `Process Tracking` puede navegar a `/process-list-cloud`.
+- Las etapas reales como `Nueva Cuenta` y `Analysis` se abren desde tareas de
+  Automate y se renderizan mediante widgets de formulario.
 
 La configuracion `_customApp` en `contexts.json5` sigue siendo la fuente de verdad para:
 

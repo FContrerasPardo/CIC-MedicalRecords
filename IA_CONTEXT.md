@@ -21,6 +21,12 @@ en este repositorio.
 - Build/export anterior solo como referencia: `CustomUI/workspace-hxp-edited/`.
 - Mapping de Automate: `CustomUI/medicalrecords-pq7lr-source/config/contexts.json5`.
 - `.env` local generado: `CustomUI/medicalrecords-pq7lr-source/apps/workspace-hxp/.env`.
+- Widget real de analisis:
+  `CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/analysis-task-widget/`.
+- Configuracion Agent Builder:
+  `docs/Agent Builder Config/`.
+- Especificacion general de la demo end-to-end:
+  `docs/medical-records-demo-process-specification.md`.
 - Mockups: `UI design/armado-de-cuentas/` y `UI design/gestion-de-convenios/`.
 - Especificacion UI:
   `docs/superpowers/specs/2026-04-25-custom-ui-medical-records-design.md`.
@@ -69,9 +75,12 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - El scaffold actual de `medical-records` fue creado manualmente siguiendo el
   patron del generador Hyland, no ejecutando directamente
   `@hyland/extend:plugin`.
-- Las pantallas de fases fueron implementadas manualmente en
-  `medical-records-shell` para igualar Stitch, no generadas con
-  `@hyland/extend:page`.
+- Las pantallas de fases en `medical-records-shell` fueron una direccion visual
+  inicial para igualar Stitch, no generadas con `@hyland/extend:page`.
+- Decision vigente: las etapas reales del workflow viven en formularios/widgets
+  de Automate, no en paginas internas del plugin.
+- El plugin `medical-records` debe evolucionar a un overview sin navegacion por
+  etapas y redirigir/abrir tareas activas para continuar el flujo puntual.
 - La equivalencia de `--addTranslations true` se mantiene mediante
   `provideTranslations('medical-records', 'assets/medical-records')` y archivos
   `libs/plugins/medical-records/assets/i18n/*.json`.
@@ -84,6 +93,23 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - No reemplazar rutas nativas de Automate salvo decision explicita.
 - No copiar HTML crudo de Stitch; reinterpretar las pantallas en Angular/SCSS.
 - La guia de app en blanco queda como referencia futura, no como camino actual.
+- El widget `analysis-task-widget` ya no usa `case_payload` como contrato
+  principal. La entrada recomendada es el string JSON
+  `unifiedWidgetPayloadText`, generado por
+  `docs/Agent Builder Config/BuildIncrementalUnifiedWidgetPayload.ts`.
+- `BuildIncrementalUnifiedWidgetPayload.ts` debe permanecer generico. Produce
+  un envelope con `agents`, `agentOrder`, `warnings`, `summary` y no una salida
+  especifica como `analysisWidgetPayload`.
+- El widget se adapta al envelope generico y resuelve Coding Integrity,
+  Compliance Alert y Financial Variance por key, `agentKey`, `slotName`,
+  `agentName` o nombre dentro de `result`. El fallback actual es
+  `json1`, `json2`, `json3`.
+- La narrativa general de la demo y el paso a paso por etapas deben mantenerse
+  en `docs/medical-records-demo-process-specification.md`. Los documentos de
+  widgets y agentes son anexos tecnicos para cambios internos.
+- No asumir que `/medical-records/:phase` es la fuente de verdad del workflow.
+  Esa navegacion puede existir como legado visual, pero no debe guiar nuevas
+  implementaciones funcionales.
 
 ## Documentacion revisada
 

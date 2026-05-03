@@ -1,59 +1,174 @@
 <section class="analysis-task-widget" [attr.data-form-field-id]="formFieldId">
-  <ng-container *ngIf="casePayload as caseData; else emptyState">
-    <article class="analysis-task-widget__card">
-      <div class="analysis-task-widget__eyebrow">
-        <span class="analysis-task-widget__phase">{{ phaseLabel | titlecase }}</span>
-        <span class="analysis-task-widget__schema" *ngIf="caseData.schemaVersion">Schema v{{ caseData.schemaVersion }}</span>
+  <ng-container *ngIf="analysisModel as model">
+    <header class="analysis-task-widget__header">
+      <span class="analysis-task-widget__eyebrow">AI Pre-validation</span>
+      <h2>Analysis Phase</h2>
+      <p>Review automated findings and resolve identified risks before proceeding to manual approval.</p>
+    </header>
+
+    <div class="analysis-task-widget__summary-grid">
+      <article
+        class="analysis-task-widget__metric-card"
+        *ngFor="let metric of model.metrics; trackBy: trackByMetric"
+        [class.analysis-task-widget__metric-card--pending]="metric.pending"
+        [class.analysis-task-widget__metric-card--invalid]="metric.invalid"
+      >
+        <span>{{ metric.label }}</span>
+        <strong>{{ metric.value }}</strong>
+        <p>{{ metric.helper }}</p>
+      </article>
+    </div>
+
+    <article class="analysis-task-widget__risk-console" [ngClass]="'analysis-task-widget__risk-console--' + model.riskTone">
+      <div class="analysis-task-widget__risk-score">
+        <span>Glosa Risk Score</span>
+        <strong>{{ model.riskScore }}<small>/100</small></strong>
       </div>
 
-      <div class="analysis-task-widget__header">
-        <div>
-          <p class="analysis-task-widget__label">Caso</p>
-          <h2>{{ caseId }}</h2>
-          <p class="analysis-task-widget__subtitle">{{ patientName }}</p>
-        </div>
-        <div class="analysis-task-widget__meta">
-          <span>{{ payerName }}</span>
-          <span>{{ planName }}</span>
+      <div class="analysis-task-widget__risk-copy">
+        <span class="analysis-task-widget__risk-pill" [ngClass]="'analysis-task-widget__risk-pill--' + model.riskTone">
+          <span class="material-icons">{{ model.riskTone === 'pending' ? 'hourglass_empty' : 'warning' }}</span>
+          {{ model.riskLabel }}
+        </span>
+        <p>{{ model.riskSummary }}</p>
+
+        <div class="analysis-task-widget__risk-metrics">
+          <span><strong>{{ model.analyzedClaims }}</strong> Analyzed Claims</span>
+          <span>
+            <strong>{{ model.totalValue === null ? '--' : (model.totalValue | currency: model.currencyCode:'symbol':'1.0-0') }}</strong>
+            Total Value
+          </span>
+          <span><strong>{{ model.approvalStateLabel }}</strong> Approval State</span>
         </div>
       </div>
 
-      <div class="analysis-task-widget__grid">
-        <div class="analysis-task-widget__metric">
-          <span>Facturado</span>
-          <strong>{{ (totalBilled ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
-        </div>
-        <div class="analysis-task-widget__metric">
-          <span>Esperado</span>
-          <strong>{{ (totalExpected ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
-        </div>
-        <div class="analysis-task-widget__metric">
-          <span>Glosado</span>
-          <strong>{{ (totalGlosado ?? 0) | currency: 'COP':'symbol':'1.0-0' }}</strong>
-        </div>
-      </div>
-
-      <div class="analysis-task-widget__finding" *ngIf="primaryFinding as finding">
-        <p class="analysis-task-widget__label">Hallazgo principal</p>
-        <h3>{{ finding.title ?? 'Hallazgo sin titulo' }}</h3>
-        <p>{{ finding.type ?? 'Sin tipo' }} / {{ finding.severity ?? 'Sin severidad' }}</p>
-      </div>
-
-      <div class="analysis-task-widget__footer">
-        <span>{{ findings.length }} hallazgo(s)</span>
-        <span *ngIf="updatedAt">Actualizado {{ updatedAt | date:'mediumDate' }}</span>
+      <div class="analysis-task-widget__risk-actions">
+        <button type="button" class="analysis-task-widget__secondary-action">
+          <span class="material-icons">edit_note</span>
+          Reject/Adjust
+        </button>
+        <button
+          type="button"
+          class="analysis-task-widget__primary-action"
+          [disabled]="model.approvalBlocked"
+          [class.analysis-task-widget__primary-action--disabled]="model.approvalBlocked"
+        >
+          <span class="material-icons">check_circle</span>
+          Approve Proceed
+        </button>
       </div>
     </article>
+
+    <div class="analysis-task-widget__missing-agents" *ngIf="model.missingAgentLabels.length">
+      <span class="material-icons">sync_problem</span>
+      Waiting for {{ model.missingAgentLabels.join(', ') }}.
+    </div>
+
+    <section class="analysis-task-widget__agent-grid" aria-label="Agent findings">
+      <article
+        class="analysis-task-widget__agent-card"
+        *ngFor="let card of model.agentCards; trackBy: trackByCard"
+        [ngClass]="'analysis-task-widget__agent-card--' + card.tone"
+        [class.analysis-task-widget__agent-card--pending]="card.pending"
+        [class.analysis-task-widget__agent-card--invalid]="card.invalid"
+      >
+        <header>
+          <div class="analysis-task-widget__agent-title">
+            <span class="material-icons">{{ card.icon }}</span>
+            <span>{{ card.label }}</span>
+          </div>
+          <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + card.riskTone">
+            {{ card.riskLabel }}
+          </span>
+        </header>
+
+        <div class="analysis-task-widget__agent-body">
+          <h3>{{ card.findingTitle }}</h3>
+          <p>{{ card.findingDescription }}</p>
+        </div>
+
+        <div class="analysis-task-widget__agent-meta">
+          <span *ngFor="let item of card.meta">{{ item }}</span>
+        </div>
+
+        <footer>
+          <button type="button" [disabled]="card.pending || card.invalid">
+            <span class="material-icons">{{ card.actionIcon }}</span>
+            {{ card.actionLabel }}
+          </button>
+        </footer>
+      </article>
+    </section>
+
+    <section class="analysis-task-widget__workspace-grid">
+      <article class="analysis-task-widget__billed-panel">
+        <div class="analysis-task-widget__panel-header">
+          <div>
+            <span class="analysis-task-widget__eyebrow">Billed Items Analysis</span>
+            <h3>Findings mapped by service</h3>
+            <p>Unified view across coding, compliance, and financial agent results.</p>
+          </div>
+          <button type="button" class="analysis-task-widget__ghost-button">
+            <span class="material-icons">tune</span>
+            Filter
+          </button>
+        </div>
+
+        <div class="analysis-task-widget__table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item Code</th>
+                <th>Description</th>
+                <th>Billed Amount</th>
+                <th>AI Status</th>
+                <th class="analysis-task-widget__table-action">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of model.billedItems; trackBy: trackByBilledItem">
+                <td class="analysis-task-widget__item-code">{{ row.code }}</td>
+                <td>
+                  <strong>{{ row.description }}</strong>
+                  <span>{{ row.riskLabel }}</span>
+                </td>
+                <td>{{ row.amount === null ? '--' : (row.amount | currency: model.currencyCode:'symbol':'1.0-0') }}</td>
+                <td>
+                  <span class="analysis-task-widget__status-badge" [ngClass]="'analysis-task-widget__status-badge--' + row.riskTone">
+                    {{ row.aiStatus }}
+                  </span>
+                </td>
+                <td class="analysis-task-widget__table-action">
+                  <button type="button">{{ row.actionLabel }}</button>
+                </td>
+              </tr>
+              <tr *ngIf="!model.billedItems.length" class="analysis-task-widget__empty-row">
+                <td colspan="5">No billed item findings available from the current agent results.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <aside class="analysis-task-widget__actions-panel">
+        <span class="analysis-task-widget__eyebrow">Resolution Queue</span>
+        <h3>Recommended Actions</h3>
+        <div
+          class="analysis-task-widget__action-item"
+          *ngFor="let action of model.recommendedActions; trackBy: trackByAction"
+          [ngClass]="'analysis-task-widget__action-item--' + action.tone"
+        >
+          <span class="material-icons">{{ action.icon }}</span>
+          <div>
+            <strong>{{ action.label }}</strong>
+            <p>{{ action.owner }} / {{ action.priority }}</p>
+          </div>
+        </div>
+        <button type="button" class="analysis-task-widget__primary-action" [disabled]="model.approvalBlocked">
+          Send to Approval
+          <span class="material-icons">arrow_forward</span>
+        </button>
+      </aside>
+    </section>
   </ng-container>
 </section>
-
-<ng-template #emptyState>
-  <article class="analysis-task-widget__empty">
-    <p class="analysis-task-widget__label">Analysis task widget</p>
-    <h2>Sin case_payload disponible</h2>
-    <p>
-      Este widget espera un JSON en el valor del campo actual o en un campo del formulario
-      llamado <code>case_payload</code>.
-    </p>
-  </article>
-</ng-template>

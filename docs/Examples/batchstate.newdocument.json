@@ -1,0 +1,68 @@
+{
+  "documents": [
+    {
+      "id": "e29a3d37-870f-4ee9-bb2d-29d14aad6617",
+      "pages": [
+        {
+          "width": 1699,
+          "height": 2200,
+          "sourcePageIndex": 0,
+          "contentFileReferenceIndex": 0
+        }
+      ],
+      "fields": [],
+      "tables": [],
+      "classId": "c16e76c6-62d9-40dc-ba7b-02b384f04a54",
+      "className": "cedula",
+      "markAsRejected": false,
+      "extractionReviewStatus": "ReviewNotRequired",
+      "separationReviewStatus": "ReviewNotRequired",
+      "classificationConfidence": 0.9625,
+      "classificationReviewStatus": "ReviewNotRequired",
+      "classificationClassCandidates": [
+        {
+          "reason": "Document is a Colombian national identity card (Cédula de Ciudadanía) containing NUIP, personal data, photo area, and machine-readable zone",
+          "classId": "c16e76c6-62d9-40dc-ba7b-02b384f04a54",
+          "className": "cedula",
+          "confidence": 0.9625
+        }
+      ],
+      "classificationSelectionReason": "AUTOWIN"
+    }
+  ],
+  "extractionStatus": "Extracted",
+  "separationStatus": "Separated",
+  "classificationStatus": "Classified",
+  "hasRejectedDocuments": false,
+  "contentFileReferences": [
+    {
+      "sys_id": "ee4a69d7-6ee4-4fab-98c3-06618d5bb059",
+      "sysfile_blob": {
+        "mimeType": "application/pdf"
+      }
+    }
+  ],
+  "engineExecutionNotices": {
+    "extraction": {
+      "usedExecutionProfile": {
+        "profileId": "078abc02-212b-42fa-92fb-f42edd6bb42d",
+        "versionId": "2.0",
+        "actionTaken": "LatestUsed"
+      }
+    },
+    "separation": {
+      "usedExecutionProfile": {
+        "profileId": "c23262c9-4ee9-49cb-acc4-76575e89f485",
+        "versionId": "2.0",
+        "actionTaken": "LatestUsed"
+      }
+    },
+    "classification": {
+      "usedExecutionProfile": {
+        "profileId": "078abc02-212b-42fa-92fb-f42edd6bb42d",
+        "versionId": "2.0",
+        "actionTaken": "LatestUsed"
+      }
+    }
+  }
+}

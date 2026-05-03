@@ -6,6 +6,16 @@ Este documento resume el estado actual del widget `intake-account-widget`
 dentro del plugin `medical-records`, incluyendo arquitectura, decisiones de
 diseño, evolución funcional y estado actual.
 
+Nota de mantenimiento: la especificacion general de la demo y el paso a paso
+end-to-end viven en `docs/medical-records-demo-process-specification.md`. Este
+documento debe conservarse como anexo tecnico del widget `intake-account-widget`.
+
+Decision vigente: `intake-account-widget` es la superficie real de la etapa
+`Nueva Cuenta` porque vive dentro del formulario de la tarea de Automate. La
+navegacion por etapas del plugin general no debe usarse para ejecutar Intake.
+Si el widget muestra algun indicador de etapa, es contextual a la tarea y no
+reemplaza el workflow.
+
 ## Objetivo
 
 `intake-account-widget` representa la etapa real de `Intake` dentro de una User

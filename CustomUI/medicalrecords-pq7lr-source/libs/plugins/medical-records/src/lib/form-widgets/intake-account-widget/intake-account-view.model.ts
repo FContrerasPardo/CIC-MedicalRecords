@@ -1,6 +1,8 @@
-import { IdpBatchStageStatus } from './batch-state.model';
-
 export type IntakeAccountTone = 'neutral' | 'success' | 'warning' | 'danger';
+
+export type IntakeServiceFilterKey = 'all' | 'complete' | 'missing-support' | 'pending-review' | 'low-confidence';
+
+export type IntakeServiceStatus = 'Complete' | 'Partial' | 'Missing Support' | 'Review Required' | 'Low Confidence';
 
 export interface IntakeAccountStageItemViewModel {
     key: string;
@@ -49,19 +51,26 @@ export interface IntakeAccountPatientResolutionViewModel {
     message: string | null;
 }
 
-export interface IntakeAccountSummaryViewModel {
-    totalServices: number;
-    totalProcedures: number;
-    totalDocumentsFound: number;
-    missingRequirements: number;
-    pendingReviewCount: number;
-    readyForAnalysis: boolean;
+export interface IntakeAccountSummaryCardViewModel {
+    key: string;
+    label: string;
+    value: string;
+    tone: IntakeAccountTone;
+    clickable: boolean;
+    visible: boolean;
+    helperText?: string | null;
+    filterKey?: IntakeServiceFilterKey | null;
+}
+
+export interface IntakeAccountSummaryCardsViewModel {
+    primary: IntakeAccountSummaryCardViewModel[];
+    secondary: IntakeAccountSummaryCardViewModel[];
 }
 
 export interface IntakeAccountServiceItemViewModel {
     id: string;
     serviceDate: string | null;
-    serviceName: string | null;
+    serviceCode: string | null;
     cup: string | null;
     description: string | null;
     quantity: string | null;
@@ -69,85 +78,50 @@ export interface IntakeAccountServiceItemViewModel {
     total: string | null;
     coverage: string | null;
     invoiceNumber: string | null;
-    sourceDocument: string | null;
-    derivedStatus: 'Ready' | 'Pending Review' | 'Missing Support';
+    category: string | null;
+    supportStatus: IntakeServiceStatus;
+    completionPercent: number;
+    requiredDocuments: string[];
+    presentDocuments: string[];
+    missingDocuments: string[];
+    extractionSource: string | null;
+    classificationConfidence: number | null;
+    confidenceSummary: string | null;
+    alerts: string[];
     tone: IntakeAccountTone;
-    procedureKey: string;
-    totalAmountValue: number | null;
-    coverageAmountValue: number | null;
-    copayAmountValue: number | null;
-}
-
-export interface IntakeAccountServiceExplorerFiltersViewModel {
-    statuses: string[];
-    serviceNames: string[];
-    invoices: string[];
-    coverages: string[];
-}
-
-export interface IntakeAccountServiceExplorerViewModel {
-    items: IntakeAccountServiceItemViewModel[];
-    filters: IntakeAccountServiceExplorerFiltersViewModel;
-    pageSizeOptions: number[];
+    hasReviewRequired: boolean;
+    hasLowConfidence: boolean;
 }
 
 export interface IntakeAccountDocumentHighlightViewModel {
     label: string;
     value: string;
+    tone: IntakeAccountTone;
 }
 
-export interface IntakeAccountDocumentControlItemViewModel {
+export interface IntakeAccountDocumentItemViewModel {
     id: string;
-    documentName: string;
-    documentType: string;
-    linkedProcedureCode: string | null;
-    linkedProcedureName: string | null;
+    name: string;
+    className: string;
+    repositoryNodeId: string | null;
+    mimeType: string | null;
+    contentFileReferenceIndex: number | null;
+    sourcePageIndex: number | null;
     status: string;
-    dateReceived: string | null;
-    extractedFields: IntakeAccountDocumentHighlightViewModel[];
-    extractionBadge: string;
-    confidence: number | null;
+    classificationStatus: string;
+    extractionStatus: string;
+    classificationConfidence: number | null;
+    extractionReviewStatus: string | null;
+    separationReviewStatus: string | null;
+    extractedHighlights: IntakeAccountDocumentHighlightViewModel[];
     tone: IntakeAccountTone;
     viewLabel: string;
-}
-
-export interface IntakeAccountMissingDocumentViewModel {
-    id: string;
-    documentName: string;
-    linkedProcedureCode: string | null;
-    linkedProcedureName: string;
-    status: string;
-    primaryActionLabel: string;
-    secondaryActionLabel: string;
-}
-
-export interface IntakeAccountProcedureSummaryItemViewModel {
-    id: string;
-    procedureCode: string | null;
-    procedureName: string | null;
-    serviceCount: number;
-    lastServiceDate: string | null;
-    requiredDocs: string[];
-    presentDocs: string[];
-    missingDocs: string[];
-    supportStatus: string;
-    tone: IntakeAccountTone;
-    hasPendingReview: boolean;
 }
 
 export interface IntakeAccountReviewAlertViewModel {
     title: string;
     description: string;
     tone: IntakeAccountTone;
-}
-
-export interface IntakeAccountAiExtractionViewModel {
-    predictedDiagnoses: string[];
-    predictedProcedures: string[];
-    extractionStatus: IdpBatchStageStatus | null;
-    classificationStatus: IdpBatchStageStatus | null;
-    separationStatus: IdpBatchStageStatus | null;
-    confidenceSummary: string | null;
 }
 
 export interface IntakeAccountReadinessViewModel {
@@ -172,18 +146,11 @@ export interface IntakeAccountViewModel {
     patientSelector: IntakeAccountPatientSelectorViewModel;
     patientResolution: IntakeAccountPatientResolutionViewModel;
     header: IntakeAccountHeaderViewModel;
-    summary: IntakeAccountSummaryViewModel;
-    serviceExplorer: IntakeAccountServiceExplorerViewModel;
-    documentControl: {
-        items: IntakeAccountDocumentControlItemViewModel[];
-        missingItems: IntakeAccountMissingDocumentViewModel[];
-        verifiedCount: number;
-    };
-    procedureSummary: {
-        items: IntakeAccountProcedureSummaryItemViewModel[];
-    };
-    aiExtraction: IntakeAccountAiExtractionViewModel;
-    reviewAlerts: IntakeAccountReviewAlertViewModel[];
+    summaryCards: IntakeAccountSummaryCardsViewModel;
+    activeFilter: IntakeServiceFilterKey;
+    services: IntakeAccountServiceItemViewModel[];
+    documents: IntakeAccountDocumentItemViewModel[];
     readiness: IntakeAccountReadinessViewModel;
+    alerts: IntakeAccountReviewAlertViewModel[];
     meta: IntakeAccountMetaViewModel;
 }

@@ -97,6 +97,8 @@ const BILLING_FIELDS = {
     insurancePlan: ['Plan', 'Contratante', 'ARS', 'Aseguradora'],
 } as const;
 
+const PLACEHOLDER_FIELD_TOKENS = new Set(['NULL', 'NA', 'NONE', 'NIL', 'UNKNOWN', 'UNDEFINED']);
+
 const DOCUMENT_HIGHLIGHT_ALIASES = [
     { label: 'Factura', aliases: ['Numero de Factura', 'Factura', 'No. Factura'] },
     { label: 'Monto total', aliases: ['Monto total Facturado', 'Monto Total Facturado', 'Total Facturado'] },
@@ -370,7 +372,7 @@ function createSeedFromDocument(
         profiles: [profile],
         documents: [document],
         services,
-        names: toArray(profile.patientName),
+        names: toArray(sanitizePatientNameCandidate(profile.patientName)),
         patientIds: toArray(profile.patientId).map(normalizeIdentifier),
         mrns: toArray(profile.mrn).map(normalizeIdentifier),
         invoices: toArray(profile.invoiceNumber).map(normalizeIdentifier),
@@ -880,9 +882,9 @@ function extractDocumentProfile(document: BatchStateDocument, sourceKind: Docume
     return {
         sourceKind,
         sourcePriority: getDocumentPriority(sourceKind),
-        patientName: findFieldValue(document.fields, BILLING_FIELDS.patientName),
-        patientId: findFieldValue(document.fields, BILLING_FIELDS.patientId),
-        mrn: findFieldValue(document.fields, BILLING_FIELDS.mrn),
+        patientName: sanitizePatientNameCandidate(findFieldValue(document.fields, BILLING_FIELDS.patientName)),
+        patientId: sanitizePlaceholderValue(findFieldValue(document.fields, BILLING_FIELDS.patientId)),
+        mrn: sanitizePlaceholderValue(findFieldValue(document.fields, BILLING_FIELDS.mrn)),
         dob: normalizeDateDisplay(findFieldValue(document.fields, BILLING_FIELDS.dob)),
         ageLabel: findFieldValue(document.fields, BILLING_FIELDS.ageLabel),
         provider: findFieldValue(document.fields, BILLING_FIELDS.provider),
@@ -929,7 +931,7 @@ function toServiceSeedRow(
     const price = trimOrNull(rowMap.get('PRECIO') ?? null);
     const total = trimOrNull(rowMap.get('TOTAL') ?? null);
     const coverage = trimOrNull(rowMap.get('COBERTURA') ?? null);
-    const patientName = trimOrNull(rowMap.get('PACIENTE') ?? null);
+    const patientName = sanitizePatientNameCandidate(rowMap.get('PACIENTE') ?? null);
     const serviceDateRaw = trimOrNull(rowMap.get('FECHA') ?? null);
 
     if (!serviceCode && !cup && !description && !quantity && !price && !total) {
@@ -961,9 +963,10 @@ function toServiceSeedRow(
 
 function groupServicesByPatientName(services: ServiceSeedRow[], fallbackPatientName: string | null): Array<{ patientName: string | null; services: ServiceSeedRow[] }> {
     const groups = new Map<string, ServiceSeedRow[]>();
+    const fallbackName = sanitizePatientNameCandidate(fallbackPatientName);
 
     for (const service of services) {
-        const patientName = trimOrNull(service.patientName) || trimOrNull(fallbackPatientName);
+        const patientName = sanitizePatientNameCandidate(service.patientName) || fallbackName;
         const key = normalizeIdentifier(patientName || 'single-account');
         if (!groups.has(key)) {
             groups.set(key, []);
@@ -972,7 +975,7 @@ function groupServicesByPatientName(services: ServiceSeedRow[], fallbackPatientN
     }
 
     return Array.from(groups.values()).map((groupServices) => ({
-        patientName: trimOrNull(groupServices.find((item) => item.patientName)?.patientName) || trimOrNull(fallbackPatientName),
+        patientName: sanitizePatientNameCandidate(groupServices.find((item) => item.patientName)?.patientName) || fallbackName,
         services: groupServices,
     }));
 }
@@ -1203,16 +1206,16 @@ function getCanonicalPatientName(cluster: AccountCluster): string | null {
 
 function getBestNameCandidate(profiles: DocumentProfile[]): string | null {
     const candidates = profiles
-        .filter((profile) => trimOrNull(profile.patientName))
+        .filter((profile) => sanitizePatientNameCandidate(profile.patientName))
         .sort((left, right) => {
             if (left.sourcePriority !== right.sourcePriority) {
                 return left.sourcePriority - right.sourcePriority;
             }
 
-            return (trimOrNull(right.patientName)?.length || 0) - (trimOrNull(left.patientName)?.length || 0);
+            return (sanitizePatientNameCandidate(right.patientName)?.length || 0) - (sanitizePatientNameCandidate(left.patientName)?.length || 0);
         });
 
-    return trimOrNull(candidates[0]?.patientName || null);
+    return sanitizePatientNameCandidate(candidates[0]?.patientName || null);
 }
 
 function pickProfileValue(cluster: AccountCluster, field: keyof DocumentProfile): string | null {
@@ -1475,6 +1478,24 @@ function trimOrNull(value: string | null | undefined): string | null {
     return trimmed ? trimmed : null;
 }
 
+function sanitizePlaceholderValue(value: string | null | undefined): string | null {
+    const trimmed = trimOrNull(value);
+    if (!trimmed) {
+        return null;
+    }
+
+    return PLACEHOLDER_FIELD_TOKENS.has(normalizeIdentifier(trimmed)) ? null : trimmed;
+}
+
+function sanitizePatientNameCandidate(value: string | null | undefined): string | null {
+    const trimmed = sanitizePlaceholderValue(value);
+    if (!trimmed) {
+        return null;
+    }
+
+    return /[A-Z]/.test(normalizeKey(trimmed)) ? trimmed : null;
+}
+
 function toDisplayValue(value: unknown): string | null {
     if (typeof value === 'string') {
         return trimOrNull(value);
@@ -1520,7 +1541,7 @@ function distinctDisplayNames(values: string[]): string[] {
     const result: string[] = [];
 
     for (const value of values) {
-        const trimmed = trimOrNull(value);
+        const trimmed = sanitizePatientNameCandidate(value);
         if (!trimmed) {
             continue;
         }

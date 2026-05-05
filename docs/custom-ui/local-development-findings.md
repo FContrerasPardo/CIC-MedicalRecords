@@ -64,7 +64,9 @@ El target `build` de `workspace-hxp` ejecuta una fase `prebuild` que llama a
 `apps/workspace-hxp/remove-me-setup.mjs`. Ese script elimina y recrea
 `apps/workspace-hxp/.tmp`, genera `app.config.json.tpl` temporal y lo copia como
 `app.config.json` antes de que `preserve` aplique variables de entorno y valide
-la configuracion.
+la configuracion. Si se necesita reproducir ese paso manualmente en Windows, no
+usar la sintaxis `cmd.exe` de Hyland dentro de PowerShell; usar la version
+PowerShell documentada en el runbook.
 
 ## Entorno correcto
 

@@ -35,6 +35,162 @@ UI Change Instructions/reference-docs/hyland/GLS-Packaging a Custom UI-250426-13
 - No editar `apps/workspace-hxp/.env` como fuente de verdad; se regenera desde
   `contexts.json5`.
 
+## Relacion entre `contexts.json5`, `.env`, `preserve`, `serve` y `pack-build`
+
+Esta seccion aclara la relacion entre la configuracion de Automate, los archivos
+generados por la plantilla Hyland y los comandos usados antes de probar o
+empaquetar la Custom UI.
+
+```text
+config/contexts.json5
+        ↓
+npm run setenv -- -c workspace-hxp:_customApp
+        ↓
+apps/workspace-hxp/.env
+        ↓
+workspace-hxp:preserve
+        ↓
+apps/workspace-hxp/.tmp/app.config.json
+        ↓
+serve, build o pack-build
+```
+
+La regla practica es:
+
+- `config/contexts.json5` es la fuente de verdad de la conexion con Automate.
+- `apps/workspace-hxp/.env` es un archivo generado localmente y no debe
+  versionarse.
+- `apps/workspace-hxp/.tmp/app.config.json` es un archivo temporal generado para
+  runtime y build.
+- `serve` levanta la aplicacion local y, segun la configuracion Nx, normalmente
+  ejecuta `preserve` antes de iniciar.
+- `preserve` no levanta la aplicacion; solo prepara la configuracion runtime.
+- `pack-build` construye el bundle productivo y genera el zip que se sube
+  manualmente en Automate.
+
+### Que significa regenerar el `.env` desde `_customApp`
+
+Cuando el procedimiento dice regenerar el `.env` desde `_customApp`, no
+significa crear otra Custom UI ni borrar los cambios de codigo. Significa
+ejecutar el generador de ambiente de la plantilla para que lea el contexto
+`_customApp` dentro de:
+
+```text
+config/contexts.json5
+```
+
+y vuelva a generar el archivo local:
+
+```text
+apps/workspace-hxp/.env
+```
+
+El archivo `.env` contiene variables derivadas de la Development Configuration
+de Automate, por ejemplo hosts, client id, deployed app, scopes, endpoints y
+flags de autenticacion. Si se cambia `config/contexts.json5`, el `.env` debe
+regenerarse para que el workspace local use esos valores actualizados.
+
+### Esto borra mis variables?
+
+No debe borrar `config/contexts.json5`.
+
+Lo que si puede sobrescribir es:
+
+```text
+apps/workspace-hxp/.env
+```
+
+Por eso, no se debe editar `.env` como fuente definitiva. Cualquier valor
+importante de conexion debe estar en `config/contexts.json5`. Despues se ejecuta
+`setenv` para producir de nuevo el `.env` local.
+
+### Que hace `preserve`
+
+`workspace-hxp:preserve` usa el `.env` actual para generar o refrescar la
+configuracion runtime en:
+
+```text
+apps/workspace-hxp/.tmp/app.config.json
+```
+
+Ese archivo es el que la aplicacion necesita para arrancar correctamente con los
+endpoints, autenticacion y configuracion de extension esperados.
+
+Comando manual, si se necesita ejecutarlo directamente:
+
+```powershell
+npm run nx:run-target -- workspace-hxp:preserve
+```
+
+### `preserve` ejecuta `serve`?
+
+No. `preserve` no ejecuta `serve`.
+
+La relacion correcta es al reves: cuando se ejecuta `serve`, la configuracion Nx
+del proyecto puede declarar que antes debe correr `preserve`. En terminos
+practicos:
+
+```text
+Cuando corres serve:
+1. primero se prepara la configuracion runtime con preserve
+2. despues se levanta el servidor local
+```
+
+Por eso normalmente no hace falta ejecutar `preserve` manualmente si se va a
+correr el servidor local con el target configurado.
+
+### Que hace `serve`
+
+`serve` levanta la aplicacion local para probarla en navegador. Para esta demo,
+debe usarse:
+
+```text
+http://localhost:4200/
+```
+
+No usar `127.0.0.1` para login local por posibles problemas de CORS con el
+proveedor de identidad.
+
+Comando recomendado:
+
+```powershell
+npm start workspace-hxp -- --host localhost --port 4200 --open=false
+```
+
+### Que hace `pack-build`
+
+`pack-build` es el comando principal para empaquetar la Custom UI. Ejecuta el
+build productivo y genera el zip final:
+
+```text
+dist/workspace-hxp.zip
+```
+
+Comando recomendado:
+
+```powershell
+npm run nx:run-target -- workspace-hxp:pack-build
+```
+
+Ese zip es el archivo que se sube manualmente en Studio Modeling para reemplazar
+el paquete de la Custom UI.
+
+### Decision practica
+
+Si `config/contexts.json5` esta correcto, regenerar `.env` es seguro y
+recomendable. Lo importante es no tratar `.env` como fuente de verdad, porque es
+un artefacto generado localmente.
+
+El orden mental correcto es:
+
+```text
+contexts.json5 manda.
+setenv genera .env.
+preserve genera app.config.json.
+serve prueba localmente.
+pack-build genera el zip.
+```
+
 ## Procedimiento
 
 ### 1. Crear un checkpoint Git previo
@@ -164,11 +320,13 @@ Resultado esperado: `app.config.json` queda regenerado desde el `.env` actual.
 
 ### 8. Entender la fase `prebuild` de la plantilla
 
-El target `build` de `workspace-hxp` depende de `prebuild`. No hace falta
-ejecutar manualmente estos comandos, porque la plantilla los ejecuta a traves de
+El target `build` de `workspace-hxp` depende de `prebuild`. No ejecutar
+manualmente estos comandos: la plantilla los ejecuta a traves de
 `apps/workspace-hxp/remove-me-setup.mjs` cuando corre el build.
 
-La fase equivale al paso recomendado por Hyland:
+La fase equivale al paso recomendado por Hyland. Este bloque es referencia de
+la guia de Hyland en sintaxis `cmd.exe`/batch, no es un bloque para copiar en
+PowerShell:
 
 ```text
 # 1. Clean temporary directories
@@ -180,6 +338,24 @@ mkdir .tmp
 # 3. Copy template configuration
 copy .tmp\app.config.json.tpl .tmp\app.config.json
 ```
+
+Si se pega ese bloque en PowerShell, fallara con un error de parser como
+`Falta '(' despues de 'if'`, porque PowerShell requiere otra sintaxis para
+`if`. Para este proyecto, el paso normal es dejar que `prebuild` lo ejecute
+automaticamente durante `workspace-hxp:build:*` o `workspace-hxp:pack-build`.
+
+Si se necesita reproducir ese paso manualmente en PowerShell desde la raiz de
+`CustomUI/medicalrecords-pq7lr-source`, usar la version Windows/PowerShell:
+
+```powershell
+Remove-Item -LiteralPath .\apps\workspace-hxp\.tmp -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path .\apps\workspace-hxp\.tmp -Force | Out-Null
+Copy-Item -LiteralPath .\apps\workspace-hxp\.tmp\app.config.json.tpl -Destination .\apps\workspace-hxp\.tmp\app.config.json -Force
+```
+
+Ese bloque solo replica la limpieza/copia temporal. No reemplaza
+`workspace-hxp:preserve`, porque `preserve` tambien aplica variables de entorno
+y valida la configuracion final.
 
 En esta plantilla, el script real hace lo siguiente:
 

@@ -21,6 +21,8 @@ en este repositorio.
 - Build/export anterior solo como referencia: `CustomUI/workspace-hxp-edited/`.
 - Mapping de Automate: `CustomUI/medicalrecords-pq7lr-source/config/contexts.json5`.
 - `.env` local generado: `CustomUI/medicalrecords-pq7lr-source/apps/workspace-hxp/.env`.
+- Runbook de re-empaquetado:
+  `docs/custom-ui/repackage-and-upload-runbook.md`.
 - Widget real de analisis:
   `CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/analysis-task-widget/`.
 - Configuracion Agent Builder:
@@ -50,6 +52,12 @@ en este repositorio.
 - `apps/workspace-hxp/.env` se genera con `npm run setenv -- -c workspace-hxp:_customApp` y no se commitea.
 - `workspace-hxp:preserve` fue validado correctamente.
 - `workspace-hxp:build:development` fue validado correctamente.
+- Para re-empaquetar y preparar subida manual, seguir
+  `docs/custom-ui/repackage-and-upload-runbook.md`.
+- El runbook de re-empaquetado incluye checkpoint Git previo y explica la fase
+  `prebuild` que reconstruye `apps/workspace-hxp/.tmp/app.config.json`.
+- La validacion del zip y la subida a Automate quedan como pasos manuales del
+  usuario.
 - El local dev debe abrirse por `http://localhost:4200/`.
 - No usar `127.0.0.1` para login porque puede generar CORS.
 - Despues de activar y desplegar local development en Automate, la app redirige
@@ -122,6 +130,8 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - `UI Change Instructions/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizacion con branch/backup.
 - `UI Change Instructions/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: opcion
   desde cero para evaluar mas adelante.
+- `docs/custom-ui/repackage-and-upload-runbook.md`: comandos explicados para
+  regenerar configuracion, empaquetar y preparar subida manual.
 
 ## Como debe actuar una IA en este repo
 
@@ -153,7 +163,9 @@ El bloque `_customApp` en `contexts.json5` contiene:
 5. Se valido `workspace-hxp:preserve`.
 6. Se valido `workspace-hxp:build:development`.
 7. Si se prueba login, se usa `http://localhost:4200/`.
-8. Si el cambio afecta despliegue, se valida `workspace-hxp:pack-build`.
+8. Si el cambio afecta despliegue, seguir
+   `docs/custom-ui/repackage-and-upload-runbook.md`; la validacion del zip y la
+   subida a Automate son manuales del usuario.
 
 ## Hallazgos de desarrollo local
 

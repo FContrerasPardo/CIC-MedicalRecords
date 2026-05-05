@@ -26,6 +26,46 @@ Node, especialmente `child_process.spawn` y renombres atomicos con
 `fs.rename`. Esto produce errores `EPERM` falsos: parecen fallas de codigo,
 plugin o autenticacion, pero son restricciones del sandbox.
 
+## Referencia de comandos Hyland/Nx
+
+Estos comandos se documentan para que su proposito quede claro antes de
+ejecutarlos. Deben correr localmente en Windows, desde:
+
+```text
+C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+```
+
+No deben ejecutarse dentro del sandbox de IA porque pueden producir falsos
+errores `EPERM`, workers de Nx bloqueados o fallas de renombre en `.nx`.
+
+- `npm ci`: reinstala `node_modules` desde `package-lock.json`. Usarlo solo si
+  las dependencias estan incompletas o inconsistentes.
+- `npm run setenv -- -c workspace-hxp:_customApp`: lee `_customApp` desde
+  `config/contexts.json5` y regenera los `.env` locales de `workspace-hxp`.
+- `npm run nx:run-target -- workspace-hxp:preserve`: genera
+  `apps/workspace-hxp/.tmp/app.config.json` desde el entorno local actual.
+- `npm run nx:run-target -- workspace-hxp:build:development`: compila
+  `workspace-hxp` en modo desarrollo. Es una comprobacion local opcional antes
+  de empaquetar.
+- `npm run nx:run-target -- workspace-hxp:pack-build`: ejecuta build de
+  produccion y genera `dist/workspace-hxp.zip`.
+- `npm start workspace-hxp` o `nx serve workspace-hxp`: levanta la aplicacion
+  localmente. Usar `http://localhost:4200/`, no `127.0.0.1`.
+- `NX_DAEMON=false`: desactiva el daemon persistente de Nx para evitar reutilizar
+  estado o procesos antiguos.
+- `NX_ISOLATE_PLUGINS=false`: desactiva el aislamiento de plugins de Nx para
+  evitar fallas operativas en esta plantilla.
+
+Antes de empaquetar, Hyland recomienda crear un commit de checkpoint para tener
+una version limpia y restaurable. El procedimiento detallado esta en
+`docs/custom-ui/repackage-and-upload-runbook.md`.
+
+El target `build` de `workspace-hxp` ejecuta una fase `prebuild` que llama a
+`apps/workspace-hxp/remove-me-setup.mjs`. Ese script elimina y recrea
+`apps/workspace-hxp/.tmp`, genera `app.config.json.tpl` temporal y lo copia como
+`app.config.json` antes de que `preserve` aplique variables de entorno y valide
+la configuracion.
+
 ## Entorno correcto
 
 Ruta principal:

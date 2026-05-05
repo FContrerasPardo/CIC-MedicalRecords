@@ -42,6 +42,19 @@ http://localhost:4200/
 
 No usar `127.0.0.1` para login local por posibles errores CORS con el IDP.
 
+## Re-empaquetado y subida
+
+El procedimiento operativo para regenerar configuracion, ejecutar
+`workspace-hxp:pack-build` y preparar el paquete para subida manual en Automate
+esta documentado en:
+
+```text
+docs/custom-ui/repackage-and-upload-runbook.md
+```
+
+Ese runbook explica cada comando antes de ejecutarlo. La validacion del zip y
+la subida en Studio Modeling quedan como pasos manuales del usuario.
+
 ## Fuente de verdad de Automate
 
 La configuracion de desarrollo local esta en:
@@ -90,6 +103,8 @@ npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando 
   aplicar siempre con branch/backup previo.
 - `reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
   alternativa desde cero; queda como referencia futura.
+- `../docs/custom-ui/repackage-and-upload-runbook.md`: runbook operativo de
+  re-empaquetado de este proyecto.
 - `Create-Custom-UI.md`: guia historica del flujo inicial.
 - `Changing-Angular-UI.md`: guia historica para reemplazar Home. En esta demo se
   prefiere plugin/extension antes de reemplazar el shell base.

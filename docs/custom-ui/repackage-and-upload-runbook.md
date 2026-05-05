@@ -320,11 +320,13 @@ Resultado esperado: `app.config.json` queda regenerado desde el `.env` actual.
 
 ### 8. Entender la fase `prebuild` de la plantilla
 
-El target `build` de `workspace-hxp` depende de `prebuild`. No hace falta
-ejecutar manualmente estos comandos, porque la plantilla los ejecuta a traves de
+El target `build` de `workspace-hxp` depende de `prebuild`. No ejecutar
+manualmente estos comandos: la plantilla los ejecuta a traves de
 `apps/workspace-hxp/remove-me-setup.mjs` cuando corre el build.
 
-La fase equivale al paso recomendado por Hyland:
+La fase equivale al paso recomendado por Hyland. Este bloque es referencia de
+la guia de Hyland en sintaxis `cmd.exe`/batch, no es un bloque para copiar en
+PowerShell:
 
 ```text
 # 1. Clean temporary directories
@@ -336,6 +338,24 @@ mkdir .tmp
 # 3. Copy template configuration
 copy .tmp\app.config.json.tpl .tmp\app.config.json
 ```
+
+Si se pega ese bloque en PowerShell, fallara con un error de parser como
+`Falta '(' despues de 'if'`, porque PowerShell requiere otra sintaxis para
+`if`. Para este proyecto, el paso normal es dejar que `prebuild` lo ejecute
+automaticamente durante `workspace-hxp:build:*` o `workspace-hxp:pack-build`.
+
+Si se necesita reproducir ese paso manualmente en PowerShell desde la raiz de
+`CustomUI/medicalrecords-pq7lr-source`, usar la version Windows/PowerShell:
+
+```powershell
+Remove-Item -LiteralPath .\apps\workspace-hxp\.tmp -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path .\apps\workspace-hxp\.tmp -Force | Out-Null
+Copy-Item -LiteralPath .\apps\workspace-hxp\.tmp\app.config.json.tpl -Destination .\apps\workspace-hxp\.tmp\app.config.json -Force
+```
+
+Ese bloque solo replica la limpieza/copia temporal. No reemplaza
+`workspace-hxp:preserve`, porque `preserve` tambien aplica variables de entorno
+y valida la configuracion final.
 
 En esta plantilla, el script real hace lo siguiente:
 

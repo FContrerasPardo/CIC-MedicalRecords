@@ -29,6 +29,8 @@ en este repositorio.
   `docs/Agent Builder Config/`.
 - Especificacion general de la demo end-to-end:
   `docs/medical-records-demo-process-specification.md`.
+- Informe final de debugging de deployment:
+  `docs/debugging/fc-medical-records-deployment-debugging-final.md`.
 - Mockups: `UI design/armado-de-cuentas/` y `UI design/gestion-de-convenios/`.
 - Especificacion UI:
   `docs/superpowers/specs/2026-04-25-custom-ui-medical-records-design.md`.
@@ -132,6 +134,8 @@ El bloque `_customApp` en `contexts.json5` contiene:
   desde cero para evaluar mas adelante.
 - `docs/custom-ui/repackage-and-upload-runbook.md`: comandos explicados para
   regenerar configuracion, empaquetar y preparar subida manual.
+- `docs/debugging/fc-medical-records-deployment-debugging-final.md`:
+  diagnostico consolidado del fallo de deployment asociado a `ABValidation`.
 
 ## Como debe actuar una IA en este repo
 

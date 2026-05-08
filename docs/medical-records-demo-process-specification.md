@@ -351,7 +351,25 @@ Ejecutar analisis automaticos especializados antes de presentar la etapa
 `Analysis`.
 
 La malla actual tiene tres agentes. Cada agente produce un outcome string con
-JSON estructurado.
+JSON estructurado. Los outcomes deben estar marcados como Required/App required;
+si no lo estan, Automate puede avanzar con solo `tools` o con una respuesta
+vacia, y el widget no tendra informacion real para pintar.
+
+El modelo validado para la version actual de la demo es `Claude Haiku`. Si se
+usa otro motor, se considera valido solo cuando la prueba manual del agente y el
+event log confirman que el outcome requerido trae un JSON no vacio.
+
+Antes de pasar a consolidacion, cada evento de agente debe incluir:
+
+```text
+outBoundVariables.codingIntegrityResult.value
+outBoundVariables.complianceAlertResult.value
+outBoundVariables.financialVarianceResult.value
+```
+
+Cada `value` debe existir y tener longitud mayor que cero. Si falta el outcome,
+si solo aparece `tools`, o si el valor es `""`, el problema esta en la
+configuracion del agente/modelo/outcome y no en `analysis-task-widget`.
 
 ### Agent 1 - Coding Integrity Agent
 
@@ -476,9 +494,13 @@ Mapeo actual:
 json1 = codingIntegrityResult
 json2 = complianceAlertResult
 json3 = financialVarianceResult
+json4 = batchState, opcional como contexto documental para Analysis
 ```
 
 Tambien puede recibir un envelope previo para preservar agentes existentes.
+En la configuracion actual, `batchState` puede mapearse como `json4` para que la
+etapa `Analysis` tenga acceso a los elementos documentales del lote. Este slot
+no reemplaza los tres outcomes de agentes.
 
 ### Salidas
 
@@ -790,15 +812,17 @@ Checklist recomendado:
 6. Cargar documentos adicionales si se quiere probar el loop.
 7. Completar `Nueva Cuenta`.
 8. Confirmar camino de reejecucion IDP o avance a malla agentica.
-9. Confirmar que los tres agentes generan outcomes string JSON.
-10. Confirmar que el script genera `unifiedWidgetPayloadText` con `agents`.
-11. Confirmar que se crea/abre la tarea `Analysis`.
-12. Confirmar que el formulario de `Analysis` tiene solo
+9. Confirmar que los tres agentes tienen outcomes Required/App required.
+10. Confirmar en event log que los tres outcomes tienen `value` no vacio.
+11. Confirmar que los tres agentes generan outcomes string JSON.
+12. Confirmar que el script genera `unifiedWidgetPayloadText` con `agents`.
+13. Confirmar que se crea/abre la tarea `Analysis`.
+14. Confirmar que el formulario de `Analysis` tiene solo
     `analysis-task-widget` como campo funcional.
-13. Confirmar que el widget muestra las tres tarjetas de agentes.
-14. Probar casos con un agente faltante.
-15. Probar un resultado JSON invalido y confirmar `Invalid agent JSON`.
-16. Confirmar que `Approve Proceed` queda bloqueado cuando corresponde.
+15. Confirmar que el widget muestra las tres tarjetas de agentes.
+16. Probar casos con un agente faltante.
+17. Probar un resultado JSON invalido y confirmar `Invalid agent JSON`.
+18. Confirmar que `Approve Proceed` queda bloqueado cuando corresponde.
 
 ## Estado actual de implementacion
 

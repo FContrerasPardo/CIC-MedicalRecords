@@ -11,6 +11,7 @@ import { WorkflowStepperComponent } from './components/workflow-stepper/workflow
 import { ActionToolbarComponent } from './components/action-toolbar/action-toolbar.component';
 import { DataPanelComponent } from './components/data-panel/data-panel.component';
 import { MedicalRecordsMenuItemComponent } from './components/medical-records-menu-item/medical-records-menu-item.component';
+import { CustomWidgetModule } from './form-widgets/custom-widget/custom-widget.module'
 import { AnalysisTaskWidgetModule } from './form-widgets/analysis-task-widget/analysis-task-widget.module';
 import { IntakeAccountWidgetModule } from './form-widgets/intake-account-widget/intake-account-widget.module'
 
@@ -29,6 +30,7 @@ import { IntakeAccountWidgetModule } from './form-widgets/intake-account-widget/
         RouterModule,
         MedicalRecordsMenuItemComponent,
         AnalysisTaskWidgetModule,
+        CustomWidgetModule,
         IntakeAccountWidgetModule
     ],
     providers: [

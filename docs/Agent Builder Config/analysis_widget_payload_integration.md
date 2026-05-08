@@ -27,6 +27,11 @@ Cada outcome debe ser tipo `string` y contener un JSON valido producido por el
 agente. Si Automate o Agent Builder entrega doble encoding, el script lo intenta
 parsear de forma profunda.
 
+Cada outcome debe estar marcado como Required/App required en Agent Builder. El
+script de unificacion no puede recuperar un analisis que el agente no escribio;
+si el evento del agente trae solo `tools` o un `value` vacio, el problema esta
+en la configuracion del agente, no en `analysis-task-widget`.
+
 ## Script generico
 
 Archivo:
@@ -47,7 +52,13 @@ Para la primera version del widget se recomienda mapear:
 json1 = codingIntegrityResult
 json2 = complianceAlertResult
 json3 = financialVarianceResult
+json4 = batchState, opcional como contexto documental para Analysis
 ```
+
+`json4` no reemplaza los resultados de agentes. Se usa como contexto de soporte
+para mostrar o cruzar elementos de `batchState` dentro de la etapa `Analysis`.
+La resolucion funcional de las tres tarjetas principales sigue dependiendo de
+`json1`, `json2` y `json3`.
 
 Salida principal para el widget:
 
@@ -82,9 +93,10 @@ La salida es un string JSON con esta estructura general:
 Flujo recomendado:
 
 1. Ejecutar los tres agentes.
-2. Ejecutar `BuildIncrementalUnifiedWidgetPayload`.
-3. Guardar `variables.unifiedWidgetPayloadText`.
-4. Mapear el campo unico del widget:
+2. Confirmar en el event log que cada outcome requerido existe y no esta vacio.
+3. Ejecutar `BuildIncrementalUnifiedWidgetPayload`.
+4. Guardar `variables.unifiedWidgetPayloadText`.
+5. Mapear el campo unico del widget:
 
 ```text
 analysis-task-widget -> unifiedWidgetPayloadText
@@ -93,6 +105,33 @@ analysis-task-widget -> unifiedWidgetPayloadText
 No mapear `codingIntegrityResult`, `complianceAlertResult` ni
 `financialVarianceResult` directamente al widget, salvo como fallback temporal
 durante pruebas.
+
+## Validacion de eventos de agentes
+
+Antes de revisar `UnifyJson` o el widget, validar cada actividad de agente en el
+registro de eventos de Automate:
+
+```text
+outBoundVariables.codingIntegrityResult.value
+outBoundVariables.complianceAlertResult.value
+outBoundVariables.financialVarianceResult.value
+```
+
+Cada `value` debe existir y tener longitud mayor que cero. Si un evento solo
+contiene `tools`, si el outcome no aparece, o si el valor llega como `""`, se
+debe corregir el modelo/outcome/prompt del agente antes de ejecutar el script de
+unificacion.
+
+Sintomas observados en debug:
+
+- `codingIntegrityResult` ausente y solo `tools`: outcome no escrito por el agente.
+- `financialVarianceResult` presente con valor vacio: respuesta no usable para el widget.
+- `complianceAlertResult` presente y no vacio: patron correcto esperado.
+
+El archivo `unifiedWidgetPayload_Example.json` puede mostrar entradas como
+`result.text = ""` cuando el input que recibio el script ya venia vacio. En ese
+caso el envelope esta describiendo fielmente el problema previo; no significa
+que el widget haya perdido la informacion.
 
 ## Resolucion dentro del widget
 
@@ -149,6 +188,7 @@ Automate es el envelope generico en `unifiedWidgetPayloadText`.
 Checklist minimo en Automate:
 
 - Confirmar que `unifiedWidgetPayloadText` empieza con `{`.
+- Confirmar que los tres eventos de agentes tienen outcomes required no vacios.
 - Confirmar que contiene `agents`.
 - Confirmar que cada agente disponible tiene `status`, `slotName`, `agentKey`,
   `agentName` y `result`.

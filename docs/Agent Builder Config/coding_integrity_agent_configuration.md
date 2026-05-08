@@ -19,8 +19,13 @@ Coding Integrity Agent
 ### Large Language Model
 
 ```text
-Amazon Nova Pro
+Claude Haiku
 ```
+
+Use this as the current validation baseline for the demo. Earlier tests with
+other engines returned intermittent or empty outcomes for long JSON prompts. If
+another model is selected, keep it only after a manual agent test and event-log
+validation confirm a non-empty required outcome.
 
 ### Agent Description
 
@@ -160,6 +165,35 @@ codingIntegrityResult
 string
 ```
 
+**Required**
+
+```text
+true
+```
+
+The outcome must be marked as Required/App required. If the outcome is optional,
+Automate can complete the agent activity without writing `codingIntegrityResult`
+or can return only `tools`, which leaves the unified widget payload without a
+usable Coding Integrity result.
+
+### BPMN mapping impact
+
+Any change to Agent Builder variables affects the BPMN activity mapping. This
+includes changing input names, outcome names, outcome type, required status, or
+adding/removing parameters.
+
+After saving this agent in Agent Builder, reopen the BPMN process model and
+validate the agent activity input/output mapping. Do not assume the BPMN updates
+automatically. If the BPMN keeps an old detached mapping, Automate can execute
+the activity without sending `codingIntegrityResult` to the next step.
+
+For this agent, confirm:
+
+- Agent activity output maps `codingIntegrityResult` to the process variable.
+- `BuildIncrementalUnifiedWidgetPayload.json1` maps to the current
+  `codingIntegrityResult` variable.
+- The updated BPMN model is saved/validated after the remap.
+
 **Outcome Instructions**
 
 ```text
@@ -184,6 +218,17 @@ BuildIncrementalUnifiedWidgetPayload.unifiedWidgetPayloadText -> analysis-task-w
 
 The widget resolves the Coding Integrity card from the generic envelope by
 `agentKey`, map key, `agentName`, or fallback slot `json1`.
+
+Before executing `BuildIncrementalUnifiedWidgetPayload`, validate the Agent
+Builder event log. A healthy event must include:
+
+```text
+outBoundVariables.codingIntegrityResult.value
+```
+
+The value must be a non-empty JSON string. If the event only contains `tools` or
+does not contain `codingIntegrityResult`, fix the agent outcome/model
+configuration before debugging the widget.
 
 ---
 
@@ -470,7 +515,7 @@ Suggested mapping:
 ## 11. Configuration Checklist
 
 - [ ] Agent name set to `Coding Integrity Agent`
-- [ ] Model selected: `Amazon Nova Pro`
+- [ ] Model selected and validated: `Claude Haiku`
 - [ ] Agent description added
 - [ ] Input `batchState` created as string
 - [ ] Input `codingRules` created as string
@@ -480,7 +525,11 @@ Suggested mapping:
 - [ ] Prompt references `{{payerCodingPolicy}}`
 - [ ] Outcome `codingIntegrityResult` created
 - [ ] Outcome type set to string
+- [ ] Outcome marked as Required/App required
 - [ ] Outcome instructions added
+- [ ] Manual agent test returns non-empty JSON
+- [ ] Event log contains `outBoundVariables.codingIntegrityResult.value`
+- [ ] BPMN agent activity remapped after Agent Builder variable changes
 - [ ] Outcome mapped to `BuildIncrementalUnifiedWidgetPayload.json1`
 - [ ] Unified script output `unifiedWidgetPayloadText` mapped to `analysis-task-widget`
 - [ ] No tools configured for first version

@@ -27,6 +27,12 @@ en este repositorio.
   `CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/analysis-task-widget/`.
 - Configuracion Agent Builder:
   `docs/Agent Builder Config/`.
+- Export Automate desplegado (fuente de verdad BPMN/agentes):
+  `automate/OMEGA BUILDER - Latam Medical Billing CUI/`.
+  Ver indice en `automate/README.md`.
+- **Regla de precedencia:** antes de inferir prompts, inputs o mappings de
+  agentes, leer el export en `automate/`. Si un markdown en
+  `docs/Agent Builder Config/` contradice el export, actualizar el markdown.
 - Especificacion general de la demo end-to-end:
   `docs/medical-records-demo-process-specification.md`.
 - Informe final de debugging de deployment:
@@ -107,6 +113,10 @@ El bloque `_customApp` en `contexts.json5` contiene:
   principal. La entrada recomendada es el string JSON
   `unifiedWidgetPayloadText`, generado por
   `docs/Agent Builder Config/BuildIncrementalUnifiedWidgetPayload.ts`.
+- Financial Variance recibe `batchState` **slim** via script
+  `BuildFinancialAgentBatchPayload` (`financialBatchState`). Compliance y Coding
+  reciben `batchState` **completo** (`SbatchState`). Detalle de mappings en
+  `automate/README.md` y `processes/agentmesh-hk5kb-extensions.json`.
 - `BuildIncrementalUnifiedWidgetPayload.ts` debe permanecer generico. Produce
   un envelope con `agents`, `agentOrder`, `warnings`, `summary` y no una salida
   especifica como `analysisWidgetPayload`.
@@ -121,16 +131,30 @@ El bloque `_customApp` en `contexts.json5` contiene:
   Esa navegacion puede existir como legado visual, pero no debe guiar nuevas
   implementaciones funcionales.
 
+## Procesos, tareas y subprocesos
+
+- Guia de proyecto: `docs/custom-ui/processes-tasks-subprocesses.md` (glosario, APIs, flujo del dashboard, bulk approve, gotchas).
+- Referencia CIC (procesos, tareas, subprocesos, HCS, gotchas):
+  `docs/custom-ui/reference-docs/hyland/Vibecoding.md`.
+- El overview `medical-records` lista **tareas abiertas** (`CREATED` + `ASSIGNED`)
+  alineadas con My Tasks, no instancias de proceso en background.
+- Servicios clave en el plugin:
+  - `MedicalRecordsTaskQueryService` — consulta tareas + variables por `rootProcessInstanceId`.
+  - `MedicalRecordsBulkTaskService` — aprobacion masiva de tareas elegibles (mismo tipo).
+- Click en fila del overview → `task-details-cloud` (no `process-details-cloud`).
+- Subprocesos (p. ej. AgentMesh): las tareas tienen otro `processDefinitionKey`; filtrar por `rootProcessInstanceId` del proceso raiz `medical-records`.
+
 ## Documentacion revisada
 
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+- `docs/custom-ui/reference-docs/hyland/`: ubicacion canonica (PDFs GLS + Vibecoding.md).
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   flujo base, contexts y `.env`.
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: paginas de plugin.
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets de formulario
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: paginas de plugin.
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets de formulario
   si Studio Modeler lo requiere.
-- `UI Change Instructions/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: empaquetado/subida.
-- `UI Change Instructions/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizacion con branch/backup.
-- `UI Change Instructions/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: opcion
+- `docs/custom-ui/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: empaquetado/subida.
+- `docs/custom-ui/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizacion con branch/backup.
+- `docs/custom-ui/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: opcion
   desde cero para evaluar mas adelante.
 - `docs/custom-ui/repackage-and-upload-runbook.md`: comandos explicados para
   regenerar configuracion, empaquetar y preparar subida manual.

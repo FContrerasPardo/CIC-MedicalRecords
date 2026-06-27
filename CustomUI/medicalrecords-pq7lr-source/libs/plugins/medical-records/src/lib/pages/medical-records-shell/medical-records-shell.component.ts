@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ProcessAttentionItem } from '../../dashboard/definitions/process-attention.model';
 import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
 
@@ -62,46 +63,6 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         { label: 'Pending Review', value: '185', helper: '12 high priority', icon: 'rate_review', tone: 'amber' },
         { label: 'Execution Queue', value: '80', helper: 'Avg. 14 days', icon: 'schedule', tone: 'slate' },
     ];
-
-    readonly performanceMetrics = [
-        { labelKey: 'MEDICAL_RECORDS.METRICS.TOTAL_PROCESSES', value: '1,245', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_3_4', positive: true },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.COMPLETED', value: '980', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_2_1', positive: true },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.PENDING', value: '215', helperKey: 'MEDICAL_RECORDS.METRICS.DECREASE_1_1', positive: false },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.ERROR_RATE', value: '4.2%', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_0_8', positive: false },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.USER_ACTIVITY', value: '8,950', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_5_2', positive: true },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.SLA_COMPLIANCE', value: '92%', helperKey: 'MEDICAL_RECORDS.METRICS.INCREASE_1_2', positive: true },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.AVG_DAYS_TO_PAYMENT', value: '42', helperKey: 'MEDICAL_RECORDS.METRICS.IMPROVEMENT_3', positive: true },
-        { labelKey: 'MEDICAL_RECORDS.METRICS.EXECUTION_QUEUE', value: '120', helperKey: 'MEDICAL_RECORDS.METRICS.DECREASE_2', positive: true },
-    ];
-
-    readonly attentionItems = [
-        {
-            id: 'ACT-8921-A',
-            icon: 'description',
-            tone: 'red',
-            title: 'ACT-8921-A - Secondary Auth Missing',
-            subtitle: 'Missing secondary payer authorization documents. Payer: BlueCross',
-            meta: 'Analysis Phase - 4 Days',
-        },
-        {
-            id: 'ACT-4410-B',
-            icon: 'receipt_long',
-            tone: 'orange',
-            title: 'ACT-4410-B - Coding Mismatch',
-            subtitle: 'Coding mismatch identified during review. Needs specialist validation.',
-            meta: 'Review Phase - 1 Day',
-        },
-        {
-            id: 'ACT-5012-C',
-            icon: 'gavel',
-            tone: 'amber',
-            title: 'ACT-5012-C - Manual Sign-off',
-            subtitle: 'Unusual high-value charge requires manual sign-off by director.',
-            meta: 'Approval Phase - 2 Hours',
-        },
-    ];
-
-    readonly chartBars = [35, 25, 55, 45, 75, 85, 60, 95, 70, 50, 30, 20];
 
     readonly exceptionItems = [
         {
@@ -304,6 +265,7 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
 
     activePhase = this.phases[0];
     activeDetail = this.phaseDetails.overview;
+    isConfigureView = false;
 
     constructor(
         private readonly route: ActivatedRoute,
@@ -312,12 +274,20 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        this.routeSubscription = this.route.paramMap.subscribe((paramMap) => {
-            const routePhase = paramMap.get('phase') ?? '';
-            const nextPhase = this.phases.find((phase) => phase.route === routePhase) ?? this.phases[0];
-            this.activePhase = nextPhase;
-            this.activeDetail = this.phaseDetails[nextPhase.key];
-        });
+        this.syncRouteState();
+        this.routeSubscription = this.route.paramMap.subscribe(() => this.syncRouteState());
+    }
+
+    private syncRouteState(): void {
+        this.isConfigureView = this.router.url.includes('/medical-records/configure');
+        if (this.isConfigureView) {
+            return;
+        }
+
+        const routePhase = this.route.snapshot.paramMap.get('phase') ?? '';
+        const nextPhase = this.phases.find((phase) => phase.route === routePhase) ?? this.phases[0];
+        this.activePhase = nextPhase;
+        this.activeDetail = this.phaseDetails[nextPhase.key];
     }
 
     ngOnDestroy(): void {
@@ -346,8 +316,11 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
         void this.router.navigateByUrl(this.medicalRecordService.getTaskDetailsUrl(reference));
     }
 
-    openProcessDetails(item?: NativeNavigationItem): void {
-        const reference = this.resolveNativeReference(item);
+    openProcessDetails(item?: NativeNavigationItem | ProcessAttentionItem): void {
+        const reference =
+            item && 'nativeReference' in item && item.nativeReference
+                ? item.nativeReference
+                : this.resolveNativeReference(item as NativeNavigationItem | undefined);
         void this.router.navigateByUrl(this.medicalRecordService.getProcessDetailsUrl(reference));
     }
 

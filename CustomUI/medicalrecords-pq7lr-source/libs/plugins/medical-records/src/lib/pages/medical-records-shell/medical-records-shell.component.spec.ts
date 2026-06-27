@@ -6,12 +6,14 @@ describe('MedicalRecordsShellComponent template', () => {
     const component = readFileSync(join(__dirname, 'medical-records-shell.component.ts'), 'utf8');
     const service = readFileSync(join(__dirname, '..', '..', 'services', 'medical-record.service.ts'), 'utf8');
 
-    it('renders the Stitch dashboard shell with translation-aware navigation', () => {
+    it('renders the dashboard shell with translation-aware navigation', () => {
         expect(template).toContain("{{ 'MEDICAL_RECORDS.BRAND' | translate }}");
-        expect(template).toContain("{{ activeDetail.titleKey | translate }}");
-        expect(template).toContain('*ngFor="let phase of phases; trackBy: trackByPhase"');
-        expect(template).toContain('{{ phase.labelKey | translate }}');
+        expect(template).toContain("routerLink=\"/medical-records/configure\"");
         expect(template).toContain("{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}");
+        expect(template).toContain('<medical-records-dashboard-overview');
+        expect(template).not.toContain('notifications');
+        expect(template).not.toContain('EXPORT_REPORT');
+        expect(template).not.toContain('attentionItems');
         expect(template).not.toContain('Medical Records Demo');
         expect(template).not.toContain('Automate menu');
     });
@@ -42,13 +44,14 @@ describe('MedicalRecordsShellComponent template', () => {
         expect(component).toContain('openTaskDetails');
         expect(component).toContain('openProcessDetails');
         expect(component).toContain('openDocument');
+        expect(component).toContain('isConfigureView');
         expect(template).toContain('(click)="openStartProcess()"');
-        expect(template).toContain('(click)="openTaskDetails(item)"');
         expect(template).toContain('(click)="openProcessDetails({ id:');
-        expect(template).toContain('(click)="openDocument()');
+        expect(template).toContain('(click)="openDocument()"');
+        expect(template).toContain('(processSelected)="openTaskDetails($event)"');
     });
 
-    it('uses the native Document AI Process start form for new intake', () => {
-        expect(service).toContain("medicalAccountStartProcessName = 'Document AI Process'");
+    it('uses the medical-records process start form for new intake', () => {
+        expect(service).toContain("medicalAccountStartProcessName = 'medical-records'");
     });
 });

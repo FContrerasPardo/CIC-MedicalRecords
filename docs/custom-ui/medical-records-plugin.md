@@ -219,3 +219,15 @@ The medical-records shell now owns the scroll inside the plugin panel:
 - Keep this scoped to the plugin. Do not restore the old `min-height: 100vh` on the route host unless the Hyland shell structure changes.
 
 User validation: after the CSS change, the user confirmed the vertical scroll works correctly in the browser. Future layout work should preserve this scroll ownership model unless the Hyland chrome/header height changes.
+
+## Dashboard y cola de trabajo
+
+The overview dashboard lists **open user tasks** for the `medical-records` process
+(`CREATED` + `ASSIGNED`), aligned with native **My Tasks** — not background
+`RUNNING` process instances.
+
+- Service: `MedicalRecordsTaskQueryService` (`TaskListCloudService` + variables via `rootProcessInstanceId`).
+- Row click → `/task-details-cloud/{taskId}` (form widgets execute the workflow stage).
+- Bulk approve (custom overview only): select multiple tasks of the same type and complete eligible ones via `MedicalRecordsBulkTaskService` without opening each form. Eligibility reuses widget rules (`readyForAnalysis`, agent readiness, validate-rules issues).
+- Process/subprocess/task model: `docs/custom-ui/processes-tasks-subprocesses.md`.
+- CIC reference: `docs/custom-ui/reference-docs/hyland/Vibecoding.md`.

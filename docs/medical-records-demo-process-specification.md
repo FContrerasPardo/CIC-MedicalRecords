@@ -43,11 +43,34 @@ El flujo implementado y configurado para la primera version funcional cubre:
 7. Tarea `Analysis` con un unico custom form widget que presenta el analisis
    unificado.
 
+### Automate export reference
+
+El proyecto desplegado en Studio se exporta a:
+
+```text
+automate/OMEGA BUILDER - Latam Medical Billing CUI/
+```
+
+Indice, claves de agentes, scripts y matriz de inputs por agente:
+`automate/README.md`. Si hay conflicto entre estos markdown y el export,
+**gana el export**.
+
+| Agente | Key | Inputs al agente |
+|--------|-----|------------------|
+| Compliance Alert v3 | `compliance-alert-age-4x5t2` | `batchState` (full), `payerCompliancePolicy` |
+| Coding Integrity 5 | `coding-integrity-age-tkfvy` | `batchState` (full), `codingRules`, `payerCodingPolicy` |
+| Financial Variance V4 | `finantial-v3-znvmy` | `batchState` (slim), `tariffAgreement` |
+
+Modelo en export actual: `anthropic.claude-opus-4-6-v1` (los tres agentes).
+
 Las etapas posteriores de la demo deben modelarse como futuras tareas/widgets,
 no como paginas de fase dentro del plugin general, salvo que se decida construir
 una experiencia full custom desacoplada e integrada por servicios.
 
 ## Arquitectura tecnica de la demo
+
+Procesos, tareas y subprocesos (overview vs My Tasks):
+[`docs/custom-ui/processes-tasks-subprocesses.md`](custom-ui/processes-tasks-subprocesses.md).
 
 ### Plataforma
 

@@ -1,0 +1,526 @@
+<section class="agent-rules-widget" [class.agent-rules-widget--native-fullscreen]="nativePreviewOpen" [attr.data-form-field-id]="formFieldId">
+  <div class="agent-rules-widget__layout">
+    <aside class="agent-rules-widget__payer-sidebar">
+      <div class="agent-rules-widget__sidebar-header">
+        <h2>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.PAYERS.TITLE' | translate }}</h2>
+        <label class="agent-rules-widget__search agent-rules-widget__search--sidebar">
+          <span class="material-icons">search</span>
+          <input
+            type="search"
+            [placeholder]="'MEDICAL_RECORDS.AGENT_RULES_WIDGET.PAYERS.FILTER' | translate"
+            [(ngModel)]="payerSearchTerm"
+          />
+        </label>
+      </div>
+
+      <ul class="agent-rules-widget__payer-list">
+        <li
+          *ngFor="let profile of filteredPayerProfiles; trackBy: trackByPayer"
+          class="agent-rules-widget__payer-card"
+          [class.agent-rules-widget__payer-card--active]="activePayerId === profile.id"
+          (click)="selectPayer(profile.id)"
+        >
+          <div class="agent-rules-widget__payer-card-top">
+            <span class="agent-rules-widget__payer-category">{{ profile.category }}</span>
+            <span
+              class="agent-rules-widget__payer-status"
+              [class.agent-rules-widget__payer-status--active]="profile.status === 'ACTIVE'"
+              [class.agent-rules-widget__payer-status--draft]="profile.status === 'DRAFT'"
+            >
+              {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.PAYERS.STATUS.' + profile.status | translate }}
+            </span>
+          </div>
+          <strong class="agent-rules-widget__payer-name">{{ profile.name }}</strong>
+          <p class="agent-rules-widget__payer-meta">
+            {{ profile.agreementGeneral.contractId }}
+          </p>
+          <div class="agent-rules-widget__payer-footer">
+            <span class="material-icons">{{ profile.footerIcon }}</span>
+            <span>{{ profile.footerLabel }}</span>
+          </div>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="agent-rules-widget__main">
+      <header class="agent-rules-widget__entity-header">
+        <div class="agent-rules-widget__entity-main">
+          <span class="material-icons agent-rules-widget__entity-icon">domain</span>
+          <div>
+            <div class="agent-rules-widget__entity-title-row">
+              <h2>{{ displayAgreementGeneral.providerDisplayName }}</h2>
+              <span class="agent-rules-widget__entity-badge">{{ displayAgreementGeneral.agreementBadge }}</span>
+            </div>
+            <p class="agent-rules-widget__entity-meta">
+              <span class="agent-rules-widget__entity-meta-label">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.ENTITY.CONTRACT_ID' | translate }}</span>
+              {{ displayAgreementGeneral.contractId }}
+              · {{ displayAgreementGeneral.planName }}
+            </p>
+          </div>
+        </div>
+        <div class="agent-rules-widget__entity-capitation">
+          <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.ENTITY.CAPITATION' | translate }}</span>
+          <strong>{{ formatCapitation() }}</strong>
+        </div>
+      </header>
+
+      <nav class="agent-rules-widget__main-tabs">
+        <button
+          type="button"
+          class="agent-rules-widget__main-tab"
+          *ngFor="let tab of mainTabs"
+          [class.agent-rules-widget__main-tab--active]="activeMainTab === tab"
+          (click)="setMainTab(tab); $event.stopPropagation()"
+        >
+          {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TABS.' + getMainTabLabelKey(tab) | translate }}
+        </button>
+      </nav>
+
+      <div class="agent-rules-widget__empty-state" *ngIf="!viewModel.sections.length && !displayAgreementGeneral">
+        <span class="material-icons">rule_folder</span>
+        <strong>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.EMPTY.TITLE' | translate }}</strong>
+        <p>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.EMPTY.DESCRIPTION' | translate }}</p>
+      </div>
+
+      <section class="agent-rules-widget__panel" *ngIf="activeMainTab === 'general'">
+        <div class="agent-rules-widget__card-grid">
+          <article class="agent-rules-widget__card">
+            <header class="agent-rules-widget__card-header">
+              <div>
+                <span class="agent-rules-widget__eyebrow">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.CONTRACT_EYEBROW' | translate }}</span>
+                <h3>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.CONTRACT_TITLE' | translate }}</h3>
+              </div>
+            </header>
+            <div class="agent-rules-widget__detail-grid">
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.LEGAL_REP' | translate }}</span>
+                <input type="text" [ngModel]="displayAgreementGeneral.legalRepresentative" [readonly]="!isActivePayerEditable" (ngModelChange)="onGeneralFieldChange('legalRepresentative', $event)" />
+              </label>
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.CONTRACT_TYPE' | translate }}</span>
+                <span class="agent-rules-widget__type-badge">{{ displayAgreementGeneral.contractType }}</span>
+              </label>
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.EFFECTIVE_FROM' | translate }}</span>
+                <input type="text" [ngModel]="displayAgreementGeneral.effectiveFrom" [readonly]="!isActivePayerEditable" (ngModelChange)="onGeneralFieldChange('effectiveFrom', $event)" />
+              </label>
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.EFFECTIVE_TO' | translate }}</span>
+                <input type="text" [ngModel]="displayAgreementGeneral.effectiveTo" [readonly]="!isActivePayerEditable" (ngModelChange)="onGeneralFieldChange('effectiveTo', $event)" />
+              </label>
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.JURISDICTION' | translate }}</span>
+                <input type="text" [ngModel]="displayAgreementGeneral.jurisdiction" [readonly]="!isActivePayerEditable" (ngModelChange)="onGeneralFieldChange('jurisdiction', $event)" />
+              </label>
+              <label class="agent-rules-widget__detail-field">
+                <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.PAYER' | translate }}</span>
+                <input type="text" [ngModel]="displayAgreementGeneral.payer" [readonly]="!isActivePayerEditable" (ngModelChange)="onGeneralFieldChange('payer', $event)" />
+              </label>
+            </div>
+          </article>
+
+          <article class="agent-rules-widget__card">
+            <header class="agent-rules-widget__card-header">
+              <div>
+                <span class="agent-rules-widget__eyebrow">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.FINANCIAL_EYEBROW' | translate }}</span>
+                <h3>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.FINANCIAL_TITLE' | translate }}</h3>
+              </div>
+              <span class="material-icons">bar_chart</span>
+            </header>
+            <div class="agent-rules-widget__progress-list">
+              <div class="agent-rules-widget__progress-item">
+                <div class="agent-rules-widget__progress-label">
+                  <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.BUDGET_TOTAL' | translate }}</span>
+                  <strong>{{ formatCurrency(displayAgreementGeneral.budgetTotal) }}</strong>
+                </div>
+                <div class="agent-rules-widget__progress-track"><span style="width: 100%"></span></div>
+              </div>
+              <div class="agent-rules-widget__progress-item">
+                <div class="agent-rules-widget__progress-label">
+                  <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.BILLED_YTD' | translate }}</span>
+                  <strong>{{ formatCurrency(displayAgreementGeneral.billedYtd) }} · {{ billedProgressPercent }}%</strong>
+                </div>
+                <div class="agent-rules-widget__progress-track agent-rules-widget__progress-track--primary">
+                  <span [style.width.%]="billedProgressPercent"></span>
+                </div>
+              </div>
+              <div class="agent-rules-widget__progress-item">
+                <div class="agent-rules-widget__progress-label">
+                  <span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.GENERAL.PENDING_APPROVAL' | translate }}</span>
+                  <strong>{{ formatCurrency(displayAgreementGeneral.pendingApproval) }} · {{ pendingProgressPercent }}%</strong>
+                </div>
+                <div class="agent-rules-widget__progress-track agent-rules-widget__progress-track--warning">
+                  <span [style.width.%]="pendingProgressPercent"></span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="agent-rules-widget__panel" *ngIf="activeMainTab === 'tariffs'">
+        <div class="agent-rules-widget__inline-toolbar" *ngIf="displayTariffSection">
+          <label class="agent-rules-widget__search">
+            <span class="material-icons">search</span>
+            <input
+              type="search"
+              [placeholder]="'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TOOLBAR.SEARCH' | translate"
+              [(ngModel)]="ruleSearchTerm"
+            />
+          </label>
+          <button
+            type="button"
+            class="agent-rules-widget__filter-btn"
+            [class.agent-rules-widget__filter-btn--active]="showOnlyIssues"
+            (click)="toggleIssuesFilter()"
+          >
+            <span class="material-icons">filter_list</span>
+            {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TOOLBAR.ONLY_ISSUES' | translate }}
+          </button>
+        </div>
+
+        <div class="agent-rules-widget__demo-banner" *ngIf="displayTariffSection && !isActivePayerEditable">
+          <span class="material-icons">info</span>
+          {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.PAYERS.DEMO_READONLY' | translate }}
+        </div>
+
+        <ng-container *ngIf="displayTariffSection as section">
+          <article class="agent-rules-widget__pack-header">
+            <div>
+              <span class="agent-rules-widget__eyebrow">{{ section.label }}</span>
+              <h3>{{ section.agent }}</h3>
+              <p>{{ section.purpose }}</p>
+            </div>
+            <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--ok" *ngIf="getSectionStatusTone(section) === 'ok'">
+              {{ getSectionStatusLabel(section) }}
+            </span>
+            <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--warning" *ngIf="getSectionStatusTone(section) === 'warning'">
+              {{ getSectionStatusLabel(section) }}
+            </span>
+          </article>
+
+          <div class="agent-rules-widget__meta-grid" *ngIf="section.metaFields.length">
+            <div class="agent-rules-widget__kv" *ngFor="let metaField of section.metaFields; trackBy: trackByField">
+              <span class="agent-rules-widget__kv-label">{{ metaField.label }}</span>
+              <input
+                *ngIf="metaField.editable && isActivePayerEditable"
+                type="text"
+                class="agent-rules-widget__kv-input"
+                [ngModel]="metaField.value"
+                (ngModelChange)="onMetaFieldChange(section.itemId, metaField.key, $event)"
+              />
+              <span *ngIf="!metaField.editable || !isActivePayerEditable" class="agent-rules-widget__kv-value">{{ metaField.value }}</span>
+            </div>
+          </div>
+
+          <div class="agent-rules-widget__table-wrap">
+            <table class="agent-rules-widget__rules-table">
+              <thead>
+                <tr>
+                  <th>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.CODE' | translate }}</th>
+                  <th>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.DESCRIPTION' | translate }}</th>
+                  <th>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.AMOUNT' | translate }}</th>
+                  <th>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.MODIFIER' | translate }}</th>
+                  <th>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.STATUS' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let listItem of getVisibleListItems(section); trackBy: trackByListItem">
+                  <tr
+                    class="agent-rules-widget__rules-table-row"
+                    [class.agent-rules-widget__rules-table-row--expanded]="isRuleExpanded(getRuleKey(section.itemId, listItem.id))"
+                    [class.agent-rules-widget__rules-table-row--clickable]="isActivePayerEditable"
+                    (click)="isActivePayerEditable && toggleRule(getRuleKey(section.itemId, listItem.id))"
+                  >
+                    <td><strong>{{ listItem.title }}</strong></td>
+                    <td>{{ listItem.subtitle || '—' }}</td>
+                    <td>{{ getTariffAmount(listItem) }}</td>
+                    <td>
+                      <span
+                        class="agent-rules-widget__modifier-badge"
+                        [class.agent-rules-widget__modifier-badge--positive]="getTariffModifierTone(listItem) === 'positive'"
+                        [class.agent-rules-widget__modifier-badge--negative]="getTariffModifierTone(listItem) === 'negative'"
+                      >
+                        {{ getTariffModifierLabel(listItem) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--ok" *ngIf="!listItemHasIssues(listItem)">Ready</span>
+                      <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--warning" *ngIf="listItemHasIssues(listItem)">Review</span>
+                    </td>
+                    <td class="agent-rules-widget__rules-table-chevron">
+                      <span class="material-icons" *ngIf="isActivePayerEditable">
+                        {{ isRuleExpanded(getRuleKey(section.itemId, listItem.id)) ? 'expand_less' : 'expand_more' }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="agent-rules-widget__rules-table-detail" *ngIf="isActivePayerEditable && isRuleExpanded(getRuleKey(section.itemId, listItem.id))">
+                    <td colspan="6" (click)="$event.stopPropagation()">
+                      <ng-container *ngTemplateOutlet="ruleEditPanel; context: { section: section, listItem: listItem }"></ng-container>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+
+        <div class="agent-rules-widget__empty-state agent-rules-widget__empty-state--inline" *ngIf="!displayTariffSection">
+          <strong>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TARIFFS.EMPTY' | translate }}</strong>
+        </div>
+      </section>
+
+      <section class="agent-rules-widget__panel" *ngIf="activeMainTab === 'aiRules'">
+        <div class="agent-rules-widget__inline-toolbar">
+          <label class="agent-rules-widget__search">
+            <span class="material-icons">search</span>
+            <input
+              type="search"
+              [placeholder]="'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TOOLBAR.SEARCH' | translate"
+              [(ngModel)]="ruleSearchTerm"
+            />
+          </label>
+          <button
+            type="button"
+            class="agent-rules-widget__filter-btn"
+            [class.agent-rules-widget__filter-btn--active]="showOnlyIssues"
+            (click)="toggleIssuesFilter()"
+          >
+            <span class="material-icons">filter_list</span>
+            {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.TOOLBAR.ONLY_ISSUES' | translate }}
+          </button>
+        </div>
+
+        <nav class="agent-rules-widget__sub-tabs">
+          <button
+            type="button"
+            class="agent-rules-widget__sub-tab"
+            *ngFor="let subTab of aiSubTabs"
+            [class.agent-rules-widget__sub-tab--active]="activeAiSubTab === subTab"
+            (click)="setAiSubTab(subTab)"
+          >
+            {{ subTab }}
+          </button>
+        </nav>
+
+        <ng-container *ngFor="let section of getAiSections(); trackBy: trackBySection">
+          <article class="agent-rules-widget__pack-header">
+            <div>
+              <span class="agent-rules-widget__eyebrow">{{ section.group }}</span>
+              <h3>{{ section.label }}</h3>
+              <p>{{ section.agent }}</p>
+            </div>
+            <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--warning" *ngIf="getSectionStatusTone(section) === 'warning'">
+              {{ getSectionStatusLabel(section) }}
+            </span>
+            <span class="agent-rules-widget__status-badge agent-rules-widget__status-badge--ok" *ngIf="getSectionStatusTone(section) === 'ok'">
+              {{ getSectionStatusLabel(section) }}
+            </span>
+          </article>
+
+          <div class="agent-rules-widget__meta-grid" *ngIf="section.metaFields.length">
+            <div class="agent-rules-widget__kv" *ngFor="let metaField of section.metaFields; trackBy: trackByField">
+              <span class="agent-rules-widget__kv-label">{{ metaField.label }}</span>
+              <input
+                *ngIf="metaField.editable && !isReadOnly"
+                type="text"
+                class="agent-rules-widget__kv-input"
+                [ngModel]="metaField.value"
+                (ngModelChange)="onMetaFieldChange(section.itemId, metaField.key, $event)"
+              />
+              <span *ngIf="!metaField.editable || isReadOnly" class="agent-rules-widget__kv-value">{{ metaField.value }}</span>
+            </div>
+          </div>
+
+          <div class="agent-rules-widget__rule-card-list">
+            <article
+              class="agent-rules-widget__rule-card agent-rules-widget__rule-card--ai"
+              *ngFor="let listItem of getVisibleListItems(section); trackBy: trackByListItem"
+              [class.agent-rules-widget__rule-card--expanded]="isRuleExpanded(getRuleKey(section.itemId, listItem.id))"
+            >
+              <button type="button" class="agent-rules-widget__rule-card-trigger" (click)="toggleRule(getRuleKey(section.itemId, listItem.id))">
+                <div>
+                  <strong>{{ listItem.title }}</strong>
+                  <p>{{ getRuleDescription(listItem) }}</p>
+                  <div class="agent-rules-widget__chip-list agent-rules-widget__chip-list--compact" *ngIf="listItem.chips?.items?.length">
+                    <span class="agent-rules-widget__chip" *ngFor="let chip of getChipPreview(listItem.chips!.items).visible">{{ chip }}</span>
+                    <span class="agent-rules-widget__chip agent-rules-widget__chip--overflow" *ngIf="getChipPreview(listItem.chips!.items).overflow">
+                      +{{ getChipPreview(listItem.chips!.items).overflow }}
+                    </span>
+                  </div>
+                </div>
+                <span class="agent-rules-widget__risk-chip" *ngIf="listItem.riskLevel" [ngClass]="'agent-rules-widget__risk-chip--' + normalizeRiskTone(listItem.riskLevel)">
+                  {{ listItem.riskLevel }}
+                </span>
+              </button>
+              <div class="agent-rules-widget__rule-panel" *ngIf="isRuleExpanded(getRuleKey(section.itemId, listItem.id))">
+                <ng-container *ngTemplateOutlet="ruleEditPanel; context: { section: section, listItem: listItem }"></ng-container>
+              </div>
+            </article>
+          </div>
+        </ng-container>
+      </section>
+
+      <section class="agent-rules-widget__panel agent-rules-widget__panel--documents" *ngIf="activeMainTab === 'documents'">
+        <div class="agent-rules-widget__documents-layout">
+          <article class="agent-rules-widget__viewer-card">
+            <header class="agent-rules-widget__viewer-header">
+              <div>
+                <span class="agent-rules-widget__eyebrow">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.PRIMARY' | translate }}</span>
+                <h3>{{ displayAgreementDocuments.primaryDocument.title }}</h3>
+              </div>
+            </header>
+
+            <div class="agent-rules-widget__viewer-body" *ngIf="viewerLoading">
+              <div class="agent-rules-widget__viewer-state">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.LOADING' | translate }}</div>
+            </div>
+
+            <div class="agent-rules-widget__viewer-body" *ngIf="!viewerLoading && viewerError">
+              <div class="agent-rules-widget__viewer-state agent-rules-widget__viewer-state--error">{{ viewerError }}</div>
+            </div>
+
+            <div class="agent-rules-widget__viewer-body" *ngIf="!viewerLoading && !viewerError && canRenderContractViewer">
+              <div #embeddedNativeViewer class="agent-rules-widget__native-viewer embedded">
+                <div class="embedded-preview-toolbar">
+                  <button type="button" class="icon-action" [disabled]="viewerLoading" [title]="'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.OPEN_FULL' | translate" (click)="openNativeFullscreenPreview(); $event.stopPropagation()">
+                    <span class="fullscreen-glyph" aria-hidden="true"></span>
+                  </button>
+                </div>
+                <hxp-document-viewer [document]="viewerDocument!"></hxp-document-viewer>
+              </div>
+            </div>
+          </article>
+
+          <aside class="agent-rules-widget__documents-sidebar">
+            <article class="agent-rules-widget__card">
+              <header class="agent-rules-widget__card-header">
+                <h3>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.RELATED' | translate }}</h3>
+              </header>
+              <ul class="agent-rules-widget__file-list">
+                <li *ngFor="let file of displayAgreementDocuments.relatedFiles">
+                  <strong>{{ file.title }}</strong>
+                  <span>{{ file.sizeLabel }} · {{ file.updatedAt }}</span>
+                </li>
+              </ul>
+            </article>
+
+            <article class="agent-rules-widget__card">
+              <header class="agent-rules-widget__card-header">
+                <h3>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.METADATA' | translate }}</h3>
+              </header>
+              <div class="agent-rules-widget__metadata-list">
+                <div><span>Status</span><strong>{{ displayAgreementDocuments.primaryDocument.status }}</strong></div>
+                <div><span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.EXPIRES' | translate }}</span><strong>{{ displayAgreementDocuments.primaryDocument.expiresAt }}</strong></div>
+                <div><span>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.ENTITY.CONTRACT_ID' | translate }}</span><strong>{{ displayAgreementDocuments.primaryDocument.contractId }}</strong></div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <details class="agent-rules-widget__debug-panel">
+    <summary>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DEBUG.TITLE' | translate }}</summary>
+    <button type="button" class="agent-rules-widget__copy-btn" (click)="copyVariableJson('batchState', $event)">
+      <span class="material-icons">{{ isVariableCopied('batchState') ? 'done' : 'content_copy' }}</span>
+      {{ isVariableCopied('batchState') ? ('MEDICAL_RECORDS.AGENT_RULES_WIDGET.DEBUG.COPIED' | translate) : ('MEDICAL_RECORDS.AGENT_RULES_WIDGET.DEBUG.COPY_BATCH' | translate) }}
+    </button>
+  </details>
+
+  <div class="agent-rules-widget__native-backdrop" *ngIf="nativePreviewOpen" (click)="closeNativeFullscreenPreview()">
+    <section class="agent-rules-widget__native-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="agent-rules-widget__native-modal-header">
+        <div>
+          <span class="agent-rules-widget__eyebrow">{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.PRIMARY' | translate }}</span>
+          <h2>{{ displayAgreementDocuments.primaryDocument.title }}</h2>
+        </div>
+        <button type="button" class="agent-rules-widget__ghost-btn" (click)="closeNativeFullscreenPreview()">
+          {{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.CLOSE_FULL' | translate }}
+        </button>
+      </header>
+      <div
+        class="agent-rules-widget__native-viewer fullscreen"
+        [class.is-loading]="nativeViewerSettling || viewerLoading"
+        *ngIf="viewerDocument || viewerLoading"
+      >
+        <div class="agent-rules-widget__native-viewer-loading" *ngIf="nativeViewerSettling || viewerLoading">
+          <div class="agent-rules-widget__native-viewer-loading-card">
+            <strong>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.NATIVE_LOADING_TITLE' | translate }}</strong>
+            <p>{{ 'MEDICAL_RECORDS.AGENT_RULES_WIDGET.DOCUMENTS.NATIVE_LOADING_MESSAGE' | translate }}</p>
+          </div>
+        </div>
+        <hxp-document-viewer *ngIf="viewerDocument" [document]="viewerDocument"></hxp-document-viewer>
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-template #ruleEditPanel let-section="section" let-listItem="listItem">
+  <div class="agent-rules-widget__field-stack">
+    <div class="agent-rules-widget__kv" *ngFor="let field of getPrimaryFields(listItem); trackBy: trackByField">
+      <span class="agent-rules-widget__kv-label">{{ field.label }}</span>
+      <textarea
+        *ngIf="field.type === 'textarea' && !section.readOnly && !isReadOnly"
+        rows="3"
+        class="agent-rules-widget__kv-input"
+        [ngModel]="field.value"
+        (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)"
+      ></textarea>
+      <span *ngIf="field.type === 'textarea' && (section.readOnly || isReadOnly)" class="agent-rules-widget__kv-value agent-rules-widget__kv-value--multiline">{{ field.value }}</span>
+      <select
+        *ngIf="field.type === 'select' && !section.readOnly && !isReadOnly"
+        class="agent-rules-widget__kv-input"
+        [ngModel]="field.value"
+        (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)"
+      >
+        <option *ngFor="let option of field.options" [ngValue]="option">{{ option }}</option>
+      </select>
+      <span *ngIf="field.type === 'select' && (section.readOnly || isReadOnly)" class="agent-rules-widget__kv-value">{{ field.value }}</span>
+      <input
+        *ngIf="field.type === 'text' && !section.readOnly && !isReadOnly"
+        type="text"
+        class="agent-rules-widget__kv-input"
+        [ngModel]="field.value"
+        (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)"
+      />
+      <span *ngIf="field.type === 'text' && (section.readOnly || isReadOnly)" class="agent-rules-widget__kv-value">{{ field.value }}</span>
+    </div>
+  </div>
+
+  <div class="agent-rules-widget__field-grid" *ngIf="getSecondaryFields(listItem).length">
+    <label class="agent-rules-widget__field" *ngFor="let field of getSecondaryFields(listItem); trackBy: trackByField">
+      <span>{{ field.label }}</span>
+      <textarea *ngIf="field.type === 'textarea'" rows="3" [ngModel]="field.value" [disabled]="section.readOnly || isReadOnly" (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)"></textarea>
+      <select *ngIf="field.type === 'select'" [ngModel]="field.value" [disabled]="section.readOnly || isReadOnly" (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)">
+        <option *ngFor="let option of field.options" [ngValue]="option">{{ option }}</option>
+      </select>
+      <input *ngIf="field.type === 'number'" type="number" [ngModel]="field.value" [disabled]="section.readOnly || isReadOnly" (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)" />
+      <label class="agent-rules-widget__checkbox" *ngIf="field.type === 'boolean'">
+        <input type="checkbox" [ngModel]="field.value" [disabled]="section.readOnly || isReadOnly" (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)" />
+        <span>{{ field.value ? 'Yes' : 'No' }}</span>
+      </label>
+      <input *ngIf="field.type === 'text'" type="text" [ngModel]="field.value" [disabled]="section.readOnly || isReadOnly" (ngModelChange)="onListFieldChange(section.itemId, listItem.id, field.key, $event)" />
+    </label>
+  </div>
+
+  <div class="agent-rules-widget__chips" *ngIf="listItem.chips as chips">
+    <div class="agent-rules-widget__chips-header">
+      <span>{{ chips.label }}</span>
+      <span class="agent-rules-widget__chips-count">{{ chips.items.length }}</span>
+    </div>
+    <div class="agent-rules-widget__chip-list">
+      <span class="agent-rules-widget__chip" *ngFor="let chip of chips.items">
+        {{ chip }}
+        <button type="button" class="agent-rules-widget__chip-remove" *ngIf="chips.editable && !section.readOnly && !isReadOnly" (click)="removeChipItem(section.itemId, listItem.id, chips.key, chips.items, chip)">×</button>
+      </span>
+    </div>
+    <div class="agent-rules-widget__chip-add" *ngIf="chips.editable && !section.readOnly && !isReadOnly">
+      <input type="text" [ngModel]="getChipDraft(section.itemId, listItem.id, chips.key)" (ngModelChange)="setChipDraft(section.itemId, listItem.id, chips.key, $event)" (keyup.enter)="addChipItem(section.itemId, listItem.id, chips.key, chips.items)" />
+      <button type="button" (click)="addChipItem(section.itemId, listItem.id, chips.key, chips.items)">
+        <span class="material-icons">add</span>
+      </button>
+    </div>
+  </div>
+</ng-template>

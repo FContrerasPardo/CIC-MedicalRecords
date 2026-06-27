@@ -93,15 +93,27 @@ npm run nx:generate -- @hyland/extend:plugin medical-records --author "Fernando 
 
 ## Documentos incluidos
 
-- `reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+Los PDFs GLS y `Vibecoding.md` viven en la ubicacion canonica:
+
+```text
+docs/custom-ui/reference-docs/hyland/
+```
+
+Ver indice: `docs/custom-ui/reference-docs/hyland/README.md`.
+
+Procesos/tareas/subprocesos en medical-records: `docs/custom-ui/processes-tasks-subprocesses.md`.
+
+Referencias historicas (misma carpeta relativa bajo `UI Change Instructions/`):
+
+- `../docs/custom-ui/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   flujo base para crear/descargar la Custom UI y generar `.env`.
-- `reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: creacion de paginas de plugin.
-- `reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets para formularios
+- `../docs/custom-ui/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`: creacion de paginas de plugin.
+- `../docs/custom-ui/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`: widgets para formularios
   cuando el diseno de Studio Modeler lo requiera.
-- `reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: build, zip y subida a Automate.
-- `reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizar una Custom UI existente;
+- `../docs/custom-ui/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`: build, zip y subida a Automate.
+- `../docs/custom-ui/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`: actualizar una Custom UI existente;
   aplicar siempre con branch/backup previo.
-- `reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
+- `../docs/custom-ui/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`: ruta
   alternativa desde cero; queda como referencia futura.
 - `../docs/custom-ui/repackage-and-upload-runbook.md`: runbook operativo de
   re-empaquetado de este proyecto.

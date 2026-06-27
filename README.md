@@ -313,17 +313,19 @@ docs/custom-ui/medical-records-plugin.md
 ## Documentacion de referencia
 
 - `UI Change Instructions/`: guias operativas para Custom UI.
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
+- `docs/custom-ui/reference-docs/hyland/`: referencia Hyland canonica (PDFs GLS + Vibecoding.md).
+- `docs/custom-ui/processes-tasks-subprocesses.md`: procesos, tareas, subprocesos, flujo del dashboard overview y aprobacion masiva elegible.
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating an Hyland Experience Application (Custom UI)-250426-013037.pdf`:
   instructivo original revisado para el flujo `.env` / `contexts.json5`.
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`:
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating a Plugin Page-250426-135339.pdf`:
   guia de paginas dentro de plugins.
-- `UI Change Instructions/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`:
+- `docs/custom-ui/reference-docs/hyland/GLS-Creating Custom Forms Widget-250426-135447.pdf`:
   referencia para widgets de formularios cuando Studio Modeler lo requiera.
-- `UI Change Instructions/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`:
+- `docs/custom-ui/reference-docs/hyland/GLS-Packaging a Custom UI-250426-135225.pdf`:
   referencia de empaquetado y subida a Automate.
-- `UI Change Instructions/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`:
+- `docs/custom-ui/reference-docs/hyland/GLS-Update a Custom UI-250426-135603.pdf`:
   referencia para actualizar una Custom UI existente con respaldo/branch previo.
-- `UI Change Instructions/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`:
+- `docs/custom-ui/reference-docs/hyland/GLS-Create a Blank UI for Automate from Scratch-250426-135843.pdf`:
   opcion futura para crear desde cero, no usada como ruta principal actual.
 - `CustomUI/medicalrecords-pq7lr-source/developer-docs/local-development/env-setup.md`:
   detalle del generador de `.env`.

@@ -1,0 +1,19 @@
+@import '../../../dashboard-shared.styles.scss';
+
+:host {
+    display: block;
+}
+
+.dashboard-metric-widget--loading strong {
+    opacity: 0.45;
+}
+
+.dashboard-metric-widget small {
+    display: block;
+    margin-top: 8px;
+    color: #005eb8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}

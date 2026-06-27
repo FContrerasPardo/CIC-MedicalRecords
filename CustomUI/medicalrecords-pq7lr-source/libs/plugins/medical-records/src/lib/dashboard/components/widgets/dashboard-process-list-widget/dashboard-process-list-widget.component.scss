@@ -1,0 +1,86 @@
+@import '../../../dashboard-shared.styles.scss';
+
+:host {
+    display: block;
+}
+
+.attention-state {
+    padding: 24px;
+    border: 1px dashed rgba(194, 198, 212, 0.45);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #5d6778;
+    text-align: center;
+}
+
+.attention-state--error p {
+    margin: 0 0 12px;
+}
+
+.bulk-action-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 16px;
+    background: rgba(238, 242, 255, 0.72);
+}
+
+.bulk-action-copy {
+    display: grid;
+    gap: 8px;
+}
+
+.bulk-action-copy p {
+    margin: 0;
+    color: #5d6778;
+}
+
+.bulk-ineligible-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #5d6778;
+}
+
+.bulk-ineligible-list li {
+    margin-bottom: 6px;
+}
+
+.bulk-approve-button {
+    flex-shrink: 0;
+}
+
+.bulk-result ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    text-align: left;
+}
+
+.attention-select-all {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #5d6778;
+    font-size: 0.92rem;
+}
+
+.attention-item {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.attention-item.is-selected {
+    outline: 2px solid rgba(99, 102, 241, 0.35);
+}
+
+.attention-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}

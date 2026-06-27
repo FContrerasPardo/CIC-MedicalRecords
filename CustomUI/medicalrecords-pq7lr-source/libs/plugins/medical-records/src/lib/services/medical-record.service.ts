@@ -9,7 +9,7 @@ export class MedicalRecordService {
     private readonly defaultRepositoryId = 'default';
     private readonly rootDocumentId = '00000000-0000-0000-0000-000000000000';
 
-    private readonly medicalAccountStartProcessName = 'Document AI Process';
+    private readonly medicalAccountStartProcessName = 'medical-records';
 
     private readonly nativeReferences: Record<string, NativeAutomationReference> = {
         'ACC-2026-8901': { repositoryId: this.defaultRepositoryId, documentId: this.rootDocumentId },

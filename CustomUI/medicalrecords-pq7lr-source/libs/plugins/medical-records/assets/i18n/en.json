@@ -1,15 +1,16 @@
 {
     "PLUGIN_MESSAGE": "This is a plugin message",
     "MEDICAL_RECORDS": {
-        "BRAND": "Hyland Medical Accounts",
+        "BRAND": "Dashboard",
         "NAV": {
             "MENU_ITEM": "Medical Accounts",
             "PHASE_NAV_ARIA": "Medical records phase navigation",
-            "QUICK_LINKS_ARIA": "Medical records quick links"
+            "QUICK_LINKS_ARIA": "Dashboard quick links"
         },
         "TOP_LINKS": {
             "AGREEMENTS": "Agreement Configuration",
-            "ANALYTICS": "Process Analytics"
+            "ANALYTICS": "Process Analytics",
+            "ANALYTICS_SOON": "Coming soon"
         },
         "ACTIONS": {
             "EXPORT_REPORT": "Export Report",
@@ -30,8 +31,8 @@
         },
         "PAGES": {
             "OVERVIEW": {
-                "TITLE": "Process Overview Dashboard",
-                "DESCRIPTION": "Unified operational cockpit for medical billing, glosa prevention, audit readiness, and recovery performance."
+                "TITLE": "Operational overview for live processes and repository activity",
+                "DESCRIPTION": "Monitor active workflows, repository signals, and items that need attention."
             },
             "INTAKE": {
                 "TITLE": "Unified Record - Intake",
@@ -59,10 +60,45 @@
             }
         },
         "SECTIONS": {
-            "ATTENTION_REQUIRED": "Attention Required",
+            "ATTENTION_REQUIRED": "Open Tasks",
             "CRITICAL_COUNT": "3 Critical",
             "INSIGHTS": "Insights",
             "PERFORMANCE_METRICS": "Performance Metrics"
+        },
+        "DASHBOARD": {
+            "DOCUMENT_VOLUME": "Repository Documents",
+            "DOCUMENT_VOLUME_HELPER": "Live count from native Content query",
+            "CONTENT_SOURCE": "Content query",
+            "REFRESH": "Refresh"
+        },
+        "DASHBOARD_BUILDER": {
+            "EYEBROW": "Configuration",
+            "TITLE": "Dashboard Builder",
+            "DESCRIPTION": "Future home for agreement rules, report widgets, and dashboard layout configuration.",
+            "BACK": "Back to dashboard",
+            "PALETTE_TITLE": "Widget palette",
+            "WIDGET_METRIC": "Metric widget",
+            "WIDGET_CHART": "Chart widget",
+            "WIDGET_PROCESS_LIST": "Process list widget",
+            "RESET_LAYOUT": "Reset demo layout",
+            "RESET_DONE": "Default dashboard layout restored.",
+            "CANVAS_TITLE": "Builder canvas",
+            "CANVAS_MESSAGE": "This shell will host addable widgets backed by native Content queries and process variables."
+        },
+        "PROCESS_LIST": {
+            "LOADING": "Loading open tasks...",
+            "EMPTY": "No open medical-records tasks found.",
+            "ERROR": "Unable to load tasks from Automate.",
+            "RETRY": "Retry"
+        },
+        "BULK_TASKS": {
+            "SELECT_ALL_FILTERED": "Select all filtered tasks",
+            "SELECTED_SUMMARY": "{{selected}} selected · {{eligible}} eligible to approve",
+            "MIXED_TYPES": "Select tasks of the same type to use bulk approve.",
+            "VIEW_REASONS": "View ineligible reasons",
+            "APPROVE_ELIGIBLE": "Approve eligible",
+            "PROCESSING": "Completing selected tasks...",
+            "RESULT_SUMMARY": "{{succeeded}} completed · {{failed}} failed"
         },
         "CARDS": {
             "DAILY_PROCESSING_VOLUME": "Daily processing volume",
@@ -92,6 +128,314 @@
             "SLA_COMPLIANCE": "SLA Compliance",
             "TOTAL_PROCESSES": "Total Processes",
             "USER_ACTIVITY": "User Activity"
+        },
+        "ANALYSIS_WIDGET": {
+            "HEADER": {
+                "EYEBROW": "AI Pre-validation",
+                "TITLE": "Analysis Phase",
+                "DESCRIPTION": "Review automated findings and resolve identified risks before proceeding to manual approval."
+            },
+            "METRICS": {
+                "INCONSISTENCIES": "Inconsistencies",
+                "COMPLIANCE_GAPS": "Compliance Gaps",
+                "FINANCIAL_ISSUES": "Financial Issues"
+            },
+            "RISK": {
+                "SCORE_LABEL": "Glosa Risk Score",
+                "ANALYZED_CLAIMS": "Analyzed Claims",
+                "TOTAL_VALUE": "Total Value",
+                "APPROVAL_STATE": "Approval State"
+            },
+            "APPROVAL_STATE": {
+                "BLOCKED": "Blocked by agent review",
+                "READY": "Ready to proceed"
+            },
+            "MISSING_AGENTS": "Waiting for {{agents}}.",
+            "VIEW_ALL_FINDINGS": "View all findings ({{count}})",
+            "FILTER": "Filter",
+            "DEMO_DISCLAIMER": "Demo: complete corrective actions outside this widget, then use the form actions at the bottom of the task.",
+            "FINDINGS": {
+                "EYEBROW": "Detailed review",
+                "TITLE": "All Findings",
+                "DESCRIPTION": "Every finding returned by the coding, compliance, and financial agents.",
+                "REASON": "Reason:",
+                "RECOMMENDATION": "Recommendation:",
+                "SOURCE": "Source:",
+                "EMPTY": "No findings match the current filters."
+            },
+            "FILTERS": {
+                "AGENT": "Agent",
+                "RISK": "Risk",
+                "TYPE": "Type",
+                "ALL": "All",
+                "CLEAR": "Clear filters"
+            },
+            "TABLE": {
+                "EYEBROW": "Mapped findings",
+                "TITLE": "Findings by scope",
+                "SUMMARY": "Service-level and account-level issues from agent results.",
+                "BY_SERVICE": "By service",
+                "ACCOUNT_LEVEL": "Account-level",
+                "CODE": "Item Code",
+                "DESCRIPTION": "Description",
+                "AMOUNT": "Billed Amount",
+                "STATUS": "AI Status",
+                "EMPTY": "No findings available for this view."
+            },
+            "ACTIONS_PANEL": {
+                "EYEBROW": "Resolution Queue",
+                "TITLE": "Recommended Actions"
+            },
+            "ACTIONS": {
+                "UPDATE_CUPS": "Update CUPS",
+                "REQUEST_AUTHORIZATION": "Request Authorization",
+                "REVIEW_CONTRACT": "Review Contract",
+                "OPEN_FINDINGS": "Open Findings"
+            },
+            "MODAL": {
+                "FINDINGS": "Findings",
+                "RECOMMENDED": "Recommended actions"
+            }
+        },
+        "INTAKE_WIDGET": {
+            "ALIAS": {
+                "TITLE": "OCR reconciliation applied",
+                "USE_DISPLAY_NAME": "Use as display name",
+                "ACCEPT": "Accept",
+                "COLLAPSE": "Collapse",
+                "REOPEN": "OCR reconciliation",
+                "EXPAND": "Show reconciliation",
+                "ACCEPTED_SUMMARY": "Reconciled name"
+            },
+            "HINTS": {
+                "DOCS": "{{count}} docs",
+                "SERVICES": "{{count}} services",
+                "SINGLE_BATCH": "Single patient batch",
+                "OCR": "OCR reconciliation",
+                "PATIENT_ACCOUNTS": "{{count}} patient accounts"
+            },
+            "PATIENT_SELECTOR": {
+                "EYEBROW": "Patient selector",
+                "TITLE": "Patients included in this batch",
+                "PATIENTS": "patients",
+                "DEMOGRAPHICS_PENDING": "Demographics pending",
+                "SERVICES_DOCS": "{{services}} services - {{docs}} docs",
+                "MERGE_INTO_SELECTED": "Merge into selected"
+            },
+            "HEADER": {
+                "PATIENT_PENDING": "Patient pending",
+                "READ_ONLY": "Read only",
+                "MRN": "MRN",
+                "ID": "ID",
+                "DOB": "DOB",
+                "PROVIDER": "Provider",
+                "INSURANCE": "Insurance",
+                "PROVIDER_PENDING": "Provider pending",
+                "INVOICE": "Invoice",
+                "ADMISSION": "Admission",
+                "DISCHARGE": "Discharge",
+                "INSURANCE_PENDING": "Insurance pending",
+                "PENDING": "Pending",
+                "UPLOAD": "Upload",
+                "PROCEED": "Proceed to Analysis"
+            },
+            "SUMMARY": {
+                "ALL": "Total Services",
+                "ALL_HELPER": "View all services",
+                "COMPLETE": "Complete",
+                "COMPLETE_HELPER": "Fully supported services",
+                "MISSING_SUPPORT": "Missing Support",
+                "MISSING_SUPPORT_HELPER": "Services with missing support",
+                "PENDING_REVIEW": "Pending Review",
+                "PENDING_REVIEW_HELPER": "Services or source docs marked for review",
+                "LOW_CONFIDENCE": "Low Confidence",
+                "LOW_CONFIDENCE_HELPER": "Confidence below threshold",
+                "DOCUMENTS": "Total Documents",
+                "DOCUMENTS_HELPER": "General support repository",
+                "READINESS": "Analysis Readiness",
+                "MARK_ALL_REVIEWED": "Mark all reviews complete"
+            },
+            "READINESS": {
+                "HELPER_SINGLE": "{{status}}. {{blocker}}",
+                "HELPER_MULTIPLE": "{{status}}. {{blocker}} (+{{more}} more)",
+                "BLOCKER_MISSING_SUPPORT": "{{count}} service(s) still have missing support.",
+                "BLOCKER_PENDING_REVIEW": "{{count}} service(s) still need review.",
+                "BLOCKER_REJECTED": "Rejected documents must be resolved before advancing to Analysis.",
+                "BLOCKER_NO_SERVICES": "No billable services were mapped for this account."
+            },
+            "SERVICES": {
+                "EYEBROW": "Services",
+                "TITLE": "Service Explorer",
+                "VISIBLE": "visible",
+                "SEARCH_LABEL": "Search services",
+                "SEARCH_PLACEHOLDER": "Service code, CUP, description or category",
+                "CLEAR_SEARCH": "Clear search",
+                "PENDING_DATE": "Pending date",
+                "CODE": "Code",
+                "CUP": "CUP",
+                "DETECTED_SERVICE": "Detected service",
+                "QTY": "Qty",
+                "PRICE": "Price",
+                "COMPLETION": "Completion",
+                "EXPAND": "Expand",
+                "COLLAPSE": "Collapse",
+                "SUPPORT_PACKAGE": "Support package",
+                "REQUIRED": "Required",
+                "PRESENT": "Present",
+                "MISSING": "Missing",
+                "DETECTION_DETAILS": "Detection details",
+                "SOURCE": "Source",
+                "PENDING_SOURCE": "Pending source",
+                "PENDING_INVOICE": "Pending invoice",
+                "COVERAGE": "Coverage",
+                "PENDING_COVERAGE": "Pending coverage",
+                "CONFIDENCE": "Confidence",
+                "NOT_AVAILABLE": "Not available",
+                "ALERTS": "Alerts",
+                "ACQUIRE_DOCUMENT": "Acquire Document",
+                "UPLOAD_MANUALLY": "Upload Manually",
+                "MARK_REVIEWED": "Mark as Reviewed",
+                "MARKED_REVIEWED": "Reviewed",
+                "NO_SERVICES": "No services detected",
+                "NO_SERVICES_HELPER": "The widget did not find billed service rows inside batchState.",
+                "NO_FILTER_MATCH": "No services match the current filter",
+                "NO_FILTER_MATCH_HELPER": "Try a different chip or clear the search input."
+            },
+            "DOCUMENTS": {
+                "EYEBROW": "Repository",
+                "TITLE": "Document Control Center",
+                "DOCS": "docs",
+                "CAPTURE": "Capture",
+                "PENDING_TITLE": "Pending Support Documents",
+                "PENDING_HELPER": "Derived from current services in this account.",
+                "PENDING_COMPLETE_HELPER": "All required support documents are currently mapped.",
+                "PENDING_BADGE": "pending",
+                "PENDING_BADGE_PLURAL": "pending",
+                "REQUIRED_BY": "Required by {{count}} services",
+                "REQUIRED_BY_ONE": "Required by 1 service",
+                "CLEAR_FILTER": "Clear filter",
+                "UPLOAD": "Upload document",
+                "CLASS": "Class",
+                "EXTRACT": "Extract",
+                "REVIEW_STATUS": "Review status",
+                "EXTRACTED_VALUES": "Extracted values",
+                "CONTENT_REF": "Content reference",
+                "NO_REFERENCE": "No reference",
+                "VIEW_DOCUMENT": "View document",
+                "MARK_REVIEWED": "Mark as reviewed",
+                "MARKED_REVIEWED": "Reviewed",
+                "NO_DOCUMENTS": "No mapped documents",
+                "NO_DOCUMENTS_HELPER": "Add supporting documents to visualize the medical account repository.",
+                "ALL_COVERED": "All required supports are currently covered.",
+                "ALL_COVERED_HELPER": "You can still attach additional documents if the account needs more evidence."
+            },
+            "VIEWER": {
+                "PREVIEW": "Preview",
+                "METADATA": "Metadata",
+                "CLOSE": "Close",
+                "LOADING": "Loading preview",
+                "LOADING_HELPER": "Retrieving the repository file for this document.",
+                "PREPARING": "Preparing preview",
+                "PREPARING_HELPER": "Rendering the document inside the intake viewer.",
+                "NO_PREVIEW": "No preview reference available",
+                "NO_PREVIEW_HELPER": "The selected document does not expose a resolvable repository content reference from batchState yet.",
+                "NO_METADATA": "No extracted metadata available",
+                "NO_METADATA_HELPER": "This document does not expose extracted highlights for the current account view."
+            },
+            "STATUS": {
+                "REVIEW_REQUIRED": "Review Required",
+                "LOW_CONFIDENCE": "Low Confidence",
+                "COMPLETE": "Complete",
+                "MISSING_SUPPORT": "Missing Support",
+                "PARTIAL": "Partial",
+                "REVIEWED": "Reviewed",
+                "READY_FOR_ANALYSIS": "Ready for Analysis",
+                "REVIEW_IN_PROGRESS": "Review in Progress",
+                "SUPPORT_PENDING": "Support Pending",
+                "EXTRACTION_REVIEW_REQUIRED": "Extraction review required",
+                "SEPARATION_REVIEW_REQUIRED": "Separation review required",
+                "CLASSIFICATION_REVIEW_REQUIRED": "Classification review required",
+                "REVIEW_NOT_REQUIRED": "Review not required",
+                "CLASSIFIED": "Classified",
+                "EXTRACTED": "Extracted"
+            },
+            "ERRORS": {
+                "BATCH_STATE": "batchState error",
+                "UNABLE_RENDER": "Unable to render intake dashboard"
+            }
+        },
+        "AGENT_RULES_WIDGET": {
+            "ENTITY": {
+                "CONTRACT_ID": "Contract ID",
+                "CAPITATION": "Capitation base"
+            },
+            "PAYERS": {
+                "TITLE": "Payers",
+                "FILTER": "Filter payers...",
+                "EXPIRES": "Expires",
+                "LAST_EDIT": "Last edit",
+                "DEMO_READONLY": "Demo profile — not sent to agents",
+                "STATUS": {
+                    "ACTIVE": "Active",
+                    "DRAFT": "Draft"
+                }
+            },
+            "TABS": {
+                "GENERAL": "General",
+                "TARIFFS": "Tariffs",
+                "AI_RULES": "AI Rules",
+                "DOCUMENTS": "Documents"
+            },
+            "TOOLBAR": {
+                "POPULATED": "Populated",
+                "MISSING": "Missing",
+                "RULES": "Rules",
+                "SEARCH": "Search by code, rule id, or description...",
+                "ONLY_ISSUES": "Only issues"
+            },
+            "GENERAL": {
+                "CONTRACT_EYEBROW": "Contract details",
+                "CONTRACT_TITLE": "General information",
+                "FINANCIAL_EYEBROW": "Execution status",
+                "FINANCIAL_TITLE": "Financial summary",
+                "LEGAL_REP": "Legal representative",
+                "CONTRACT_TYPE": "Contract type",
+                "EFFECTIVE_FROM": "Start date",
+                "EFFECTIVE_TO": "End date",
+                "JURISDICTION": "Jurisdiction",
+                "PAYER": "Payer",
+                "BUDGET_TOTAL": "Total budget",
+                "BILLED_YTD": "Billed YTD",
+                "PENDING_APPROVAL": "Pending approval"
+            },
+            "TARIFFS": {
+                "CODE": "Code",
+                "DESCRIPTION": "Description",
+                "AMOUNT": "Expected amount",
+                "MODIFIER": "Modifier",
+                "STATUS": "Status",
+                "EMPTY": "No tariff agreement payload is available."
+            },
+            "DOCUMENTS": {
+                "PRIMARY": "Primary document",
+                "OPEN_FULL": "Open full viewer",
+                "CLOSE_FULL": "Close viewer",
+                "LOADING": "Loading contract preview...",
+                "NATIVE_LOADING_TITLE": "Preparing native viewer",
+                "NATIVE_LOADING_MESSAGE": "Rendering the document inside the Hyland viewer.",
+                "RELATED": "Related files",
+                "METADATA": "Document metadata",
+                "EXPIRES": "Expires"
+            },
+            "DEBUG": {
+                "TITLE": "Developer tools",
+                "COPY_BATCH": "Copy batchState JSON",
+                "COPIED": "Copied"
+            },
+            "EMPTY": {
+                "TITLE": "No rule payload available",
+                "DESCRIPTION": "Confirm that the Script task mapped agentRulesWidget into this form field."
+            }
         }
     }
 }

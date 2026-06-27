@@ -1,0 +1,38 @@
+<section class="section-block">
+    <h2>{{ 'MEDICAL_RECORDS.SECTIONS.INSIGHTS' | translate }}</h2>
+    <div class="insights-grid">
+        <ng-container *ngFor="let widgetId of widgetOrder; trackBy: trackByWidgetId">
+            <medical-records-dashboard-metric-widget
+                *ngIf="widgets[widgetId]?.type === 'metric' && isInsightWidget(widgetId)"
+                [config]="widgets[widgetId]"
+                [class.recovery-card]="widgetId === 'recovery-rate'"
+                [class.completion-card]="widgetId === 'completion-rate'"
+            ></medical-records-dashboard-metric-widget>
+
+            <medical-records-dashboard-chart-widget
+                *ngIf="widgets[widgetId]?.type === 'chart'"
+                [config]="widgets[widgetId]"
+            ></medical-records-dashboard-chart-widget>
+        </ng-container>
+    </div>
+</section>
+
+<section class="section-block" *ngIf="widgetOrder.includes('performance-metrics')">
+    <h2>{{ 'MEDICAL_RECORDS.SECTIONS.PERFORMANCE_METRICS' | translate }}</h2>
+    <div class="metrics-grid">
+        <article class="metric-card" *ngFor="let metric of performanceMetrics">
+            <span>{{ metric.labelKey | translate }}</span>
+            <strong>{{ metric.value }}</strong>
+            <p [class.negative]="!metric.positive">
+                <span class="material-icons">{{ metric.positive ? 'arrow_outward' : 'south_east' }}</span>
+                {{ metric.helperKey | translate }}
+            </p>
+        </article>
+    </div>
+</section>
+
+<medical-records-dashboard-process-list-widget
+    *ngIf="widgetOrder.includes('process-list')"
+    [titleKey]="widgets['process-list']?.titleKey || 'MEDICAL_RECORDS.SECTIONS.ATTENTION_REQUIRED'"
+    (itemSelected)="onProcessSelected($event)"
+></medical-records-dashboard-process-list-widget>

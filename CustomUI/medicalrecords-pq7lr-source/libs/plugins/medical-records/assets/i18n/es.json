@@ -1,15 +1,16 @@
 {
     "PLUGIN_MESSAGE": "Este es un mensaje de complemento",
     "MEDICAL_RECORDS": {
-        "BRAND": "Hyland Cuentas Medicas",
+        "BRAND": "Tablero",
         "NAV": {
             "MENU_ITEM": "Cuentas Medicas",
             "PHASE_NAV_ARIA": "Navegacion de fases de cuentas medicas",
-            "QUICK_LINKS_ARIA": "Accesos rapidos de cuentas medicas"
+            "QUICK_LINKS_ARIA": "Accesos rapidos del tablero"
         },
         "TOP_LINKS": {
             "AGREEMENTS": "Configuracion de Convenios",
-            "ANALYTICS": "Analitica de Procesos"
+            "ANALYTICS": "Analitica de Procesos",
+            "ANALYTICS_SOON": "Proximamente"
         },
         "ACTIONS": {
             "EXPORT_REPORT": "Exportar reporte",
@@ -30,8 +31,8 @@
         },
         "PAGES": {
             "OVERVIEW": {
-                "TITLE": "Tablero de Resumen del Proceso",
-                "DESCRIPTION": "Centro operativo unificado para facturacion medica, prevencion de glosas, preparacion de auditoria y desempeno de recuperacion."
+                "TITLE": "Resumen operativo de procesos activos y actividad del repositorio",
+                "DESCRIPTION": "Monitorea flujos activos, senales del repositorio y elementos que requieren atencion."
             },
             "INTAKE": {
                 "TITLE": "Expediente Unificado - Ingreso",
@@ -59,10 +60,45 @@
             }
         },
         "SECTIONS": {
-            "ATTENTION_REQUIRED": "Atencion Requerida",
+            "ATTENTION_REQUIRED": "Tareas abiertas",
             "CRITICAL_COUNT": "3 Criticas",
             "INSIGHTS": "Indicadores",
             "PERFORMANCE_METRICS": "Metricas de Desempeno"
+        },
+        "DASHBOARD": {
+            "DOCUMENT_VOLUME": "Documentos del Repositorio",
+            "DOCUMENT_VOLUME_HELPER": "Conteo en vivo desde consulta nativa de Content",
+            "CONTENT_SOURCE": "Consulta Content",
+            "REFRESH": "Actualizar"
+        },
+        "DASHBOARD_BUILDER": {
+            "EYEBROW": "Configuracion",
+            "TITLE": "Constructor de Tablero",
+            "DESCRIPTION": "Futuro espacio para reglas de convenios, widgets de reportes y configuracion del layout.",
+            "BACK": "Volver al tablero",
+            "PALETTE_TITLE": "Paleta de widgets",
+            "WIDGET_METRIC": "Widget metrica",
+            "WIDGET_CHART": "Widget grafica",
+            "WIDGET_PROCESS_LIST": "Widget lista de procesos",
+            "RESET_LAYOUT": "Restaurar layout demo",
+            "RESET_DONE": "Layout predeterminado restaurado.",
+            "CANVAS_TITLE": "Lienzo del constructor",
+            "CANVAS_MESSAGE": "Este shell alojara widgets agregables respaldados por consultas nativas de Content y variables de proceso."
+        },
+        "PROCESS_LIST": {
+            "LOADING": "Cargando tareas abiertas...",
+            "EMPTY": "No se encontraron tareas medical-records abiertas.",
+            "ERROR": "No fue posible cargar las tareas desde Automate.",
+            "RETRY": "Reintentar"
+        },
+        "BULK_TASKS": {
+            "SELECT_ALL_FILTERED": "Seleccionar tareas filtradas",
+            "SELECTED_SUMMARY": "{{selected}} seleccionadas · {{eligible}} elegibles para aprobar",
+            "MIXED_TYPES": "Selecciona tareas del mismo tipo para usar aprobacion masiva.",
+            "VIEW_REASONS": "Ver motivos de no elegibles",
+            "APPROVE_ELIGIBLE": "Aprobar elegibles",
+            "PROCESSING": "Completando tareas seleccionadas...",
+            "RESULT_SUMMARY": "{{succeeded}} completadas · {{failed}} fallidas"
         },
         "CARDS": {
             "DAILY_PROCESSING_VOLUME": "Volumen diario de procesamiento",
@@ -92,6 +128,314 @@
             "SLA_COMPLIANCE": "Cumplimiento SLA",
             "TOTAL_PROCESSES": "Procesos totales",
             "USER_ACTIVITY": "Actividad de usuario"
+        },
+        "ANALYSIS_WIDGET": {
+            "HEADER": {
+                "EYEBROW": "Prevalidacion IA",
+                "TITLE": "Fase de Analisis",
+                "DESCRIPTION": "Revise los hallazgos automatizados y atienda los riesgos identificados antes de continuar con la aprobacion manual."
+            },
+            "METRICS": {
+                "INCONSISTENCIES": "Inconsistencias",
+                "COMPLIANCE_GAPS": "Brechas de cumplimiento",
+                "FINANCIAL_ISSUES": "Hallazgos financieros"
+            },
+            "RISK": {
+                "SCORE_LABEL": "Puntaje de riesgo de glosa",
+                "ANALYZED_CLAIMS": "Reclamos analizados",
+                "TOTAL_VALUE": "Valor total",
+                "APPROVAL_STATE": "Estado de aprobacion"
+            },
+            "APPROVAL_STATE": {
+                "BLOCKED": "Bloqueado por revision de agentes",
+                "READY": "Listo para continuar"
+            },
+            "MISSING_AGENTS": "Esperando {{agents}}.",
+            "VIEW_ALL_FINDINGS": "Ver todos los hallazgos ({{count}})",
+            "FILTER": "Filtrar",
+            "DEMO_DISCLAIMER": "Demo: complete las acciones correctivas fuera de este widget y use los botones del formulario al pie de la tarea.",
+            "FINDINGS": {
+                "EYEBROW": "Revision detallada",
+                "TITLE": "Todos los hallazgos",
+                "DESCRIPTION": "Cada hallazgo devuelto por los agentes de codificacion, cumplimiento y finanzas.",
+                "REASON": "Motivo:",
+                "RECOMMENDATION": "Recomendacion:",
+                "SOURCE": "Fuente:",
+                "EMPTY": "Ningun hallazgo coincide con los filtros actuales."
+            },
+            "FILTERS": {
+                "AGENT": "Agente",
+                "RISK": "Riesgo",
+                "TYPE": "Tipo",
+                "ALL": "Todos",
+                "CLEAR": "Limpiar filtros"
+            },
+            "TABLE": {
+                "EYEBROW": "Hallazgos mapeados",
+                "TITLE": "Hallazgos por alcance",
+                "SUMMARY": "Problemas a nivel de servicio y de cuenta segun los agentes.",
+                "BY_SERVICE": "Por servicio",
+                "ACCOUNT_LEVEL": "Nivel cuenta",
+                "CODE": "Codigo",
+                "DESCRIPTION": "Descripcion",
+                "AMOUNT": "Monto facturado",
+                "STATUS": "Estado IA",
+                "EMPTY": "No hay hallazgos para esta vista."
+            },
+            "ACTIONS_PANEL": {
+                "EYEBROW": "Cola de resolucion",
+                "TITLE": "Acciones recomendadas"
+            },
+            "ACTIONS": {
+                "UPDATE_CUPS": "Actualizar CUPS",
+                "REQUEST_AUTHORIZATION": "Solicitar autorizacion",
+                "REVIEW_CONTRACT": "Revisar contrato",
+                "OPEN_FINDINGS": "Abrir hallazgos"
+            },
+            "MODAL": {
+                "FINDINGS": "Hallazgos",
+                "RECOMMENDED": "Acciones recomendadas"
+            }
+        },
+        "INTAKE_WIDGET": {
+            "ALIAS": {
+                "TITLE": "Conciliacion OCR aplicada",
+                "USE_DISPLAY_NAME": "Usar como nombre visible",
+                "ACCEPT": "Aceptar",
+                "COLLAPSE": "Colapsar",
+            "REOPEN": "Conciliacion OCR",
+                "EXPAND": "Mostrar conciliacion",
+                "ACCEPTED_SUMMARY": "Nombre reconciliado"
+            },
+            "HINTS": {
+                "DOCS": "{{count}} docs",
+                "SERVICES": "{{count}} servicios",
+                "SINGLE_BATCH": "Lote de paciente unico",
+                "OCR": "Conciliacion OCR",
+                "PATIENT_ACCOUNTS": "{{count}} cuentas de paciente"
+            },
+            "PATIENT_SELECTOR": {
+                "EYEBROW": "Selector de pacientes",
+                "TITLE": "Pacientes incluidos en este lote",
+                "PATIENTS": "pacientes",
+                "DEMOGRAPHICS_PENDING": "Demograficos pendientes",
+                "SERVICES_DOCS": "{{services}} servicios - {{docs}} docs",
+                "MERGE_INTO_SELECTED": "Fusionar con seleccionado"
+            },
+            "HEADER": {
+                "PATIENT_PENDING": "Paciente pendiente",
+                "READ_ONLY": "Solo lectura",
+                "MRN": "MRN",
+                "ID": "ID",
+                "DOB": "Nac.",
+                "PROVIDER": "Prestador",
+                "INSURANCE": "Seguro",
+                "PROVIDER_PENDING": "Prestador pendiente",
+                "INVOICE": "Factura",
+                "ADMISSION": "Admision",
+                "DISCHARGE": "Alta",
+                "INSURANCE_PENDING": "Seguro pendiente",
+                "PENDING": "Pendiente",
+                "UPLOAD": "Cargar",
+                "PROCEED": "Continuar a analisis"
+            },
+            "SUMMARY": {
+                "ALL": "Total servicios",
+                "ALL_HELPER": "Ver todos los servicios",
+                "COMPLETE": "Completos",
+                "COMPLETE_HELPER": "Servicios con soporte completo",
+                "MISSING_SUPPORT": "Soporte faltante",
+                "MISSING_SUPPORT_HELPER": "Servicios con documentos faltantes",
+                "PENDING_REVIEW": "Revision pendiente",
+                "PENDING_REVIEW_HELPER": "Servicios o documentos marcados para revision",
+                "LOW_CONFIDENCE": "Baja confianza",
+                "LOW_CONFIDENCE_HELPER": "Confianza por debajo del umbral",
+                "DOCUMENTS": "Total documentos",
+                "DOCUMENTS_HELPER": "Repositorio general de soporte",
+                "READINESS": "Preparacion para analisis",
+                "MARK_ALL_REVIEWED": "Marcar revisiones como completadas"
+            },
+            "READINESS": {
+                "HELPER_SINGLE": "{{status}}. {{blocker}}",
+                "HELPER_MULTIPLE": "{{status}}. {{blocker}} (+{{more}} mas)",
+                "BLOCKER_MISSING_SUPPORT": "{{count}} servicio(s) aun tienen soporte faltante.",
+                "BLOCKER_PENDING_REVIEW": "{{count}} servicio(s) aun requieren revision.",
+                "BLOCKER_REJECTED": "Los documentos rechazados deben resolverse antes de avanzar al analisis.",
+                "BLOCKER_NO_SERVICES": "No se mapearon servicios facturables para esta cuenta."
+            },
+            "SERVICES": {
+                "EYEBROW": "Servicios",
+                "TITLE": "Explorador de servicios",
+                "VISIBLE": "visibles",
+                "SEARCH_LABEL": "Buscar servicios",
+                "SEARCH_PLACEHOLDER": "Codigo, CUP, descripcion o categoria",
+                "CLEAR_SEARCH": "Limpiar busqueda",
+                "PENDING_DATE": "Fecha pendiente",
+                "CODE": "Codigo",
+                "CUP": "CUP",
+                "DETECTED_SERVICE": "Servicio detectado",
+                "QTY": "Cant.",
+                "PRICE": "Precio",
+                "COMPLETION": "Completitud",
+                "EXPAND": "Expandir",
+                "COLLAPSE": "Contraer",
+                "SUPPORT_PACKAGE": "Paquete de soporte",
+                "REQUIRED": "Requeridos",
+                "PRESENT": "Presentes",
+                "MISSING": "Faltantes",
+                "DETECTION_DETAILS": "Detalle de deteccion",
+                "SOURCE": "Fuente",
+                "PENDING_SOURCE": "Fuente pendiente",
+                "PENDING_INVOICE": "Factura pendiente",
+                "COVERAGE": "Cobertura",
+                "PENDING_COVERAGE": "Cobertura pendiente",
+                "CONFIDENCE": "Confianza",
+                "NOT_AVAILABLE": "No disponible",
+                "ALERTS": "Alertas",
+                "ACQUIRE_DOCUMENT": "Adquirir documento",
+                "UPLOAD_MANUALLY": "Cargar manualmente",
+                "MARK_REVIEWED": "Marcar como revisado",
+                "MARKED_REVIEWED": "Revisado",
+                "NO_SERVICES": "No se detectaron servicios",
+                "NO_SERVICES_HELPER": "El widget no encontro filas de servicios facturados en batchState.",
+                "NO_FILTER_MATCH": "Ningun servicio coincide con el filtro",
+                "NO_FILTER_MATCH_HELPER": "Prueba otro filtro o limpia la busqueda."
+            },
+            "DOCUMENTS": {
+                "EYEBROW": "Repositorio",
+                "TITLE": "Centro de control documental",
+                "DOCS": "docs",
+                "CAPTURE": "Captura",
+                "PENDING_TITLE": "Documentos de soporte pendientes",
+                "PENDING_HELPER": "Derivado de los servicios actuales de la cuenta.",
+                "PENDING_COMPLETE_HELPER": "Todos los soportes requeridos estan cubiertos.",
+                "PENDING_BADGE": "pendiente",
+                "PENDING_BADGE_PLURAL": "pendientes",
+                "REQUIRED_BY": "Requerido por {{count}} servicios",
+                "REQUIRED_BY_ONE": "Requerido por 1 servicio",
+                "CLEAR_FILTER": "Limpiar filtro",
+                "UPLOAD": "Cargar documento",
+                "CLASS": "Clasif.",
+                "EXTRACT": "Extracc.",
+                "REVIEW_STATUS": "Estado de revision",
+                "EXTRACTED_VALUES": "Valores extraidos",
+                "CONTENT_REF": "Referencia de contenido",
+                "NO_REFERENCE": "Sin referencia",
+                "VIEW_DOCUMENT": "Ver documento",
+                "MARK_REVIEWED": "Marcar como revisado",
+                "MARKED_REVIEWED": "Revisado",
+                "NO_DOCUMENTS": "No hay documentos mapeados",
+                "NO_DOCUMENTS_HELPER": "Agrega documentos de soporte para visualizar el repositorio.",
+                "ALL_COVERED": "Todos los soportes requeridos estan cubiertos.",
+                "ALL_COVERED_HELPER": "Aun puedes adjuntar documentos adicionales si la cuenta lo requiere."
+            },
+            "VIEWER": {
+                "PREVIEW": "Vista previa",
+                "METADATA": "Metadatos",
+                "CLOSE": "Cerrar",
+                "LOADING": "Cargando vista previa",
+                "LOADING_HELPER": "Recuperando el archivo del repositorio.",
+                "PREPARING": "Preparando vista previa",
+                "PREPARING_HELPER": "Renderizando el documento en el visor.",
+                "NO_PREVIEW": "No hay referencia de vista previa",
+                "NO_PREVIEW_HELPER": "El documento no expone una referencia resoluble desde batchState.",
+                "NO_METADATA": "No hay metadatos extraidos",
+                "NO_METADATA_HELPER": "Este documento no expone campos extraidos para la cuenta actual."
+            },
+            "STATUS": {
+                "REVIEW_REQUIRED": "Revision requerida",
+                "LOW_CONFIDENCE": "Baja confianza",
+                "COMPLETE": "Completo",
+                "MISSING_SUPPORT": "Soporte faltante",
+                "PARTIAL": "Parcial",
+                "REVIEWED": "Revisado",
+                "READY_FOR_ANALYSIS": "Listo para analisis",
+                "REVIEW_IN_PROGRESS": "Revision en curso",
+                "SUPPORT_PENDING": "Soporte pendiente",
+                "EXTRACTION_REVIEW_REQUIRED": "Extraccion pendiente de revision",
+                "SEPARATION_REVIEW_REQUIRED": "Separacion pendiente de revision",
+                "CLASSIFICATION_REVIEW_REQUIRED": "Clasificacion pendiente de revision",
+                "REVIEW_NOT_REQUIRED": "Revision no requerida",
+                "CLASSIFIED": "Clasificado",
+                "EXTRACTED": "Extraido"
+            },
+            "ERRORS": {
+                "BATCH_STATE": "Error de batchState",
+                "UNABLE_RENDER": "No fue posible renderizar el tablero de ingreso"
+            }
+        },
+        "AGENT_RULES_WIDGET": {
+            "ENTITY": {
+                "CONTRACT_ID": "ID de contrato",
+                "CAPITATION": "Base de capitacion"
+            },
+            "PAYERS": {
+                "TITLE": "Pagadores",
+                "FILTER": "Filtrar pagadores...",
+                "EXPIRES": "Vence",
+                "LAST_EDIT": "Ultima edicion",
+                "DEMO_READONLY": "Perfil demo — no se envia a los agentes",
+                "STATUS": {
+                    "ACTIVE": "Activo",
+                    "DRAFT": "Borrador"
+                }
+            },
+            "TABS": {
+                "GENERAL": "General",
+                "TARIFFS": "Tarifas",
+                "AI_RULES": "Reglas AI",
+                "DOCUMENTS": "Documentos"
+            },
+            "TOOLBAR": {
+                "POPULATED": "Completos",
+                "MISSING": "Faltantes",
+                "RULES": "Reglas",
+                "SEARCH": "Buscar por codigo, regla o descripcion...",
+                "ONLY_ISSUES": "Solo incidencias"
+            },
+            "GENERAL": {
+                "CONTRACT_EYEBROW": "Detalles del contrato",
+                "CONTRACT_TITLE": "Informacion general",
+                "FINANCIAL_EYEBROW": "Estado de ejecucion",
+                "FINANCIAL_TITLE": "Resumen financiero",
+                "LEGAL_REP": "Representante legal",
+                "CONTRACT_TYPE": "Tipo de contrato",
+                "EFFECTIVE_FROM": "Fecha inicio",
+                "EFFECTIVE_TO": "Fecha fin",
+                "JURISDICTION": "Jurisdiccion",
+                "PAYER": "Pagador",
+                "BUDGET_TOTAL": "Presupuesto total",
+                "BILLED_YTD": "Facturado YTD",
+                "PENDING_APPROVAL": "Pendiente aprobacion"
+            },
+            "TARIFFS": {
+                "CODE": "Codigo",
+                "DESCRIPTION": "Descripcion",
+                "AMOUNT": "Monto esperado",
+                "MODIFIER": "Modificador",
+                "STATUS": "Estado",
+                "EMPTY": "No hay payload de tarifas disponible."
+            },
+            "DOCUMENTS": {
+                "PRIMARY": "Documento principal",
+                "OPEN_FULL": "Abrir visor completo",
+                "CLOSE_FULL": "Cerrar visor",
+                "LOADING": "Cargando vista previa del contrato...",
+                "NATIVE_LOADING_TITLE": "Preparando visor nativo",
+                "NATIVE_LOADING_MESSAGE": "Renderizando el documento en el visor Hyland.",
+                "RELATED": "Archivos relacionados",
+                "METADATA": "Metadatos del documento",
+                "EXPIRES": "Vence"
+            },
+            "DEBUG": {
+                "TITLE": "Herramientas de desarrollo",
+                "COPY_BATCH": "Copiar JSON de batchState",
+                "COPIED": "Copiado"
+            },
+            "EMPTY": {
+                "TITLE": "No hay payload de reglas disponible",
+                "DESCRIPTION": "Confirma que el Script task mapeo agentRulesWidget en este campo del formulario."
+            }
         }
     }
 }

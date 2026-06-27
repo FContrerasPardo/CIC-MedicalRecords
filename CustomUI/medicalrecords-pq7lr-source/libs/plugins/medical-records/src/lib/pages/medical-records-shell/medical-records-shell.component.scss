@@ -43,7 +43,6 @@
 .brand-cluster,
 .top-links,
 .header-actions,
-.phase-nav,
 .card-title-row,
 .attention-header,
 .attention-title,
@@ -66,7 +65,18 @@
     flex: 1 1 460px;
     flex-wrap: wrap;
     min-width: 0;
-    gap: 30px;
+    gap: 24px;
+}
+
+.brand-copy {
+    min-width: 0;
+}
+
+.brand-subtitle {
+    margin: 6px 0 0;
+    color: #5d6778;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .brand-name {
@@ -87,6 +97,13 @@
     font-size: 13px;
     font-weight: 700;
     text-decoration: none;
+}
+
+.top-link-disabled {
+    color: #98a2b3;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: not-allowed;
 }
 
 .header-actions {
@@ -240,12 +257,7 @@ button {
     letter-spacing: -0.035em;
 }
 
-.experience-header,
-.brand-cluster,
-.top-links,
-.header-actions,
 .process-heading,
-.phase-nav,
 .section-block,
 .phase-screen,
 .phase-screen-header,
@@ -2003,20 +2015,6 @@ button {
     .header-actions {
         justify-content: flex-start;
         flex-wrap: wrap;
-    }
-
-    .phase-nav {
-        flex-wrap: wrap;
-        overflow-x: visible;
-        border-radius: 24px;
-    }
-
-    .phase-link {
-        flex: 1 1 calc(50% - 8px);
-    }
-
-    .nav-separator {
-        display: none;
     }
 
     .spotlight-card strong {

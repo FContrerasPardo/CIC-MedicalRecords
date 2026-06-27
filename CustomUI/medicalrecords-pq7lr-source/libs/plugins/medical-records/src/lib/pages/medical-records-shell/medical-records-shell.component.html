@@ -1,152 +1,34 @@
 <section class="medical-records-experience" [attr.aria-label]="activeDetail.titleKey | translate">
+    <medical-records-dashboard-builder-shell *ngIf="isConfigureView; else dashboardExperience"></medical-records-dashboard-builder-shell>
+
+    <ng-template #dashboardExperience>
     <div class="dashboard-shell">
         <header class="experience-header">
             <div class="brand-cluster">
-                <span class="brand-name">{{ 'MEDICAL_RECORDS.BRAND' | translate }}</span>
+                <div class="brand-copy">
+                    <span class="brand-name">{{ 'MEDICAL_RECORDS.BRAND' | translate }}</span>
+                    <p class="brand-subtitle" *ngIf="activePhase.key === 'overview'">{{ 'MEDICAL_RECORDS.PAGES.OVERVIEW.TITLE' | translate }}</p>
+                </div>
                 <nav class="top-links" [attr.aria-label]="'MEDICAL_RECORDS.NAV.QUICK_LINKS_ARIA' | translate">
-                    <a href="#">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</a>
-                    <a href="#">{{ 'MEDICAL_RECORDS.TOP_LINKS.ANALYTICS' | translate }}</a>
+                    <a routerLink="/medical-records/configure">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</a>
+                    <span class="top-link-disabled" [title]="'MEDICAL_RECORDS.TOP_LINKS.ANALYTICS_SOON' | translate">
+                        {{ 'MEDICAL_RECORDS.TOP_LINKS.ANALYTICS' | translate }}
+                    </span>
                 </nav>
             </div>
 
             <div class="header-actions">
-                <button type="button" class="icon-button" [attr.aria-label]="'MEDICAL_RECORDS.ACTIONS.NOTIFICATIONS' | translate">
-                    <span class="material-icons">notifications</span>
-                </button>
-                <button type="button" class="icon-button" [attr.aria-label]="'MEDICAL_RECORDS.ACTIONS.USER_PROFILE' | translate">
-                    <span class="material-icons">account_circle</span>
-                </button>
-                <button type="button" class="ghost-action">{{ 'MEDICAL_RECORDS.ACTIONS.EXPORT_REPORT' | translate }}</button>
                 <button type="button" class="primary-action" (click)="openStartProcess()">{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}</button>
             </div>
         </header>
 
-        <section class="process-heading">
+        <section class="process-heading" *ngIf="activePhase.key !== 'overview'">
             <h1>{{ activeDetail.titleKey | translate }}</h1>
-            <p *ngIf="activePhase.key !== 'overview'">{{ activeDetail.descriptionKey | translate }}</p>
-
-            <nav class="phase-nav" [attr.aria-label]="'MEDICAL_RECORDS.NAV.PHASE_NAV_ARIA' | translate">
-                <ng-container *ngFor="let phase of phases; trackBy: trackByPhase">
-                    <a
-                        class="phase-link"
-                        [routerLink]="phase.route ? ['/medical-records', phase.route] : ['/medical-records']"
-                        [class.active]="activePhase.key === phase.key"
-                        [class.completed]="activePhase.order > phase.order"
-                    >{{ phase.labelKey | translate }}</a>
-                    <span *ngIf="phase.order < phases.length - 1" class="material-icons nav-separator">chevron_right</span>
-                </ng-container>
-            </nav>
+            <p>{{ activeDetail.descriptionKey | translate }}</p>
         </section>
 
         <ng-container *ngIf="activePhase.key === 'overview'; else nonOverviewWorkspace">
-            <section class="section-block">
-                <h2>{{ 'MEDICAL_RECORDS.SECTIONS.INSIGHTS' | translate }}</h2>
-                <div class="insights-grid">
-                    <article class="spotlight-card recovery-card">
-                        <div class="card-title-row">
-                            <h3>{{ 'MEDICAL_RECORDS.CARDS.TOTAL_RECOVERY_RATE' | translate }}</h3>
-                            <span class="round-icon material-icons">trending_up</span>
-                        </div>
-                        <strong>87.4%</strong>
-                        <p>{{ 'MEDICAL_RECORDS.CARDS.TOTAL_RECOVERY_RATE_HELPER' | translate }}</p>
-                    </article>
-
-                    <article class="spotlight-card productivity-card">
-                        <div class="card-title-row">
-                            <div>
-                                <h3>{{ 'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_BY_HOUR' | translate }}</h3>
-                                <p>{{ 'MEDICAL_RECORDS.CARDS.DAILY_PROCESSING_VOLUME' | translate }}</p>
-                            </div>
-                            <div class="segment-control">
-                                <span>{{ 'MEDICAL_RECORDS.CARDS.TODAY' | translate }}</span>
-                                <span>{{ 'MEDICAL_RECORDS.CARDS.WEEK' | translate }}</span>
-                            </div>
-                        </div>
-                        <div class="bar-chart" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
-                            <span
-                                *ngFor="let bar of chartBars; let index = index; trackBy: trackByIndex"
-                                [class.alt]="index % 2 === 0"
-                                [style.height.%]="bar"
-                            ></span>
-                        </div>
-                        <div class="chart-axis">
-                            <span>12am</span>
-                            <span>4am</span>
-                            <span>8am</span>
-                            <span>12pm</span>
-                            <span>4pm</span>
-                            <span>8pm</span>
-                        </div>
-                    </article>
-
-                    <article class="spotlight-card completion-card">
-                        <div class="card-title-row">
-                            <h3>{{ 'MEDICAL_RECORDS.CARDS.PROCESS_COMPLETION' | translate }}</h3>
-                            <span class="round-icon material-icons">check_circle</span>
-                        </div>
-                        <strong>95%</strong>
-                        <p>{{ 'MEDICAL_RECORDS.CARDS.PROCESS_COMPLETION_HELPER' | translate }}</p>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <h2>{{ 'MEDICAL_RECORDS.SECTIONS.PERFORMANCE_METRICS' | translate }}</h2>
-                <div class="metrics-grid">
-                    <article class="metric-card" *ngFor="let metric of performanceMetrics">
-                        <span>{{ metric.labelKey | translate }}</span>
-                        <strong>{{ metric.value }}</strong>
-                        <p [class.negative]="!metric.positive">
-                            <span class="material-icons">{{ metric.positive ? 'arrow_outward' : 'south_east' }}</span>
-                            {{ metric.helperKey | translate }}
-                        </p>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section-block attention-section">
-                <div class="attention-header">
-                    <div class="attention-title">
-                        <h2>{{ 'MEDICAL_RECORDS.SECTIONS.ATTENTION_REQUIRED' | translate }}</h2>
-                        <span>{{ 'MEDICAL_RECORDS.SECTIONS.CRITICAL_COUNT' | translate }}</span>
-                    </div>
-                    <div class="attention-tools">
-                        <label class="search-box">
-                            <span class="material-icons">search</span>
-                            <input
-                                type="text"
-                                [placeholder]="'MEDICAL_RECORDS.ACTIONS.SEARCH_ACCOUNTS' | translate"
-                                [attr.aria-label]="'MEDICAL_RECORDS.ACTIONS.SEARCH_ACCOUNTS' | translate"
-                            />
-                        </label>
-                        <button type="button" class="filter-button">
-                            <span class="material-icons">tune</span>
-                            {{ 'MEDICAL_RECORDS.ACTIONS.FILTER' | translate }}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="attention-list">
-                    <article
-                        class="attention-item native-link-row"
-                        *ngFor="let item of attentionItems"
-                        [ngClass]="'tone-' + item.tone"
-                        role="button"
-                        tabindex="0"
-                        (click)="openTaskDetails(item)"
-                        (keydown.enter)="openTaskDetails(item)"
-                    >
-                        <div class="attention-icon">
-                            <span class="material-icons">{{ item.icon }}</span>
-                        </div>
-                        <div>
-                            <strong>{{ item.title }}</strong>
-                            <p>{{ item.subtitle }}</p>
-                        </div>
-                        <small>{{ item.meta }}</small>
-                    </article>
-                </div>
-            </section>
+            <medical-records-dashboard-overview (processSelected)="openTaskDetails($event)"></medical-records-dashboard-overview>
         </ng-container>
 
         <ng-template #nonOverviewWorkspace>
@@ -814,4 +696,5 @@
             </ng-container>
         </ng-template>
     </div>
+    </ng-template>
 </section>

@@ -1,0 +1,27 @@
+<article class="spotlight-card productivity-card dashboard-chart-widget">
+    <div class="card-title-row">
+        <div>
+            <h3 *ngIf="config.titleKey">{{ config.titleKey | translate }}</h3>
+            <p *ngIf="config.helperKey">{{ config.helperKey | translate }}</p>
+        </div>
+        <div class="segment-control">
+            <span>{{ 'MEDICAL_RECORDS.CARDS.TODAY' | translate }}</span>
+            <span>{{ 'MEDICAL_RECORDS.CARDS.WEEK' | translate }}</span>
+        </div>
+    </div>
+    <div class="bar-chart" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
+        <span
+            *ngFor="let bar of data.bars; let index = index; trackBy: trackByIndex"
+            [class.alt]="index % 2 === 0"
+            [style.height.%]="bar"
+        ></span>
+    </div>
+    <div class="chart-axis">
+        <span>12am</span>
+        <span>4am</span>
+        <span>8am</span>
+        <span>12pm</span>
+        <span>4pm</span>
+        <span>8pm</span>
+    </div>
+</article>

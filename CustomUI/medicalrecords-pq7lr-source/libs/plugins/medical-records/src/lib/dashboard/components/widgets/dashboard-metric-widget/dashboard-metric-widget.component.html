@@ -1,0 +1,9 @@
+<article class="spotlight-card dashboard-metric-widget" [class.dashboard-metric-widget--loading]="data.loading">
+    <div class="card-title-row">
+        <h3 *ngIf="config.titleKey">{{ config.titleKey | translate }}</h3>
+        <span class="round-icon material-icons" *ngIf="config.icon">{{ config.icon }}</span>
+    </div>
+    <strong>{{ data.value }}</strong>
+    <p *ngIf="data.helper">{{ data.helper | translate }}</p>
+    <small *ngIf="data.source === 'content'">{{ 'MEDICAL_RECORDS.DASHBOARD.CONTENT_SOURCE' | translate }}</small>
+</article>

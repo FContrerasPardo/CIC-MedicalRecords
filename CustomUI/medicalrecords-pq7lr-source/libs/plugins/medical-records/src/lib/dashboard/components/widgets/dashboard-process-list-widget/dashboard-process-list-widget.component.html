@@ -1,0 +1,255 @@
+<section class="section-block attention-section" *ngIf="state$ | async as state">
+
+    <div class="attention-header">
+
+        <div class="attention-title">
+
+            <h2>{{ titleKey | translate }}</h2>
+
+            <span *ngIf="state.items.length">{{ state.items.length }}</span>
+
+        </div>
+
+        <div class="attention-tools">
+
+            <label class="search-box">
+
+                <span class="material-icons">search</span>
+
+                <input
+
+                    type="text"
+
+                    [(ngModel)]="searchTerm"
+
+                    [placeholder]="'MEDICAL_RECORDS.ACTIONS.SEARCH_ACCOUNTS' | translate"
+
+                    [attr.aria-label]="'MEDICAL_RECORDS.ACTIONS.SEARCH_ACCOUNTS' | translate"
+
+                />
+
+            </label>
+
+            <button type="button" class="filter-button" (click)="retry()" [disabled]="state.loading || bulkProcessing">
+
+                <span class="material-icons">refresh</span>
+
+                {{ 'MEDICAL_RECORDS.DASHBOARD.REFRESH' | translate }}
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="bulk-action-bar" *ngIf="selectedIds.size > 0">
+
+        <div class="bulk-action-copy">
+
+            <strong>
+
+                {{
+
+                    'MEDICAL_RECORDS.BULK_TASKS.SELECTED_SUMMARY'
+
+                        | translate
+
+                            : {
+
+                                  selected: selectedIds.size,
+
+                                  eligible: selectionEvaluation?.eligibleCount ?? 0
+
+                              }
+
+                }}
+
+            </strong>
+
+            <p *ngIf="selectionEvaluation?.mixedTaskTypes">
+
+                {{ 'MEDICAL_RECORDS.BULK_TASKS.MIXED_TYPES' | translate }}
+
+            </p>
+
+            <p *ngIf="selectionEvaluation && !selectionEvaluation.mixedTaskTypes && selectionEvaluation.ineligibleCount > 0">
+
+                <button type="button" class="ghost-action" (click)="toggleIneligibleReasons($event)">
+
+                    {{ 'MEDICAL_RECORDS.BULK_TASKS.VIEW_REASONS' | translate }}
+
+                </button>
+
+            </p>
+
+            <ul class="bulk-ineligible-list" *ngIf="showIneligibleReasons">
+
+                <li *ngFor="let entry of getIneligibleItems()">
+
+                    <strong>{{ entry.taskName }}</strong>
+
+                    <span>{{ entry.reasons.join(' · ') }}</span>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+        <button
+
+            type="button"
+
+            class="filter-button bulk-approve-button"
+
+            [disabled]="!canApproveSelected()"
+
+            (click)="approveEligible(state.items, $event)"
+
+        >
+
+            <span class="material-icons">done_all</span>
+
+            {{ 'MEDICAL_RECORDS.BULK_TASKS.APPROVE_ELIGIBLE' | translate }}
+
+        </button>
+
+    </div>
+
+
+
+    <div class="attention-state" *ngIf="bulkProcessing">
+
+        {{ 'MEDICAL_RECORDS.BULK_TASKS.PROCESSING' | translate }}
+
+    </div>
+
+
+
+    <div class="attention-state bulk-result" *ngIf="bulkResult && !bulkProcessing">
+
+        <p>
+
+            {{
+
+                'MEDICAL_RECORDS.BULK_TASKS.RESULT_SUMMARY'
+
+                    | translate
+
+                        : {
+
+                              succeeded: bulkResult.succeeded.length,
+
+                              failed: bulkResult.failed.length
+
+                          }
+
+            }}
+
+        </p>
+
+        <ul *ngIf="bulkResult.failed.length">
+
+            <li *ngFor="let failure of bulkResult.failed">{{ failure.taskId }} — {{ failure.reason }}</li>
+
+        </ul>
+
+    </div>
+
+
+
+    <div class="attention-state" *ngIf="state.loading">
+
+        {{ 'MEDICAL_RECORDS.PROCESS_LIST.LOADING' | translate }}
+
+    </div>
+
+
+
+    <div class="attention-state attention-state--error" *ngIf="!state.loading && state.error">
+
+        <p>{{ 'MEDICAL_RECORDS.PROCESS_LIST.ERROR' | translate }}</p>
+
+        <button type="button" class="ghost-action" (click)="retry()">{{ 'MEDICAL_RECORDS.PROCESS_LIST.RETRY' | translate }}</button>
+
+    </div>
+
+
+
+    <div class="attention-state" *ngIf="!state.loading && !state.error && !state.items.length">
+
+        {{ 'MEDICAL_RECORDS.PROCESS_LIST.EMPTY' | translate }}
+
+    </div>
+
+
+
+    <div class="attention-list" *ngIf="!state.loading && !state.error && state.items.length">
+
+        <label class="attention-select-all">
+
+            <input
+
+                type="checkbox"
+
+                [checked]="areAllFilteredSelected(state.items)"
+
+                (click)="toggleSelectAllFiltered(state.items, $event)"
+
+            />
+
+            <span>{{ 'MEDICAL_RECORDS.BULK_TASKS.SELECT_ALL_FILTERED' | translate }}</span>
+
+        </label>
+
+
+
+        <article
+
+            class="attention-item native-link-row"
+
+            *ngFor="let item of trackVisibleItems(filterItems(state.items))"
+
+            [ngClass]="['tone-' + item.tone, isSelected(item) ? 'is-selected' : '']"
+
+            role="button"
+
+            tabindex="0"
+
+            (click)="selectItem(item)"
+
+            (keydown.enter)="selectItem(item)"
+
+        >
+
+            <label class="attention-checkbox" (click)="toggleSelection(item, $event)">
+
+                <input type="checkbox" [checked]="isSelected(item)" (click)="toggleSelection(item, $event)" />
+
+            </label>
+
+            <div class="attention-icon">
+
+                <span class="material-icons">{{ item.icon }}</span>
+
+            </div>
+
+            <div>
+
+                <strong>{{ item.title }}</strong>
+
+                <p>{{ item.subtitle }}</p>
+
+            </div>
+
+            <small>{{ item.meta }}</small>
+
+        </article>
+
+    </div>
+
+</section>
+
+

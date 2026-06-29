@@ -136,18 +136,6 @@ export interface RecommendedActionView {
     agentId: AgentFieldId;
 }
 
-export interface BilledItemRow {
-    id: string;
-    code: string;
-    description: string;
-    amount: number | null;
-    riskLabel: string;
-    riskTone: RiskTone;
-    aiStatus: string;
-    actionLabelKey: string;
-    isAccountLevel: boolean;
-}
-
 export interface FindingRow {
     id: string;
     agentId: AgentFieldId;
@@ -161,17 +149,26 @@ export interface FindingRow {
     reason: string;
     recommendation: string;
     serviceCode?: string;
+    code?: string;
+    amount: number | null;
     sourceDocument?: string;
     sourceField?: string;
     isAccountLevel: boolean;
+}
+
+export interface MissingDocumentRow {
+    id: string;
+    documentType: string;
+    requiredFor: string;
+    priority: string;
+    reason: string;
+    priorityTone: RiskTone;
 }
 
 export interface AnalysisDashboardModel {
     metrics: AnalysisMetric[];
     agentCards: AgentCard[];
     recommendedActions: RecommendedActionView[];
-    billedItemsByService: BilledItemRow[];
-    accountLevelItems: BilledItemRow[];
     allFindings: FindingRow[];
     currencyCode: string;
     riskScore: number;
@@ -182,6 +179,34 @@ export interface AnalysisDashboardModel {
     totalValue: number | null;
     approvalStateLabelKey: string;
     missingAgentLabels: string[];
+    missingDocuments: MissingDocumentRow[];
+    severityDistribution: SeverityBucket[];
+    topPriorityInsight: string;
+}
+
+export interface FindingCluster {
+    id: string;
+    type: string;
+    typeLabel: string;
+    count: number;
+    topRiskTone: RiskTone;
+    topRiskLabel: string;
+    agentTones: AgentTone[];
+    findings: FindingRow[];
+    isSingle: boolean;
+}
+
+export interface ActionGroup {
+    tone: RiskTone;
+    labelKey: string;
+    count: number;
+    actions: RecommendedActionView[];
+}
+
+export interface SeverityBucket {
+    tone: RiskTone;
+    labelKey: string;
+    count: number;
 }
 
 export const AGENT_FIELD_IDS: AgentFieldId[] = [
@@ -236,7 +261,6 @@ export function buildAnalysisDashboardModel(sources: Array<AgentSource<AgentResu
     const approvalBlocked = isAnalysisApprovalBlocked(sources);
 
     const allFindings = buildAllFindings(sources);
-    const billedSplit = splitBilledItems(coding?.result ?? null, compliance?.result ?? null, financial?.result ?? null);
 
     return {
         metrics: buildMetrics(coding, compliance, financial),
@@ -246,8 +270,6 @@ export function buildAnalysisDashboardModel(sources: Array<AgentSource<AgentResu
             buildAgentCard(financial, 'request_quote', 'financial', 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS.REVIEW_CONTRACT', 'plagiarism'),
         ],
         recommendedActions: buildRecommendedActions(sources),
-        billedItemsByService: billedSplit.byService,
-        accountLevelItems: billedSplit.accountLevel,
         allFindings,
         currencyCode: financial?.result?.analyzedTotals?.detectedCurrency ?? 'COP',
         riskScore: getHighestRiskScore(sources),
@@ -260,12 +282,21 @@ export function buildAnalysisDashboardModel(sources: Array<AgentSource<AgentResu
             ? 'MEDICAL_RECORDS.ANALYSIS_WIDGET.APPROVAL_STATE.BLOCKED'
             : 'MEDICAL_RECORDS.ANALYSIS_WIDGET.APPROVAL_STATE.READY',
         missingAgentLabels,
+        missingDocuments: buildMissingDocuments(compliance?.result ?? null),
+        severityDistribution: buildSeverityDistribution(allFindings),
+        topPriorityInsight: buildTopPriorityInsight(allFindings),
     };
 }
 
 export function filterFindings(
     findings: FindingRow[],
-    filters: { agentId?: AgentFieldId | null; riskTone?: RiskTone | null; type?: string | null }
+    filters: {
+        agentId?: AgentFieldId | null;
+        riskTone?: RiskTone | null;
+        type?: string | null;
+        scope?: 'service' | 'account' | null;
+        serviceCode?: string | null;
+    }
 ): FindingRow[] {
     return findings.filter((finding) => {
         if (filters.agentId && finding.agentId !== filters.agentId) {
@@ -280,6 +311,18 @@ export function filterFindings(
             return false;
         }
 
+        if (filters.scope === 'service' && finding.isAccountLevel) {
+            return false;
+        }
+
+        if (filters.scope === 'account' && !finding.isAccountLevel) {
+            return false;
+        }
+
+        if (filters.serviceCode && finding.code !== filters.serviceCode) {
+            return false;
+        }
+
         return true;
     });
 }
@@ -287,6 +330,96 @@ export function filterFindings(
 export function getUniqueFindingTypes(findings: FindingRow[]): string[] {
     const types = new Set(findings.map((finding) => normalizeToken(finding.type)).filter(Boolean));
     return Array.from(types).sort();
+}
+
+export function getUniqueServiceCodes(findings: FindingRow[]): string[] {
+    const codes = new Set(
+        findings
+            .filter((finding) => !finding.isAccountLevel && finding.code)
+            .map((finding) => finding.code as string)
+    );
+    return Array.from(codes).sort();
+}
+
+export function groupFindingsByType(findings: FindingRow[]): FindingCluster[] {
+    const clusters = new Map<string, FindingCluster>();
+
+    findings.forEach((finding) => {
+        const id = normalizeToken(finding.type) || 'OTHER';
+        const existing = clusters.get(id);
+
+        if (!existing) {
+            clusters.set(id, {
+                id,
+                type: finding.type,
+                typeLabel: finding.typeLabel || humanizeToken(finding.type) || id,
+                count: 1,
+                topRiskTone: finding.riskLevel,
+                topRiskLabel: finding.riskLabel,
+                agentTones: [finding.agentTone],
+                findings: [finding],
+                isSingle: true,
+            });
+            return;
+        }
+
+        existing.findings.push(finding);
+        existing.count = existing.findings.length;
+        existing.isSingle = false;
+
+        if (!existing.agentTones.includes(finding.agentTone)) {
+            existing.agentTones.push(finding.agentTone);
+        }
+
+        if (getRiskScoreFromTone(finding.riskLevel) > getRiskScoreFromTone(existing.topRiskTone)) {
+            existing.topRiskTone = finding.riskLevel;
+            existing.topRiskLabel = finding.riskLabel;
+        }
+    });
+
+    return Array.from(clusters.values()).sort((left, right) => {
+        const byRisk = getRiskScoreFromTone(right.topRiskTone) - getRiskScoreFromTone(left.topRiskTone);
+        return byRisk !== 0 ? byRisk : right.count - left.count;
+    });
+}
+
+const ACTION_GROUP_ORDER: RiskTone[] = ['critical', 'high', 'medium', 'low', 'pending'];
+
+const RISK_TONE_LABEL_KEYS: Record<RiskTone, string> = {
+    critical: 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_CRITICAL',
+    high: 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_HIGH',
+    medium: 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_MEDIUM',
+    low: 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_LOW',
+    pending: 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_PENDING',
+};
+
+export function groupRecommendedActionsByPriority(actions: RecommendedActionView[]): ActionGroup[] {
+    return ACTION_GROUP_ORDER
+        .map((tone) => {
+            const grouped = actions.filter((action) => action.tone === tone);
+            return { tone, labelKey: RISK_TONE_LABEL_KEYS[tone], count: grouped.length, actions: grouped };
+        })
+        .filter((group) => group.count > 0);
+}
+
+const SEVERITY_ORDER: RiskTone[] = ['critical', 'high', 'medium', 'low'];
+
+function buildSeverityDistribution(findings: FindingRow[]): SeverityBucket[] {
+    return SEVERITY_ORDER.map((tone) => ({
+        tone,
+        labelKey: RISK_TONE_LABEL_KEYS[tone],
+        count: findings.filter((finding) => finding.riskLevel === tone).length,
+    }));
+}
+
+function buildTopPriorityInsight(findings: FindingRow[]): string {
+    if (!findings.length) {
+        return '';
+    }
+
+    const top = findings[0];
+    const sameType = findings.filter((finding) => finding.type === top.type).length;
+    return sameType > 1 ? `${top.typeLabel} (×${sameType})` : top.title;
 }
 
 function buildAllFindings(sources: Array<AgentSource<AgentResult>>): FindingRow[] {
@@ -317,6 +450,8 @@ function mapFindingRow(agentId: AgentFieldId, finding: AgentFinding, index: numb
         reason: finding.reason ?? finding.description ?? '',
         recommendation: finding.recommendation ?? '',
         serviceCode,
+        code: serviceCode ?? finding.diagnosisCode ?? undefined,
+        amount: finding.billedAmount ?? finding.expectedAmount ?? finding.approvedAmount ?? null,
         sourceDocument: finding.sourceDocument ?? undefined,
         sourceField: finding.sourceField ?? undefined,
         isAccountLevel: !serviceCode && !finding.diagnosisCode,
@@ -390,7 +525,11 @@ function buildAgentCard<T extends AgentResult>(
         findingDescription: invalid
             ? parseError?.errorMessage ?? 'The agent output could not be parsed as JSON.'
             : finding ? getFindingDescription(finding, result) : result?.summary ?? 'Waiting for Automate to populate this local variable.',
-        summary: invalid ? 'The widget received a value, but it was not valid JSON.' : result?.summary ?? 'No structured JSON was found for this agent output.',
+        summary: invalid
+            ? 'The widget received a value, but it was not valid JSON.'
+            : result
+                ? result.summary ?? 'This agent returned no summary text.'
+                : 'Waiting for Automate to populate this agent result.',
         meta: invalid
             ? [`Variable: ${source.id}`, parseError?.rawValue ? `Raw: ${parseError.rawValue}` : 'Invalid JSON']
             : buildAgentMeta(source.id, result, finding, findings.length),
@@ -406,24 +545,56 @@ function buildAgentMeta(id: AgentFieldId, result: AgentResult | null, finding: A
     const countLabel = `${formatCount(findingsCount)} findings`;
 
     if (id === 'codingIntegrityResult') {
-        const coding = result as CodingIntegrityResult;
+        const cs = (result as CodingIntegrityResult).codingSummary;
+        const dupes = cs?.duplicatesDetected ?? 0;
+        const incompat = cs?.incompatibilitiesDetected ?? 0;
         return [
             countLabel,
-            `${formatCount(coding.codingSummary?.serviceItemsAnalyzed ?? 0)} services`,
+            `${formatCount(cs?.serviceItemsAnalyzed ?? 0)} services`,
+            dupes > 0 ? `${dupes} duplicate(s)` : incompat > 0 ? `${incompat} incompatibility(ies)` : 'No duplicates',
         ];
     }
 
     if (id === 'complianceAlertResult') {
-        return [countLabel, 'Payer readiness review'];
+        const cs = (result as ComplianceAlertResult).complianceSummary;
+        const blocked = cs?.servicesBlockedByMissingSupport ?? 0;
+        const payer = cs?.payerPolicyValidationAvailable;
+        return [
+            countLabel,
+            blocked > 0 ? `${blocked} service(s) blocked` : 'No blocked services',
+            payer === true ? 'Payer policy validated' : payer === false ? 'Payer policy unavailable' : 'Payer readiness pending',
+        ];
     }
 
     const financial = result as FinancialVarianceResult;
-    return [
-        countLabel,
-        financial.analyzedTotals?.variancePercentage !== undefined
-            ? `${financial.analyzedTotals.variancePercentage}% variance`
-            : 'Variance pending',
-    ];
+    const at = financial.analyzedTotals;
+    const ts = financial.tariffSummary;
+    const varianceStr = at?.varianceAmount != null
+        ? `${formatCount(Math.abs(at.varianceAmount))} variance`
+        : at?.variancePercentage !== undefined
+            ? `${at.variancePercentage}% variance`
+            : 'Variance pending';
+    const tariffStr = (ts?.tariffDeviations ?? 0) > 0
+        ? `${ts!.tariffDeviations} tariff deviation(s)`
+        : (ts?.servicesWithoutMatchingTariff ?? 0) > 0
+            ? `${ts!.servicesWithoutMatchingTariff} unmatched tariff(s)`
+            : 'Tariffs validated';
+    return [countLabel, varianceStr, tariffStr];
+}
+
+function buildMissingDocuments(compliance: ComplianceAlertResult | null): MissingDocumentRow[] {
+    if (!compliance?.missingDocuments?.length) {
+        return [];
+    }
+
+    return compliance.missingDocuments.map((doc, index) => ({
+        id: `missing-doc-${index}`,
+        documentType: doc.documentType ?? 'Unknown document',
+        requiredFor: doc.requiredFor ?? '',
+        priority: doc.priority ?? 'MEDIUM',
+        reason: doc.reason ?? '',
+        priorityTone: getRiskTone(doc.priority),
+    }));
 }
 
 function buildRecommendedActions(sources: Array<AgentSource<AgentResult>>): RecommendedActionView[] {
@@ -476,94 +647,6 @@ function buildRecommendedActions(sources: Array<AgentSource<AgentResult>>): Reco
     }
 
     return actions;
-}
-
-function splitBilledItems(
-    coding: CodingIntegrityResult | null,
-    compliance: ComplianceAlertResult | null,
-    financial: FinancialVarianceResult | null
-): { byService: BilledItemRow[]; accountLevel: BilledItemRow[] } {
-    const byService = new Map<string, BilledItemRow>();
-    const accountLevel: BilledItemRow[] = [];
-
-    const addFindings = (
-        sourceId: AgentFieldId,
-        findings: AgentFinding[],
-        statusKey: string,
-        actionLabelKey: string
-    ): void => {
-        findings.forEach((finding, index) => {
-            const row = mapBilledItemRow(sourceId, finding, index, statusKey, actionLabelKey);
-            if (row.isAccountLevel) {
-                accountLevel.push(row);
-                return;
-            }
-
-            const existing = byService.get(row.id);
-            if (!existing) {
-                byService.set(row.id, row);
-                return;
-            }
-
-            byService.set(row.id, mergeBilledRows(existing, row));
-        });
-    };
-
-    addFindings('codingIntegrityResult', getFindings(coding), 'Coding Review', 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS.UPDATE_CUPS');
-    addFindings('complianceAlertResult', getFindings(compliance), 'Compliance Review', 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS.REQUEST_AUTHORIZATION');
-    addFindings('financialVarianceResult', getFindings(financial), humanizeToken('FINANCIAL_REVIEW'), 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS.REVIEW_CONTRACT');
-
-    return {
-        byService: Array.from(byService.values()).sort(
-            (left, right) => getRiskScoreFromLabel(right.riskLabel) - getRiskScoreFromLabel(left.riskLabel)
-        ),
-        accountLevel: accountLevel.sort(
-            (left, right) => getRiskScoreFromLabel(right.riskLabel) - getRiskScoreFromLabel(left.riskLabel)
-        ),
-    };
-}
-
-function mapBilledItemRow(
-    sourceId: AgentFieldId,
-    finding: AgentFinding,
-    index: number,
-    defaultStatus: string,
-    actionLabelKey: string
-): BilledItemRow {
-    const serviceCode = finding.serviceCode ?? finding.procedureCode;
-    const isAccountLevel = !serviceCode && !finding.diagnosisCode;
-    const id = serviceCode ?? finding.findingId ?? `${sourceId}-account-${index}`;
-    const riskLabel = humanizeRisk(finding.riskLevel ?? finding.severity);
-    const typeLabel = humanizeToken(finding.type);
-
-    return {
-        id,
-        code: serviceCode ?? finding.diagnosisCode ?? finding.findingId ?? 'ACCOUNT',
-        description: getFindingDescription(finding),
-        amount: finding.billedAmount ?? finding.expectedAmount ?? finding.approvedAmount ?? null,
-        riskLabel,
-        riskTone: getRiskTone(finding.riskLevel ?? finding.severity),
-        aiStatus: typeLabel || defaultStatus,
-        actionLabelKey,
-        isAccountLevel,
-    };
-}
-
-function mergeBilledRows(existing: BilledItemRow, nextRow: BilledItemRow): BilledItemRow {
-    const existingScore = getRiskScoreFromLabel(existing.riskLabel);
-    const nextScore = getRiskScoreFromLabel(nextRow.riskLabel);
-
-    return {
-        ...existing,
-        description: nextScore > existingScore ? nextRow.description : existing.description,
-        amount: existing.amount ?? nextRow.amount,
-        riskLabel: nextScore > existingScore ? nextRow.riskLabel : existing.riskLabel,
-        riskTone: nextScore > existingScore ? nextRow.riskTone : existing.riskTone,
-        aiStatus: existing.aiStatus === nextRow.aiStatus ? existing.aiStatus : 'Multi-agent Review',
-        actionLabelKey: existing.actionLabelKey === nextRow.actionLabelKey
-            ? existing.actionLabelKey
-            : 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS.OPEN_FINDINGS',
-    };
 }
 
 function selectPrimaryFinding(id: AgentFieldId, findings: AgentFinding[]): AgentFinding | null {
@@ -786,26 +869,6 @@ function getRiskScoreFromTone(tone: RiskTone): number {
     }
 
     if (tone === 'low') {
-        return 28;
-    }
-
-    return 0;
-}
-
-function getRiskScoreFromLabel(label: string): number {
-    if (label.includes('Critical')) {
-        return 95;
-    }
-
-    if (label.includes('High')) {
-        return 82;
-    }
-
-    if (label.includes('Medium')) {
-        return 58;
-    }
-
-    if (label.includes('Low')) {
         return 28;
     }
 

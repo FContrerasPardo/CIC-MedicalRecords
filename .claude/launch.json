@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "workspace-hxp (dev)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "workspace-hxp", "--configuration=development"],
+      "cwd": "CustomUI/medicalrecords-pq7lr-source",
+      "port": 4200
+    },
+    {
+      "name": "workspace-hxp (prod-devtools)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "workspace-hxp", "--configuration=production-devtools"],
+      "cwd": "CustomUI/medicalrecords-pq7lr-source",
+      "port": 4200
+    },
+    {
+      "name": "medical-records tests (watch)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "test", "medical-records", "--watch"],
+      "cwd": "CustomUI/medicalrecords-pq7lr-source",
+      "port": null
+    }
+  ]
+}

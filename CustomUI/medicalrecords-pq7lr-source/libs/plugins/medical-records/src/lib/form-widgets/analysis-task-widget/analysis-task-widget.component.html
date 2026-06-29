@@ -1,28 +1,48 @@
 <section class="analysis-task-widget" [attr.data-form-field-id]="formFieldId">
   <ng-container *ngIf="analysisModel as model">
     <header class="analysis-task-widget__header">
-      <span class="analysis-task-widget__eyebrow">AI Pre-validation</span>
-      <h2>Analysis Phase</h2>
-      <p>Review automated findings and resolve identified risks before proceeding to manual approval.</p>
+      <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.HEADER.EYEBROW' | translate }}</span>
+      <h2>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.HEADER.TITLE' | translate }}</h2>
+      <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.HEADER.DESCRIPTION' | translate }}</p>
     </header>
-
-    <div class="analysis-task-widget__summary-grid">
-      <article
-        class="analysis-task-widget__metric-card"
-        *ngFor="let metric of model.metrics; trackBy: trackByMetric"
-        [class.analysis-task-widget__metric-card--pending]="metric.pending"
-        [class.analysis-task-widget__metric-card--invalid]="metric.invalid"
-      >
-        <span>{{ metric.label }}</span>
-        <strong>{{ metric.value }}</strong>
-        <p>{{ metric.helper }}</p>
-      </article>
-    </div>
 
     <article class="analysis-task-widget__risk-console" [ngClass]="'analysis-task-widget__risk-console--' + model.riskTone">
       <div class="analysis-task-widget__risk-score">
-        <span>Glosa Risk Score</span>
-        <strong>{{ model.riskScore }}<small>/100</small></strong>
+        <span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.SCORE_LABEL' | translate }}</span>
+        <svg class="analysis-task-widget__risk-ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="analysis-task-widget__risk-ring-track" cx="60" cy="60" r="50"></circle>
+          <circle class="analysis-task-widget__risk-ring-progress" cx="60" cy="60" r="50" [attr.stroke-dasharray]="riskRingDash" transform="rotate(-90 60 60)"></circle>
+          <text class="analysis-task-widget__risk-ring-value" x="60" y="59">{{ model.riskScore }}</text>
+          <text class="analysis-task-widget__risk-ring-unit" x="60" y="79">/ 100</text>
+        </svg>
+
+        <div class="analysis-task-widget__severity" *ngIf="model.allFindings.length">
+          <span class="analysis-task-widget__severity-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.SEVERITY_LABEL' | translate }}</span>
+          <div class="analysis-task-widget__severity-bar">
+            <button
+              type="button"
+              class="analysis-task-widget__severity-seg"
+              *ngFor="let bucket of model.severityDistribution"
+              [ngClass]="'analysis-task-widget__severity-seg--' + bucket.tone"
+              [style.flexGrow]="bucket.count"
+              [hidden]="!bucket.count"
+              [attr.aria-label]="(bucket.labelKey | translate) + ': ' + bucket.count"
+              (click)="focusSeverity(bucket.tone)"
+            ></button>
+          </div>
+          <div class="analysis-task-widget__severity-legend">
+            <button
+              type="button"
+              class="analysis-task-widget__severity-legend-item"
+              *ngFor="let bucket of model.severityDistribution"
+              [class.analysis-task-widget__severity-legend-item--active]="filterRiskTone === bucket.tone"
+              (click)="focusSeverity(bucket.tone)"
+            >
+              <span class="analysis-task-widget__severity-dot" [ngClass]="'analysis-task-widget__severity-dot--' + bucket.tone"></span>
+              <strong>{{ bucket.count }}</strong> {{ bucket.labelKey | translate }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="analysis-task-widget__risk-copy">
@@ -32,36 +52,43 @@
         </span>
         <p>{{ model.riskSummary }}</p>
 
-        <div class="analysis-task-widget__risk-metrics">
-          <span><strong>{{ model.analyzedClaims }}</strong> Analyzed Claims</span>
-          <span>
-            <strong>{{ model.totalValue === null ? '--' : (model.totalValue | currency: model.currencyCode:'symbol':'1.0-0') }}</strong>
-            Total Value
-          </span>
-          <span><strong>{{ model.approvalStateLabel }}</strong> Approval State</span>
-        </div>
-      </div>
+        <p class="analysis-task-widget__start-here" *ngIf="model.topPriorityInsight">
+          <span class="material-icons">flag</span>
+          <strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.START_HERE' | translate }}</strong> {{ model.topPriorityInsight }}
+        </p>
 
-      <div class="analysis-task-widget__risk-actions">
-        <button type="button" class="analysis-task-widget__secondary-action">
-          <span class="material-icons">edit_note</span>
-          Reject/Adjust
-        </button>
-        <button
-          type="button"
-          class="analysis-task-widget__primary-action"
-          [disabled]="model.approvalBlocked"
-          [class.analysis-task-widget__primary-action--disabled]="model.approvalBlocked"
-        >
-          <span class="material-icons">check_circle</span>
-          Approve Proceed
-        </button>
+        <div class="analysis-task-widget__stat-grid">
+          <article class="analysis-task-widget__stat-card">
+            <strong>{{ model.analyzedClaims }}</strong>
+            <span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.ANALYZED_CLAIMS' | translate }}</span>
+            <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.ANALYZED_CLAIMS_HELPER' | translate }}</p>
+          </article>
+          <article class="analysis-task-widget__stat-card">
+            <strong>{{ model.totalValue === null ? '--' : (model.totalValue | currency: model.currencyCode:'symbol':'1.0-0') }}</strong>
+            <span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.TOTAL_VALUE' | translate }}</span>
+            <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.TOTAL_VALUE_HELPER' | translate }}</p>
+          </article>
+          <article class="analysis-task-widget__stat-card analysis-task-widget__stat-card--status" [ngClass]="'analysis-task-widget__stat-card--' + model.riskTone">
+            <strong>{{ model.approvalStateLabelKey | translate }}</strong>
+            <span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.RISK.APPROVAL_STATE' | translate }}</span>
+          </article>
+          <article
+            class="analysis-task-widget__stat-card"
+            *ngFor="let metric of model.metrics; trackBy: trackByMetric"
+            [class.analysis-task-widget__stat-card--pending]="metric.pending"
+            [class.analysis-task-widget__stat-card--invalid]="metric.invalid"
+          >
+            <strong>{{ metric.value }}</strong>
+            <span>{{ metric.labelKey | translate }}</span>
+            <p>{{ metric.helper }}</p>
+          </article>
+        </div>
       </div>
     </article>
 
     <div class="analysis-task-widget__missing-agents" *ngIf="model.missingAgentLabels.length">
       <span class="material-icons">sync_problem</span>
-      Waiting for {{ model.missingAgentLabels.join(', ') }}.
+      {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_AGENTS' | translate:{ agents: model.missingAgentLabels.join(', ') } }}
     </div>
 
     <section class="analysis-task-widget__agent-grid" aria-label="Agent findings">
@@ -83,92 +110,307 @@
         </header>
 
         <div class="analysis-task-widget__agent-body">
-          <h3>{{ card.findingTitle }}</h3>
-          <p>{{ card.findingDescription }}</p>
+          <p>{{ card.summary }}</p>
         </div>
 
-        <div class="analysis-task-widget__agent-meta">
-          <span *ngFor="let item of card.meta">{{ item }}</span>
-        </div>
-
-        <footer>
-          <button type="button" [disabled]="card.pending || card.invalid">
+        <footer class="analysis-task-widget__agent-footer">
+          <button type="button" class="analysis-task-widget__link-button" (click)="scrollToFindings(card.id)" [disabled]="card.pending || card.invalid || !card.findingsCount">
+            {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.VIEW_ALL_FINDINGS' | translate:{ count: card.findingsCount } }}
+          </button>
+          <button type="button" (click)="card.id === 'financialVarianceResult' ? openContractDocument() : openAgentDetail(card)" [disabled]="card.pending || card.invalid">
             <span class="material-icons">{{ card.actionIcon }}</span>
-            {{ card.actionLabel }}
+            {{ card.actionLabelKey | translate }}
           </button>
         </footer>
       </article>
     </section>
 
-    <section class="analysis-task-widget__workspace-grid">
-      <article class="analysis-task-widget__billed-panel">
-        <div class="analysis-task-widget__panel-header">
-          <div>
-            <span class="analysis-task-widget__eyebrow">Billed Items Analysis</span>
-            <h3>Findings mapped by service</h3>
-            <p>Unified view across coding, compliance, and financial agent results.</p>
-          </div>
-          <button type="button" class="analysis-task-widget__ghost-button">
-            <span class="material-icons">tune</span>
-            Filter
+    <section class="analysis-task-widget__review-grid">
+      <section class="analysis-task-widget__findings-panel" #findingsPanel aria-label="All findings">
+      <div class="analysis-task-widget__panel-header">
+        <div>
+          <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.EYEBROW' | translate }}</span>
+          <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.TITLE' | translate }}</h3>
+          <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.DESCRIPTION' | translate }}</p>
+        </div>
+        <button type="button" class="analysis-task-widget__ghost-button" (click)="toggleFilters()">
+          <span class="material-icons">tune</span>
+          {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTER' | translate }}
+        </button>
+      </div>
+
+      <div class="analysis-task-widget__filter-bar" *ngIf="showFilters">
+        <div class="analysis-task-widget__filter-bar-header">
+          <button type="button" class="analysis-task-widget__filter-clear" (click)="clearFilters()">
+            <span class="material-icons">restart_alt</span>
+            {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.CLEAR' | translate }}
           </button>
         </div>
 
-        <div class="analysis-task-widget__table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Item Code</th>
-                <th>Description</th>
-                <th>Billed Amount</th>
-                <th>AI Status</th>
-                <th class="analysis-task-widget__table-action">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of model.billedItems; trackBy: trackByBilledItem">
-                <td class="analysis-task-widget__item-code">{{ row.code }}</td>
-                <td>
-                  <strong>{{ row.description }}</strong>
-                  <span>{{ row.riskLabel }}</span>
-                </td>
-                <td>{{ row.amount === null ? '--' : (row.amount | currency: model.currencyCode:'symbol':'1.0-0') }}</td>
-                <td>
-                  <span class="analysis-task-widget__status-badge" [ngClass]="'analysis-task-widget__status-badge--' + row.riskTone">
-                    {{ row.aiStatus }}
-                  </span>
-                </td>
-                <td class="analysis-task-widget__table-action">
-                  <button type="button">{{ row.actionLabel }}</button>
-                </td>
-              </tr>
-              <tr *ngIf="!model.billedItems.length" class="analysis-task-widget__empty-row">
-                <td colspan="5">No billed item findings available from the current agent results.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </article>
-
-      <aside class="analysis-task-widget__actions-panel">
-        <span class="analysis-task-widget__eyebrow">Resolution Queue</span>
-        <h3>Recommended Actions</h3>
-        <div
-          class="analysis-task-widget__action-item"
-          *ngFor="let action of model.recommendedActions; trackBy: trackByAction"
-          [ngClass]="'analysis-task-widget__action-item--' + action.tone"
-        >
-          <span class="material-icons">{{ action.icon }}</span>
-          <div>
-            <strong>{{ action.label }}</strong>
-            <p>{{ action.owner }} / {{ action.priority }}</p>
+        <div class="analysis-task-widget__filter-group">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.AGENT' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <button type="button" class="analysis-task-widget__filter-chip" [class.analysis-task-widget__filter-chip--active]="!filterAgentId" (click)="setAgentFilter(null)">
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.ALL' | translate }}
+            </button>
+            <button type="button" class="analysis-task-widget__filter-chip analysis-task-widget__filter-chip--coding" [class.analysis-task-widget__filter-chip--active]="filterAgentId === 'codingIntegrityResult'" (click)="setAgentFilter('codingIntegrityResult')">
+              <span class="analysis-task-widget__filter-chip-dot"></span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.AGENT_CODING' | translate }}
+            </button>
+            <button type="button" class="analysis-task-widget__filter-chip analysis-task-widget__filter-chip--compliance" [class.analysis-task-widget__filter-chip--active]="filterAgentId === 'complianceAlertResult'" (click)="setAgentFilter('complianceAlertResult')">
+              <span class="analysis-task-widget__filter-chip-dot"></span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.AGENT_COMPLIANCE' | translate }}
+            </button>
+            <button type="button" class="analysis-task-widget__filter-chip analysis-task-widget__filter-chip--financial" [class.analysis-task-widget__filter-chip--active]="filterAgentId === 'financialVarianceResult'" (click)="setAgentFilter('financialVarianceResult')">
+              <span class="analysis-task-widget__filter-chip-dot"></span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.AGENT_FINANCIAL' | translate }}
+            </button>
           </div>
         </div>
-        <button type="button" class="analysis-task-widget__primary-action" [disabled]="model.approvalBlocked">
-          Send to Approval
-          <span class="material-icons">arrow_forward</span>
-        </button>
-      </aside>
+
+        <div class="analysis-task-widget__filter-group">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <button
+              type="button"
+              class="analysis-task-widget__filter-chip"
+              *ngFor="let risk of riskFilterOptions"
+              [class.analysis-task-widget__filter-chip--active]="filterRiskTone === risk"
+              [ngClass]="'analysis-task-widget__filter-chip--' + risk"
+              (click)="setRiskFilter(risk)"
+            >
+              <span class="analysis-task-widget__filter-chip-dot"></span>
+              {{ ('MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.RISK_' + risk.toUpperCase()) | translate }}
+            </button>
+          </div>
+        </div>
+
+        <div class="analysis-task-widget__filter-group">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SCOPE' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <div class="analysis-task-widget__filter-segment">
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="!filterScope" (click)="setScopeFilter(null)">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SCOPE_ALL' | translate }}
+              </button>
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="filterScope === 'service'" (click)="setScopeFilter('service')">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SCOPE_SERVICE' | translate }}
+              </button>
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="filterScope === 'account'" (click)="setScopeFilter('account')">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SCOPE_ACCOUNT' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis-task-widget__filter-group" *ngIf="findingTypeOptions.length">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.TYPE' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <select class="analysis-task-widget__filter-select" [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.TYPE' | translate" [value]="filterType ?? ''" (change)="setTypeFilter($any($event.target).value || null)">
+              <option value="">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.ALL' | translate }}</option>
+              <option *ngFor="let type of findingTypeOptions" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="analysis-task-widget__filter-group" *ngIf="findingServiceOptions.length">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SERVICE' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <select class="analysis-task-widget__filter-select" [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.SERVICE' | translate" [value]="filterServiceCode ?? ''" (change)="setServiceFilter($any($event.target).value || null)">
+              <option value="">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.ALL' | translate }}</option>
+              <option *ngFor="let code of findingServiceOptions" [value]="code">{{ code }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-task-widget__findings-list">
+        <ng-container *ngFor="let cluster of filteredFindingClusters; trackBy: trackByCluster">
+          <ng-container *ngIf="cluster.isSingle">
+            <ng-container *ngTemplateOutlet="findingRowTpl; context: { $implicit: cluster.findings[0] }"></ng-container>
+          </ng-container>
+
+          <article
+            class="analysis-task-widget__finding-cluster"
+            *ngIf="!cluster.isSingle"
+            [ngClass]="'analysis-task-widget__finding-cluster--' + cluster.topRiskTone"
+          >
+            <button type="button" class="analysis-task-widget__cluster-head" (click)="toggleClusterExpanded(cluster.id)">
+              <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + cluster.topRiskTone">{{ cluster.topRiskLabel }}</span>
+              <strong>{{ cluster.typeLabel }}</strong>
+              <span class="analysis-task-widget__cluster-dots">
+                <span
+                  class="analysis-task-widget__cluster-dot"
+                  *ngFor="let tone of cluster.agentTones"
+                  [ngClass]="'analysis-task-widget__cluster-dot--' + tone"
+                ></span>
+              </span>
+              <span
+                class="analysis-task-widget__cluster-count"
+                [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.OCCURRENCES' | translate:{ count: cluster.count }"
+              >×{{ cluster.count }}</span>
+              <span class="material-icons">{{ isClusterExpanded(cluster.id) ? 'expand_less' : 'expand_more' }}</span>
+            </button>
+
+            <div class="analysis-task-widget__cluster-body" *ngIf="isClusterExpanded(cluster.id)">
+              <ng-container *ngFor="let finding of cluster.findings; trackBy: trackByFinding">
+                <ng-container *ngTemplateOutlet="findingRowTpl; context: { $implicit: finding }"></ng-container>
+              </ng-container>
+            </div>
+          </article>
+        </ng-container>
+
+        <p class="analysis-task-widget__empty-message" *ngIf="!filteredFindingClusters.length">
+          {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.EMPTY' | translate }}
+        </p>
+      </div>
+
+      <ng-template #findingRowTpl let-finding>
+        <article
+          class="analysis-task-widget__finding-row"
+          [ngClass]="'analysis-task-widget__finding-row--' + finding.agentTone"
+        >
+          <button type="button" class="analysis-task-widget__finding-toggle" (click)="toggleFindingExpanded(finding.id)">
+            <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + finding.riskLevel">{{ finding.riskLabel }}</span>
+            <span class="analysis-task-widget__finding-agent">{{ finding.agentLabel }}</span>
+            <strong>{{ finding.title }}</strong>
+            <span class="material-icons">{{ isFindingExpanded(finding.id) ? 'expand_less' : 'expand_more' }}</span>
+          </button>
+
+          <div class="analysis-task-widget__finding-detail" *ngIf="isFindingExpanded(finding.id)">
+            <div class="analysis-task-widget__finding-tags">
+              <span class="analysis-task-widget__finding-tag" *ngIf="finding.typeLabel !== finding.title">{{ finding.typeLabel }}</span>
+              <span class="analysis-task-widget__finding-tag analysis-task-widget__finding-tag--code" *ngIf="finding.code">{{ finding.code }}</span>
+              <span class="analysis-task-widget__finding-tag analysis-task-widget__finding-tag--account" *ngIf="!finding.code && finding.isAccountLevel">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.ACCOUNT_TAG' | translate }}</span>
+              <span class="analysis-task-widget__finding-tag analysis-task-widget__finding-tag--amount" *ngIf="finding.amount != null">{{ finding.amount | currency: currencyCode:'symbol':'1.0-0' }}</span>
+            </div>
+            <p *ngIf="finding.reason"><strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.REASON' | translate }}</strong> {{ finding.reason }}</p>
+            <p *ngIf="finding.recommendation"><strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.RECOMMENDATION' | translate }}</strong> {{ finding.recommendation }}</p>
+            <p *ngIf="finding.sourceDocument || finding.sourceField">
+              <strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.SOURCE' | translate }}</strong>
+              {{ finding.sourceDocument }}<span *ngIf="finding.sourceField"> / {{ finding.sourceField }}</span>
+            </p>
+          </div>
+        </article>
+      </ng-template>
     </section>
+
+      <div class="analysis-task-widget__review-side">
+        <section class="analysis-task-widget__missing-docs-panel" *ngIf="model.missingDocuments.length" aria-label="Missing required documents">
+          <div class="analysis-task-widget__panel-header">
+            <div>
+              <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.EYEBROW' | translate }}</span>
+              <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.TITLE' | translate }}</h3>
+            </div>
+            <span class="analysis-task-widget__risk-chip analysis-task-widget__risk-chip--high">{{ model.missingDocuments.length }}</span>
+          </div>
+          <div class="analysis-task-widget__missing-docs-list">
+            <article
+              class="analysis-task-widget__missing-doc-row"
+              *ngFor="let doc of model.missingDocuments; trackBy: trackByMissingDoc"
+              [ngClass]="'analysis-task-widget__missing-doc-row--' + doc.priorityTone"
+            >
+              <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + doc.priorityTone">{{ doc.priority }}</span>
+              <div class="analysis-task-widget__missing-doc-body">
+                <strong>{{ doc.documentType }}</strong>
+                <p *ngIf="doc.requiredFor"><span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.REQUIRED_FOR' | translate }}</span> {{ doc.requiredFor }}</p>
+                <p *ngIf="doc.reason"><span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.REASON' | translate }}</span> {{ doc.reason }}</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <aside class="analysis-task-widget__actions-panel">
+        <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS_PANEL.EYEBROW' | translate }}</span>
+        <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.ACTIONS_PANEL.TITLE' | translate }}</h3>
+
+        <div
+          class="analysis-task-widget__action-group"
+          *ngFor="let group of recommendedActionGroups; trackBy: trackByActionGroup"
+        >
+          <button type="button" class="analysis-task-widget__action-group-head" (click)="toggleActionGroup(group.tone)">
+            <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + group.tone">{{ group.labelKey | translate }}</span>
+            <span class="analysis-task-widget__action-group-count">{{ group.count }}</span>
+            <span class="material-icons">{{ isActionGroupExpanded(group.tone) ? 'expand_less' : 'expand_more' }}</span>
+          </button>
+
+          <div class="analysis-task-widget__action-group-body" *ngIf="isActionGroupExpanded(group.tone)">
+            <div
+              class="analysis-task-widget__action-item"
+              *ngFor="let action of group.actions; trackBy: trackByAction"
+              [ngClass]="'analysis-task-widget__action-item--' + action.tone"
+            >
+              <span class="material-icons">{{ action.icon }}</span>
+              <div>
+                <strong>{{ action.label }}</strong>
+                <p>{{ action.owner }} / {{ action.priority }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      </div>
+    </section>
+
+    <div class="analysis-task-widget__modal-backdrop" *ngIf="activeAgentDetail as detail" (click)="closeAgentDetail()">
+      <article class="analysis-task-widget__modal" (click)="$event.stopPropagation()" [ngClass]="'analysis-task-widget__modal--' + detail.card.tone">
+        <header>
+          <div>
+            <span class="analysis-task-widget__eyebrow">{{ detail.card.label }}</span>
+            <h3>{{ detail.card.findingTitle }}</h3>
+          </div>
+          <button type="button" class="analysis-task-widget__ghost-button" (click)="closeAgentDetail()">
+            <span class="material-icons">close</span>
+          </button>
+        </header>
+
+        <p class="analysis-task-widget__modal-summary">{{ detail.card.summary }}</p>
+        <p class="analysis-task-widget__modal-disclaimer">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DEMO_DISCLAIMER' | translate }}</p>
+
+        <section *ngIf="detail.findings.length">
+          <h4>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MODAL.FINDINGS' | translate }}</h4>
+          <ul>
+            <li *ngFor="let finding of detail.findings; trackBy: trackByFinding">
+              <strong>{{ finding.typeLabel }}</strong> — {{ finding.reason || finding.title }}
+              <span *ngIf="finding.recommendation"> · {{ finding.recommendation }}</span>
+            </li>
+          </ul>
+        </section>
+
+        <section *ngIf="detail.actions.length">
+          <h4>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MODAL.RECOMMENDED' | translate }}</h4>
+          <ul>
+            <li *ngFor="let action of detail.actions; trackBy: trackByAction">
+              {{ action.label }} ({{ action.owner }})
+            </li>
+          </ul>
+        </section>
+      </article>
+    </div>
+
+    <div class="analysis-task-widget__contract-backdrop" *ngIf="contractViewerOpen" (click)="closeContractDocument()">
+      <section class="analysis-task-widget__contract-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <header class="analysis-task-widget__contract-modal-header">
+          <div>
+            <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.EYEBROW' | translate }}</span>
+            <h3>{{ contractTitle }}</h3>
+          </div>
+          <button type="button" class="analysis-task-widget__ghost-button" (click)="closeContractDocument()">
+            <span class="material-icons">close</span>
+            {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.CLOSE' | translate }}
+          </button>
+        </header>
+
+        <div class="analysis-task-widget__contract-viewer" [class.is-loading]="contractViewerSettling || contractViewerLoading">
+          <div class="analysis-task-widget__contract-loading" *ngIf="contractViewerSettling || contractViewerLoading">
+            <div class="analysis-task-widget__contract-loading-card">
+              <strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.LOADING_TITLE' | translate }}</strong>
+              <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.LOADING_MESSAGE' | translate }}</p>
+            </div>
+          </div>
+          <hxp-document-viewer *ngIf="contractViewerDocument" [document]="contractViewerDocument"></hxp-document-viewer>
+          <p class="analysis-task-widget__contract-error" *ngIf="contractViewerError && !contractViewerLoading && !contractViewerDocument">{{ contractViewerError }}</p>
+        </div>
+      </section>
+    </div>
   </ng-container>
 </section>

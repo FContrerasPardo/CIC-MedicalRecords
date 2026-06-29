@@ -2,6 +2,10 @@
     "PLUGIN_MESSAGE": "Este es un mensaje de complemento",
     "MEDICAL_RECORDS": {
         "BRAND": "Tablero",
+        "EXPERIENCE": {
+            "EYEBROW": "Cuentas Medicas",
+            "PAGE_TITLE": "Tablero"
+        },
         "NAV": {
             "MENU_ITEM": "Cuentas Medicas",
             "PHASE_NAV_ARIA": "Navegacion de fases de cuentas medicas",
@@ -9,8 +13,12 @@
         },
         "TOP_LINKS": {
             "AGREEMENTS": "Configuracion de Convenios",
+            "REPORT_CONFIG": "Configurar reportes",
             "ANALYTICS": "Analitica de Procesos",
             "ANALYTICS_SOON": "Proximamente"
+        },
+        "AGREEMENTS": {
+            "PLACEHOLDER": "La configuracion de convenios estara disponible aqui. Usa Configurar reportes para personalizar los widgets del tablero."
         },
         "ACTIONS": {
             "EXPORT_REPORT": "Exportar reporte",
@@ -61,33 +69,265 @@
         },
         "SECTIONS": {
             "ATTENTION_REQUIRED": "Tareas abiertas",
+            "OPEN_TASKS_SUBTITLE": "Tareas asignadas o listas para reclamar en flujos de cuentas medicas.",
             "CRITICAL_COUNT": "3 Criticas",
             "INSIGHTS": "Indicadores",
-            "PERFORMANCE_METRICS": "Metricas de Desempeno"
+            "INSIGHTS_SUBTITLE": "Widgets configurables desde consultas Content y de procesos. Edita el layout en Configurar reportes.",
+            "PERFORMANCE_METRICS": "Metricas de Desempeno",
+            "PERFORMANCE_METRICS_SUBTITLE": "Tarjetas KPI configurables. La mayoria son demo hasta conectar una consulta en el builder."
+        },
+        "TASK_TYPES": {
+            "INTAKE": "Ingreso",
+            "VALIDATE_RULES": "Reglas agente",
+            "ANALYSIS": "Analisis",
+            "UNKNOWN": "Tarea"
+        },
+        "TASK_STATUS": {
+            "ASSIGNED": "Asignada",
+            "CREATED": "Sin asignar",
+            "REVIEW": "Requiere revision"
         },
         "DASHBOARD": {
             "DOCUMENT_VOLUME": "Documentos del Repositorio",
             "DOCUMENT_VOLUME_HELPER": "Conteo en vivo desde consulta nativa de Content",
             "CONTENT_SOURCE": "Consulta Content",
-            "REFRESH": "Actualizar"
+            "REFRESH": "Actualizar",
+            "EDIT_DASHBOARD": "Configurar reportes",
+            "SOURCE_DEMO": "Demo",
+            "SOURCE_CONTENT": "Content",
+            "SOURCE_PROCESS": "Proceso"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "Configuracion",
             "TITLE": "Constructor de Tablero",
-            "DESCRIPTION": "Futuro espacio para reglas de convenios, widgets de reportes y configuracion del layout.",
+            "DESCRIPTION": "Agrega, reordena y configura widgets de indicadores y metricas respaldados por Content y consultas de procesos.",
             "BACK": "Volver al tablero",
             "PALETTE_TITLE": "Paleta de widgets",
+            "PALETTE_HINT": "Agrega widgets al lienzo y arrastra para reordenar dentro de cada seccion.",
+            "ADD_WIDGET": "Agregar",
+            "ADD_TO_SECTION": "Agregar KPI rapido a metricas",
+            "ADD_METRIC_KPI": "Tarjeta KPI",
             "WIDGET_METRIC": "Widget metrica",
+            "WIDGET_GAUGE": "Widget gauge",
             "WIDGET_CHART": "Widget grafica",
-            "WIDGET_PROCESS_LIST": "Widget lista de procesos",
+            "WIDGET_TABLE": "Tabla reporte plano",
+            "WIDGET_PROCESS_LIST": "Widget tareas abiertas",
             "RESET_LAYOUT": "Restaurar layout demo",
             "RESET_DONE": "Layout predeterminado restaurado.",
+            "SAVE_LAYOUT": "Guardar layout",
+            "SAVE_DONE": "Layout del tablero guardado.",
+            "EDIT_WIDGET": "Editar widget",
+            "CONFIG_MODAL": {
+                "EYEBROW": "Configuracion del widget",
+                "CLOSE": "Cerrar",
+                "PREVIEW": "Vista previa en vivo",
+                "PROCESS_LIST_PREVIEW": "Tareas abiertas usa consultas en vivo. Ajusta opciones de visualizacion a la derecha."
+            },
+            "REMOVE_WIDGET": "Eliminar widget",
+            "FIELD_TITLE_KEY": "Clave i18n del titulo",
+            "FIELD_TITLE": "Titulo",
+            "FIELD_HELPER": "Texto helper",
+            "FIELD_CARD_SIZE": "Tamano de tarjeta",
+            "FIELD_CARD_SIZE_HINT": "Define cuantas columnas ocupa el widget en su seccion.",
+            "SPAN_QUARTER": "Pequena (1/4 fila)",
+            "SPAN_THIRD": "Compacta (1/3 fila)",
+            "SPAN_HALF": "Mediana (1/2 fila)",
+            "SPAN_TWO_THIRDS": "Grande (2/3 fila)",
+            "SPAN_FULL": "Ancho completo",
+            "SPAN_METRIC_QUARTER": "Compacta (1 columna)",
+            "SPAN_METRIC_HALF": "Mediana (2 columnas)",
+            "SPAN_METRIC_THREE_QUARTERS": "Grande (3 columnas)",
+            "SPAN_METRIC_FULL": "Fila completa (4 columnas)",
+            "FIELD_DATA_SOURCE": "Fuente de datos",
+            "FIELD_CONTENT_QUERY": "Consulta Content",
+            "FIELD_PROCESS_DEFINITION": "Nombre de definicion de proceso",
+            "FIELD_PROCESS_STATUS": "Filtro de estado del proceso",
+            "FIELD_PROCESS_STATUS_HINT": "RUNNING, COMPLETED, SUSPENDED",
+            "FIELD_DEMO_VALUE": "Valor demo de respaldo",
+            "FIELD_HELPER_KEY": "Clave i18n del helper",
+            "OPEN_TASKS_OPTIONS": {
+                "TITLE": "Opciones tareas abiertas",
+                "INTRO": "Este widget siempre carga tareas desde Automate. Activa o desactiva controles visibles abajo.",
+                "SEARCH": "Caja de busqueda",
+                "REFRESH": "Boton actualizar",
+                "BULK": "Seleccion multiple y aprobacion masiva",
+                "SUBTITLE": "Subtitulo bajo el titulo",
+                "COUNT_BADGE": "Badge con conteo de tareas"
+            },
+            "FIELD_TABLE_PAGE_SIZE": "Filas a traer",
+            "FIELD_TABLE_COLUMNS": "Columnas (opcional)",
+            "FIELD_TABLE_COLUMNS_HINT": "id, name, status — vacio para autodetectar",
+            "NEW_METRIC_TITLE": "Metrica personalizada",
+            "NEW_METRIC_HELPER": "Configura una consulta Content o de procesos en el builder.",
+            "APPEARANCE_TITLE": "Apariencia",
+            "WIDGET_LINK_CARD": "Tarjeta de enlace",
+            "WIDGET_TASK_STATUS": "Resumen de tareas por estado",
+            "WIDGET_TASK_RECENT": "Tareas recientes",
             "CANVAS_TITLE": "Lienzo del constructor",
-            "CANVAS_MESSAGE": "Este shell alojara widgets agregables respaldados por consultas nativas de Content y variables de proceso."
+            "CANVAS_MESSAGE": "Arrastra widgets entre secciones o reordena tarjetas dentro de una seccion."
+        },
+        "CHART": {
+            "EDITOR_TITLE": "Ejes del histograma",
+            "EDITOR_INTRO": "Detecta campos de tu query y elige una serie horizontal (fecha o categoria) y un conteo o suma.",
+            "DETECT_FIELDS": "Detectar campos",
+            "DETECTING": "Detectando columnas…",
+            "FIELD_X": "Eje horizontal (X)",
+            "FIELD_Y": "Valor vertical (Y)",
+            "FIELD_Y_SUM": "Campo numerico a sumar",
+            "FIELD_DATE_BUCKET": "Agrupar fechas por",
+            "SELECT_FIELD": "Selecciona un campo",
+            "Y_COUNT": "Contar filas",
+            "Y_SUM": "Sumar campo numerico",
+            "LOADING": "Cargando datos del grafico…",
+            "NO_DATA": "La consulta no devolvio datos para esta configuracion.",
+            "MISSING_AXIS": "Arrastra startDate a Argumentos (o elige un campo fecha) para generar el grafico.",
+            "DISPLAY_MODE": "Estilo de grafico",
+            "DISPLAY_BAR": "Barras",
+            "DISPLAY_LINE": "Lineas",
+            "AXIS_SETTINGS": "Configuracion de ejes",
+            "FIELD_X_AXIS_LABEL": "Etiqueta eje X",
+            "FIELD_Y_AXIS_LABEL": "Etiqueta eje Y",
+            "FIELD_Y_AXIS_MAX": "Maximo eje Y",
+            "FIELD_X_LABEL_FORMAT": "Formato etiquetas X",
+            "FIELD_MAX_BUCKETS": "Max. intervalos en eje X",
+            "FIELD_MAX_BUCKETS_HINT": "Limita cuantos intervalos de fecha o categorias se muestran en el eje horizontal.",
+            "SERIES_STYLE": "Colores de series",
+            "USE_GLOBAL_THEME": "Usar tema del dashboard",
+            "X_LABEL_FORMAT_AUTO": "Corto (recomendado)",
+            "X_LABEL_FORMAT_FULL": "Valores completos",
+            "Y_AXIS_MAX_AUTO": "Automatico segun datos",
+            "AXIS_X_DEFAULT": "Categoria",
+            "AXIS_X_DATE": "Fecha",
+            "AXIS_X_WEEK": "Semana",
+            "AXIS_X_MONTH": "Mes",
+            "AXIS_X_HOUR": "Hora",
+            "AXIS_X_CATEGORY": "Categoria",
+            "AXIS_Y_COUNT": "Recuento",
+            "AXIS_Y_SUM": "Suma"
+        },
+        "THEME": {
+            "PANEL_TITLE": "Apariencia del dashboard",
+            "PRIMARY_ACCENT": "Acento principal",
+            "SERIES_GRADIENT": "Degradado de series por defecto",
+            "CUSTOM_STOPS": "Colores del degradado",
+            "ACCENT_PURPLE": "Morado Hyland",
+            "ACCENT_BLUE": "Azul Hyland",
+            "ACCENT_TEAL": "Verde Hyland",
+            "ACCENT_DARK_BLUE": "Azul oscuro Hyland",
+            "PRESET_HYLAND_PURPLE_WAVE": "Morado → azul → verde",
+            "PRESET_HYLAND_TEAL": "Degradado verde",
+            "PRESET_HYLAND_PURPLE_SOLID": "Morado solido",
+            "PRESET_HYLAND_BLUE_SOLID": "Azul solido",
+            "PRESET_CUSTOM": "Degradado personalizado"
+        },
+        "LINK_CARD": {
+            "FIELD_ICON": "Icono (nombre Material)",
+            "FIELD_TARGET_TYPE": "Tipo de enlace",
+            "FIELD_ROUTE": "Ruta interna",
+            "FIELD_URL": "URL externa",
+            "FIELD_BUTTON": "Texto del boton",
+            "OPEN_NEW_TAB": "Abrir en nueva pestana",
+            "TARGET_ROUTE": "Ruta interna",
+            "TARGET_EXTERNAL": "URL externa"
+        },
+        "TASK_WIDGET": {
+            "LOADING": "Cargando tareas…",
+            "EMPTY": "No hay tareas recientes.",
+            "TOTAL": "Total",
+            "FIELD_MAX_ITEMS": "Max. elementos",
+            "FIELD_CTA_LABEL": "Texto del boton inferior",
+            "FIELD_CTA_ROUTE": "Ruta del enlace inferior",
+            "STATUS_CREATED": "Creada",
+            "STATUS_ASSIGNED": "Asignada"
+        },
+        "GAUGE": {
+            "LOADING": "Cargando gauge…",
+            "ERROR": "No se pudieron cargar los datos del gauge.",
+            "TARGET": "Objetivo",
+            "CONFIG_INTRO": "Define la escala y el marcador de objetivo. La aguja refleja el valor de la consulta entre minimo y maximo.",
+            "FIELD_MIN": "Minimo de escala",
+            "FIELD_MAX": "Maximo de escala",
+            "FIELD_TARGET": "Valor objetivo",
+            "FIELD_UNIT": "Sufijo del valor (ej. %)"
+        },
+        "DATA_BINDING": {
+            "PROVIDER_TITLE": "Proveedor de datos",
+            "FIELDS_TITLE": "Campos disponibles",
+            "ITEMS_TITLE": "Elementos de datos",
+            "ITEMS_INTRO": "Arrastra campos del proveedor a los espacios siguientes.",
+            "ARGUMENTS": "Argumentos",
+            "VALUES": "Valores",
+            "SERIES": "Series",
+            "COLUMNS": "Columnas",
+            "DROP_ARGUMENT": "Suelta un campo de fecha o categoria",
+            "DROP_VALUE": "Suelta un campo numerico para sumar",
+            "DROP_SERIES": "Suelta un campo de categoria (opcional)",
+            "DROP_COLUMNS": "Suelta campos para definir columnas de tabla",
+            "TABLE_ITEMS_INTRO": "Marca los campos que quieras como columnas. Usa la lista de orden para reordenarlos.",
+            "TABLE_FIELDS_TIP": "Usa + en un campo para anadirlo como columna, o selecciona columnas en el panel derecho.",
+            "TABLE_FIELD_ADD_HINT": "Pulsa + para anadir o quitar esta columna",
+            "TABLE_TOGGLE_COLUMN": "Alternar columna {{ field }}",
+            "SELECT_ALL_COLUMNS": "Seleccionar todo",
+            "CLEAR_COLUMNS": "Limpiar",
+            "COLUMN_ORDER": "Orden de columnas",
+            "SERIES_NOTE": "La agrupacion por series se guarda para una version futura; el grafico usa solo Argumentos y Valores.",
+            "NO_FIELDS": "No se detectaron campos. Ajusta la query y pulsa Detectar campos.",
+            "FIELDS_TIP": "Arrastra un campo a un espacio inferior, o haz clic para asignarlo automaticamente.",
+            "FIELD_CLICK_HINT": "Arrastra a un espacio o haz clic para asignar",
+            "FIELDS_IN_PROVIDER": "Detecta campos en el panel Data provider (izquierda) y arrastralos aqui.",
+            "FIELD_SEARCH_PLACEHOLDER": "Buscar por nombre de campo…",
+            "FIELD_KIND_FILTER": "Tipo de campo",
+            "FIELD_KIND_ALL": "Todos los tipos",
+            "FIELD_KIND_DATE": "Fecha",
+            "FIELD_KIND_NUMBER": "Numero",
+            "FIELD_KIND_CATEGORY": "Categoria",
+            "FIELD_CLEAR_FILTERS": "Limpiar filtros",
+            "FIELDS_FILTER_COUNT": "{{ count }} de {{ total }} campos",
+            "FIELDS_NO_MATCH": "Ningun campo coincide con la busqueda o el tipo seleccionado."
+        },
+        "PROCESS_CATALOG": {
+            "MEDICAL_RECORDS": "Cuentas Medicas",
+            "MEDICAL_RECORDS_DESC": "Flujo raiz de intake. Los graficos cuentan intakes raiz por tiempo; las tablas pueden incluir subprocesos vinculados.",
+            "SUBPROCESSES": "Subprocesos incluidos"
+        },
+        "QUERY_HELP": {
+            "CONTENT_TITLE": "Ayuda consulta Content",
+            "CONTENT_INTRO": "Usa SQL CMIS contra el repositorio Hyland. Las metricas muestran totalCount; las tablas muestran filas de documentos.",
+            "CONTENT_COLUMNS": "Columnas comunes: id, name, sys_id, sys_title, sys_type, sys_parentId",
+            "CONTENT_TIP": "Consejo: usa un widget Tabla reporte plano para ver todas las columnas que devuelve tu query.",
+            "CONTENT_PRESETS": {
+                "ALL_HXP_DOCUMENTS": "Todos los documentos hxp",
+                "ALL_HXP_DOCUMENTS_DESC": "Misma query del widget Documentos del Repositorio.",
+                "ALL_CMIS_DOCUMENTS": "Todos los documentos CMIS",
+                "ALL_CMIS_DOCUMENTS_DESC": "Tipo cmis:document generico en el repositorio.",
+                "PDF_DOCUMENTS": "Solo archivos PDF",
+                "PDF_DOCUMENTS_DESC": "Filtra documentos cuyo nombre termina en .pdf"
+            },
+            "PROCESS_TITLE": "Ayuda consulta Process",
+            "PROCESS_INTRO": "No hay SQL aqui — filtra instancias de Automate por nombre de definicion y estado.",
+            "PROCESS_COLUMNS": "Columnas en tabla: id, name, status, processDefinitionKey, processDefinitionName, startDate, businessKey",
+            "PROCESS_TIP": "Consejo: usa un widget Tabla reporte plano para inspeccionar filas reales antes de crear KPIs.",
+            "PROCESS_PRESETS": {
+                "MEDICAL_RECORDS_ALL": "medical-records · todos los estados",
+                "MEDICAL_RECORDS_ALL_DESC": "Instancias RUNNING, COMPLETED y SUSPENDED.",
+                "MEDICAL_RECORDS_RUNNING": "medical-records · solo RUNNING",
+                "MEDICAL_RECORDS_RUNNING_DESC": "Solo instancias de proceso activas.",
+                "MEDICAL_RECORDS_COMPLETED": "medical-records · solo COMPLETED",
+                "MEDICAL_RECORDS_COMPLETED_DESC": "Instancias de proceso finalizadas."
+            }
+        },
+        "TABLE_WIDGET": {
+            "NEW_TITLE": "Tabla preview de consulta",
+            "NEW_HELPER": "Reporte plano para inspeccionar columnas de consultas Content o procesos.",
+            "LOADING": "Cargando filas...",
+            "EMPTY": "La consulta no devolvio filas.",
+            "ERROR": "No fue posible cargar las filas."
         },
         "PROCESS_LIST": {
             "LOADING": "Cargando tareas abiertas...",
             "EMPTY": "No se encontraron tareas medical-records abiertas.",
+            "EMPTY_TITLE": "Todo al dia",
+            "EMPTY_HINT": "No hay tareas abiertas que requieran tu atencion.",
             "ERROR": "No fue posible cargar las tareas desde Automate.",
             "RETRY": "Reintentar"
         },
@@ -144,7 +384,11 @@
                 "SCORE_LABEL": "Puntaje de riesgo de glosa",
                 "ANALYZED_CLAIMS": "Reclamos analizados",
                 "TOTAL_VALUE": "Valor total",
-                "APPROVAL_STATE": "Estado de aprobacion"
+                "APPROVAL_STATE": "Estado de aprobacion",
+                "START_HERE": "[TODO] Start here:",
+                "SEVERITY_LABEL": "[TODO] Findings by severity",
+                "ANALYZED_CLAIMS_HELPER": "[TODO] Service items reviewed by the coding agent",
+                "TOTAL_VALUE_HELPER": "[TODO] Invoice total detected by the financial agent"
             },
             "APPROVAL_STATE": {
                 "BLOCKED": "Bloqueado por revision de agentes",
@@ -161,26 +405,29 @@
                 "REASON": "Motivo:",
                 "RECOMMENDATION": "Recomendacion:",
                 "SOURCE": "Fuente:",
-                "EMPTY": "Ningun hallazgo coincide con los filtros actuales."
+                "EMPTY": "Ningun hallazgo coincide con los filtros actuales.",
+                "OCCURRENCES": "[TODO] {{count}} occurrences",
+                "ACCOUNT_TAG": "[TODO] Account"
             },
             "FILTERS": {
                 "AGENT": "Agente",
                 "RISK": "Riesgo",
                 "TYPE": "Tipo",
                 "ALL": "Todos",
-                "CLEAR": "Limpiar filtros"
-            },
-            "TABLE": {
-                "EYEBROW": "Hallazgos mapeados",
-                "TITLE": "Hallazgos por alcance",
-                "SUMMARY": "Problemas a nivel de servicio y de cuenta segun los agentes.",
-                "BY_SERVICE": "Por servicio",
-                "ACCOUNT_LEVEL": "Nivel cuenta",
-                "CODE": "Codigo",
-                "DESCRIPTION": "Descripcion",
-                "AMOUNT": "Monto facturado",
-                "STATUS": "Estado IA",
-                "EMPTY": "No hay hallazgos para esta vista."
+                "CLEAR": "Limpiar filtros",
+                "AGENT_CODING": "[TODO] Coding",
+                "AGENT_COMPLIANCE": "[TODO] Compliance",
+                "AGENT_FINANCIAL": "[TODO] Financial",
+                "RISK_CRITICAL": "[TODO] Critical",
+                "RISK_HIGH": "[TODO] High",
+                "RISK_MEDIUM": "[TODO] Medium",
+                "RISK_LOW": "[TODO] Low",
+                "RISK_PENDING": "[TODO] Pending",
+                "SCOPE": "[TODO] Scope",
+                "SCOPE_ALL": "[TODO] All",
+                "SCOPE_SERVICE": "[TODO] By service",
+                "SCOPE_ACCOUNT": "[TODO] Account-level",
+                "SERVICE": "[TODO] Service"
             },
             "ACTIONS_PANEL": {
                 "EYEBROW": "Cola de resolucion",
@@ -195,6 +442,19 @@
             "MODAL": {
                 "FINDINGS": "Hallazgos",
                 "RECOMMENDED": "Acciones recomendadas"
+            },
+            "MISSING_DOCS": {
+                "EYEBROW": "[TODO] Compliance gap",
+                "TITLE": "[TODO] Missing Required Documents",
+                "REQUIRED_FOR": "[TODO] Required for:",
+                "REASON": "[TODO] Reason:",
+                "EMPTY": "[TODO] No missing required documents detected."
+            },
+            "CONTRACT": {
+                "EYEBROW": "[TODO] Agreement document",
+                "CLOSE": "[TODO] Close",
+                "LOADING_TITLE": "[TODO] Loading contract",
+                "LOADING_MESSAGE": "[TODO] Retrieving the agreement document from the repository."
             }
         },
         "INTAKE_WIDGET": {
@@ -203,7 +463,7 @@
                 "USE_DISPLAY_NAME": "Usar como nombre visible",
                 "ACCEPT": "Aceptar",
                 "COLLAPSE": "Colapsar",
-            "REOPEN": "Conciliacion OCR",
+                "REOPEN": "Conciliacion OCR",
                 "EXPAND": "Mostrar conciliacion",
                 "ACCEPTED_SUMMARY": "Nombre reconciliado"
             },

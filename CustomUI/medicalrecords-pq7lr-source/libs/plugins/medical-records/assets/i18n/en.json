@@ -2,6 +2,10 @@
     "PLUGIN_MESSAGE": "This is a plugin message",
     "MEDICAL_RECORDS": {
         "BRAND": "Dashboard",
+        "EXPERIENCE": {
+            "EYEBROW": "Medical Records",
+            "PAGE_TITLE": "Dashboard"
+        },
         "NAV": {
             "MENU_ITEM": "Medical Accounts",
             "PHASE_NAV_ARIA": "Medical records phase navigation",
@@ -9,8 +13,12 @@
         },
         "TOP_LINKS": {
             "AGREEMENTS": "Agreement Configuration",
+            "REPORT_CONFIG": "Configure Reports",
             "ANALYTICS": "Process Analytics",
             "ANALYTICS_SOON": "Coming soon"
+        },
+        "AGREEMENTS": {
+            "PLACEHOLDER": "Agreement configuration will be available here. Use Configure Reports to customize dashboard widgets today."
         },
         "ACTIONS": {
             "EXPORT_REPORT": "Export Report",
@@ -61,33 +69,265 @@
         },
         "SECTIONS": {
             "ATTENTION_REQUIRED": "Open Tasks",
+            "OPEN_TASKS_SUBTITLE": "Tasks assigned to you or ready to claim across medical-records workflows.",
             "CRITICAL_COUNT": "3 Critical",
             "INSIGHTS": "Insights",
-            "PERFORMANCE_METRICS": "Performance Metrics"
+            "INSIGHTS_SUBTITLE": "Configurable widgets from Content and process queries. Edit layout in Configure Reports.",
+            "PERFORMANCE_METRICS": "Performance Metrics",
+            "PERFORMANCE_METRICS_SUBTITLE": "Configurable KPI cards. Most defaults are demo until you wire a query in the builder."
+        },
+        "TASK_TYPES": {
+            "INTAKE": "Intake",
+            "VALIDATE_RULES": "Agent rules",
+            "ANALYSIS": "Analysis",
+            "UNKNOWN": "Task"
+        },
+        "TASK_STATUS": {
+            "ASSIGNED": "Assigned",
+            "CREATED": "Unassigned",
+            "REVIEW": "Review required"
         },
         "DASHBOARD": {
             "DOCUMENT_VOLUME": "Repository Documents",
             "DOCUMENT_VOLUME_HELPER": "Live count from native Content query",
             "CONTENT_SOURCE": "Content query",
-            "REFRESH": "Refresh"
+            "REFRESH": "Refresh",
+            "EDIT_DASHBOARD": "Configure reports",
+            "SOURCE_DEMO": "Demo",
+            "SOURCE_CONTENT": "Content",
+            "SOURCE_PROCESS": "Process"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "Configuration",
             "TITLE": "Dashboard Builder",
-            "DESCRIPTION": "Future home for agreement rules, report widgets, and dashboard layout configuration.",
+            "DESCRIPTION": "Add, reorder, and configure insight and metric widgets backed by Content and process queries.",
             "BACK": "Back to dashboard",
             "PALETTE_TITLE": "Widget palette",
+            "PALETTE_HINT": "Add widgets to the canvas, then drag to reorder within each section.",
+            "ADD_WIDGET": "Add",
+            "ADD_TO_SECTION": "Quick add KPI to metrics",
+            "ADD_METRIC_KPI": "Metric KPI card",
             "WIDGET_METRIC": "Metric widget",
+            "WIDGET_GAUGE": "Gauge widget",
             "WIDGET_CHART": "Chart widget",
-            "WIDGET_PROCESS_LIST": "Process list widget",
+            "WIDGET_TABLE": "Flat report table",
+            "WIDGET_PROCESS_LIST": "Open tasks widget",
             "RESET_LAYOUT": "Reset demo layout",
             "RESET_DONE": "Default dashboard layout restored.",
+            "SAVE_LAYOUT": "Save layout",
+            "SAVE_DONE": "Dashboard layout saved.",
+            "EDIT_WIDGET": "Edit widget",
+            "CONFIG_MODAL": {
+                "EYEBROW": "Widget configuration",
+                "CLOSE": "Close",
+                "PREVIEW": "Live preview",
+                "PROCESS_LIST_PREVIEW": "Open Tasks uses live task queries. Adjust display options on the right."
+            },
+            "REMOVE_WIDGET": "Remove widget",
+            "FIELD_TITLE_KEY": "Title translation key",
+            "FIELD_TITLE": "Title",
+            "FIELD_HELPER": "Helper text",
+            "FIELD_CARD_SIZE": "Card size",
+            "FIELD_CARD_SIZE_HINT": "Controls how many grid columns this widget occupies in its section.",
+            "SPAN_QUARTER": "Small (1/4 row)",
+            "SPAN_THIRD": "Compact (1/3 row)",
+            "SPAN_HALF": "Medium (1/2 row)",
+            "SPAN_TWO_THIRDS": "Large (2/3 row)",
+            "SPAN_FULL": "Full width",
+            "SPAN_METRIC_QUARTER": "Compact (1 column)",
+            "SPAN_METRIC_HALF": "Medium (2 columns)",
+            "SPAN_METRIC_THREE_QUARTERS": "Large (3 columns)",
+            "SPAN_METRIC_FULL": "Full row (4 columns)",
+            "FIELD_DATA_SOURCE": "Data source",
+            "FIELD_CONTENT_QUERY": "Content query",
+            "FIELD_PROCESS_DEFINITION": "Process definition name",
+            "FIELD_PROCESS_STATUS": "Process status filter",
+            "FIELD_PROCESS_STATUS_HINT": "RUNNING, COMPLETED, SUSPENDED",
+            "FIELD_DEMO_VALUE": "Demo fallback value",
+            "FIELD_HELPER_KEY": "Helper translation key",
+            "OPEN_TASKS_OPTIONS": {
+                "TITLE": "Open tasks options",
+                "INTRO": "This widget always loads tasks from Automate. Toggle visible controls below.",
+                "SEARCH": "Search box",
+                "REFRESH": "Refresh button",
+                "BULK": "Bulk selection and approval",
+                "SUBTITLE": "Subtitle under title",
+                "COUNT_BADGE": "Task count badge"
+            },
+            "FIELD_TABLE_PAGE_SIZE": "Rows to fetch",
+            "FIELD_TABLE_COLUMNS": "Column keys (optional)",
+            "FIELD_TABLE_COLUMNS_HINT": "id, name, status — leave empty to auto-detect",
+            "NEW_METRIC_TITLE": "Custom metric",
+            "NEW_METRIC_HELPER": "Configure a Content or process query in the builder.",
+            "APPEARANCE_TITLE": "Appearance",
+            "WIDGET_LINK_CARD": "Link card",
+            "WIDGET_TASK_STATUS": "Task status summary",
+            "WIDGET_TASK_RECENT": "Recent tasks",
             "CANVAS_TITLE": "Builder canvas",
-            "CANVAS_MESSAGE": "This shell will host addable widgets backed by native Content queries and process variables."
+            "CANVAS_MESSAGE": "Drag widgets between sections or reorder cards within a section."
+        },
+        "CHART": {
+            "EDITOR_TITLE": "Chart axes",
+            "EDITOR_INTRO": "Detect fields from your query, then choose a horizontal series (date or category) and a count or sum value.",
+            "DETECT_FIELDS": "Detect fields",
+            "DETECTING": "Detecting columns…",
+            "FIELD_X": "Horizontal axis (X)",
+            "FIELD_Y": "Vertical value (Y)",
+            "FIELD_Y_SUM": "Numeric field to sum",
+            "FIELD_DATE_BUCKET": "Group dates by",
+            "SELECT_FIELD": "Select a field",
+            "Y_COUNT": "Count rows",
+            "Y_SUM": "Sum numeric field",
+            "LOADING": "Loading chart data…",
+            "NO_DATA": "No data returned for this query and axis configuration.",
+            "MISSING_AXIS": "Drag startDate to Arguments (or pick a date field) to build the chart.",
+            "DISPLAY_MODE": "Chart style",
+            "DISPLAY_BAR": "Bar chart",
+            "DISPLAY_LINE": "Line chart",
+            "AXIS_SETTINGS": "Axis settings",
+            "FIELD_X_AXIS_LABEL": "X axis label",
+            "FIELD_Y_AXIS_LABEL": "Y axis label",
+            "FIELD_Y_AXIS_MAX": "Y axis maximum",
+            "FIELD_X_LABEL_FORMAT": "X label format",
+            "FIELD_MAX_BUCKETS": "Max X-axis buckets",
+            "FIELD_MAX_BUCKETS_HINT": "Limits how many date intervals or categories appear on the horizontal axis.",
+            "SERIES_STYLE": "Series colors",
+            "USE_GLOBAL_THEME": "Use dashboard theme",
+            "X_LABEL_FORMAT_AUTO": "Short (recommended)",
+            "X_LABEL_FORMAT_FULL": "Full values",
+            "Y_AXIS_MAX_AUTO": "Auto from data",
+            "AXIS_X_DEFAULT": "Category",
+            "AXIS_X_DATE": "Date",
+            "AXIS_X_WEEK": "Week",
+            "AXIS_X_MONTH": "Month",
+            "AXIS_X_HOUR": "Hour",
+            "AXIS_X_CATEGORY": "Category",
+            "AXIS_Y_COUNT": "Count",
+            "AXIS_Y_SUM": "Sum"
+        },
+        "THEME": {
+            "PANEL_TITLE": "Dashboard appearance",
+            "PRIMARY_ACCENT": "Primary accent",
+            "SERIES_GRADIENT": "Default series gradient",
+            "CUSTOM_STOPS": "Gradient colors",
+            "ACCENT_PURPLE": "Hyland purple",
+            "ACCENT_BLUE": "Hyland blue",
+            "ACCENT_TEAL": "Hyland teal",
+            "ACCENT_DARK_BLUE": "Hyland dark blue",
+            "PRESET_HYLAND_PURPLE_WAVE": "Purple → blue → teal",
+            "PRESET_HYLAND_TEAL": "Teal gradient",
+            "PRESET_HYLAND_PURPLE_SOLID": "Purple solid",
+            "PRESET_HYLAND_BLUE_SOLID": "Blue solid",
+            "PRESET_CUSTOM": "Custom gradient"
+        },
+        "LINK_CARD": {
+            "FIELD_ICON": "Icon (Material name)",
+            "FIELD_TARGET_TYPE": "Link type",
+            "FIELD_ROUTE": "App route",
+            "FIELD_URL": "External URL",
+            "FIELD_BUTTON": "Button label",
+            "OPEN_NEW_TAB": "Open in new tab",
+            "TARGET_ROUTE": "Internal route",
+            "TARGET_EXTERNAL": "External URL"
+        },
+        "TASK_WIDGET": {
+            "LOADING": "Loading tasks…",
+            "EMPTY": "No recent tasks found.",
+            "TOTAL": "Total",
+            "FIELD_MAX_ITEMS": "Max items",
+            "FIELD_CTA_LABEL": "Footer button label",
+            "FIELD_CTA_ROUTE": "Footer link route",
+            "STATUS_CREATED": "Created",
+            "STATUS_ASSIGNED": "Assigned"
+        },
+        "GAUGE": {
+            "LOADING": "Loading gauge…",
+            "ERROR": "Could not load gauge data.",
+            "TARGET": "Target",
+            "CONFIG_INTRO": "Set the scale and target marker. The needle fills based on the query value between min and max.",
+            "FIELD_MIN": "Scale minimum",
+            "FIELD_MAX": "Scale maximum",
+            "FIELD_TARGET": "Target value",
+            "FIELD_UNIT": "Value suffix (e.g. %)"
+        },
+        "DATA_BINDING": {
+            "PROVIDER_TITLE": "Data provider",
+            "FIELDS_TITLE": "Available fields",
+            "ITEMS_TITLE": "Data items",
+            "ITEMS_INTRO": "Drag fields from the provider into the slots below.",
+            "ARGUMENTS": "Arguments",
+            "VALUES": "Values",
+            "SERIES": "Series",
+            "COLUMNS": "Columns",
+            "DROP_ARGUMENT": "Drop a date or category field",
+            "DROP_VALUE": "Drop a numeric field to sum",
+            "DROP_SERIES": "Drop a category field (optional)",
+            "DROP_COLUMNS": "Drop fields to define table columns",
+            "TABLE_ITEMS_INTRO": "Check the fields you want as table columns. Use the order list to rearrange them.",
+            "TABLE_FIELDS_TIP": "Use + on a field to add it as a column, or select columns in the panel on the right.",
+            "TABLE_FIELD_ADD_HINT": "Click + to add or remove this column",
+            "TABLE_TOGGLE_COLUMN": "Toggle column {{ field }}",
+            "SELECT_ALL_COLUMNS": "Select all",
+            "CLEAR_COLUMNS": "Clear",
+            "COLUMN_ORDER": "Column order",
+            "SERIES_NOTE": "Series grouping is saved for a future release; chart aggregation uses Arguments and Values only.",
+            "NO_FIELDS": "No fields detected. Adjust the query and click Detect fields.",
+            "FIELDS_TIP": "Drag a field into a slot below, or click a field to assign it automatically.",
+            "FIELD_CLICK_HINT": "Drag to a slot or click to assign",
+            "FIELDS_IN_PROVIDER": "Detect fields in the Data provider panel (left), then drag them here.",
+            "FIELD_SEARCH_PLACEHOLDER": "Search by field name…",
+            "FIELD_KIND_FILTER": "Field type",
+            "FIELD_KIND_ALL": "All types",
+            "FIELD_KIND_DATE": "Date",
+            "FIELD_KIND_NUMBER": "Number",
+            "FIELD_KIND_CATEGORY": "Category",
+            "FIELD_CLEAR_FILTERS": "Clear filters",
+            "FIELDS_FILTER_COUNT": "{{ count }} of {{ total }} fields",
+            "FIELDS_NO_MATCH": "No fields match your search or type filter."
+        },
+        "PROCESS_CATALOG": {
+            "MEDICAL_RECORDS": "Medical Records",
+            "MEDICAL_RECORDS_DESC": "Root intake workflow. Charts count root intakes over time; tables can include linked subprocess instances.",
+            "SUBPROCESSES": "Included subprocesses"
+        },
+        "QUERY_HELP": {
+            "CONTENT_TITLE": "Content query help",
+            "CONTENT_INTRO": "Use CMIS SQL against the Hyland repository. Metrics show totalCount; tables show document rows.",
+            "CONTENT_COLUMNS": "Common columns: id, name, sys_id, sys_title, sys_type, sys_parentId",
+            "CONTENT_TIP": "Tip: use a Flat report table widget to see all columns returned by your query.",
+            "CONTENT_PRESETS": {
+                "ALL_HXP_DOCUMENTS": "All hxp documents",
+                "ALL_HXP_DOCUMENTS_DESC": "Same query used by Repository Documents widget.",
+                "ALL_CMIS_DOCUMENTS": "All CMIS documents",
+                "ALL_CMIS_DOCUMENTS_DESC": "Generic cmis:document type across the repository.",
+                "PDF_DOCUMENTS": "PDF files only",
+                "PDF_DOCUMENTS_DESC": "Filter documents whose name ends with .pdf"
+            },
+            "PROCESS_TITLE": "Process query help",
+            "PROCESS_INTRO": "No SQL here — filter Automate process instances by definition name and status.",
+            "PROCESS_COLUMNS": "Table columns: id, name, status, processDefinitionKey, processDefinitionName, startDate, businessKey",
+            "PROCESS_TIP": "Tip: use a Flat report table widget to inspect live process rows before building KPIs.",
+            "PROCESS_PRESETS": {
+                "MEDICAL_RECORDS_ALL": "medical-records · all statuses",
+                "MEDICAL_RECORDS_ALL_DESC": "RUNNING, COMPLETED and SUSPENDED instances.",
+                "MEDICAL_RECORDS_RUNNING": "medical-records · RUNNING only",
+                "MEDICAL_RECORDS_RUNNING_DESC": "Active process instances only.",
+                "MEDICAL_RECORDS_COMPLETED": "medical-records · COMPLETED only",
+                "MEDICAL_RECORDS_COMPLETED_DESC": "Finished process instances."
+            }
+        },
+        "TABLE_WIDGET": {
+            "NEW_TITLE": "Query preview table",
+            "NEW_HELPER": "Flat report to inspect columns returned by Content or process queries.",
+            "LOADING": "Loading rows...",
+            "EMPTY": "No rows returned for this query.",
+            "ERROR": "Unable to load table rows."
         },
         "PROCESS_LIST": {
             "LOADING": "Loading open tasks...",
             "EMPTY": "No open medical-records tasks found.",
+            "EMPTY_TITLE": "All caught up",
+            "EMPTY_HINT": "No open tasks require your attention right now.",
             "ERROR": "Unable to load tasks from Automate.",
             "RETRY": "Retry"
         },
@@ -142,9 +382,13 @@
             },
             "RISK": {
                 "SCORE_LABEL": "Glosa Risk Score",
-                "ANALYZED_CLAIMS": "Analyzed Claims",
+                "ANALYZED_CLAIMS": "Services Analyzed",
+                "ANALYZED_CLAIMS_HELPER": "Service items reviewed by the coding agent",
                 "TOTAL_VALUE": "Total Value",
-                "APPROVAL_STATE": "Approval State"
+                "TOTAL_VALUE_HELPER": "Invoice total detected by the financial agent",
+                "APPROVAL_STATE": "Approval State",
+                "START_HERE": "Start here:",
+                "SEVERITY_LABEL": "Findings by severity"
             },
             "APPROVAL_STATE": {
                 "BLOCKED": "Blocked by agent review",
@@ -161,26 +405,36 @@
                 "REASON": "Reason:",
                 "RECOMMENDATION": "Recommendation:",
                 "SOURCE": "Source:",
-                "EMPTY": "No findings match the current filters."
+                "EMPTY": "No findings match the current filters.",
+                "OCCURRENCES": "{{count}} occurrences",
+                "ACCOUNT_TAG": "Account"
             },
             "FILTERS": {
                 "AGENT": "Agent",
                 "RISK": "Risk",
                 "TYPE": "Type",
                 "ALL": "All",
-                "CLEAR": "Clear filters"
+                "CLEAR": "Clear filters",
+                "AGENT_CODING": "Coding",
+                "AGENT_COMPLIANCE": "Compliance",
+                "AGENT_FINANCIAL": "Financial",
+                "RISK_CRITICAL": "Critical",
+                "RISK_HIGH": "High",
+                "RISK_MEDIUM": "Medium",
+                "RISK_LOW": "Low",
+                "RISK_PENDING": "Pending",
+                "SCOPE": "Scope",
+                "SCOPE_ALL": "All",
+                "SCOPE_SERVICE": "By service",
+                "SCOPE_ACCOUNT": "Account-level",
+                "SERVICE": "Service"
             },
-            "TABLE": {
-                "EYEBROW": "Mapped findings",
-                "TITLE": "Findings by scope",
-                "SUMMARY": "Service-level and account-level issues from agent results.",
-                "BY_SERVICE": "By service",
-                "ACCOUNT_LEVEL": "Account-level",
-                "CODE": "Item Code",
-                "DESCRIPTION": "Description",
-                "AMOUNT": "Billed Amount",
-                "STATUS": "AI Status",
-                "EMPTY": "No findings available for this view."
+            "MISSING_DOCS": {
+                "EYEBROW": "Compliance gap",
+                "TITLE": "Missing Required Documents",
+                "REQUIRED_FOR": "Required for:",
+                "REASON": "Reason:",
+                "EMPTY": "No missing required documents detected."
             },
             "ACTIONS_PANEL": {
                 "EYEBROW": "Resolution Queue",
@@ -195,6 +449,12 @@
             "MODAL": {
                 "FINDINGS": "Findings",
                 "RECOMMENDED": "Recommended actions"
+            },
+            "CONTRACT": {
+                "EYEBROW": "Agreement document",
+                "CLOSE": "Close",
+                "LOADING_TITLE": "Loading contract",
+                "LOADING_MESSAGE": "Retrieving the agreement document from the repository."
             }
         },
         "INTAKE_WIDGET": {

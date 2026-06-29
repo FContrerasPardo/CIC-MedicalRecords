@@ -9,7 +9,9 @@
         },
         "TOP_LINKS": {
             "AGREEMENTS": "Vertragskonfiguration",
-            "ANALYTICS": "Prozessanalyse"
+            "ANALYTICS": "Prozessanalyse",
+            "REPORT_CONFIG": "[TODO] Configure Reports",
+            "ANALYTICS_SOON": "[TODO] Coming soon"
         },
         "ACTIONS": {
             "EXPORT_REPORT": "Bericht exportieren",
@@ -62,7 +64,10 @@
             "ATTENTION_REQUIRED": "Aufmerksamkeit erforderlich",
             "CRITICAL_COUNT": "3 kritisch",
             "INSIGHTS": "Einblicke",
-            "PERFORMANCE_METRICS": "Leistungsmetriken"
+            "PERFORMANCE_METRICS": "Leistungsmetriken",
+            "OPEN_TASKS_SUBTITLE": "[TODO] Tasks assigned to you or ready to claim across medical-records workflows.",
+            "INSIGHTS_SUBTITLE": "[TODO] Configurable widgets from Content and process queries. Edit layout in Configure Reports.",
+            "PERFORMANCE_METRICS_SUBTITLE": "[TODO] Configurable KPI cards. Most defaults are demo until you wire a query in the builder."
         },
         "CARDS": {
             "DAILY_PROCESSING_VOLUME": "Tagliches Verarbeitungsvolumen",
@@ -92,6 +97,563 @@
             "SLA_COMPLIANCE": "SLA-Erfullung",
             "TOTAL_PROCESSES": "Prozesse gesamt",
             "USER_ACTIVITY": "Benutzeraktivitat"
+        },
+        "AGREEMENTS": {
+            "PLACEHOLDER": "[TODO] Agreement configuration will be available here. Use Configure Reports to customize dashboard widgets today."
+        },
+        "TASK_TYPES": {
+            "INTAKE": "[TODO] Intake",
+            "VALIDATE_RULES": "[TODO] Agent rules",
+            "ANALYSIS": "[TODO] Analysis",
+            "UNKNOWN": "[TODO] Task"
+        },
+        "TASK_STATUS": {
+            "ASSIGNED": "[TODO] Assigned",
+            "CREATED": "[TODO] Unassigned",
+            "REVIEW": "[TODO] Review required"
+        },
+        "DASHBOARD": {
+            "DOCUMENT_VOLUME": "[TODO] Repository Documents",
+            "DOCUMENT_VOLUME_HELPER": "[TODO] Live count from native Content query",
+            "CONTENT_SOURCE": "[TODO] Content query",
+            "REFRESH": "[TODO] Refresh",
+            "EDIT_DASHBOARD": "[TODO] Configure reports",
+            "SOURCE_DEMO": "[TODO] Demo",
+            "SOURCE_CONTENT": "[TODO] Content",
+            "SOURCE_PROCESS": "[TODO] Process"
+        },
+        "DASHBOARD_BUILDER": {
+            "EYEBROW": "[TODO] Configuration",
+            "TITLE": "[TODO] Dashboard Builder",
+            "DESCRIPTION": "[TODO] Add, reorder, and configure insight and metric widgets backed by Content and process queries.",
+            "BACK": "[TODO] Back to dashboard",
+            "PALETTE_TITLE": "[TODO] Widget palette",
+            "PALETTE_HINT": "[TODO] Add widgets to the canvas, then drag to reorder within each section.",
+            "ADD_WIDGET": "[TODO] Add",
+            "ADD_TO_SECTION": "[TODO] Quick add KPI to metrics",
+            "ADD_METRIC_KPI": "[TODO] Metric KPI card",
+            "WIDGET_METRIC": "[TODO] Metric widget",
+            "WIDGET_CHART": "[TODO] Chart widget",
+            "WIDGET_TABLE": "[TODO] Flat report table",
+            "WIDGET_PROCESS_LIST": "[TODO] Open tasks widget",
+            "RESET_LAYOUT": "[TODO] Reset demo layout",
+            "RESET_DONE": "[TODO] Default dashboard layout restored.",
+            "SAVE_LAYOUT": "[TODO] Save layout",
+            "SAVE_DONE": "[TODO] Dashboard layout saved.",
+            "EDIT_WIDGET": "[TODO] Edit widget",
+            "REMOVE_WIDGET": "[TODO] Remove widget",
+            "FIELD_TITLE_KEY": "[TODO] Title translation key",
+            "FIELD_TITLE": "[TODO] Title",
+            "FIELD_HELPER": "[TODO] Helper text",
+            "FIELD_DATA_SOURCE": "[TODO] Data source",
+            "FIELD_CONTENT_QUERY": "[TODO] Content query",
+            "FIELD_PROCESS_DEFINITION": "[TODO] Process definition name",
+            "FIELD_PROCESS_STATUS": "[TODO] Process status filter",
+            "FIELD_PROCESS_STATUS_HINT": "[TODO] RUNNING, COMPLETED, SUSPENDED",
+            "FIELD_DEMO_VALUE": "[TODO] Demo fallback value",
+            "FIELD_HELPER_KEY": "[TODO] Helper translation key",
+            "OPEN_TASKS_OPTIONS": {
+                "TITLE": "[TODO] Open tasks options",
+                "INTRO": "[TODO] This widget always loads tasks from Automate. Toggle visible controls below.",
+                "SEARCH": "[TODO] Search box",
+                "REFRESH": "[TODO] Refresh button",
+                "BULK": "[TODO] Bulk selection and approval",
+                "SUBTITLE": "[TODO] Subtitle under title",
+                "COUNT_BADGE": "[TODO] Task count badge"
+            },
+            "FIELD_TABLE_PAGE_SIZE": "[TODO] Rows to fetch",
+            "FIELD_TABLE_COLUMNS": "[TODO] Column keys (optional)",
+            "FIELD_TABLE_COLUMNS_HINT": "[TODO] id, name, status — leave empty to auto-detect",
+            "NEW_METRIC_TITLE": "[TODO] Custom metric",
+            "NEW_METRIC_HELPER": "[TODO] Configure a Content or process query in the builder.",
+            "CANVAS_TITLE": "[TODO] Builder canvas",
+            "CANVAS_MESSAGE": "[TODO] Drag widgets between sections or reorder cards within a section.",
+            "CONFIG_MODAL": {
+                "EYEBROW": "[TODO] Widget configuration",
+                "CLOSE": "[TODO] Close",
+                "PREVIEW": "[TODO] Live preview",
+                "PROCESS_LIST_PREVIEW": "[TODO] Open Tasks uses live task queries. Adjust display options on the right."
+            },
+            "WIDGET_GAUGE": "[TODO] Gauge widget",
+            "FIELD_CARD_SIZE": "[TODO] Card size",
+            "FIELD_CARD_SIZE_HINT": "[TODO] Controls how many grid columns this widget occupies in its section.",
+            "SPAN_QUARTER": "[TODO] Small (1/4 row)",
+            "SPAN_THIRD": "[TODO] Compact (1/3 row)",
+            "SPAN_HALF": "[TODO] Medium (1/2 row)",
+            "SPAN_TWO_THIRDS": "[TODO] Large (2/3 row)",
+            "SPAN_FULL": "[TODO] Full width",
+            "SPAN_METRIC_QUARTER": "[TODO] Compact (1 column)",
+            "SPAN_METRIC_HALF": "[TODO] Medium (2 columns)",
+            "SPAN_METRIC_THREE_QUARTERS": "[TODO] Large (3 columns)",
+            "SPAN_METRIC_FULL": "[TODO] Full row (4 columns)"
+        },
+        "CHART": {
+            "EDITOR_TITLE": "[TODO] Chart axes",
+            "EDITOR_INTRO": "[TODO] Detect fields from your query, then choose a horizontal series (date or category) and a count or sum value.",
+            "DETECT_FIELDS": "[TODO] Detect fields",
+            "DETECTING": "[TODO] Detecting columns…",
+            "FIELD_X": "[TODO] Horizontal axis (X)",
+            "FIELD_Y": "[TODO] Vertical value (Y)",
+            "FIELD_Y_SUM": "[TODO] Numeric field to sum",
+            "FIELD_DATE_BUCKET": "[TODO] Group dates by",
+            "SELECT_FIELD": "[TODO] Select a field",
+            "Y_COUNT": "[TODO] Count rows",
+            "Y_SUM": "[TODO] Sum numeric field",
+            "LOADING": "[TODO] Loading chart data…",
+            "NO_DATA": "[TODO] No data returned for this query and axis configuration.",
+            "MISSING_AXIS": "[TODO] Drag startDate to Arguments (or pick a date field) to build the chart.",
+            "DISPLAY_MODE": "[TODO] Chart style",
+            "DISPLAY_BAR": "[TODO] Bar chart",
+            "DISPLAY_LINE": "[TODO] Line chart",
+            "AXIS_SETTINGS": "[TODO] Axis settings",
+            "FIELD_X_AXIS_LABEL": "[TODO] X axis label",
+            "FIELD_Y_AXIS_LABEL": "[TODO] Y axis label",
+            "FIELD_Y_AXIS_MAX": "[TODO] Y axis maximum",
+            "FIELD_X_LABEL_FORMAT": "[TODO] X label format",
+            "FIELD_MAX_BUCKETS": "[TODO] Max data points",
+            "X_LABEL_FORMAT_AUTO": "[TODO] Short (recommended)",
+            "X_LABEL_FORMAT_FULL": "[TODO] Full values",
+            "Y_AXIS_MAX_AUTO": "[TODO] Auto from data",
+            "AXIS_X_DEFAULT": "[TODO] Category",
+            "AXIS_X_DATE": "[TODO] Date",
+            "AXIS_X_WEEK": "[TODO] Week",
+            "AXIS_X_MONTH": "[TODO] Month",
+            "AXIS_X_HOUR": "[TODO] Hour",
+            "AXIS_X_CATEGORY": "[TODO] Category",
+            "AXIS_Y_COUNT": "[TODO] Count",
+            "AXIS_Y_SUM": "[TODO] Sum"
+        },
+        "QUERY_HELP": {
+            "CONTENT_TITLE": "[TODO] Content query help",
+            "CONTENT_INTRO": "[TODO] Use CMIS SQL against the Hyland repository. Metrics show totalCount; tables show document rows.",
+            "CONTENT_COLUMNS": "[TODO] Common columns: id, name, sys_id, sys_title, sys_type, sys_parentId",
+            "CONTENT_TIP": "[TODO] Tip: use a Flat report table widget to see all columns returned by your query.",
+            "CONTENT_PRESETS": {
+                "ALL_HXP_DOCUMENTS": "[TODO] All hxp documents",
+                "ALL_HXP_DOCUMENTS_DESC": "[TODO] Same query used by Repository Documents widget.",
+                "ALL_CMIS_DOCUMENTS": "[TODO] All CMIS documents",
+                "ALL_CMIS_DOCUMENTS_DESC": "[TODO] Generic cmis:document type across the repository.",
+                "PDF_DOCUMENTS": "[TODO] PDF files only",
+                "PDF_DOCUMENTS_DESC": "[TODO] Filter documents whose name ends with .pdf"
+            },
+            "PROCESS_TITLE": "[TODO] Process query help",
+            "PROCESS_INTRO": "[TODO] No SQL here — filter Automate process instances by definition name and status.",
+            "PROCESS_COLUMNS": "[TODO] Table columns: id, name, status, processDefinitionKey, processDefinitionName, startDate, businessKey",
+            "PROCESS_TIP": "[TODO] Tip: use a Flat report table widget to inspect live process rows before building KPIs.",
+            "PROCESS_PRESETS": {
+                "MEDICAL_RECORDS_ALL": "[TODO] medical-records · all statuses",
+                "MEDICAL_RECORDS_ALL_DESC": "[TODO] RUNNING, COMPLETED and SUSPENDED instances.",
+                "MEDICAL_RECORDS_RUNNING": "[TODO] medical-records · RUNNING only",
+                "MEDICAL_RECORDS_RUNNING_DESC": "[TODO] Active process instances only.",
+                "MEDICAL_RECORDS_COMPLETED": "[TODO] medical-records · COMPLETED only",
+                "MEDICAL_RECORDS_COMPLETED_DESC": "[TODO] Finished process instances."
+            }
+        },
+        "TABLE_WIDGET": {
+            "NEW_TITLE": "[TODO] Query preview table",
+            "NEW_HELPER": "[TODO] Flat report to inspect columns returned by Content or process queries.",
+            "LOADING": "[TODO] Loading rows...",
+            "EMPTY": "[TODO] No rows returned for this query.",
+            "ERROR": "[TODO] Unable to load table rows."
+        },
+        "PROCESS_LIST": {
+            "LOADING": "[TODO] Loading open tasks...",
+            "EMPTY": "[TODO] No open medical-records tasks found.",
+            "EMPTY_TITLE": "[TODO] All caught up",
+            "EMPTY_HINT": "[TODO] No open tasks require your attention right now.",
+            "ERROR": "[TODO] Unable to load tasks from Automate.",
+            "RETRY": "[TODO] Retry"
+        },
+        "BULK_TASKS": {
+            "SELECT_ALL_FILTERED": "[TODO] Select all filtered tasks",
+            "SELECTED_SUMMARY": "[TODO] {{selected}} selected · {{eligible}} eligible to approve",
+            "MIXED_TYPES": "[TODO] Select tasks of the same type to use bulk approve.",
+            "VIEW_REASONS": "[TODO] View ineligible reasons",
+            "APPROVE_ELIGIBLE": "[TODO] Approve eligible",
+            "PROCESSING": "[TODO] Completing selected tasks...",
+            "RESULT_SUMMARY": "[TODO] {{succeeded}} completed · {{failed}} failed"
+        },
+        "ANALYSIS_WIDGET": {
+            "HEADER": {
+                "EYEBROW": "[TODO] AI Pre-validation",
+                "TITLE": "[TODO] Analysis Phase",
+                "DESCRIPTION": "[TODO] Review automated findings and resolve identified risks before proceeding to manual approval."
+            },
+            "METRICS": {
+                "INCONSISTENCIES": "[TODO] Inconsistencies",
+                "COMPLIANCE_GAPS": "[TODO] Compliance Gaps",
+                "FINANCIAL_ISSUES": "[TODO] Financial Issues"
+            },
+            "RISK": {
+                "SCORE_LABEL": "[TODO] Glosa Risk Score",
+                "ANALYZED_CLAIMS": "[TODO] Analyzed Claims",
+                "TOTAL_VALUE": "[TODO] Total Value",
+                "APPROVAL_STATE": "[TODO] Approval State",
+                "START_HERE": "[TODO] Start here:",
+                "SEVERITY_LABEL": "[TODO] Findings by severity",
+                "ANALYZED_CLAIMS_HELPER": "[TODO] Service items reviewed by the coding agent",
+                "TOTAL_VALUE_HELPER": "[TODO] Invoice total detected by the financial agent"
+            },
+            "APPROVAL_STATE": {
+                "BLOCKED": "[TODO] Blocked by agent review",
+                "READY": "[TODO] Ready to proceed"
+            },
+            "MISSING_AGENTS": "[TODO] Waiting for {{agents}}.",
+            "VIEW_ALL_FINDINGS": "[TODO] View all findings ({{count}})",
+            "FILTER": "[TODO] Filter",
+            "DEMO_DISCLAIMER": "[TODO] Demo: complete corrective actions outside this widget, then use the form actions at the bottom of the task.",
+            "FINDINGS": {
+                "EYEBROW": "[TODO] Detailed review",
+                "TITLE": "[TODO] All Findings",
+                "DESCRIPTION": "[TODO] Every finding returned by the coding, compliance, and financial agents.",
+                "REASON": "[TODO] Reason:",
+                "RECOMMENDATION": "[TODO] Recommendation:",
+                "SOURCE": "[TODO] Source:",
+                "EMPTY": "[TODO] No findings match the current filters.",
+                "OCCURRENCES": "[TODO] {{count}} occurrences",
+                "ACCOUNT_TAG": "[TODO] Account"
+            },
+            "FILTERS": {
+                "AGENT": "[TODO] Agent",
+                "RISK": "[TODO] Risk",
+                "TYPE": "[TODO] Type",
+                "ALL": "[TODO] All",
+                "CLEAR": "[TODO] Clear filters",
+                "AGENT_CODING": "[TODO] Coding",
+                "AGENT_COMPLIANCE": "[TODO] Compliance",
+                "AGENT_FINANCIAL": "[TODO] Financial",
+                "RISK_CRITICAL": "[TODO] Critical",
+                "RISK_HIGH": "[TODO] High",
+                "RISK_MEDIUM": "[TODO] Medium",
+                "RISK_LOW": "[TODO] Low",
+                "RISK_PENDING": "[TODO] Pending",
+                "SCOPE": "[TODO] Scope",
+                "SCOPE_ALL": "[TODO] All",
+                "SCOPE_SERVICE": "[TODO] By service",
+                "SCOPE_ACCOUNT": "[TODO] Account-level",
+                "SERVICE": "[TODO] Service"
+            },
+            "ACTIONS_PANEL": {
+                "EYEBROW": "[TODO] Resolution Queue",
+                "TITLE": "[TODO] Recommended Actions"
+            },
+            "ACTIONS": {
+                "UPDATE_CUPS": "[TODO] Update CUPS",
+                "REQUEST_AUTHORIZATION": "[TODO] Request Authorization",
+                "REVIEW_CONTRACT": "[TODO] Review Contract",
+                "OPEN_FINDINGS": "[TODO] Open Findings"
+            },
+            "MODAL": {
+                "FINDINGS": "[TODO] Findings",
+                "RECOMMENDED": "[TODO] Recommended actions"
+            },
+            "MISSING_DOCS": {
+                "EYEBROW": "[TODO] Compliance gap",
+                "TITLE": "[TODO] Missing Required Documents",
+                "REQUIRED_FOR": "[TODO] Required for:",
+                "REASON": "[TODO] Reason:",
+                "EMPTY": "[TODO] No missing required documents detected."
+            },
+            "CONTRACT": {
+                "EYEBROW": "[TODO] Agreement document",
+                "CLOSE": "[TODO] Close",
+                "LOADING_TITLE": "[TODO] Loading contract",
+                "LOADING_MESSAGE": "[TODO] Retrieving the agreement document from the repository."
+            }
+        },
+        "INTAKE_WIDGET": {
+            "ALIAS": {
+                "TITLE": "[TODO] OCR reconciliation applied",
+                "USE_DISPLAY_NAME": "[TODO] Use as display name",
+                "ACCEPT": "[TODO] Accept",
+                "COLLAPSE": "[TODO] Collapse",
+                "REOPEN": "[TODO] OCR reconciliation",
+                "EXPAND": "[TODO] Show reconciliation",
+                "ACCEPTED_SUMMARY": "[TODO] Reconciled name"
+            },
+            "HINTS": {
+                "DOCS": "[TODO] {{count}} docs",
+                "SERVICES": "[TODO] {{count}} services",
+                "SINGLE_BATCH": "[TODO] Single patient batch",
+                "OCR": "[TODO] OCR reconciliation",
+                "PATIENT_ACCOUNTS": "[TODO] {{count}} patient accounts"
+            },
+            "PATIENT_SELECTOR": {
+                "EYEBROW": "[TODO] Patient selector",
+                "TITLE": "[TODO] Patients included in this batch",
+                "PATIENTS": "[TODO] patients",
+                "DEMOGRAPHICS_PENDING": "[TODO] Demographics pending",
+                "SERVICES_DOCS": "[TODO] {{services}} services - {{docs}} docs",
+                "MERGE_INTO_SELECTED": "[TODO] Merge into selected"
+            },
+            "HEADER": {
+                "PATIENT_PENDING": "[TODO] Patient pending",
+                "READ_ONLY": "[TODO] Read only",
+                "MRN": "[TODO] MRN",
+                "ID": "[TODO] ID",
+                "DOB": "[TODO] DOB",
+                "PROVIDER": "[TODO] Provider",
+                "INSURANCE": "[TODO] Insurance",
+                "PROVIDER_PENDING": "[TODO] Provider pending",
+                "INVOICE": "[TODO] Invoice",
+                "ADMISSION": "[TODO] Admission",
+                "DISCHARGE": "[TODO] Discharge",
+                "INSURANCE_PENDING": "[TODO] Insurance pending",
+                "PENDING": "[TODO] Pending",
+                "UPLOAD": "[TODO] Upload",
+                "PROCEED": "[TODO] Proceed to Analysis"
+            },
+            "SUMMARY": {
+                "ALL": "[TODO] Total Services",
+                "ALL_HELPER": "[TODO] View all services",
+                "COMPLETE": "[TODO] Complete",
+                "COMPLETE_HELPER": "[TODO] Fully supported services",
+                "MISSING_SUPPORT": "[TODO] Missing Support",
+                "MISSING_SUPPORT_HELPER": "[TODO] Services with missing support",
+                "PENDING_REVIEW": "[TODO] Pending Review",
+                "PENDING_REVIEW_HELPER": "[TODO] Services or source docs marked for review",
+                "LOW_CONFIDENCE": "[TODO] Low Confidence",
+                "LOW_CONFIDENCE_HELPER": "[TODO] Confidence below threshold",
+                "DOCUMENTS": "[TODO] Total Documents",
+                "DOCUMENTS_HELPER": "[TODO] General support repository",
+                "READINESS": "[TODO] Analysis Readiness",
+                "MARK_ALL_REVIEWED": "[TODO] Mark all reviews complete"
+            },
+            "READINESS": {
+                "HELPER_SINGLE": "[TODO] {{status}}. {{blocker}}",
+                "HELPER_MULTIPLE": "[TODO] {{status}}. {{blocker}} (+{{more}} more)",
+                "BLOCKER_MISSING_SUPPORT": "[TODO] {{count}} service(s) still have missing support.",
+                "BLOCKER_PENDING_REVIEW": "[TODO] {{count}} service(s) still need review.",
+                "BLOCKER_REJECTED": "[TODO] Rejected documents must be resolved before advancing to Analysis.",
+                "BLOCKER_NO_SERVICES": "[TODO] No billable services were mapped for this account."
+            },
+            "SERVICES": {
+                "EYEBROW": "[TODO] Services",
+                "TITLE": "[TODO] Service Explorer",
+                "VISIBLE": "[TODO] visible",
+                "SEARCH_LABEL": "[TODO] Search services",
+                "SEARCH_PLACEHOLDER": "[TODO] Service code, CUP, description or category",
+                "CLEAR_SEARCH": "[TODO] Clear search",
+                "PENDING_DATE": "[TODO] Pending date",
+                "CODE": "[TODO] Code",
+                "CUP": "[TODO] CUP",
+                "DETECTED_SERVICE": "[TODO] Detected service",
+                "QTY": "[TODO] Qty",
+                "PRICE": "[TODO] Price",
+                "COMPLETION": "[TODO] Completion",
+                "EXPAND": "[TODO] Expand",
+                "COLLAPSE": "[TODO] Collapse",
+                "SUPPORT_PACKAGE": "[TODO] Support package",
+                "REQUIRED": "[TODO] Required",
+                "PRESENT": "[TODO] Present",
+                "MISSING": "[TODO] Missing",
+                "DETECTION_DETAILS": "[TODO] Detection details",
+                "SOURCE": "[TODO] Source",
+                "PENDING_SOURCE": "[TODO] Pending source",
+                "PENDING_INVOICE": "[TODO] Pending invoice",
+                "COVERAGE": "[TODO] Coverage",
+                "PENDING_COVERAGE": "[TODO] Pending coverage",
+                "CONFIDENCE": "[TODO] Confidence",
+                "NOT_AVAILABLE": "[TODO] Not available",
+                "ALERTS": "[TODO] Alerts",
+                "ACQUIRE_DOCUMENT": "[TODO] Acquire Document",
+                "UPLOAD_MANUALLY": "[TODO] Upload Manually",
+                "MARK_REVIEWED": "[TODO] Mark as Reviewed",
+                "MARKED_REVIEWED": "[TODO] Reviewed",
+                "NO_SERVICES": "[TODO] No services detected",
+                "NO_SERVICES_HELPER": "[TODO] The widget did not find billed service rows inside batchState.",
+                "NO_FILTER_MATCH": "[TODO] No services match the current filter",
+                "NO_FILTER_MATCH_HELPER": "[TODO] Try a different chip or clear the search input."
+            },
+            "DOCUMENTS": {
+                "EYEBROW": "[TODO] Repository",
+                "TITLE": "[TODO] Document Control Center",
+                "DOCS": "[TODO] docs",
+                "CAPTURE": "[TODO] Capture",
+                "PENDING_TITLE": "[TODO] Pending Support Documents",
+                "PENDING_HELPER": "[TODO] Derived from current services in this account.",
+                "PENDING_COMPLETE_HELPER": "[TODO] All required support documents are currently mapped.",
+                "PENDING_BADGE": "[TODO] pending",
+                "PENDING_BADGE_PLURAL": "[TODO] pending",
+                "REQUIRED_BY": "[TODO] Required by {{count}} services",
+                "REQUIRED_BY_ONE": "[TODO] Required by 1 service",
+                "CLEAR_FILTER": "[TODO] Clear filter",
+                "UPLOAD": "[TODO] Upload document",
+                "CLASS": "[TODO] Class",
+                "EXTRACT": "[TODO] Extract",
+                "REVIEW_STATUS": "[TODO] Review status",
+                "EXTRACTED_VALUES": "[TODO] Extracted values",
+                "CONTENT_REF": "[TODO] Content reference",
+                "NO_REFERENCE": "[TODO] No reference",
+                "VIEW_DOCUMENT": "[TODO] View document",
+                "MARK_REVIEWED": "[TODO] Mark as reviewed",
+                "MARKED_REVIEWED": "[TODO] Reviewed",
+                "NO_DOCUMENTS": "[TODO] No mapped documents",
+                "NO_DOCUMENTS_HELPER": "[TODO] Add supporting documents to visualize the medical account repository.",
+                "ALL_COVERED": "[TODO] All required supports are currently covered.",
+                "ALL_COVERED_HELPER": "[TODO] You can still attach additional documents if the account needs more evidence."
+            },
+            "VIEWER": {
+                "PREVIEW": "[TODO] Preview",
+                "METADATA": "[TODO] Metadata",
+                "CLOSE": "[TODO] Close",
+                "LOADING": "[TODO] Loading preview",
+                "LOADING_HELPER": "[TODO] Retrieving the repository file for this document.",
+                "PREPARING": "[TODO] Preparing preview",
+                "PREPARING_HELPER": "[TODO] Rendering the document inside the intake viewer.",
+                "NO_PREVIEW": "[TODO] No preview reference available",
+                "NO_PREVIEW_HELPER": "[TODO] The selected document does not expose a resolvable repository content reference from batchState yet.",
+                "NO_METADATA": "[TODO] No extracted metadata available",
+                "NO_METADATA_HELPER": "[TODO] This document does not expose extracted highlights for the current account view."
+            },
+            "STATUS": {
+                "REVIEW_REQUIRED": "[TODO] Review Required",
+                "LOW_CONFIDENCE": "[TODO] Low Confidence",
+                "COMPLETE": "[TODO] Complete",
+                "MISSING_SUPPORT": "[TODO] Missing Support",
+                "PARTIAL": "[TODO] Partial",
+                "REVIEWED": "[TODO] Reviewed",
+                "READY_FOR_ANALYSIS": "[TODO] Ready for Analysis",
+                "REVIEW_IN_PROGRESS": "[TODO] Review in Progress",
+                "SUPPORT_PENDING": "[TODO] Support Pending",
+                "EXTRACTION_REVIEW_REQUIRED": "[TODO] Extraction review required",
+                "SEPARATION_REVIEW_REQUIRED": "[TODO] Separation review required",
+                "CLASSIFICATION_REVIEW_REQUIRED": "[TODO] Classification review required",
+                "REVIEW_NOT_REQUIRED": "[TODO] Review not required",
+                "CLASSIFIED": "[TODO] Classified",
+                "EXTRACTED": "[TODO] Extracted"
+            },
+            "ERRORS": {
+                "BATCH_STATE": "[TODO] batchState error",
+                "UNABLE_RENDER": "[TODO] Unable to render intake dashboard"
+            }
+        },
+        "AGENT_RULES_WIDGET": {
+            "ENTITY": {
+                "CONTRACT_ID": "[TODO] Contract ID",
+                "CAPITATION": "[TODO] Capitation base"
+            },
+            "PAYERS": {
+                "TITLE": "[TODO] Payers",
+                "FILTER": "[TODO] Filter payers...",
+                "EXPIRES": "[TODO] Expires",
+                "LAST_EDIT": "[TODO] Last edit",
+                "DEMO_READONLY": "[TODO] Demo profile — not sent to agents",
+                "STATUS": {
+                    "ACTIVE": "[TODO] Active",
+                    "DRAFT": "[TODO] Draft"
+                }
+            },
+            "TABS": {
+                "GENERAL": "[TODO] General",
+                "TARIFFS": "[TODO] Tariffs",
+                "AI_RULES": "[TODO] AI Rules",
+                "DOCUMENTS": "[TODO] Documents"
+            },
+            "TOOLBAR": {
+                "POPULATED": "[TODO] Populated",
+                "MISSING": "[TODO] Missing",
+                "RULES": "[TODO] Rules",
+                "SEARCH": "[TODO] Search by code, rule id, or description...",
+                "ONLY_ISSUES": "[TODO] Only issues"
+            },
+            "GENERAL": {
+                "CONTRACT_EYEBROW": "[TODO] Contract details",
+                "CONTRACT_TITLE": "[TODO] General information",
+                "FINANCIAL_EYEBROW": "[TODO] Execution status",
+                "FINANCIAL_TITLE": "[TODO] Financial summary",
+                "LEGAL_REP": "[TODO] Legal representative",
+                "CONTRACT_TYPE": "[TODO] Contract type",
+                "EFFECTIVE_FROM": "[TODO] Start date",
+                "EFFECTIVE_TO": "[TODO] End date",
+                "JURISDICTION": "[TODO] Jurisdiction",
+                "PAYER": "[TODO] Payer",
+                "BUDGET_TOTAL": "[TODO] Total budget",
+                "BILLED_YTD": "[TODO] Billed YTD",
+                "PENDING_APPROVAL": "[TODO] Pending approval"
+            },
+            "TARIFFS": {
+                "CODE": "[TODO] Code",
+                "DESCRIPTION": "[TODO] Description",
+                "AMOUNT": "[TODO] Expected amount",
+                "MODIFIER": "[TODO] Modifier",
+                "STATUS": "[TODO] Status",
+                "EMPTY": "[TODO] No tariff agreement payload is available."
+            },
+            "DOCUMENTS": {
+                "PRIMARY": "[TODO] Primary document",
+                "OPEN_FULL": "[TODO] Open full viewer",
+                "CLOSE_FULL": "[TODO] Close viewer",
+                "LOADING": "[TODO] Loading contract preview...",
+                "NATIVE_LOADING_TITLE": "[TODO] Preparing native viewer",
+                "NATIVE_LOADING_MESSAGE": "[TODO] Rendering the document inside the Hyland viewer.",
+                "RELATED": "[TODO] Related files",
+                "METADATA": "[TODO] Document metadata",
+                "EXPIRES": "[TODO] Expires"
+            },
+            "DEBUG": {
+                "TITLE": "[TODO] Developer tools",
+                "COPY_BATCH": "[TODO] Copy batchState JSON",
+                "COPIED": "[TODO] Copied"
+            },
+            "EMPTY": {
+                "TITLE": "[TODO] No rule payload available",
+                "DESCRIPTION": "[TODO] Confirm that the Script task mapped agentRulesWidget into this form field."
+            }
+        },
+        "EXPERIENCE": {
+            "EYEBROW": "[TODO] Medical Records",
+            "PAGE_TITLE": "[TODO] Dashboard"
+        },
+        "DATA_BINDING": {
+            "PROVIDER_TITLE": "[TODO] Data provider",
+            "FIELDS_TITLE": "[TODO] Available fields",
+            "ITEMS_TITLE": "[TODO] Data items",
+            "ITEMS_INTRO": "[TODO] Drag fields from the provider into the slots below.",
+            "ARGUMENTS": "[TODO] Arguments",
+            "VALUES": "[TODO] Values",
+            "SERIES": "[TODO] Series",
+            "COLUMNS": "[TODO] Columns",
+            "DROP_ARGUMENT": "[TODO] Drop a date or category field",
+            "DROP_VALUE": "[TODO] Drop a numeric field to sum",
+            "DROP_SERIES": "[TODO] Drop a category field (optional)",
+            "DROP_COLUMNS": "[TODO] Drop fields to define table columns",
+            "SERIES_NOTE": "[TODO] Series grouping is saved for a future release; chart aggregation uses Arguments and Values only.",
+            "NO_FIELDS": "[TODO] No fields detected. Adjust the query and click Detect fields.",
+            "FIELDS_TIP": "[TODO] Drag a field into a slot below, or click a field to assign it automatically.",
+            "FIELD_CLICK_HINT": "[TODO] Drag to a slot or click to assign",
+            "FIELDS_IN_PROVIDER": "[TODO] Detect fields in the Data provider panel (left), then drag them here.",
+            "TABLE_ITEMS_INTRO": "[TODO] Check the fields you want as table columns. Use the order list to rearrange them.",
+            "TABLE_FIELDS_TIP": "[TODO] Use + on a field to add it as a column, or select columns in the panel on the right.",
+            "TABLE_FIELD_ADD_HINT": "[TODO] Click + to add or remove this column",
+            "TABLE_TOGGLE_COLUMN": "[TODO] Toggle column {{ field }}",
+            "SELECT_ALL_COLUMNS": "[TODO] Select all",
+            "CLEAR_COLUMNS": "[TODO] Clear",
+            "COLUMN_ORDER": "[TODO] Column order",
+            "FIELD_SEARCH_PLACEHOLDER": "[TODO] Search by field name…",
+            "FIELD_KIND_FILTER": "[TODO] Field type",
+            "FIELD_KIND_ALL": "[TODO] All types",
+            "FIELD_KIND_DATE": "[TODO] Date",
+            "FIELD_KIND_NUMBER": "[TODO] Number",
+            "FIELD_KIND_CATEGORY": "[TODO] Category",
+            "FIELD_CLEAR_FILTERS": "[TODO] Clear filters",
+            "FIELDS_FILTER_COUNT": "[TODO] {{ count }} of {{ total }} fields",
+            "FIELDS_NO_MATCH": "[TODO] No fields match your search or type filter."
+        },
+        "PROCESS_CATALOG": {
+            "MEDICAL_RECORDS": "[TODO] Medical Records",
+            "MEDICAL_RECORDS_DESC": "[TODO] Root intake workflow. Charts count root intakes over time; tables can include linked subprocess instances.",
+            "SUBPROCESSES": "[TODO] Included subprocesses"
+        },
+        "GAUGE": {
+            "LOADING": "[TODO] Loading gauge…",
+            "ERROR": "[TODO] Could not load gauge data.",
+            "TARGET": "[TODO] Target",
+            "CONFIG_INTRO": "[TODO] Set the scale and target marker. The needle fills based on the query value between min and max.",
+            "FIELD_MIN": "[TODO] Scale minimum",
+            "FIELD_MAX": "[TODO] Scale maximum",
+            "FIELD_TARGET": "[TODO] Target value",
+            "FIELD_UNIT": "[TODO] Value suffix (e.g. %)"
         }
     }
 }

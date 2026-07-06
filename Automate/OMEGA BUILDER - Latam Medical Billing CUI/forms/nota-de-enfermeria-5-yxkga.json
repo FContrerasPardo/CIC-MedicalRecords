@@ -1,0 +1,76 @@
+{
+  "formRepresentation" : {
+    "id" : "form-fe225af1-8bdd-44f8-a87b-f75edbef51f8",
+    "name" : "Nota de Enfermeria-5f53941d",
+    "key" : "nota-de-enfermeria-5-yxkga",
+    "description" : "Automatically generated form for IDP configuration Document Class: 5f53941d-b425-4a77-be93-3aabb759ee17",
+    "version" : 0,
+    "standAlone" : true,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "f70a8090-ebb2-4f54-bbad-3552cc9b2766",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_93d52014_344c_4d1e_956f_edb3711de53e",
+                "name" : "Fecha",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "bd9440cd-45cd-46f8-83f5-f54277ccf569",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_43a56499_4a54_4980_b0f5_4e9372c91f25",
+                "name" : "Nota de enfermeria",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

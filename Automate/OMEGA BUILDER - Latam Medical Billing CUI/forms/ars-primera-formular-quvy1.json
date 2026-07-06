@@ -1,0 +1,308 @@
+{
+  "formRepresentation" : {
+    "id" : "form-d7812d69-fc08-4c5d-835a-48e5db88e039",
+    "name" : "(ARS Primera) Formulario de Objeciones Auditoría Médica-926f0e12",
+    "key" : "ars-primera-formular-quvy1",
+    "description" : "Automatically generated form for IDP configuration Document Class: 926f0e12-a4b5-49c2-95b3-4325ff450bcb",
+    "version" : 0,
+    "standAlone" : true,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "ff51a3e9-f3f1-4adf-b10e-44c3a6f1a0a8",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_072be62d_6429_43c3_a447_40f97ee486cd",
+                "name" : "Nombre del Prestador",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "7e415a0e-e1de-4cf3-9ddc-55c5a54c223a",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_9cc42ee0_61bf_45e2_a548_37d7eb55b53d",
+                "name" : "Código PSS",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "9285a4e2-d503-4feb-a109-4bb0591f80d9",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_84b7add7_1a97_4eed_ba4a_0fe01eb1dd68",
+                "name" : "No. Autorización",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "49ee345b-1822-4693-bd96-16c279d746aa",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_8f737535_a004_4bf6_afa4_b164727345be",
+                "name" : "Procedimientos Objetados",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "12f05984-a11f-4359-815f-6f186c61651d",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_6315bf3f_b5ac_456e_848c_f51f69862d0a",
+                "name" : "Monto de Objeción",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "feb098eb-f636-4686-ae9a-4caaa74ad085",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_3c66b5cb_0cff_43bd_8fc5_8197ef386e35",
+                "name" : "Respuesta del prestador",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "31afe7ba-a7bf-497d-bf33-847d19e3388a",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_a302d989_b6f6_4182_a17f_2be30d6c4555",
+                "name" : "Valor Total Glosado",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "8759e6b5-f6f8-4d53-8cbd-5f8b81235cba",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_b4041e10_f997_4f4b_9153_a0c6a732ef48",
+                "name" : "Fecha de aceptación del prestador",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "cca55f6b-1fff-43d9-8541-8846f9bcebbe",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_94bf394d_0742_475f_8462_32e9aa02b7db",
+                "name" : "Fecha de Firma por Ars Primera",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "ff16d0cd-a5fa-4d8e-beb3-c9a7519493f0",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_2844a902_50f0_44df_88ce_3d86be5e96bf",
+                "name" : "Esta Firmado por la ARS?",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

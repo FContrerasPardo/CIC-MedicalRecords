@@ -1,0 +1,117 @@
+@import '../../../dashboard-shared.styles.scss';
+
+:host {
+    display: block;
+}
+
+.task-status-widget {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(110, 51, 255, 0.1);
+    box-shadow: 0 10px 28px rgba(25, 31, 94, 0.05);
+}
+
+.task-status-widget__header h3 {
+    margin: 0;
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.task-status-widget__header p {
+    margin: 6px 0 0;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.task-status-widget__header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(194, 198, 212, 0.45);
+}
+
+.task-status-widget__state {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.task-status-widget__state--error {
+    color: #b42318;
+}
+
+.task-status-widget__rows {
+    display: grid;
+    gap: 10px;
+}
+
+.task-status-widget__row {
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.task-status-widget__label {
+    color: #424752;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.task-status-widget__track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--dash-brand-gray, #f4f6fe);
+    overflow: hidden;
+}
+
+.task-status-widget__bar {
+    display: block;
+    height: 100%;
+    min-width: 4px;
+    border-radius: 999px;
+    transition: width 240ms ease;
+}
+
+.task-status-widget__count {
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 13px;
+    font-weight: 900;
+    min-width: 24px;
+    text-align: right;
+}
+
+.task-status-widget__footer {
+    display: grid;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(194, 198, 212, 0.35);
+}
+
+.task-status-widget__total {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.task-status-widget__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 9px 14px;
+    border: 1px solid rgba(110, 51, 255, 0.24);
+    border-radius: 999px;
+    color: var(--dash-accent, #6e33ff);
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.task-status-widget__cta .material-icons {
+    font-size: 18px;
+}

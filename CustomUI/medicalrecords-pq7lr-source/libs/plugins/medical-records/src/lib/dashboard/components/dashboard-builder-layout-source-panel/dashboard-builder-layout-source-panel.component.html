@@ -1,0 +1,175 @@
+<section class="layout-source-panel">
+    <button type="button" class="layout-source-panel__toggle" (click)="toggleExpanded()">
+        <span class="material-icons">{{ expanded ? 'expand_less' : 'expand_more' }}</span>
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.PANEL_TITLE' | translate }}</span>
+    </button>
+
+    <div class="layout-source-panel__body" *ngIf="expanded">
+        <p class="layout-source-panel__intro">
+            {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.INTRO' | translate }}
+        </p>
+        <ul class="layout-source-panel__flow">
+            <li>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.FLOW_APPLY' | translate }}</li>
+            <li>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.FLOW_COPY' | translate }}</li>
+            <li>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.FLOW_SAVE' | translate }}</li>
+        </ul>
+
+        <div class="layout-source-panel__section">
+            <span class="layout-source-panel__label">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SELECT_FILE' | translate }}
+            </span>
+            <select
+                class="dashboard-form-control"
+                [(ngModel)]="selectedDocumentId"
+                (ngModelChange)="onDocumentSelectionChange()"
+                [disabled]="listLoading || loading || !documents.length"
+            >
+                <option value="" disabled>
+                    {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SELECT_PLACEHOLDER' | translate }}
+                </option>
+                <option *ngFor="let doc of documents" [ngValue]="doc.id">
+                    {{ doc.title }}
+                </option>
+            </select>
+            <p class="layout-source-panel__note layout-source-panel__note--warn" *ngIf="listError">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.LIST_ERROR' | translate }}
+            </p>
+            <p
+                class="layout-source-panel__note layout-source-panel__note--warn"
+                *ngIf="!listLoading && !listError && folderListing?.folderSource === 'path'"
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.LIST_FOLDER_PATH' | translate }}
+            </p>
+            <p
+                class="layout-source-panel__note layout-source-panel__note--warn"
+                *ngIf="
+                    !listLoading &&
+                    !listError &&
+                    folderListing &&
+                    folderListing.totalChildren > 0 &&
+                    !documents.length
+                "
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.LIST_EMPTY_WITH_CHILDREN' | translate }}
+            </p>
+            <p
+                class="layout-source-panel__note"
+                *ngIf="
+                    !listLoading &&
+                    !listError &&
+                    folderListing &&
+                    !folderListing.totalChildren &&
+                    !documents.length
+                "
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.LIST_EMPTY' | translate }}
+            </p>
+        </div>
+
+        <div class="layout-source-panel__section">
+            <span class="layout-source-panel__label">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SAVE_FILE_NAME' | translate }}
+            </span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="saveFileName"
+                (ngModelChange)="onSaveFileNameChange($event)"
+                [disabled]="loading"
+                [attr.placeholder]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SAVE_FILE_NAME_PLACEHOLDER' | translate"
+            />
+            <p class="layout-source-panel__note">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SAVE_FILE_NAME_HINT' | translate }}
+            </p>
+            <div class="layout-source-panel__suffix-row">
+                <span class="layout-source-panel__suffix-label">
+                    {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.LANGUAGE_SUFFIX' | translate }}
+                </span>
+                <button type="button" class="ghost-action ghost-action--compact" (click)="applyLanguageSuffix('en')" [disabled]="loading">
+                    -en
+                </button>
+                <button type="button" class="ghost-action ghost-action--compact" (click)="applyLanguageSuffix('es')" [disabled]="loading">
+                    -es
+                </button>
+                <button type="button" class="ghost-action ghost-action--compact" (click)="applyLanguageSuffix('pt')" [disabled]="loading">
+                    -pt
+                </button>
+            </div>
+            <p class="layout-source-panel__note">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.COPY_FILE_HINT' | translate }}
+            </p>
+            <label class="layout-source-panel__checkbox">
+                <input
+                    type="checkbox"
+                    [ngModel]="saveAsNew"
+                    (ngModelChange)="onSaveAsNewChange($event)"
+                    [disabled]="loading"
+                />
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SAVE_AS_NEW' | translate }}</span>
+            </label>
+            <p class="layout-source-panel__note" *ngIf="saveAsNew">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.SAVE_AS_NEW_HINT' | translate }}
+            </p>
+        </div>
+
+        <div class="layout-source-panel__actions">
+            <button type="button" class="ghost-action" (click)="onRefresh()" [disabled]="listLoading || loading">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.REFRESH' | translate }}
+            </button>
+            <button
+                type="button"
+                class="ghost-action"
+                (click)="onCopy()"
+                [disabled]="!canCopyFile || listLoading || loading"
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.COPY_FILE' | translate }}
+            </button>
+            <button
+                type="button"
+                class="primary-action"
+                (click)="onApply()"
+                [disabled]="!selectedDocumentId || listLoading || loading"
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.APPLY_RELOAD' | translate }}
+            </button>
+        </div>
+
+        <dl class="layout-source-panel__meta" *ngIf="activeDocument as doc">
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.ACTIVE_SOURCE' | translate }}</dt>
+                <dd>
+                    {{
+                        (doc.loadSource === 'repo'
+                            ? 'MEDICAL_RECORDS.DASHBOARD.LOAD_SOURCE_REPO'
+                            : 'MEDICAL_RECORDS.DASHBOARD.LOAD_SOURCE_DEFAULT')
+                            | translate
+                    }}
+                </dd>
+            </div>
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.ACTIVE_FILE' | translate }}</dt>
+                <dd>{{ doc.title || '—' }}</dd>
+            </div>
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.ACTIVE_ID' | translate }}</dt>
+                <dd class="layout-source-panel__mono">{{ doc.id || '—' }}</dd>
+            </div>
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.ACTIVE_SAVED_AT' | translate }}</dt>
+                <dd>{{ formatSavedAt(doc.savedAt) }}</dd>
+            </div>
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.FOLDER_ID' | translate }}</dt>
+                <dd class="layout-source-panel__mono">{{ doc.folderId || folderListing?.folderId || '—' }}</dd>
+            </div>
+            <div *ngIf="folderListing as listing">
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.TOTAL_CHILDREN' | translate }}</dt>
+                <dd>{{ listing.totalChildren }}</dd>
+            </div>
+            <div>
+                <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.LAYOUT_SOURCE.PREFERRED_ID' | translate }}</dt>
+                <dd class="layout-source-panel__mono">{{ doc.preferredDocumentId || '—' }}</dd>
+            </div>
+        </dl>
+    </div>
+</section>

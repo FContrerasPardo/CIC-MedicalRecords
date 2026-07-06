@@ -1,0 +1,226 @@
+@import '../../dashboard-shared.styles.scss';
+
+.widget-editor-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 20px max(16px, 2vw);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.widget-editor-modal__panel {
+    display: flex;
+    flex-direction: column;
+    width: min(1760px, calc(100vw - max(32px, 4vw)));
+    max-height: calc(100vh - 40px);
+    border: 1px solid rgba(194, 198, 212, 0.45);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+}
+
+.widget-editor-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(194, 198, 212, 0.35);
+    background: #f8fbff;
+}
+
+.widget-editor-modal__eyebrow {
+    display: block;
+    color: var(--dash-accent, #6e33ff);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.widget-editor-modal__header h2 {
+    margin: 4px 0 0;
+    color: #001b3d;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.widget-editor-modal__grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(340px, 1.45fr) minmax(280px, 1fr);
+    gap: 0;
+    width: 100%;
+    min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+.widget-editor-modal__grid--simple {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+}
+
+.widget-editor-modal__column {
+    min-width: 0;
+    min-height: 0;
+    padding: 18px 20px;
+    overflow: auto;
+}
+
+.widget-editor-modal__column h3 {
+    margin: 0 0 12px;
+    color: #001b3d;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.widget-editor-modal__column--provider {
+    border-right: 1px solid rgba(194, 198, 212, 0.35);
+    background: #fbfdff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    overflow: auto;
+
+    medical-records-dashboard-builder-data-binding {
+        flex: 0 0 auto;
+    }
+
+    .widget-editor-modal__appearance-config {
+        flex: 0 0 auto;
+        margin-top: 0;
+    }
+}
+
+.widget-editor-modal__column--preview {
+    background: #f8f9ff;
+}
+
+.widget-editor-modal__column--preview-table {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+
+    .widget-editor-modal__preview-surface {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    medical-records-dashboard-table-widget {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.widget-editor-modal__column--config {
+    border-left: 1px solid rgba(194, 198, 212, 0.35);
+}
+
+.widget-editor-modal__column--config.widget-editor-modal__column--table {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+
+    medical-records-dashboard-builder-data-binding {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.widget-editor-modal__preview-surface {
+    min-height: 280px;
+    max-height: 420px;
+    min-width: 0;
+    padding: 8px;
+    overflow: auto;
+}
+
+.widget-editor-modal__axes-config,
+.widget-editor-modal__appearance-config {
+    margin-top: 12px;
+    padding: 14px;
+    border: 1px solid rgba(110, 51, 255, 0.14);
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.widget-editor-modal__preview-note {
+    margin: 0;
+    padding: 16px;
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.widget-editor-modal__properties {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(194, 198, 212, 0.35);
+}
+
+.widget-editor-modal__field-hint {
+    margin: 6px 0 0;
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.open-tasks-options,
+.gauge-options {
+    display: grid;
+    gap: 8px;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #424752;
+}
+
+@media (max-width: 1200px) {
+    .widget-editor-modal__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .widget-editor-modal__column--provider,
+    .widget-editor-modal__column--config {
+        border: 0;
+        border-top: 1px solid rgba(194, 198, 212, 0.35);
+    }
+}
+
+@media (max-width: 1100px) {
+    .widget-editor-modal__grid--simple {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .widget-editor-modal {
+        padding: 0;
+    }
+
+    .widget-editor-modal__panel {
+        width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+}

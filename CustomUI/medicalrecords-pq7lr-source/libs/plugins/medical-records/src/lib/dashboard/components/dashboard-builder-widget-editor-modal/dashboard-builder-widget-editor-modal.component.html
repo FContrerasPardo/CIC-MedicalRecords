@@ -1,0 +1,134 @@
+<div class="widget-editor-modal" role="dialog" aria-modal="true" (click)="onBackdropClick($event)">
+    <section class="widget-editor-modal__panel" (click)="$event.stopPropagation()">
+        <header class="widget-editor-modal__header">
+            <div>
+                <span class="widget-editor-modal__eyebrow">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.EYEBROW' | translate }}</span>
+                <h2>{{ widget.title || ('MEDICAL_RECORDS.DASHBOARD_BUILDER.EDIT_WIDGET' | translate) }}</h2>
+            </div>
+            <button type="button" class="ghost-action" (click)="closeModal.emit()">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.CLOSE' | translate }}
+            </button>
+        </header>
+
+        <div class="widget-editor-modal__grid" [class.widget-editor-modal__grid--simple]="!isDataWidget">
+            <aside class="widget-editor-modal__column widget-editor-modal__column--provider" *ngIf="isDataWidget">
+                <h3>{{ 'MEDICAL_RECORDS.DATA_BINDING.PROVIDER_TITLE' | translate }}</h3>
+                <medical-records-dashboard-builder-data-binding
+                    panel="provider"
+                    [bindingScope]="bindingScope"
+                    [widget]="widget"
+                    (widgetPatch)="patchWidget($event)"
+                ></medical-records-dashboard-builder-data-binding>
+                <div class="widget-editor-modal__appearance-config" *ngIf="widget.type === 'table'">
+                    <medical-records-dashboard-builder-appearance-panel
+                        [widget]="widget"
+                        [containerLayoutMode]="containerLayoutMode"
+                        [bindingScope]="bindingScope"
+                        (widgetPatch)="patchWidget($event)"
+                    ></medical-records-dashboard-builder-appearance-panel>
+                </div>
+            </aside>
+
+            <main
+                class="widget-editor-modal__column widget-editor-modal__column--preview"
+                [class.widget-editor-modal__column--preview-table]="widget.type === 'table'"
+            >
+                <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PREVIEW' | translate }}</h3>
+                <div class="widget-editor-modal__preview-surface">
+                    <medical-records-dashboard-chart-widget *ngIf="widget.type === 'chart'" [config]="widget"></medical-records-dashboard-chart-widget>
+                    <medical-records-dashboard-metric-widget *ngIf="widget.type === 'metric'" [config]="widget"></medical-records-dashboard-metric-widget>
+                    <medical-records-dashboard-gauge-widget *ngIf="widget.type === 'gauge'" [config]="widget"></medical-records-dashboard-gauge-widget>
+                    <medical-records-dashboard-table-widget *ngIf="widget.type === 'table'" [config]="widget"></medical-records-dashboard-table-widget>
+                    <medical-records-dashboard-link-card-widget *ngIf="widget.type === 'link-card'" [config]="widget"></medical-records-dashboard-link-card-widget>
+                    <medical-records-dashboard-task-status-summary-widget *ngIf="widget.type === 'task-status-summary'" [config]="widget"></medical-records-dashboard-task-status-summary-widget>
+                    <medical-records-dashboard-task-recent-list-widget *ngIf="widget.type === 'task-recent-list'" [config]="widget"></medical-records-dashboard-task-recent-list-widget>
+                    <p *ngIf="widget.type === 'process-list'" class="widget-editor-modal__preview-note">
+                        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PROCESS_LIST_PREVIEW' | translate }}
+                    </p>
+                </div>
+                <div class="widget-editor-modal__appearance-config" *ngIf="widget.type !== 'table'">
+                    <medical-records-dashboard-builder-appearance-panel
+                        [widget]="widget"
+                        [containerLayoutMode]="containerLayoutMode"
+                        [bindingScope]="bindingScope"
+                        (widgetPatch)="patchWidget($event)"
+                    ></medical-records-dashboard-builder-appearance-panel>
+                </div>
+            </main>
+
+            <aside
+                class="widget-editor-modal__column widget-editor-modal__column--config"
+                [class.widget-editor-modal__column--table]="widget.type === 'table'"
+                *ngIf="isDataWidget || isProcessListWidget || isGaugeWidget"
+            >
+                <section class="gauge-options" *ngIf="isGaugeWidget">
+                    <h3>{{ 'MEDICAL_RECORDS.GAUGE.CONFIG_INTRO' | translate }}</h3>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.GAUGE.FIELD_MIN' | translate }}</span>
+                        <input class="dashboard-form-control" type="number" [ngModel]="widget.gaugeMin ?? 0" (ngModelChange)="patchWidget({ gaugeMin: +$event })" />
+                    </label>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.GAUGE.FIELD_MAX' | translate }}</span>
+                        <input class="dashboard-form-control" type="number" [ngModel]="widget.gaugeMax ?? 100" (ngModelChange)="patchWidget({ gaugeMax: +$event })" />
+                    </label>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.GAUGE.FIELD_TARGET' | translate }}</span>
+                        <input class="dashboard-form-control" type="number" [ngModel]="widget.gaugeTarget ?? ''" (ngModelChange)="patchWidget({ gaugeTarget: $event === '' ? undefined : +$event })" />
+                    </label>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.GAUGE.FIELD_UNIT' | translate }}</span>
+                        <input class="dashboard-form-control" type="text" [ngModel]="widget.gaugeUnit || ''" (ngModelChange)="patchWidget({ gaugeUnit: $event })" />
+                    </label>
+                    <label class="dashboard-form-field" *ngIf="widget.dataSource === 'demo'">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_DEMO_VALUE' | translate }}</span>
+                        <input class="dashboard-form-control" type="text" [ngModel]="widget.demoValue || ''" (ngModelChange)="patchWidget({ demoValue: $event })" />
+                    </label>
+                </section>
+
+                <section class="open-tasks-options" *ngIf="isProcessListWidget">
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.INTRO' | translate }}</h3>
+                    <label class="checkbox-row">
+                        <input type="checkbox" [checked]="widget.processListOptions?.showSearch !== false" (change)="updateProcessListOption('showSearch', $any($event.target).checked)" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.SEARCH' | translate }}</span>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" [checked]="widget.processListOptions?.showRefresh !== false" (change)="updateProcessListOption('showRefresh', $any($event.target).checked)" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.REFRESH' | translate }}</span>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" [checked]="widget.processListOptions?.showBulkActions !== false" (change)="updateProcessListOption('showBulkActions', $any($event.target).checked)" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.BULK' | translate }}</span>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" [checked]="widget.processListOptions?.showSubtitle !== false" (change)="updateProcessListOption('showSubtitle', $any($event.target).checked)" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.SUBTITLE' | translate }}</span>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" [checked]="widget.processListOptions?.showCountBadge !== false" (change)="updateProcessListOption('showCountBadge', $any($event.target).checked)" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.COUNT_BADGE' | translate }}</span>
+                    </label>
+                    <label class="field-row">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.OPEN_TARGET' | translate }}</span>
+                        <select
+                            class="dashboard-form-control"
+                            [ngModel]="widget.processListOptions?.openTarget ?? 'task'"
+                            (ngModelChange)="updateProcessListOpenTarget($event)"
+                        >
+                            <option value="task">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.OPEN_TARGET_TASK' | translate }}</option>
+                            <option value="subprocess">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.OPEN_TARGET_SUBPROCESS' | translate }}</option>
+                            <option value="macroProcess">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.OPEN_TARGET_MACRO_PROCESS' | translate }}</option>
+                        </select>
+                    </label>
+                </section>
+
+                <medical-records-dashboard-builder-data-binding
+                    *ngIf="isDataWidget"
+                    panel="items"
+                    [bindingScope]="bindingScope"
+                    [widget]="widget"
+                    (widgetPatch)="patchWidget($event)"
+                ></medical-records-dashboard-builder-data-binding>
+            </aside>
+        </div>
+    </section>
+</div>

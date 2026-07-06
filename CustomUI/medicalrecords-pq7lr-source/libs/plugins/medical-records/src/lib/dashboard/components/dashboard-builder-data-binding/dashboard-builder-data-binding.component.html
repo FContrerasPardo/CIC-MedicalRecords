@@ -1,0 +1,669 @@
+<section
+    class="data-binding"
+    [class.data-binding--provider]="panel === 'provider'"
+    [class.data-binding--items]="panel === 'items'"
+    [class.data-binding--items-table]="isTableItemsPanel"
+    [class.data-binding--axes]="panel === 'axes'"
+>
+    <section class="data-binding__provider" *ngIf="showProviderPanel">
+        <h3 *ngIf="panel === 'all'">{{ 'MEDICAL_RECORDS.DATA_BINDING.PROVIDER_TITLE' | translate }}</h3>
+
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_DATA_SOURCE' | translate }}</span>
+            <select class="dashboard-form-control" [ngModel]="widget.dataSource || 'demo'" (ngModelChange)="onDataSourceChange($event)">
+                <option *ngFor="let source of dataSources" [value]="source">{{ source }}</option>
+            </select>
+        </label>
+
+        <label class="dashboard-form-field" *ngIf="widget.dataSource === 'content'">
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_CONTENT_QUERY' | translate }}</span>
+            <textarea
+                class="dashboard-form-control"
+                rows="2"
+                [ngModel]="widget.contentQuery || ''"
+                (ngModelChange)="patchWidget({ contentQuery: $event })"
+            ></textarea>
+        </label>
+
+        <ng-container *ngIf="widget.dataSource === 'process'">
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_PROCESS_DEFINITION' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="selectedProcessKey"
+                    (ngModelChange)="onProcessCatalogChange($event)"
+                >
+                    <option *ngFor="let entry of processCatalog" [value]="entry.key">
+                        {{ entry.labelKey | translate }}
+                    </option>
+                </select>
+            </label>
+
+            <p class="data-binding__hint" *ngIf="selectedProcessCatalogEntry as entry">
+                {{ entry.descriptionKey | translate }}
+            </p>
+
+            <div class="process-subprocess-list" *ngIf="selectedProcessCatalogEntry?.subprocessDefinitionKeys?.length">
+                <span class="process-subprocess-list__label">{{
+                    'MEDICAL_RECORDS.PROCESS_CATALOG.SUBPROCESSES' | translate
+                }}</span>
+                <div class="process-metric-scope">
+                    <label class="radio-row">
+                        <input
+                            type="radio"
+                            name="process-metric-scope-{{ bindingScope }}"
+                            [checked]="processMetricScope === 'root'"
+                            (change)="onProcessMetricScopeChange('root')"
+                        />
+                        <span>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.METRIC_SCOPE_ROOT' | translate }}</span>
+                    </label>
+                    <label class="radio-row">
+                        <input
+                            type="radio"
+                            name="process-metric-scope-{{ bindingScope }}"
+                            [checked]="processMetricScope === 'tree'"
+                            (change)="onProcessMetricScopeChange('tree')"
+                        />
+                        <span>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.METRIC_SCOPE_TREE' | translate }}</span>
+                    </label>
+                </div>
+                <p class="data-binding__hint">{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.SUBPROCESSES_HINT' | translate }}</p>
+                <div class="process-subprocess-list__chips" *ngIf="processMetricScope === 'tree'">
+                    <button
+                        type="button"
+                        class="process-subprocess-chip"
+                        [class.process-subprocess-chip--active]="isSubprocessIncluded(subprocess)"
+                        *ngFor="let subprocess of selectedProcessCatalogEntry!.subprocessDefinitionKeys"
+                        (click)="toggleSubprocessDefinition(subprocess)"
+                    >
+                        {{ subprocess }}
+                    </button>
+                </div>
+            </div>
+
+            <p class="data-binding__hint data-binding__hint--tip" *ngIf="widget.dataSource === 'process'">
+                {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.QUERY_SCOPE_HINT' | translate: { definitions: resolvedProcessDefinitionKeys.join(', ') } }}
+            </p>
+
+            <p
+                class="data-binding__hint data-binding__hint--tip"
+                *ngIf="widget.dataSource === 'process' && (periodService.dateRange$ | async) as dateRange"
+            >
+                {{
+                    'MEDICAL_RECORDS.DASHBOARD.DATE_RANGE_ACTIVE_HINT'
+                        | translate
+                            : {
+                                  from: formatDateRangeLabel(dateRange.start),
+                                  to: formatDateRangeLabel(dateRange.end)
+                              }
+                }}
+            </p>
+
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_PROCESS_STATUS' | translate }}</span>
+                <input
+                    class="dashboard-form-control"
+                    type="text"
+                    [ngModel]="formatStatusList(widget.processQuery?.status)"
+                    (ngModelChange)="onProcessStatusChange($event)"
+                />
+            </label>
+
+            <label class="checkbox-row" *ngIf="supportsProcessVariablesOption">
+                <input
+                    type="checkbox"
+                    [checked]="widget.processQuery?.includeProcessVariables === true"
+                    (change)="onIncludeProcessVariablesChange($any($event.target).checked)"
+                />
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_INCLUDE_PROCESS_VARIABLES' | translate }}</span>
+            </label>
+            <p class="data-binding__hint" *ngIf="supportsProcessVariablesOption && widget.processQuery?.includeProcessVariables">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.INCLUDE_PROCESS_VARIABLES_HINT' | translate }}
+            </p>
+        </ng-container>
+
+        <div class="data-binding__presets" *ngIf="widget.dataSource === 'content'">
+            <button type="button" class="btn-ghost-sm" *ngFor="let preset of contentQueryPresets" (click)="applyContentPreset(preset)">
+                {{ preset.labelKey | translate }}
+            </button>
+        </div>
+
+        <div class="data-binding__presets" *ngIf="widget.dataSource === 'process'">
+            <button type="button" class="btn-ghost-sm" *ngFor="let preset of processQueryPresets" (click)="applyProcessPreset(preset)">
+                {{ preset.labelKey | translate }}
+            </button>
+        </div>
+
+        <div class="data-binding__fields-header" *ngIf="showProviderFieldList || (isTableWidget && panel === 'provider')">
+            <strong>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_TITLE' | translate }}</strong>
+            <button type="button" class="btn-ghost-sm" (click)="refreshFields(true)" [disabled]="fieldsLoading">
+                {{ 'MEDICAL_RECORDS.CHART.DETECT_FIELDS' | translate }}
+            </button>
+        </div>
+
+        <p class="data-binding__hint" *ngIf="fieldsLoading">{{ 'MEDICAL_RECORDS.CHART.DETECTING' | translate }}</p>
+        <p class="data-binding__hint" *ngIf="!fieldsLoading && !discoveredFields.length">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.NO_FIELDS' | translate }}
+        </p>
+        <p class="data-binding__hint data-binding__hint--tip" *ngIf="panel === 'items' && !fieldsLoading && discoveredFields.length === 0">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_IN_PROVIDER' | translate }}
+        </p>
+
+        <p class="data-binding__hint data-binding__hint--tip" *ngIf="panel === 'all' && !fieldsLoading && discoveredFields.length && !isTableWidget">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_TIP' | translate }}
+        </p>
+        <p class="data-binding__hint data-binding__hint--tip" *ngIf="isTableWidget && panel === 'provider' && !fieldsLoading">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.TABLE_PROVIDER_COLUMNS_HINT' | translate }}
+        </p>
+
+        <div class="field-filters" *ngIf="showFieldFilters && showProviderFieldList">
+            <label class="field-filters__search">
+                <span class="material-icons" aria-hidden="true">search</span>
+                <input
+                    class="dashboard-form-control"
+                    type="search"
+                    [(ngModel)]="fieldSearchQuery"
+                    [placeholder]="'MEDICAL_RECORDS.DATA_BINDING.FIELD_SEARCH_PLACEHOLDER' | translate"
+                />
+            </label>
+            <label class="field-filters__kind dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_KIND_FILTER' | translate }}</span>
+                <select class="dashboard-form-control" [(ngModel)]="fieldKindFilter">
+                    <option *ngFor="let kind of fieldKindFilters" [ngValue]="kind">
+                        {{ fieldKindFilterLabel(kind) | translate }}
+                    </option>
+                </select>
+            </label>
+            <button type="button" class="btn-ghost-sm field-filters__clear" *ngIf="hasActiveFieldFilter" (click)="clearFieldFilters()">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_CLEAR_FILTERS' | translate }}
+            </button>
+        </div>
+
+        <p class="data-binding__hint" *ngIf="showFieldFilters && showProviderFieldList && hasActiveFieldFilter">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_FILTER_COUNT' | translate: { count: filteredFields.length, total: discoveredFields.length } }}
+        </p>
+        <p class="data-binding__hint" *ngIf="showFieldFilters && showProviderFieldList && hasActiveFieldFilter && !filteredFields.length">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_NO_MATCH' | translate }}
+        </p>
+
+        <ul
+            class="data-binding__field-list"
+            *ngIf="showProviderFieldList"
+            cdkDropList
+            [id]="fieldSourceListId"
+            [cdkDropListConnectedTo]="bindingDropListIds"
+            [cdkDropListData]="filteredFields"
+            cdkDropListSortingDisabled
+        >
+            <li
+                *ngFor="let field of filteredFields; trackBy: trackField"
+                cdkDrag
+                [cdkDragData]="field"
+                (click)="onFieldClick(field)"
+                [title]="'MEDICAL_RECORDS.DATA_BINDING.FIELD_CLICK_HINT' | translate"
+            >
+                <span class="material-icons">{{ fieldIcon(field.kind) }}</span>
+                <span>{{ field.key }}</span>
+                <small>{{ field.kind }}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section class="data-binding__items" *ngIf="showItemsPanel">
+        <p class="data-binding__hint" *ngIf="panel === 'items' && !isTableWidget">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.ITEMS_INTRO' | translate }}
+        </p>
+        <p class="data-binding__hint" *ngIf="panel === 'items' && isTableWidget">
+            {{ 'MEDICAL_RECORDS.DATA_BINDING.TABLE_ITEMS_INTRO' | translate }}
+        </p>
+        <h3 *ngIf="panel === 'all'">{{ 'MEDICAL_RECORDS.DATA_BINDING.ITEMS_TITLE' | translate }}</h3>
+        <p *ngIf="panel === 'all'">{{ 'MEDICAL_RECORDS.DATA_BINDING.ITEMS_INTRO' | translate }}</p>
+
+        <div class="binding-slot" *ngIf="usesValueBindings">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.VALUES' | translate }}</span>
+            <div class="binding-slot__controls">
+                <label class="radio-row" *ngFor="let aggregation of valueAggregationOptions">
+                    <input
+                        type="radio"
+                        name="value-aggregation-{{ bindingScope }}"
+                        [checked]="(bindings.valueAggregation || 'count') === aggregation"
+                        (change)="onValueAggregationChange(aggregation)"
+                    />
+                    <span>{{ valueAggregationLabel(aggregation) | translate }}</span>
+                </label>
+            </div>
+            <div
+                class="binding-drop"
+                *ngIf="usesNumericFieldBinding"
+                cdkDropList
+                [id]="slotId('value')"
+                [cdkDropListConnectedTo]="bindingDropListIds"
+                (cdkDropListDropped)="onFieldDrop($event, 'value')"
+            >
+                <span *ngIf="!bindings.valueField">{{ 'MEDICAL_RECORDS.DATA_BINDING.DROP_VALUE' | translate }}</span>
+                <span class="binding-chip" *ngIf="bindings.valueField">
+                    {{ bindingFieldLabel(bindings.valueField, bindings.valueFieldPath) }}
+                    <button type="button" (click)="clearBinding('valueField')">×</button>
+                </span>
+            </div>
+            <label class="dashboard-form-field" *ngIf="selectedValueIsJson">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="bindings.valueFieldPath || ''"
+                    (ngModelChange)="patchBindings({ valueFieldPath: $event || undefined })"
+                >
+                    <option value="">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_PLACEHOLDER' | translate }}</option>
+                    <option *ngFor="let path of valueJsonPaths" [value]="path.path">
+                        {{ jsonPathOptionLabel(path) }}
+                    </option>
+                </select>
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_HINT' | translate }}</p>
+            </label>
+            <p class="binding-slot__note binding-slot__note--warn" *ngIf="selectedValueIsJson && !valueJsonPaths.length">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_EMPTY' | translate }}
+            </p>
+            <p class="binding-slot__note binding-slot__note--warn" *ngIf="selectedValueIsJson && !bindings.valueFieldPath">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_REQUIRED' | translate }}
+            </p>
+            <p class="binding-slot__note binding-slot__note--warn" *ngIf="showValueJsonPathWarning">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_NOT_NUMERIC' | translate }}
+            </p>
+            <label class="dashboard-form-field" *ngIf="usesNumericFieldBinding && bindings.valueField">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.VALUE_FIELD_FORMAT' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="bindings.valueFieldFormat || 'number'"
+                    (ngModelChange)="patchBindings({ valueFieldFormat: $event === 'number' ? undefined : $event })"
+                >
+                    <option *ngFor="let format of valueFieldFormatOptions" [value]="format">
+                        {{ valueFieldFormatLabel(format) | translate }}
+                    </option>
+                </select>
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.DATA_BINDING.VALUE_FIELD_FORMAT_HINT' | translate }}</p>
+            </label>
+        </div>
+
+        <div class="binding-slot" *ngIf="isChartWidget">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.CHART.DISPLAY_MODE' | translate }}</span>
+            <div class="binding-slot__controls chart-display-toggle">
+                <label class="radio-row" *ngFor="let mode of chartDisplayModes">
+                    <input
+                        type="radio"
+                        name="chart-display-mode-{{ bindingScope }}"
+                        [checked]="(widget.chartDisplayMode || 'bar') === mode"
+                        (change)="onChartDisplayModeChange(mode)"
+                    />
+                    <span>{{ chartDisplayModeLabel(mode) | translate }}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="binding-slot" *ngIf="isChartWidget">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.ARGUMENTS' | translate }}</span>
+            <div
+                class="binding-drop"
+                cdkDropList
+                [id]="slotId('argument')"
+                [cdkDropListConnectedTo]="bindingDropListIds"
+                (cdkDropListDropped)="onFieldDrop($event, 'argument')"
+            >
+                <span *ngIf="!bindings.argumentField">{{ 'MEDICAL_RECORDS.DATA_BINDING.DROP_ARGUMENT' | translate }}</span>
+                <span class="binding-chip" *ngIf="bindings.argumentField">
+                    {{ bindingFieldLabel(bindings.argumentField, bindings.argumentFieldPath) }}
+                    <button type="button" (click)="clearBinding('argumentField')">×</button>
+                </span>
+            </div>
+            <label class="dashboard-form-field" *ngIf="selectedArgumentIsJson">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="bindings.argumentFieldPath || ''"
+                    (ngModelChange)="patchBindings({ argumentFieldPath: $event || undefined })"
+                >
+                    <option value="">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_PLACEHOLDER' | translate }}</option>
+                    <option *ngFor="let path of argumentJsonPaths" [value]="path.path">
+                        {{ jsonPathOptionLabel(path) }}
+                    </option>
+                </select>
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_HINT' | translate }}</p>
+            </label>
+            <p class="binding-slot__note binding-slot__note--warn" *ngIf="selectedArgumentIsJson && !bindings.argumentFieldPath">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_REQUIRED' | translate }}
+            </p>
+            <label class="dashboard-form-field" *ngIf="selectedArgumentKind === 'date'">
+                <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_DATE_BUCKET' | translate }}</span>
+                <select class="dashboard-form-control" [ngModel]="bindings.dateBucket || 'day'" (ngModelChange)="patchBindings({ dateBucket: $event })">
+                    <option *ngFor="let bucket of chartDateBuckets" [value]="bucket">{{ bucket }}</option>
+                </select>
+            </label>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_MAX_BUCKETS' | translate }}</span>
+                <input
+                    class="dashboard-form-control"
+                    type="number"
+                    min="2"
+                    max="24"
+                    [ngModel]="bindings.maxBuckets || 12"
+                    (ngModelChange)="patchBindings({ maxBuckets: +$event || 12 })"
+                />
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.CHART.FIELD_MAX_BUCKETS_HINT' | translate }}</p>
+            </label>
+        </div>
+
+        <div class="binding-slot" *ngIf="showAxisSettingsInItems">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.CHART.AXIS_SETTINGS' | translate }}</span>
+            <ng-container *ngTemplateOutlet="chartAxisFields"></ng-container>
+        </div>
+
+        <div class="binding-slot" *ngIf="isChartWidget">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.SERIES' | translate }}</span>
+            <div
+                class="binding-drop"
+                cdkDropList
+                [id]="slotId('series')"
+                [cdkDropListConnectedTo]="bindingDropListIds"
+                (cdkDropListDropped)="onFieldDrop($event, 'series')"
+            >
+                <span *ngIf="!bindings.seriesField">{{ 'MEDICAL_RECORDS.DATA_BINDING.DROP_SERIES' | translate }}</span>
+                <span class="binding-chip" *ngIf="bindings.seriesField">
+                    {{ bindingFieldLabel(bindings.seriesField, bindings.seriesFieldPath) }}
+                    <button type="button" (click)="clearBinding('seriesField')">×</button>
+                </span>
+            </div>
+            <label class="dashboard-form-field" *ngIf="selectedSeriesIsJson">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="bindings.seriesFieldPath || ''"
+                    (ngModelChange)="patchBindings({ seriesFieldPath: $event || undefined })"
+                >
+                    <option value="">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_PLACEHOLDER' | translate }}</option>
+                    <option *ngFor="let path of seriesJsonPaths" [value]="path.path">
+                        {{ jsonPathOptionLabel(path) }}
+                    </option>
+                </select>
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_JSON_PATH_HINT' | translate }}</p>
+            </label>
+            <p class="binding-slot__note binding-slot__note--warn" *ngIf="selectedSeriesIsJson && !bindings.seriesFieldPath">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_REQUIRED' | translate }}
+            </p>
+        </div>
+
+        <div class="table-columns-panel" *ngIf="isTableWidget">
+            <div class="binding-slot__header">
+                <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.COLUMNS' | translate }}</span>
+                <div class="column-picker__actions" *ngIf="discoveredFields.length">
+                    <button type="button" class="btn-ghost-sm" (click)="selectAllColumns()">
+                        {{ 'MEDICAL_RECORDS.DATA_BINDING.SELECT_ALL_COLUMNS' | translate }}
+                    </button>
+                    <button type="button" class="btn-ghost-sm" (click)="clearAllColumns()" [disabled]="!(bindings.columnFields?.length)">
+                        {{ 'MEDICAL_RECORDS.DATA_BINDING.CLEAR_COLUMNS' | translate }}
+                    </button>
+                </div>
+            </div>
+
+            <p class="data-binding__hint" *ngIf="fieldsLoading">{{ 'MEDICAL_RECORDS.CHART.DETECTING' | translate }}</p>
+            <p class="data-binding__hint" *ngIf="!fieldsLoading && !discoveredFields.length">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.NO_FIELDS' | translate }}
+            </p>
+
+            <div class="field-filters" *ngIf="showTableColumnFieldFilters">
+                <label class="field-filters__search">
+                    <span class="material-icons" aria-hidden="true">search</span>
+                    <input
+                        class="dashboard-form-control"
+                        type="search"
+                        [(ngModel)]="fieldSearchQuery"
+                        [disabled]="fieldsLoading"
+                        [placeholder]="'MEDICAL_RECORDS.DATA_BINDING.FIELD_SEARCH_PLACEHOLDER' | translate"
+                    />
+                </label>
+                <label class="field-filters__kind dashboard-form-field">
+                    <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_KIND_FILTER' | translate }}</span>
+                    <select class="dashboard-form-control" [(ngModel)]="fieldKindFilter" [disabled]="fieldsLoading">
+                        <option *ngFor="let kind of fieldKindFilters" [ngValue]="kind">
+                            {{ fieldKindFilterLabel(kind) | translate }}
+                        </option>
+                    </select>
+                </label>
+                <button type="button" class="btn-ghost-sm field-filters__clear" *ngIf="hasActiveFieldFilter" (click)="clearFieldFilters()">
+                    {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELD_CLEAR_FILTERS' | translate }}
+                </button>
+            </div>
+
+            <p class="data-binding__hint" *ngIf="showTableColumnFieldFilters && fieldsLoading">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.TABLE_FIELD_FILTER_HINT' | translate }}
+            </p>
+            <p class="data-binding__hint" *ngIf="showTableColumnFieldFilters && !fieldsLoading && discoveredFields.length && hasActiveFieldFilter">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_FILTER_COUNT' | translate: { count: filteredFields.length, total: discoveredFields.length } }}
+            </p>
+            <p class="data-binding__hint" *ngIf="showTableColumnFieldFilters && !fieldsLoading && discoveredFields.length && hasActiveFieldFilter && !filteredFields.length">
+                {{ 'MEDICAL_RECORDS.DATA_BINDING.FIELDS_NO_MATCH' | translate }}
+            </p>
+
+            <div class="table-columns-panel__lists" *ngIf="!fieldsLoading && discoveredFields.length">
+            <ul
+                class="data-binding__field-list table-columns-list table-columns-list--selected"
+                *ngIf="!fieldsLoading && selectedTableFields.length"
+                cdkDropList
+                [id]="slotId('column')"
+                [cdkDropListData]="selectedTableFields"
+                (cdkDropListDropped)="onTableColumnDrop($event)"
+            >
+                <li
+                    *ngFor="let field of selectedTableFields; trackBy: trackField"
+                    cdkDrag
+                    [cdkDragData]="field"
+                    class="table-column-card table-column-card--selected"
+                    [title]="'MEDICAL_RECORDS.DATA_BINDING.TABLE_FIELD_DRAG_HINT' | translate"
+                >
+                    <div class="table-column-card__drag-zone" cdkDragHandle>
+                        <span class="material-icons" aria-hidden="true">drag_indicator</span>
+                    </div>
+                    <div class="table-column-card__body">
+                        <span class="table-column-card__key">{{ field.key }}</span>
+                        <small class="table-column-card__kind">{{ field.kind }}</small>
+                    </div>
+                    <div class="table-column-card__footer">
+                        <span class="table-column-card__order">{{ columnOrderIndex(field.key) }}</span>
+                        <div class="table-column-card__controls">
+                            <button
+                                type="button"
+                                class="btn-icon-sm"
+                                (click)="moveColumn(columnOrderIndex(field.key) - 1, -1)"
+                                [disabled]="columnOrderIndex(field.key) === 1"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.MOVE_COLUMN_UP' | translate"
+                            >
+                                ↑
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-icon-sm"
+                                (click)="moveColumn(columnOrderIndex(field.key) - 1, 1)"
+                                [disabled]="columnOrderIndex(field.key) === selectedColumnCount"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.MOVE_COLUMN_DOWN' | translate"
+                            >
+                                ↓
+                            </button>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="field-add-btn field-add-btn--active"
+                        (click)="toggleColumn(field.key, false)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.TABLE_TOGGLE_COLUMN' | translate: { field: field.key }"
+                        [title]="'MEDICAL_RECORDS.DATA_BINDING.TABLE_FIELD_TOGGLE_HINT' | translate"
+                    >
+                        ✓
+                    </button>
+                </li>
+            </ul>
+
+            <ul
+                class="data-binding__field-list table-columns-list table-columns-list--available"
+                *ngIf="!fieldsLoading && unselectedTableFields.length"
+            >
+                <li
+                    *ngFor="let field of unselectedTableFields; trackBy: trackField"
+                    class="table-column-card"
+                >
+                    <span class="material-icons table-column-card__type-icon">{{ fieldIcon(field.kind) }}</span>
+                    <div class="table-column-card__body">
+                        <span class="table-column-card__key">{{ field.key }}</span>
+                        <small class="table-column-card__kind">{{ field.kind }}</small>
+                    </div>
+                    <button
+                        type="button"
+                        class="field-add-btn"
+                        (click)="toggleColumn(field.key, true)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.TABLE_TOGGLE_COLUMN' | translate: { field: field.key }"
+                        [title]="'MEDICAL_RECORDS.DATA_BINDING.TABLE_FIELD_TOGGLE_HINT' | translate"
+                    >
+                        +
+                    </button>
+                </li>
+            </ul>
+            </div>
+
+            <section class="table-group-by" *ngIf="showRowFilterOption">
+                <div class="binding-slot__header">
+                    <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY' | translate }}</span>
+                    <button
+                        type="button"
+                        class="btn-ghost-sm"
+                        (click)="clearGroupByFields()"
+                        [disabled]="!groupByFields.length"
+                    >
+                        {{ 'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY_CLEAR' | translate }}
+                    </button>
+                </div>
+                <p class="data-binding__hint">{{ 'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY_HINT' | translate }}</p>
+
+                <ul class="table-group-by__list" *ngIf="groupByFields.length">
+                    <li *ngFor="let field of groupByFields; let index = index">
+                        <span class="table-group-by__order">{{ index + 1 }}</span>
+                        <span class="table-group-by__key">{{ field }}</span>
+                        <div class="table-group-by__controls">
+                            <button
+                                type="button"
+                                class="btn-icon-sm"
+                                (click)="moveGroupByField(index, -1)"
+                                [disabled]="index === 0"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.MOVE_COLUMN_UP' | translate"
+                            >
+                                ↑
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-icon-sm"
+                                (click)="moveGroupByField(index, 1)"
+                                [disabled]="index === groupByFields.length - 1"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.MOVE_COLUMN_DOWN' | translate"
+                            >
+                                ↓
+                            </button>
+                            <button
+                                type="button"
+                                class="btn-icon-sm btn-icon-sm--danger"
+                                (click)="removeGroupByField(field)"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY_REMOVE' | translate: { field: field }"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+
+                <label class="dashboard-form-field" *ngIf="availableGroupByFields.length">
+                    <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY_ADD' | translate }}</span>
+                    <select class="dashboard-form-control" [ngModel]="''" (ngModelChange)="onGroupBySelect($event)">
+                        <option value="">{{ 'MEDICAL_RECORDS.DATA_BINDING.GROUP_BY_ADD_PLACEHOLDER' | translate }}</option>
+                        <option *ngFor="let field of availableGroupByFields; trackBy: trackField" [value]="field.key">
+                            {{ field.key }} ({{ field.kind }})
+                        </option>
+                    </select>
+                </label>
+            </section>
+
+            <label class="dashboard-form-field table-columns-panel__footer">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_TABLE_PAGE_SIZE' | translate }}</span>
+                <input
+                    class="dashboard-form-control"
+                    type="number"
+                    min="1"
+                    max="100"
+                    [ngModel]="widget.tablePageSize || 25"
+                    (ngModelChange)="patchWidget({ tablePageSize: +$event || 25 })"
+                />
+            </label>
+
+            <label class="checkbox-row table-columns-panel__footer" *ngIf="showRowFilterOption">
+                <input
+                    type="checkbox"
+                    [checked]="tableShowRowFilter"
+                    (change)="onTableRowFilterChange($any($event.target).checked)"
+                />
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_TABLE_ROW_FILTER' | translate }}</span>
+            </label>
+        </div>
+
+        <label class="dashboard-form-field" *ngIf="isMetricWidget && widget.dataSource === 'demo'">
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_DEMO_VALUE' | translate }}</span>
+            <input class="dashboard-form-control" type="text" [ngModel]="widget.demoValue || ''" (ngModelChange)="patchWidget({ demoValue: $event })" />
+        </label>
+    </section>
+
+    <section class="data-binding__axes" *ngIf="showAxesPanel && isChartWidget">
+        <h4 class="data-binding__axes-title">{{ 'MEDICAL_RECORDS.CHART.AXIS_SETTINGS' | translate }}</h4>
+        <div class="data-binding__axes-grid">
+            <ng-container *ngTemplateOutlet="chartAxisFields"></ng-container>
+        </div>
+    </section>
+</section>
+
+<ng-template #chartAxisFields>
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_X_AXIS_LABEL' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="text"
+            [ngModel]="widget.chartAxes?.xLabel || ''"
+            (ngModelChange)="patchChartAxes({ xLabel: $event })"
+            [placeholder]="bindings.argumentField || ('MEDICAL_RECORDS.CHART.AXIS_X_DEFAULT' | translate)"
+        />
+    </label>
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_X_LABEL_FORMAT' | translate }}</span>
+        <select
+            class="dashboard-form-control"
+            [ngModel]="widget.chartAxes?.xLabelFormat || 'auto'"
+            (ngModelChange)="patchChartAxes({ xLabelFormat: $event })"
+        >
+            <option *ngFor="let format of xLabelFormats" [ngValue]="format">
+                {{ xLabelFormatLabel(format) | translate }}
+            </option>
+        </select>
+    </label>
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_Y_AXIS_LABEL' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="text"
+            [ngModel]="widget.chartAxes?.yLabel || ''"
+            (ngModelChange)="patchChartAxes({ yLabel: $event })"
+            [placeholder]="'MEDICAL_RECORDS.CHART.AXIS_Y_COUNT' | translate"
+        />
+    </label>
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_Y_AXIS_MAX' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="number"
+            min="1"
+            [ngModel]="widget.chartAxes?.yMax ?? ''"
+            (ngModelChange)="patchChartAxes({ yMax: $event === '' || $event == null ? undefined : +$event })"
+            [placeholder]="'MEDICAL_RECORDS.CHART.Y_AXIS_MAX_AUTO' | translate"
+        />
+    </label>
+</ng-template>

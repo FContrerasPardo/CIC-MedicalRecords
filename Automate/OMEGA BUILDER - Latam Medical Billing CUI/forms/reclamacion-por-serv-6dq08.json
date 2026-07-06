@@ -1,0 +1,134 @@
+{
+  "formRepresentation" : {
+    "id" : "form-0c09f871-0ef5-4df8-89cd-58d0961f12ca",
+    "name" : "Reclamacion por servicios-e9e2d553",
+    "key" : "reclamacion-por-serv-6dq08",
+    "description" : "Automatically generated form for IDP configuration Document Class: e9e2d553-cd5f-441c-8bd8-741d0b94d066",
+    "version" : 0,
+    "standAlone" : true,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "b24f4847-4aba-448a-92c0-de6bc4852692",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_8263fb99_f8a2_45ef_a878_7f946819acd6",
+                "name" : "Cedula",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "610418db-e497-4bf6-891e-d62fcec5eec5",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_e563acef_fa99_4adc_a181_0e780bb71a33",
+                "name" : "Nombre del Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "194e8fff-3f7d-4544-9c9a-8f16068bbac7",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_c7a65cd7_b75f_473e_8d2f_df3413f018ae",
+                "name" : "Diagnostico",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "02b56b7d-e2a9-426b-b041-3c42505b1f97",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_7a56606d_2746_4712_a068_880237848a39",
+                "name" : "Total Reclamado",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

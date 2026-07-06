@@ -1,0 +1,681 @@
+{
+  "formRepresentation" : {
+    "id" : "form-30387148-0f96-4f27-bcbe-51c820c154c7",
+    "name" : "Factura y Desglose-3d843b96",
+    "key" : "factura-y-desglose-3-ongmx",
+    "description" : "Automatically generated form for IDP configuration Document Class: 3d843b96-dc81-47d5-85d0-c599d9207015",
+    "version" : 0,
+    "standAlone" : true,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "50e0bd2f-881f-44d8-bd21-84fabd4b3a52",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_6e29ab1d_830c_4e08_b978_c2bd245132c9",
+                "name" : "Record",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "54168b56-b67c-4ce6-aa53-7e113f241803",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_1570a5f5_b99d_4410_b929_edd3f6eaa63f",
+                "name" : "Nombre del Prestador",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "efdd4590-36c8-4557-bd51-3c0ad2298890",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_94eca96c_f9da_497e_a157_64f70132e2a4",
+                "name" : "Numero de Factura",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "fcba35d8-f489-4683-a228-e7f9bea73ad0",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_abb8f87e_def1_4036_8e67_327641a5b9ec",
+                "name" : "Esta Firmado por la ARS?",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "5cf864ee-8479-4ede-8ede-4a09680a983e",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_f6f8272c_df6b_4727_a5a6_9c495296fc45",
+                "name" : "Esta Firmado por el Centro Médico?",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "ad864cfd-3c8a-4611-8595-f1eecebcebed",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_9aed95ba_d40a_4640_b241_b4582e40914b",
+                "name" : "Motivo de la Visita",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "d593448f-3960-4284-89b5-9a3a25872bce",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_358f2c97_00bc_4094_97a2_0ca3a7084f3d",
+                "name" : "Monto Facturado al Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "abcbe80a-2b11-40e8-978a-8a7ef43bb15d",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_87b0e116_bfde_4745_b459_f84fd8a240b2",
+                "name" : "Monto Facturado a ARS",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "c3910ba6-b188-409b-80cf-b1be672883ec",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_3a2cdb4c_dc85_4f40_960b_2f6d22aadb93",
+                "name" : "Monto total Facturado",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "7f0be1db-4843-42ac-9c84-7049863701f4",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_a60ebdd6_f708_4746_bdb0_636094e072c0",
+                "name" : "Balance del Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "071c20ea-3574-4e6a-ac90-336106c39cc9",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_5e9fca3a_9c2e_4718_93e0_db95e4ba3813",
+                "name" : "Balance ARS",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "5e7345d6-1716-4ff0-b39c-6c4d5841cac1",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_49617e45_0359_415f_a0a7_8161473989b5",
+                "name" : "Tabla de Servicios facturados",
+                "type" : "hxp-table-reference",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "widgetId" : "TabladeServiciosfacturados0jyni6",
+                "isCustomType" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "b2b9c78a-5491-411b-a2cd-be9666e9ac9b",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_1f7a4ab8_4924_4d77_86a9_dfc8caa850a9",
+                "name" : "Nombre del Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "c53d46fb-8071-42a2-a638-626a5df1568c",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_eaac8fc1_4ce7_4a41_bd6c_60a38e43f5d0",
+                "name" : "Dirección Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "b68055aa-d715-4649-be30-c3afb7c18690",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_39b17bab_2c9c_4ab6_bf93_9dd2d91a89c6",
+                "name" : "Telefono",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "6040d8ec-39ba-4cd3-940b-8fa781ef7a07",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_0915682c_0fe8_41f7_9a19_4b73bbb7c7d5",
+                "name" : "Fecha Nacimiento",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "8d8c962f-62c1-4fc1-be38-5acad5597ab8",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_c871e2ed_e4d6_4db4_946b_44233de44a31",
+                "name" : "Edad",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "05cae05d-3959-4f68-95ae-50b1f8d1a808",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_02993bd7_f0fd_4ccf_93b3_dffcda65b34d",
+                "name" : "Cedula",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "9d76d53b-f969-482c-8d8e-407ae2815a7f",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_1a4c6e91_97d4_4ace_ab9a_af7cd6a0da4d",
+                "name" : "Sexo",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "4eda1bdf-85d6-4e2a-9900-daf576a523dc",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_bf76f739_1488_41f4_8548_01f2f1829d2c",
+                "name" : "Fecha Admisión",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "51b87466-ed7a-40ee-9cca-a3b6c47c585e",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_a1512a99_a0a6_400b_a29c_d5ec6f0e63e3",
+                "name" : "Fecha De Alta",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "944d5df8-bcf8-4432-a72c-b73430685ed6",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_dd61e645_fabc_4a5c_92b0_cf003f647288",
+                "name" : "Diagnostico",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "5ee1c3e7-56bd-4d46-8738-eed30efe2c69",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_f94cd6ac_d230_4403_a723_96b941c8ee4c",
+                "name" : "NCF",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

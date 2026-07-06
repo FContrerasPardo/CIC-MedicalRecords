@@ -3,6 +3,7 @@ import {
     AgentResult,
     AgentSource,
 } from './analysis.mapper';
+import { BatchStateSource } from '../intake-account-widget/batch-state.model';
 
 interface GenericWidgetAgent {
     status?: string;
@@ -28,6 +29,7 @@ interface GenericWidgetWarning {
 type AnalysisWidgetPayload = Partial<Record<AgentFieldId, unknown>> & {
     agents?: Record<string, unknown>;
     warnings?: GenericWidgetWarning[];
+    batchState?: unknown;
 };
 
 export type { AgentFieldId, AgentResult, AgentSource };
@@ -66,6 +68,21 @@ export function resolveAgentSources(input: ResolveAgentSourcesInput): Array<Agen
 
         return readFallbackAgentResult(id, input.fallbackValues?.[id]);
     });
+}
+
+/**
+ * Extracts the current batchState embedded in the unified widget payload. The Automate
+ * envelope carries `batchState` alongside the agent results; if absent (e.g. legacy
+ * separate-field mode), callers can fall back to a dedicated batchState field.
+ */
+export function resolveBatchState(fieldValue: unknown): BatchStateSource | null {
+    const payload = parseJsonObject<AnalysisWidgetPayload>(fieldValue);
+
+    if (!payload || payload.batchState === undefined || payload.batchState === null) {
+        return null;
+    }
+
+    return parseJsonObject<BatchStateSource>(payload.batchState);
 }
 
 function readFallbackAgentResult<T extends AgentResult>(id: AgentFieldId, candidate: unknown): AgentSource<T> {

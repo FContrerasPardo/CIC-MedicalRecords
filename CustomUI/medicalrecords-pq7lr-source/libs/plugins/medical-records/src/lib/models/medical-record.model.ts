@@ -12,6 +12,8 @@ export type UrgencyLevel = 'High' | 'Medium' | 'Low';
 export interface NativeAutomationReference {
     processName?: string;
     processInstanceId?: string;
+    /** Root (macro) process instance id when the item belongs to a subprocess. */
+    rootProcessInstanceId?: string;
     taskId?: string;
     taskProcessName?: string;
     documentId?: string;

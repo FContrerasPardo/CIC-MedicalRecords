@@ -1,18 +1,40 @@
-<section class="section-block attention-section" *ngIf="state$ | async as state">
+<section class="attention-section" *ngIf="state$ | async as state">
 
-    <div class="attention-header">
+    <header class="attention-header">
 
         <div class="attention-title">
 
-            <h2>{{ titleKey | translate }}</h2>
+            <div>
 
-            <span *ngIf="state.items.length">{{ state.items.length }}</span>
+                <h2>{{ config.title | dashboardWidgetText: config.titleKey }}</h2>
+
+                <p class="section-lead" *ngIf="options.showSubtitle">
+
+                    {{ config.helper | dashboardWidgetText: 'MEDICAL_RECORDS.SECTIONS.OPEN_TASKS_SUBTITLE' }}
+
+                </p>
+
+            </div>
+
+            <span
+
+                [ngClass]="countBadgeClass(state.items.length)"
+
+                *ngIf="options.showCountBadge && !state.loading"
+
+            >
+
+                {{ state.items.length }}
+
+            </span>
 
         </div>
 
-        <div class="attention-tools">
 
-            <label class="search-box">
+
+        <div class="attention-tools" *ngIf="options.showSearch || options.showRefresh">
+
+            <label class="search-box" *ngIf="options.showSearch">
 
                 <span class="material-icons">search</span>
 
@@ -30,7 +52,19 @@
 
             </label>
 
-            <button type="button" class="filter-button" (click)="retry()" [disabled]="state.loading || bulkProcessing">
+            <button
+
+                type="button"
+
+                class="filter-button"
+
+                *ngIf="options.showRefresh"
+
+                (click)="retry()"
+
+                [disabled]="state.loading || bulkProcessing"
+
+            >
 
                 <span class="material-icons">refresh</span>
 
@@ -40,11 +74,11 @@
 
         </div>
 
-    </div>
+    </header>
 
 
 
-    <div class="bulk-action-bar" *ngIf="selectedIds.size > 0">
+    <div class="bulk-action-bar" *ngIf="options.showBulkActions && selectedIds.size > 0">
 
         <div class="bulk-action-copy">
 
@@ -120,7 +154,9 @@
 
 
 
-    <div class="attention-state" *ngIf="bulkProcessing">
+    <div class="attention-state attention-state--processing" *ngIf="options.showBulkActions && bulkProcessing">
+
+        <span class="material-icons spin">sync</span>
 
         {{ 'MEDICAL_RECORDS.BULK_TASKS.PROCESSING' | translate }}
 
@@ -128,7 +164,7 @@
 
 
 
-    <div class="attention-state bulk-result" *ngIf="bulkResult && !bulkProcessing">
+    <div class="attention-state bulk-result" *ngIf="options.showBulkActions && bulkResult && !bulkProcessing">
 
         <p>
 
@@ -160,15 +196,17 @@
 
 
 
-    <div class="attention-state" *ngIf="state.loading">
+    <div class="attention-skeleton" *ngIf="state.loading" aria-hidden="true">
 
-        {{ 'MEDICAL_RECORDS.PROCESS_LIST.LOADING' | translate }}
+        <div class="skeleton-row" *ngFor="let _ of skeletonRows"></div>
 
     </div>
 
 
 
     <div class="attention-state attention-state--error" *ngIf="!state.loading && state.error">
+
+        <span class="material-icons state-icon">error_outline</span>
 
         <p>{{ 'MEDICAL_RECORDS.PROCESS_LIST.ERROR' | translate }}</p>
 
@@ -178,9 +216,13 @@
 
 
 
-    <div class="attention-state" *ngIf="!state.loading && !state.error && !state.items.length">
+    <div class="attention-state attention-state--empty" *ngIf="!state.loading && !state.error && !state.items.length">
 
-        {{ 'MEDICAL_RECORDS.PROCESS_LIST.EMPTY' | translate }}
+        <span class="material-icons state-icon">task_alt</span>
+
+        <strong>{{ 'MEDICAL_RECORDS.PROCESS_LIST.EMPTY_TITLE' | translate }}</strong>
+
+        <p>{{ 'MEDICAL_RECORDS.PROCESS_LIST.EMPTY_HINT' | translate }}</p>
 
     </div>
 
@@ -188,7 +230,7 @@
 
     <div class="attention-list" *ngIf="!state.loading && !state.error && state.items.length">
 
-        <label class="attention-select-all">
+        <label class="attention-select-all" *ngIf="options.showBulkActions">
 
             <input
 
@@ -224,11 +266,13 @@
 
         >
 
-            <label class="attention-checkbox" (click)="toggleSelection(item, $event)">
+            <label class="attention-checkbox" *ngIf="options.showBulkActions" (click)="toggleSelection(item, $event)">
 
                 <input type="checkbox" [checked]="isSelected(item)" (click)="toggleSelection(item, $event)" />
 
             </label>
+
+
 
             <div class="attention-icon">
 
@@ -236,15 +280,47 @@
 
             </div>
 
-            <div>
 
-                <strong>{{ item.title }}</strong>
+
+            <div class="attention-body">
+
+                <div class="attention-row-primary">
+
+                    <span class="task-type-chip" [ngClass]="taskTypeChipClass(item.taskType)">
+
+                        {{ taskTypeLabelKey(item.taskType) | translate }}
+
+                    </span>
+
+                    <strong>{{ item.title }}</strong>
+
+                </div>
 
                 <p>{{ item.subtitle }}</p>
 
+                <div class="attention-meta-row">
+
+                    <span class="status-pill" [ngClass]="statusPillClass(item)">
+
+                        {{ statusLabelKey(item) | translate }}
+
+                    </span>
+
+                    <span class="status-pill status-review" *ngIf="needsAttention(item)">
+
+                        {{ 'MEDICAL_RECORDS.TASK_STATUS.REVIEW' | translate }}
+
+                    </span>
+
+                    <span class="attention-date" *ngIf="metaDate(item) as dateLabel">{{ dateLabel }}</span>
+
+                </div>
+
             </div>
 
-            <small>{{ item.meta }}</small>
+
+
+            <span class="material-icons attention-chevron">chevron_right</span>
 
         </article>
 

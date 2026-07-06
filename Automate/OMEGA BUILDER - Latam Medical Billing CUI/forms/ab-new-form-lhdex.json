@@ -1,0 +1,255 @@
+{
+  "formRepresentation" : {
+    "id" : "form-29e5fdd7-187e-4721-99e4-0264e98f65e9",
+    "name" : "AB New Form",
+    "key" : "ab-new-form-lhdex",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [
+        {
+          "id" : "e27737c7-a3d7-4d87-9ca5-6b91accd760f",
+          "title" : "Rules",
+          "visibilityCondition" : null
+        },
+        {
+          "id" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc",
+          "title" : "Review",
+          "visibilityCondition" : null
+        }
+      ],
+      "fields" : [
+        {
+          "id" : "96a6333a-4de7-4615-9cf3-acb77c40928a",
+          "name" : "Section",
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Multilinetext001j96",
+                "name" : "preAuthorization",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          },
+          "tab" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc"
+        },
+        {
+          "id" : "e257b5b7-6453-4df9-85fc-4cb9cc07a13e",
+          "name" : "Section",
+          "type" : "section",
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Multilinetext0bbph5",
+                "name" : "payerCompliancePolicy",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ],
+            "2" : [
+              {
+                "id" : "Multilinetext01py7i",
+                "name" : "documentationRules",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          },
+          "tab" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc"
+        },
+        {
+          "id" : "c74b2d80-def3-42fc-a49d-b30b56539e38",
+          "name" : "Section",
+          "type" : "section",
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Multilinetext0l0g65",
+                "name" : "tariffAgreement",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ],
+            "2" : [ ]
+          },
+          "tab" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc"
+        },
+        {
+          "id" : "fd611d2a-6f90-4102-8f16-206945ffef9f",
+          "name" : "Section",
+          "type" : "section",
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Multilinetext0lt800",
+                "name" : "codingRules",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ],
+            "2" : [
+              {
+                "id" : "Multilinetext0ajzrd",
+                "name" : "payerCodingPolicy",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          },
+          "tab" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc"
+        },
+        {
+          "id" : "2449b83b-88c8-4ea3-bade-57cf6f429338",
+          "name" : "Section",
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Multilinetext05kqa4",
+                "name" : "BatchState",
+                "type" : "multi-line-text",
+                "readOnly" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "required" : false,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          },
+          "tab" : "79c0054b-8354-45ef-9bd7-9ca14fb2c2bc"
+        },
+        {
+          "id" : "f55bedcc-20cf-4a38-9200-e6ac86306e67",
+          "name" : "Section",
+          "tab" : "e27737c7-a3d7-4d87-9ca5-6b91accd760f",
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "agentruleswidget0prsqm",
+                "name" : "agent-rules-widget",
+                "type" : "agent-rules-widget-oxfam",
+                "required" : false,
+                "readOnly" : false,
+                "isCustomType" : true,
+                "valueType" : "array",
+                "widgetId" : "99a2216b-6f0c-4995-ac9a-582687f74cd6",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [
+        {
+          "id" : "fee95f9e-92af-453d-a061-bbd8dc2b7e27",
+          "name" : "Reprocess",
+          "visibilityCondition" : null
+        },
+        {
+          "id" : "acf48b9c-33fd-48e7-90f5-a49d8bc3c2d3",
+          "name" : "Approve",
+          "visibilityCondition" : null
+        }
+      ],
+      "metadata" : {},
+      "variables" : [ ]
+    },
+    "stickyTabs" : false,
+    "showBottomTabNavButtons" : false
+  }
+}

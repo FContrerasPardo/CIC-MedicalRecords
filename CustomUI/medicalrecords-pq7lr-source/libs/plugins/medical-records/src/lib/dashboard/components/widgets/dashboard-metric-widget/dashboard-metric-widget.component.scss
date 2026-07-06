@@ -1,19 +1,110 @@
 @import '../../../dashboard-shared.styles.scss';
+@import '../../../_kpi-shared-tokens.scss';
 
 :host {
     display: block;
+}
+
+:host.dashboard-widget--canvas-slot {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+:host.dashboard-widget--canvas-slot > .dashboard-metric-widget,
+:host.dashboard-widget--canvas-slot > .metric-card {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+:host.dashboard-widget--canvas-slot > .spotlight-card,
+:host.dashboard-widget--canvas-slot > .metric-card.spotlight-card {
+    min-height: 0;
+    height: 100%;
 }
 
 .dashboard-metric-widget--loading strong {
     opacity: 0.45;
 }
 
-.dashboard-metric-widget small {
+.dashboard-metric-widget,
+.metric-card {
+    position: relative;
+}
+
+.dashboard-metric-widget--header-kpi {
+    padding: var(--kpi-stat-card-padding);
+    border: 1px solid var(--kpi-stat-card-border);
+    border-radius: var(--kpi-stat-card-radius);
+    background: var(--kpi-stat-card-bg);
+}
+
+.dashboard-metric-widget--header-kpi .dashboard-metric-widget__label {
     display: block;
-    margin-top: 8px;
-    color: #005eb8;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    color: var(--kpi-stat-label-color);
+    font-size: var(--kpi-stat-label-size);
+    font-weight: 900;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+}
+
+.dashboard-metric-widget--header-kpi strong {
+    display: block;
+    margin-top: 6px;
+    color: var(--kpi-stat-value-color);
+    font-size: var(--kpi-stat-value-size);
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+}
+
+.dashboard-metric-widget__trend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 8px 0 0;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.dashboard-metric-widget__trend .material-icons {
+    font-size: 16px;
+}
+
+.dashboard-metric-widget__trend-label {
+    color: var(--kpi-stat-helper-color);
+    font-weight: 700;
+}
+
+.trend-positive {
+    color: var(--kpi-stat-positive);
+}
+
+.trend-negative {
+    color: var(--kpi-stat-negative);
+}
+
+.trend-flat {
+    color: var(--kpi-stat-flat);
+}
+
+.dashboard-metric-widget__footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.dashboard-metric-widget__info {
+    flex-shrink: 0;
+    color: #667085;
+    font-size: 18px;
+    cursor: help;
 }

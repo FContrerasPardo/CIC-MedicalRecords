@@ -1,0 +1,134 @@
+{
+  "formRepresentation" : {
+    "id" : "form-2b3ee7e8-8031-46de-bb87-a86b79ad288c",
+    "name" : "Orden o autorización de procedimiento-db8b4fda",
+    "key" : "orden-o-autorizacion-rvblx",
+    "description" : "Automatically generated form for IDP configuration Document Class: db8b4fda-c4a1-4934-9bd8-782b55bf4b6e",
+    "version" : 0,
+    "standAlone" : true,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "5302dc8f-7e30-42d0-9582-2f5b24ce419f",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_5996d476_2ab3_40f9_9753_f054e8ae4f52",
+                "name" : "Nombre del Paciente",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "8a262fe9-6f97-4f4a-8d92-c69c514c467f",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_d2157230_ae07_4732_a612_8f69cdc46cb1",
+                "name" : "Fecha",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "6204b469-b223-432b-8a30-f7006caa1280",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_65402996_5f22_46a9_8128_9975248079a2",
+                "name" : "Nombre Medico",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "f8450330-ad35-4d3e-b1ff-2c56b12278bf",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "idp_97d93319_f5ac_4491_a6a8_74720b426f10",
+                "name" : "Solicitud de Autorización",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

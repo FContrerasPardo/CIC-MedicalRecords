@@ -202,6 +202,23 @@
           </div>
         </div>
 
+        <div class="analysis-task-widget__filter-group">
+          <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.STATUS' | translate }}</span>
+          <div class="analysis-task-widget__filter-group-controls">
+            <div class="analysis-task-widget__filter-segment">
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="!filterStatus" (click)="setStatusFilter(null)">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.ALL' | translate }}
+              </button>
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="filterStatus === 'pending'" (click)="setStatusFilter('pending')">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.STATUS_PENDING' | translate }}
+              </button>
+              <button type="button" class="analysis-task-widget__filter-segment-option" [class.analysis-task-widget__filter-segment-option--active]="filterStatus === 'resolved'" (click)="setStatusFilter('resolved')">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.STATUS_RESOLVED' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="analysis-task-widget__filter-group" *ngIf="findingTypeOptions.length">
           <span class="analysis-task-widget__filter-group-label">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FILTERS.TYPE' | translate }}</span>
           <div class="analysis-task-widget__filter-group-controls">
@@ -225,14 +242,10 @@
 
       <div class="analysis-task-widget__findings-list">
         <ng-container *ngFor="let cluster of filteredFindingClusters; trackBy: trackByCluster">
-          <ng-container *ngIf="cluster.isSingle">
-            <ng-container *ngTemplateOutlet="findingRowTpl; context: { $implicit: cluster.findings[0] }"></ng-container>
-          </ng-container>
-
           <article
             class="analysis-task-widget__finding-cluster"
-            *ngIf="!cluster.isSingle"
             [ngClass]="'analysis-task-widget__finding-cluster--' + cluster.topRiskTone"
+            [class.analysis-task-widget__finding-cluster--resolved]="isClusterResolved(cluster)"
           >
             <button type="button" class="analysis-task-widget__cluster-head" (click)="toggleClusterExpanded(cluster.id)">
               <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + cluster.topRiskTone">{{ cluster.topRiskLabel }}</span>
@@ -253,7 +266,7 @@
 
             <div class="analysis-task-widget__cluster-body" *ngIf="isClusterExpanded(cluster.id)">
               <ng-container *ngFor="let finding of cluster.findings; trackBy: trackByFinding">
-                <ng-container *ngTemplateOutlet="findingRowTpl; context: { $implicit: finding }"></ng-container>
+                <ng-container *ngTemplateOutlet="findingRowTpl; context: { $implicit: finding, showCheckbox: true }"></ng-container>
               </ng-container>
             </div>
           </article>
@@ -264,15 +277,48 @@
         </p>
       </div>
 
-      <ng-template #findingRowTpl let-finding>
+      <div class="analysis-task-widget__selection-bar" *ngIf="hasSelection" [style.left.px]="barLeft">
+        <span class="material-icons">check_box</span>
+        <span>{{ selectedCount }} {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.SELECTED' | translate }}</span>
+        <button type="button" class="analysis-task-widget__selection-bar-primary" (click)="openSubsanationModal()">
+          <span class="material-icons">edit_note</span>
+          {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.ACTION' | translate }}
+        </button>
+        <button type="button" class="analysis-task-widget__selection-bar-ghost" (click)="clearSelection()">
+          {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.CLEAR' | translate }}
+        </button>
+      </div>
+
+      <ng-template #findingRowTpl let-finding let-showCheckbox="showCheckbox">
         <article
           class="analysis-task-widget__finding-row"
           [ngClass]="'analysis-task-widget__finding-row--' + finding.agentTone"
+          [class.analysis-task-widget__finding-row--selected]="isFindingSelected(finding.id)"
+          [class.analysis-task-widget__finding-row--resolved]="isFindingResolved(finding)"
+          [class.analysis-task-widget__finding-row--no-check]="!showCheckbox"
         >
+          <button
+            type="button"
+            class="analysis-task-widget__finding-resolved-badge"
+            *ngIf="isFindingResolved(finding)"
+            (click)="openResolutionView(finding.resolutionId)"
+            [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.RESOLVED_BADGE' | translate"
+          >
+            <span class="material-icons">check_circle</span>
+          </button>
+          <label class="analysis-task-widget__finding-check" [attr.aria-label]="'Select ' + finding.title" *ngIf="showCheckbox && !isFindingResolved(finding)">
+            <input type="checkbox" [checked]="isFindingSelected(finding.id)" (change)="toggleFindingSelection(finding.id)">
+          </label>
           <button type="button" class="analysis-task-widget__finding-toggle" (click)="toggleFindingExpanded(finding.id)">
             <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + finding.riskLevel">{{ finding.riskLabel }}</span>
             <span class="analysis-task-widget__finding-agent">{{ finding.agentLabel }}</span>
-            <strong>{{ finding.title }}</strong>
+            <span class="analysis-task-widget__finding-title-wrap">
+              <strong>{{ finding.title }}</strong>
+              <span class="analysis-task-widget__finding-resolved-chip" *ngIf="isFindingResolved(finding)">
+                <span class="material-icons">verified</span>
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.RESOLVED_BADGE' | translate }}
+              </span>
+            </span>
             <span class="material-icons">{{ isFindingExpanded(finding.id) ? 'expand_less' : 'expand_more' }}</span>
           </button>
 
@@ -309,13 +355,87 @@
               *ngFor="let doc of model.missingDocuments; trackBy: trackByMissingDoc"
               [ngClass]="'analysis-task-widget__missing-doc-row--' + doc.priorityTone"
             >
-              <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + doc.priorityTone">{{ doc.priority }}</span>
-              <div class="analysis-task-widget__missing-doc-body">
+              <button type="button" class="analysis-task-widget__missing-doc-toggle" (click)="toggleMissingDoc(doc.id)">
+                <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + doc.priorityTone">{{ doc.priority }}</span>
                 <strong>{{ doc.documentType }}</strong>
+                <span class="material-icons">{{ isMissingDocExpanded(doc.id) ? 'expand_less' : 'expand_more' }}</span>
+              </button>
+              <div class="analysis-task-widget__missing-doc-detail" *ngIf="isMissingDocExpanded(doc.id)">
                 <p *ngIf="doc.requiredFor"><span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.REQUIRED_FOR' | translate }}</span> {{ doc.requiredFor }}</p>
                 <p *ngIf="doc.reason"><span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.REASON' | translate }}</span> {{ doc.reason }}</p>
               </div>
             </article>
+          </div>
+        </section>
+
+        <section class="analysis-task-widget__documents-panel">
+          <div class="analysis-task-widget__panel-header">
+            <div>
+              <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.EYEBROW' | translate }}</span>
+              <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.TITLE' | translate }}</h3>
+            </div>
+            <button type="button" class="analysis-task-widget__ghost-button" (click)="triggerDocumentUpload()">
+              <span class="material-icons">upload_file</span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.UPLOAD' | translate }}
+            </button>
+          </div>
+
+          <p class="analysis-task-widget__documents-status" *ngIf="uploadStatusKey">{{ uploadStatusKey | translate }}</p>
+
+          <div class="analysis-task-widget__documents-list" *ngIf="remediationDocs.length; else noRemediationDocs">
+            <article
+              class="analysis-task-widget__doc-row"
+              *ngFor="let doc of remediationDocs; trackBy: trackByRemediationDoc"
+              [class.analysis-task-widget__doc-row--pending]="doc.pending"
+            >
+              <span class="material-icons">{{ doc.pending ? 'error_outline' : 'check_circle' }}</span>
+              <div class="analysis-task-widget__doc-body">
+                <strong>{{ doc.name }}</strong>
+                <span *ngIf="doc.className">{{ doc.className }}</span>
+              </div>
+              <button type="button" class="analysis-task-widget__link-button" (click)="openDocumentForView(doc)">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.VIEW' | translate }}
+              </button>
+              <button type="button" class="analysis-task-widget__link-button" *ngIf="doc.pending" (click)="markDocumentReviewed(doc.id)">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.MARK_REVIEWED' | translate }}
+              </button>
+              <span class="analysis-task-widget__doc-reviewed" *ngIf="!doc.pending">
+                {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.REVIEWED' | translate }}
+              </span>
+            </article>
+          </div>
+          <ng-template #noRemediationDocs>
+            <p class="analysis-task-widget__empty-message">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.EMPTY' | translate }}</p>
+          </ng-template>
+
+          <button type="button" class="analysis-task-widget__ghost-button" *ngIf="pendingRemediationCount" (click)="markAllReviewed()">
+            <span class="material-icons">done_all</span>
+            {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.MARK_ALL' | translate:{ count: pendingRemediationCount } }}
+          </button>
+        </section>
+
+        <section class="analysis-task-widget__subsanations-panel" *ngIf="resolutionViews.length" aria-label="User subsanations">
+          <div class="analysis-task-widget__panel-header">
+            <div>
+              <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.EYEBROW' | translate }}</span>
+              <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.TITLE' | translate }}</h3>
+            </div>
+            <span class="analysis-task-widget__risk-chip analysis-task-widget__risk-chip--low">{{ resolutionViews.length }}</span>
+          </div>
+          <div class="analysis-task-widget__subsanations-list">
+            <button
+              type="button"
+              class="analysis-task-widget__subsanation-card"
+              *ngFor="let view of resolutionViews; trackBy: trackByResolution"
+              (click)="openResolutionView(view.id)"
+            >
+              <p class="analysis-task-widget__subsanation-comment">{{ view.comment }}</p>
+              <div class="analysis-task-widget__subsanation-meta">
+                <span class="material-icons">verified</span>
+                <span>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.FINDING_COUNT' | translate:{ count: view.findings.length } }}</span>
+                <span *ngIf="view.resolvedAt">{{ view.resolvedAt | date:'short' }}</span>
+              </div>
+            </button>
           </div>
         </section>
 
@@ -409,6 +529,85 @@
           </div>
           <hxp-document-viewer *ngIf="contractViewerDocument" [document]="contractViewerDocument"></hxp-document-viewer>
           <p class="analysis-task-widget__contract-error" *ngIf="contractViewerError && !contractViewerLoading && !contractViewerDocument">{{ contractViewerError }}</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="analysis-task-widget__contract-backdrop analysis-task-widget__contract-backdrop--doc" *ngIf="docViewerOpen" (click)="closeDocumentView()">
+      <section class="analysis-task-widget__contract-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <header class="analysis-task-widget__contract-modal-header">
+          <div>
+            <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.EYEBROW' | translate }}</span>
+            <h3>{{ docViewerTitle }}</h3>
+          </div>
+          <button type="button" class="analysis-task-widget__ghost-button" (click)="closeDocumentView()">
+            <span class="material-icons">close</span>
+            {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.CLOSE' | translate }}
+          </button>
+        </header>
+
+        <div class="analysis-task-widget__contract-viewer" [class.is-loading]="docViewerSettling || docViewerLoading">
+          <div class="analysis-task-widget__contract-loading" *ngIf="docViewerSettling || docViewerLoading">
+            <div class="analysis-task-widget__contract-loading-card">
+              <strong>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.LOADING_TITLE' | translate }}</strong>
+              <p>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.CONTRACT.LOADING_MESSAGE' | translate }}</p>
+            </div>
+          </div>
+          <hxp-document-viewer *ngIf="docViewerDocument" [document]="docViewerDocument"></hxp-document-viewer>
+          <p class="analysis-task-widget__contract-error" *ngIf="docViewerError && !docViewerLoading && !docViewerDocument">{{ docViewerError }}</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="analysis-task-widget__contract-backdrop analysis-task-widget__contract-backdrop--subsanation" *ngIf="subsanationModalOpen" (click)="closeSubsanationModal()">
+      <section class="analysis-task-widget__contract-modal analysis-task-widget__subsanation-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <header class="analysis-task-widget__contract-modal-header">
+          <div>
+            <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.EYEBROW' | translate }}</span>
+            <h3>{{ (subsanationModalMode === 'view' ? 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.VIEW_TITLE' : 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.MODAL_TITLE') | translate }}</h3>
+          </div>
+          <button type="button" class="analysis-task-widget__ghost-button" (click)="closeSubsanationModal()">
+            <span class="material-icons">close</span>
+          </button>
+        </header>
+
+        <p class="analysis-task-widget__subsanation-modal-hint">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.MODAL_HINT' | translate }}</p>
+
+        <div class="analysis-task-widget__subsanation-findings" *ngIf="modalFindings.length">
+          <article class="analysis-task-widget__subsanation-finding" *ngFor="let finding of modalFindings; trackBy: trackByFinding">
+            <span class="analysis-task-widget__risk-chip" [ngClass]="'analysis-task-widget__risk-chip--' + finding.riskLevel">{{ finding.riskLabel }}</span>
+            <span class="analysis-task-widget__subsanation-finding-agent">{{ finding.agentLabel }}</span>
+            <strong>{{ finding.title }}</strong>
+          </article>
+        </div>
+
+        <textarea
+          class="analysis-task-widget__subsanation-textarea"
+          [placeholder]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.PLACEHOLDER' | translate"
+          [(ngModel)]="subsanationDraftComment"
+          rows="5"
+        ></textarea>
+
+        <div class="analysis-task-widget__subsanation-modal-actions">
+          <ng-container *ngIf="subsanationModalMode === 'view'; else createActions">
+            <button type="button" class="analysis-task-widget__ghost-button analysis-task-widget__ghost-button--danger" (click)="undoSubsanation()">
+              <span class="material-icons">undo</span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.UNDO' | translate }}
+            </button>
+            <button type="button" class="analysis-task-widget__primary-button" [disabled]="!subsanationDraftComment.trim()" (click)="updateSubsanation()">
+              <span class="material-icons">save</span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.SAVE_CHANGES' | translate }}
+            </button>
+          </ng-container>
+          <ng-template #createActions>
+            <button type="button" class="analysis-task-widget__ghost-button" (click)="closeSubsanationModal()">
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.CANCEL' | translate }}
+            </button>
+            <button type="button" class="analysis-task-widget__primary-button" [disabled]="!subsanationDraftComment.trim()" (click)="submitSubsanation()">
+              <span class="material-icons">save</span>
+              {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.CONFIRM' | translate }}
+            </button>
+          </ng-template>
         </div>
       </section>
     </div>

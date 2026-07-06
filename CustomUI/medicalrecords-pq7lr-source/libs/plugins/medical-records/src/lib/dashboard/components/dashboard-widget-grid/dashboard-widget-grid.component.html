@@ -1,38 +1,284 @@
-<section class="section-block">
-    <h2>{{ 'MEDICAL_RECORDS.SECTIONS.INSIGHTS' | translate }}</h2>
-    <div class="insights-grid">
-        <ng-container *ngFor="let widgetId of widgetOrder; trackBy: trackByWidgetId">
-            <medical-records-dashboard-metric-widget
-                *ngIf="widgets[widgetId]?.type === 'metric' && isInsightWidget(widgetId)"
-                [config]="widgets[widgetId]"
-                [class.recovery-card]="widgetId === 'recovery-rate'"
-                [class.completion-card]="widgetId === 'completion-rate'"
-            ></medical-records-dashboard-metric-widget>
+<div class="dashboard-tabs-bar" *ngIf="pages.length">
+    <nav class="dashboard-tabs" role="tablist">
+        <div
+            class="dashboard-tab-wrap"
+            *ngFor="let page of pages; trackBy: trackByPageId"
+            [class.dashboard-tab-wrap--active]="page.id === resolvedActivePageId"
+            [class.dashboard-tab-wrap--settings]="isPageSelectedForSettings(page.id)"
+        >
+            <button
+                type="button"
+                class="dashboard-tab"
+                role="tab"
+                [class.dashboard-tab--active]="page.id === resolvedActivePageId"
+                [attr.aria-selected]="page.id === resolvedActivePageId"
+                (click)="selectPage(page.id)"
+            >
+                {{ page.label }}
+            </button>
+            <button
+                *ngIf="editMode"
+                type="button"
+                class="dashboard-tab-settings"
+                (click)="openPageSettings(page.id, $event)"
+                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.EDIT_TAB' | translate"
+                [attr.title]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.EDIT_TAB' | translate"
+            >
+                <span class="material-icons">settings</span>
+            </button>
+            <button
+                *ngIf="editMode && canRemovePage()"
+                type="button"
+                class="dashboard-tab-delete"
+                (click)="onRemovePage(page.id, $event)"
+                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_TAB' | translate"
+                [attr.title]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_TAB' | translate"
+            >
+                <span class="material-icons">delete_outline</span>
+            </button>
+        </div>
+        <button
+            *ngIf="editMode"
+            type="button"
+            class="dashboard-tab dashboard-tab--add"
+            (click)="addPage.emit()"
+            [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.ADD_TAB' | translate"
+        >
+            <span class="material-icons">add</span>
+        </button>
+    </nav>
 
-            <medical-records-dashboard-chart-widget
-                *ngIf="widgets[widgetId]?.type === 'chart'"
-                [config]="widgets[widgetId]"
-            ></medical-records-dashboard-chart-widget>
-        </ng-container>
+    <div class="dashboard-date-range-bar">
+        <medical-records-dashboard-date-range-filter></medical-records-dashboard-date-range-filter>
     </div>
-</section>
+</div>
 
-<section class="section-block" *ngIf="widgetOrder.includes('performance-metrics')">
-    <h2>{{ 'MEDICAL_RECORDS.SECTIONS.PERFORMANCE_METRICS' | translate }}</h2>
-    <div class="metrics-grid">
-        <article class="metric-card" *ngFor="let metric of performanceMetrics">
-            <span>{{ metric.labelKey | translate }}</span>
-            <strong>{{ metric.value }}</strong>
-            <p [class.negative]="!metric.positive">
-                <span class="material-icons">{{ metric.positive ? 'arrow_outward' : 'south_east' }}</span>
-                {{ metric.helperKey | translate }}
-            </p>
-        </article>
+<ng-container *ngFor="let page of pages; trackBy: trackByPageId">
+    <div
+        *ngIf="isPageVisited(page.id)"
+        class="dashboard-page"
+        [class.dashboard-page--inactive]="!isPageActive(page.id)"
+        [hidden]="!isPageActive(page.id)"
+    >
+    <div
+        class="dashboard-containers-drop"
+        cdkDropList
+        [id]="pageContainersDropId(page.id)"
+        [cdkDropListData]="page.containers"
+        [cdkDropListDisabled]="!editMode"
+        (cdkDropListDropped)="onContainerReorderDrop($event)"
+    >
+        <section
+            class="section-block dashboard-container"
+            *ngFor="let container of page.containers; trackBy: trackByContainerId"
+            cdkDrag
+            [cdkDragDisabled]="!editMode"
+            [cdkDragData]="container"
+            (cdkDragEnded)="onContainerDragEnded($event)"
+            [class.dashboard-container--kpi]="container.layoutMode === 'kpi-strip'"
+            [class.dashboard-container--selected]="isContainerSelected(container.id)"
+            [class.dashboard-container--palette-target]="isPaletteTarget(container.id)"
+            [class.dashboard-container--dragging]="editMode"
+        >
+            <header class="section-heading" (click)="activateContainer(container.id, $event)">
+                <div class="section-heading__title-row">
+                    <button
+                        *ngIf="editMode"
+                        type="button"
+                        class="container-drag-handle"
+                        cdkDragHandle
+                        [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.DRAG_CONTAINER' | translate"
+                        [attr.title]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.DRAG_CONTAINER' | translate"
+                    >
+                        <span class="material-icons">drag_indicator</span>
+                    </button>
+                    <div>
+                        <h2>{{ container.title }}</h2>
+                        <p *ngIf="container.subtitle">{{ container.subtitle }}</p>
+                        <p *ngIf="editMode && !container.subtitle">
+                            {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_DROP_HINT' | translate }}
+                        </p>
+                    </div>
+                </div>
+                <div class="section-heading__actions">
+                <button
+                    *ngIf="editMode"
+                    type="button"
+                    class="section-edit-link ghost-action-sm"
+                    (click)="selectContainer(container.id, $event)"
+                >
+                    {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.EDIT_CONTAINER' | translate }}
+                </button>
+                <button
+                    *ngIf="editMode && canRemoveContainer(page)"
+                    type="button"
+                    class="section-delete-btn ghost-action-sm"
+                    (click)="onRemoveContainer(container.id, $event)"
+                    [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_CONTAINER' | translate"
+                    [attr.title]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_CONTAINER' | translate"
+                >
+                    <span class="material-icons">delete_outline</span>
+                </button>
+                <button
+                    *ngIf="container.layoutMode !== 'kpi-strip'"
+                    type="button"
+                    class="section-collapse-toggle"
+                    (click)="toggleContainer(container, $event)"
+                    [attr.aria-expanded]="!container.collapsed"
+                    [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD.SECTION_TOGGLE' | translate"
+                >
+                    <span class="material-icons">{{ container.collapsed ? 'expand_more' : 'expand_less' }}</span>
+                </button>
+            </div>
+        </header>
+
+        <medical-records-dashboard-kpi-strip
+            *ngIf="container.layoutMode === 'kpi-strip' && !container.collapsed"
+            [widgetIds]="container.widgetIds"
+            [widgets]="widgets"
+            [editMode]="editMode"
+            [selectedWidgetId]="selectedWidgetId"
+            [pageActive]="isPageActive(page.id)"
+            (widgetSelect)="selectWidget($event)"
+        ></medical-records-dashboard-kpi-strip>
+
+        <div
+            *ngIf="container.layoutMode !== 'kpi-strip' && !container.collapsed"
+            class="widget-drop-zone container-grid"
+            [ngClass]="containerGridClass(container)"
+            [ngStyle]="containerCanvasStyle(container)"
+            cdkDropList
+            [id]="containerDropId(container.id)"
+            [cdkDropListData]="container.widgetIds"
+            [cdkDropListConnectedTo]="editMode ? sectionDropIds : []"
+            [cdkDropListDisabled]="!editMode || useCanvasLayout(container)"
+            (cdkDropListDropped)="onContainerDrop(container.id, $event)"
+        >
+            <div
+                class="widget-slot"
+                *ngFor="let widgetId of container.widgetIds; trackBy: trackByWidgetId"
+                cdkDrag
+                [cdkDragDisabled]="!editMode || useCanvasLayout(container)"
+                [cdkDragData]="widgetId"
+                (cdkDragEnded)="onWidgetDragEnded($event)"
+                [ngClass]="[
+                    isSelected(widgetId) ? 'is-selected' : '',
+                    editMode ? 'edit-mode' : '',
+                    isMetricCompact(container) ? 'widget-slot--metric' : '',
+                    container.layoutMode === 'list' ? 'widget-slot--full' : ''
+                ]"
+                [ngStyle]="widgetSlotStyle(widgetId, container)"
+                (click)="selectWidget(widgetId, $event)"
+            >
+                <div class="widget-slot__canvas" *ngIf="useCanvasLayout(container); else widgetSlotLegacy">
+                    <button
+                        *ngIf="editMode"
+                        type="button"
+                        class="widget-move-handle"
+                        (pointerdown)="onCanvasMoveStart($event, widgetId, container)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.MOVE_WIDGET' | translate"
+                    >
+                        <span class="material-icons">open_with</span>
+                    </button>
+                    <button
+                        *ngIf="editMode"
+                        type="button"
+                        class="widget-remove"
+                        (click)="removeWidget(widgetId, $event)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_WIDGET' | translate"
+                    >
+                        <span class="material-icons">close</span>
+                    </button>
+
+                    <ng-container
+                        *ngTemplateOutlet="widgetBody; context: { widgetId: widgetId, container: container, pageId: page.id, pageActive: isPageActive(page.id) }"
+                    ></ng-container>
+
+                    <button
+                        *ngIf="editMode"
+                        type="button"
+                        class="widget-resize-handle"
+                        (pointerdown)="onCanvasResizeStart($event, widgetId, container)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.RESIZE_WIDGET' | translate"
+                    ></button>
+                </div>
+
+                <ng-template #widgetSlotLegacy>
+                    <button
+                        *ngIf="editMode"
+                        type="button"
+                        class="widget-remove"
+                        (click)="removeWidget(widgetId, $event)"
+                        [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.REMOVE_WIDGET' | translate"
+                    >
+                        <span class="material-icons">close</span>
+                    </button>
+
+                    <ng-container
+                        *ngTemplateOutlet="widgetBody; context: { widgetId: widgetId, container: container, pageId: page.id, pageActive: isPageActive(page.id) }"
+                    ></ng-container>
+                </ng-template>
+            </div>
+        </div>
+        </section>
     </div>
-</section>
 
-<medical-records-dashboard-process-list-widget
-    *ngIf="widgetOrder.includes('process-list')"
-    [titleKey]="widgets['process-list']?.titleKey || 'MEDICAL_RECORDS.SECTIONS.ATTENTION_REQUIRED'"
-    (itemSelected)="onProcessSelected($event)"
-></medical-records-dashboard-process-list-widget>
+    <button *ngIf="editMode" type="button" class="add-container-btn" (click)="addContainer.emit()">
+        <span class="material-icons">add_box</span>
+        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.ADD_CONTAINER' | translate }}
+    </button>
+    </div>
+</ng-container>
+
+<ng-template #widgetBody let-widgetId="widgetId" let-container="container" let-pageActive="pageActive">
+    <medical-records-dashboard-metric-widget
+        *ngIf="widgets[widgetId]?.type === 'metric'"
+        [config]="widgets[widgetId]"
+        [compact]="isMetricCompact(container)"
+        [headerKpi]="container.layoutMode === 'kpi-strip'"
+        [pageActive]="pageActive"
+        [fillCanvasSlot]="useCanvasLayout(container)"
+    ></medical-records-dashboard-metric-widget>
+
+    <medical-records-dashboard-gauge-widget
+        *ngIf="widgets[widgetId]?.type === 'gauge'"
+        [config]="widgets[widgetId]"
+        [pageActive]="pageActive"
+        [fillCanvasSlot]="useCanvasLayout(container)"
+    ></medical-records-dashboard-gauge-widget>
+
+    <medical-records-dashboard-chart-widget
+        *ngIf="widgets[widgetId]?.type === 'chart'"
+        [config]="widgets[widgetId]"
+        [pageActive]="pageActive"
+        [fillCanvasSlot]="useCanvasLayout(container)"
+    ></medical-records-dashboard-chart-widget>
+
+    <medical-records-dashboard-table-widget
+        *ngIf="widgets[widgetId]?.type === 'table'"
+        [config]="widgets[widgetId]"
+        [pageActive]="pageActive"
+        [fillCanvasSlot]="useCanvasLayout(container)"
+    ></medical-records-dashboard-table-widget>
+
+    <medical-records-dashboard-link-card-widget
+        *ngIf="widgets[widgetId]?.type === 'link-card'"
+        [config]="widgets[widgetId]"
+    ></medical-records-dashboard-link-card-widget>
+
+    <medical-records-dashboard-process-list-widget
+        *ngIf="widgets[widgetId]?.type === 'process-list'"
+        [config]="widgets[widgetId]"
+        (itemSelected)="onProcessSelected($event)"
+    ></medical-records-dashboard-process-list-widget>
+
+    <medical-records-dashboard-task-status-summary-widget
+        *ngIf="widgets[widgetId]?.type === 'task-status-summary'"
+        [config]="widgets[widgetId]"
+    ></medical-records-dashboard-task-status-summary-widget>
+
+    <medical-records-dashboard-task-recent-list-widget
+        *ngIf="widgets[widgetId]?.type === 'task-recent-list'"
+        [config]="widgets[widgetId]"
+    ></medical-records-dashboard-task-recent-list-widget>
+</ng-template>

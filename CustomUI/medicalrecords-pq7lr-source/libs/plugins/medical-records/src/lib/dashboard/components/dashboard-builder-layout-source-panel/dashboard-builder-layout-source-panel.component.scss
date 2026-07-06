@@ -1,0 +1,144 @@
+@import '../../dashboard-shared.styles.scss';
+
+.layout-source-panel {
+    margin-bottom: 16px;
+    border: 1px solid rgba(110, 51, 255, 0.18);
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.layout-source-panel__toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    background: #f8f6ff;
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: left;
+}
+
+.layout-source-panel__body {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+}
+
+.layout-source-panel__intro {
+    margin: 0;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.layout-source-panel__flow {
+    margin: 0;
+    padding-left: 18px;
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.layout-source-panel__section {
+    display: grid;
+    gap: 8px;
+}
+
+.layout-source-panel__label {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.layout-source-panel__note {
+    margin: 0;
+    color: #667085;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.layout-source-panel__note--warn {
+    color: #b54708;
+}
+
+.layout-source-panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.layout-source-panel__suffix-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.layout-source-panel__suffix-label {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ghost-action--compact {
+    min-height: 28px;
+    padding: 4px 10px;
+    font-size: 11px;
+}
+
+.layout-source-panel__checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.layout-source-panel__checkbox input {
+    margin-top: 2px;
+}
+
+.layout-source-panel__meta {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--dash-brand-gray, #f4f6fe);
+}
+
+.layout-source-panel__meta div {
+    display: grid;
+    gap: 2px;
+}
+
+.layout-source-panel__meta dt {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.layout-source-panel__meta dd {
+    margin: 0;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.layout-source-panel__mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+}

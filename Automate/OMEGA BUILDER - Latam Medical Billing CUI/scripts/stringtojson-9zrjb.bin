@@ -1,0 +1,79 @@
+function safeParseAgentContent(input) {
+    try {
+        // Si ya es un objeto, devuélvelo tal cual
+        if (typeof input === "object") {
+            return { ok: true, json: input, raw: JSON.stringify(input) };
+        }
+
+        if (input == null) {
+            return { ok: false, text: "", raw: "" };
+        }
+
+        let s = String(input).trim();
+        const raw = s;
+
+        // 1️⃣ Quitar posibles bloques ```json ... ```
+        s = s.replace(/^```(?:json)?\s*/i, "").replace(/```$/i, "").trim();
+
+        const tryParse = (x) => {
+            try { return JSON.parse(x); } catch { return undefined; }
+        };
+
+        // 2️⃣ Intento directo
+        let parsed = tryParse(s);
+        if (parsed !== undefined) return { ok: true, json: parsed, raw };
+
+        // 3️⃣ Si todo está entre comillas — probablemente stringificado
+        if (/^"(\\.|[^"])*"$/.test(s)) {
+            const unquoted = s.slice(1, -1);
+            parsed = tryParse(unquoted);
+            if (parsed !== undefined) return { ok: true, json: parsed, raw };
+
+            const unescaped = unquoted
+                .replace(/\\n/g, "\n")
+                .replace(/\\"/g, '"')
+                .replace(/\\\\/g, "\\");
+            parsed = tryParse(unescaped);
+            if (parsed !== undefined) return { ok: true, json: parsed, raw };
+        }
+
+        // 4️⃣ Si tiene llaves escapadas (\{...\})
+        if (/\\\{/.test(s) && /\\\}/.test(s)) {
+            const unescaped = s
+                .replace(/\\n/g, "\n")
+                .replace(/\\"/g, '"')
+                .replace(/\\\\/g, "\\");
+            parsed = tryParse(unescaped);
+            if (parsed !== undefined) return { ok: true, json: parsed, raw };
+        }
+
+        // 5️⃣ Buscar el bloque JSON más grande dentro del texto
+        const objMatch = s.match(/\{[\s\S]*\}/);
+        const arrMatch = s.match(/\[[\s\S]*\]/);
+        const candidate = objMatch && arrMatch
+            ? (objMatch[0].length >= arrMatch[0].length ? objMatch[0] : arrMatch[0])
+            : (objMatch?.[0] || arrMatch?.[0]);
+
+        if (candidate) {
+            parsed = tryParse(candidate);
+            if (parsed !== undefined) return { ok: true, json: parsed, raw };
+        }
+
+        // 6️⃣ Si nada funcionó, devolver texto plano
+        return { ok: false, text: s, raw };
+    } catch (e) {
+        return { ok: false, text: String(input ?? ""), raw: String(input ?? ""), error: e.message };
+    }
+}
+
+// 🔹 Ejecución principal
+const result = safeParseAgentContent(variables.in_String);
+
+if (result.ok) {
+    variables.out_Json = result.json;
+    variables.out_IsJson = true;
+} else {
+    // Evita error y guarda el texto para diagnóstico
+    variables.out_Json = { text: result.text };
+    variables.out_IsJson = false;
+}

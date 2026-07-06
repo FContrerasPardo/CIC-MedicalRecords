@@ -1,0 +1,20 @@
+/*
+[NOMBRE DEL SCRIPT]: get-app-name (Obtener nombre de la aplicación)
+[DESCRIPCIÓN]: El propósito de este script es recuperar el nombre de la aplicación 
+desplegada para ser utilizado en tareas de Conector REST posteriores. Esto permite 
+que las llamadas a la API sean dinámicas según el entorno.
+
+[TAREAS]: Obtener nombre de la App [receive-batch-form, initialize-batch]
+
+[VARIABLES DEL SCRIPT]:
+ Nombre          - Tipo                  - Descripción
+ -----------     ----------------------- ---------------------------------------
+ appName         - string (cadena)       - Nombre técnico de la aplicación en ejecución.
+
+*/
+
+// Verificar si el objeto de contexto de integración existe para evitar errores de ejecución
+if (integrationContext != null) {
+    // Extraer el nombre de la aplicación del contexto del sistema y asignarlo a la variable de proceso
+    variables.appName = integrationContext.appName;
+}

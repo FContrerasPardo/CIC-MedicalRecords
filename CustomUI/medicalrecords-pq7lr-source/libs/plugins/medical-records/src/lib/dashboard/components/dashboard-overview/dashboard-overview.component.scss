@@ -1,3 +1,17 @@
+@import '../../dashboard-shared.styles.scss';
+
+
+
 :host {
+
     display: block;
+
 }
+
+.dashboard-overview__loading {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0 0 16px;
+}
+
+

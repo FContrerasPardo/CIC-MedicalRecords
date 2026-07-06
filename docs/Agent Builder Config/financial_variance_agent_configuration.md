@@ -4,7 +4,21 @@
 
 This document centralizes the Agent Builder configuration for the **Financial Variance Agent** used in the Hyland Cuentas Médicas demo.
 
-The agent analyzes medical account billing data against payer-provider agreements and patient pre-authorizations to detect financial variances, tariff deviations, missing authorizations, total mismatches, and review risks before approval.
+The agent analyzes medical account billing data against the payer-provider
+**tariffAgreement** to detect financial variances, tariff deviations, total
+mismatches, and review risks before approval. Pre-authorization validation is
+**out of scope** for this pilot agent; use Compliance for authorization evidence.
+
+### Automate deploy reference
+
+| Field | Value |
+|-------|-------|
+| Studio key | `finantial-v3-znvmy` |
+| Export JSON | `automate/.../agents/finantial-v3-znvmy.json` |
+| batchState at runtime | **Slim** string from `BuildFinancialAgentBatchPayload` → `$financialBatchState` |
+| BPMN mappings | `automate/.../processes/agentmesh-hk5kb-extensions.json` |
+
+See `automate/README.md` for the full AgentMesh flow.
 
 ---
 
@@ -19,21 +33,19 @@ Financial Variance Agent
 ### Large Language Model
 
 ```text
-Claude Haiku
+anthropic.claude-opus-4-6-v1
 ```
 
-Use this as the current validation baseline for the demo. Manual validation
-showed that this agent started returning a usable response after changing the
-engine and requiring the outcome. If another model is selected, keep it only
-after a manual agent test and event-log validation confirm a non-empty required
-outcome.
+Configured in the current Automate export as **Claude Opus 4.6**. Earlier pilot
+tests used Haiku; the deployed agent now uses Opus per
+`finantial-v3-znvmy.json`.
 
 ### Agent Description
 
 Recommended version:
 
 ```text
-Reviews medical account billing data against contracts and authorizations to identify financial risks, tariff deviations, and items requiring manual review before approval.
+Reviews medical account billing data against tariffAgreement to identify financial risks, tariff deviations, and items requiring manual review before approval.
 ```
 
 Shorter option:
@@ -96,33 +108,31 @@ Payer-provider agreement JSON with service codes, expected tariffs, allowed rang
 
 **Purpose**
 
-Represents the payer-provider contract or agreement. It is the source used to compare billed amounts against expected amounts, allowed ranges, max amounts, variance thresholds, and required documents.
+Represents the payer-provider contract or agreement. It is the source used to
+compare billed amounts against expected amounts, allowed ranges, max amounts,
+variance thresholds, and required documents.
 
 ---
 
-### Input 3 — preAuthorization
+### BPMN preprocessing — slim batchState (required)
 
-**Input Name**
-
-```text
-preAuthorization
-```
-
-**Input Type**
+The agent input named `batchState` receives **`financialBatchState`**, not the raw
+IDP `batchState`. A Script task runs **`BuildFinancialAgentBatchPayload`** before
+the agent:
 
 ```text
-string
+batchState (json, full) -> BuildFinancialAgentBatchPayload -> financialBatchState (string, slim)
 ```
 
-**Input Description**
+Script source: `docs/Agent Builder Config/BuildFinancialAgentBatchPayload.ts`  
+Studio key: `buildfinancialagentb-j8nwx`
 
-```text
-JSON with approved services for the patient/account, including codes, quantities, approved amounts, validity dates, and authorization status.
-```
+The slim payload keeps invoice totals, financial fields, and flattened billed
+services from `"Tabla de Servicios facturados"`. It omits bounding boxes, OCR
+geometry, and classification narrative blocks.
 
-**Purpose**
-
-Represents the services authorized for this specific patient/account. It helps validate whether a billed service was approved, whether the authorization is active, and whether the billed quantity or amount exceeds what was authorized.
+Debug size in event log: `financialBatchStateSummary.sourceApproxChars` vs
+`slimApproxChars`.
 
 ---
 
@@ -245,7 +255,7 @@ You are the Financial Variance Agent for a Hyland Medical Accounts workflow.
 
 Your role is to analyze financial consistency before the medical account proceeds to approval.
 
-You will receive three inputs as JSON-formatted strings:
+You will receive this inputs as JSON-formatted strings:
 
 batchState:
 {{batchState}}
@@ -253,64 +263,50 @@ batchState:
 tariffAgreement:
 {{tariffAgreement}}
 
-preAuthorization:
-{{preAuthorization}}
-
 Interpret these inputs as structured JSON content.
 
-batchState represents what was billed and extracted by IDP. It may include documents, extracted fields, tables, invoice data, billed services, procedure codes, amounts, balances, payer information, and review statuses.
+batchState represents what was processed by IDP (slim financial payload in pilot). It may include classified documents, extracted fields, tables, billed services, procedure codes, amounts, balances, and review statuses.
 
-tariffAgreement represents the payer-provider agreement. It may include service codes, procedure codes, expected tariffs, allowed ranges, maximum values, allowed variance percentages, authorization requirements, and required support documents.
+tariffAgreement: Payer-provider contract. It may include contractId, payer, provider, currency, effective dates, defaultAllowedVariancePercentage, and tariffRules[] with serviceCode, procedureCode, description, expectedAmount, minAmount, maxAmount, allowedVariancePercentage, requiresAuthorization, and requiredDocuments.
 
-preAuthorization represents services approved for this specific patient/account. It may include approved service codes, procedure codes, quantities, approved amounts, validity dates, authorization status, and authorization identifiers.
+SCOPE (pilot — tariff only):
+- Analyze ONLY financial, tariff, billing, amount, invoice, and contract variance.
+- Do NOT validate pre-authorizations. Ignore requiresAuthorization for authorization checks.
+- You may use requiredDocuments only to flag MISSING_SUPPORT_DOCUMENT if batchState clearly lacks that document type.
+- Do not invent tariff values, contract values, or billed amounts.
 
-Your tasks:
-1. Extract billed services, procedures, quantities, and amounts from batchState.
-2. Compare billed amounts against tariffAgreement when a matching service code or procedure code exists.
-3. Detect tariff deviations.
-4. Detect high-value billed items.
-5. Detect missing or incomplete financial data.
-6. Detect invoice total mismatches if enough data is available.
-7. Validate whether services that require authorization have a matching preAuthorization record.
-8. Validate whether the billed quantity exceeds the approved quantity.
-9. Validate whether the billed amount exceeds the approved amount.
-10. Validate whether the authorization is active and within the valid date range.
-11. Detect missing, expired, rejected, or insufficient authorizations.
-12. Detect services that require supporting documents according to tariffAgreement.
-13. Assign a risk level to each finding.
-14. Recommend a concrete action for each finding.
+WORKFLOW:
+1. Parse batchState and tariffAgreement.
+2. If batchState is large, prioritize documents/tables with billed services, invoice totals, balances, amounts, procedure/service codes; skip unrelated narrative text and duplicate raw OCR blocks.
+3. Extract billed services: serviceCode, procedureCode, description, quantity, amount.
+4. For each billed item, find a matching tariffRules entry by serviceCode or procedureCode (exact match first).
+5. Compare billed amount vs expectedAmount, minAmount, maxAmount, and allowedVariancePercentage.
+6. Flag TARIFF_DEVIATION when billed amount is outside allowed range or exceeds allowed variance.
+7. Flag HIGH_VALUE_ITEM for unusually high amounts vs contract or invoice context.
+8. Flag TOTAL_MISMATCH when invoice total vs itemized/patient/payer totals can be compared reliably.
+9. Flag MISSING_FINANCIAL_DATA or LOW_CONFIDENCE_EXTRACTION when amounts/codes are missing or unreliable.
+10. Flag DUPLICATED_CHARGE when the same service/code/amount appears duplicated without justification.
+11. Flag MISSING_SUPPORT_DOCUMENT when tariffAgreement lists requiredDocuments and batchState shows no evidence of that document type.
+12. If no tariff rule matches, add a finding type OTHER with reason "Tariff validation limited — no matching rule".
+13. Assign risk level and recommendation to each finding.
 
-Important rules:
-- Do not invent tariff values.
-- Do not invent contract values.
-- Do not invent authorization records.
-- If tariffAgreement does not include a matching rule, state that tariff validation is limited for that item.
-- If preAuthorization does not include a matching approved service for a service that requires authorization, flag it as MISSING_AUTHORIZATION.
-- If preAuthorization is empty or unavailable, state that authorization validation is limited.
-- If a service does not require authorization according to tariffAgreement, do not flag missing authorization.
-- If authorization is required but authorizationStatus is not APPROVED, flag it.
-- If the authorization validity dates do not cover the service date, flag it as EXPIRED_OR_INVALID_AUTHORIZATION.
-- If billed quantity exceeds approved quantity, flag it as AUTHORIZED_QUANTITY_EXCEEDED.
-- If billed amount exceeds approved amount, flag it as AUTHORIZED_AMOUNT_EXCEEDED.
-- If batchState has low-confidence or review-required financial fields, flag them.
-- Focus only on financial, tariff, billing, amount, invoice, contract variance, and authorization-related analysis.
-- Do not approve or reject the claim directly.
-- Always produce one final output as a valid JSON string.
-- Do not include markdown.
-- Do not include explanatory text outside the final JSON string.
+IMPORTANT:
+- Do not approve or reject the claim.
+- Always return valid JSON only. No markdown. No text outside the JSON.
+- Never return an empty response. If data is insufficient, return findings and missingData explaining the limitation.
 
 Risk levels:
-LOW: Minor informational finding.
-MEDIUM: Potential mismatch that should be reviewed.
-HIGH: Significant deviation, high-value item, missing authorization, expired authorization, or missing financial evidence.
-CRITICAL: Major discrepancy that could cause glosa, rejection, or material financial loss.
+LOW: Informational.
+MEDIUM: Review recommended.
+HIGH: Significant deviation or missing financial evidence.
+CRITICAL: Major discrepancy with glosa/rejection/material loss risk.
 
-Return the result as a valid JSON object with this structure:
+Return EXACTLY this JSON object as the value of outcome financialVarianceResult:
 
 {
   "agentName": "Financial Variance Agent",
   "overallRiskLevel": "LOW | MEDIUM | HIGH | CRITICAL",
-  "summary": "Short executive summary of the financial and authorization analysis.",
+  "summary": "Short executive summary of tariff and billing analysis.",
   "analyzedTotals": {
     "invoiceTotal": null,
     "itemizedTotal": null,
@@ -321,19 +317,18 @@ Return the result as a valid JSON object with this structure:
     "varianceAmount": null,
     "variancePercentage": null
   },
-  "authorizationSummary": {
-    "authorizationValidationAvailable": true,
-    "totalServicesRequiringAuthorization": 0,
-    "authorizedServices": 0,
-    "missingAuthorizations": 0,
-    "expiredOrInvalidAuthorizations": 0,
-    "quantityExceeded": 0,
-    "amountExceeded": 0
+  "tariffSummary": {
+    "tariffValidationAvailable": true,
+    "totalBilledServicesAnalyzed": 0,
+    "servicesWithMatchingTariff": 0,
+    "servicesWithoutMatchingTariff": 0,
+    "tariffDeviations": 0,
+    "missingSupportDocuments": 0
   },
   "findings": [
     {
       "findingId": "string",
-      "type": "TARIFF_DEVIATION | HIGH_VALUE_ITEM | TOTAL_MISMATCH | MISSING_FINANCIAL_DATA | LOW_CONFIDENCE_EXTRACTION | DUPLICATED_CHARGE | MISSING_AUTHORIZATION | EXPIRED_OR_INVALID_AUTHORIZATION | AUTHORIZED_QUANTITY_EXCEEDED | AUTHORIZED_AMOUNT_EXCEEDED | MISSING_SUPPORT_DOCUMENT | OTHER",
+      "type": "TARIFF_DEVIATION | HIGH_VALUE_ITEM | TOTAL_MISMATCH | MISSING_FINANCIAL_DATA | LOW_CONFIDENCE_EXTRACTION | DUPLICATED_CHARGE | MISSING_SUPPORT_DOCUMENT | OTHER",
       "riskLevel": "LOW | MEDIUM | HIGH | CRITICAL",
       "serviceCode": "string or null",
       "procedureCode": "string or null",
@@ -342,17 +337,13 @@ Return the result as a valid JSON object with this structure:
       "expectedAmount": null,
       "minAmount": null,
       "maxAmount": null,
-      "approvedAmount": null,
       "billedQuantity": null,
-      "approvedQuantity": null,
       "varianceAmount": null,
       "variancePercentage": null,
-      "authorizationId": "string or null",
-      "authorizationStatus": "string or null",
       "sourceDocument": "string or null",
       "sourceField": "string or null",
-      "reason": "Explain why this item was flagged.",
-      "recommendation": "Specific action recommended for the billing, audit, or contract team."
+      "reason": "string",
+      "recommendation": "string"
     }
   ],
   "missingData": [
@@ -366,7 +357,7 @@ Return the result as a valid JSON object with this structure:
     {
       "action": "string",
       "priority": "LOW | MEDIUM | HIGH | CRITICAL",
-      "owner": "Billing Team | Auditor | Contract Analyst | Authorization Team | System"
+      "owner": "Billing Team | Auditor | Contract Analyst | System"
     }
   ],
   "readyForApproval": true,
@@ -423,38 +414,17 @@ Return the result as a valid JSON object with this structure:
 
 ---
 
-## 7. Example preAuthorization Input
+## 7. Slim batchState schema (script output)
 
-```json
-{
-  "authorizationId": "AUTH-2024-88921",
-  "payer": "ARS Primera",
-  "patientId": "223-0176730-1",
-  "accountId": "ACT-8921-A",
-  "validFrom": "2024-06-01",
-  "validTo": "2024-06-30",
-  "approvedServices": [
-    {
-      "serviceCode": "903895",
-      "procedureCode": "903895",
-      "description": "Radiologic examination",
-      "approvedQuantity": 1,
-      "approvedAmount": 12000,
-      "authorizationRequired": true,
-      "authorizationStatus": "APPROVED"
-    },
-    {
-      "serviceCode": "890201",
-      "procedureCode": "890201",
-      "description": "Comprehensive metabolic panel",
-      "approvedQuantity": 2,
-      "approvedAmount": 21000,
-      "authorizationRequired": false,
-      "authorizationStatus": "NOT_REQUIRED"
-    }
-  ]
-}
-```
+The Financial agent does **not** read raw IDP `batchState` in the current BPMN.
+`BuildFinancialAgentBatchPayload` produces a string JSON object with:
+
+- `schemaVersion`: `financial-agent-batch/v1`
+- `accountSummary`: record, patient, invoice totals, balances
+- `documents[]`: `className`, financial fields, `billedServices[]` (flattened rows)
+
+Full script: `docs/Agent Builder Config/BuildFinancialAgentBatchPayload.ts`  
+Export binding: `agentmesh-hk5kb-extensions.json` → `Activity_1w4btuq`.
 
 ---
 
@@ -464,7 +434,7 @@ Return the result as a valid JSON object with this structure:
 {
   "agentName": "Financial Variance Agent",
   "overallRiskLevel": "HIGH",
-  "summary": "Financial analysis identified tariff deviations and authorization-related risks requiring manual review before approval.",
+  "summary": "Financial analysis identified tariff deviations requiring manual review before approval.",
   "analyzedTotals": {
     "invoiceTotal": 114846.96,
     "itemizedTotal": 113920.5,
@@ -475,14 +445,13 @@ Return the result as a valid JSON object with this structure:
     "varianceAmount": 926.46,
     "variancePercentage": 0.81
   },
-  "authorizationSummary": {
-    "authorizationValidationAvailable": true,
-    "totalServicesRequiringAuthorization": 1,
-    "authorizedServices": 1,
-    "missingAuthorizations": 0,
-    "expiredOrInvalidAuthorizations": 0,
-    "quantityExceeded": 0,
-    "amountExceeded": 1
+  "tariffSummary": {
+    "tariffValidationAvailable": true,
+    "totalBilledServicesAnalyzed": 42,
+    "servicesWithMatchingTariff": 38,
+    "servicesWithoutMatchingTariff": 4,
+    "tariffDeviations": 2,
+    "missingSupportDocuments": 0
   },
   "findings": [
     {
@@ -496,13 +465,9 @@ Return the result as a valid JSON object with this structure:
       "expectedAmount": 10800,
       "minAmount": 10000,
       "maxAmount": 12000,
-      "approvedAmount": 12000,
       "billedQuantity": 1,
-      "approvedQuantity": 1,
       "varianceAmount": 2500,
       "variancePercentage": 20.83,
-      "authorizationId": "AUTH-2024-88921",
-      "authorizationStatus": "APPROVED",
       "sourceDocument": "Factura y Desglose",
       "sourceField": "Tabla de Servicios facturados",
       "reason": "The billed amount exceeds both the contract maximum and the authorized amount.",
@@ -521,34 +486,379 @@ Return the result as a valid JSON object with this structure:
   "requiresManualReview": true
 }
 ```
+Example
+```json
+{
+    "agentName": "Financial Variance Agent",
+    "overallRiskLevel": "HIGH",
+    "summary": "Financial variance analysis for record 2406-2848 (ARIANNY PEÑA TERRERO, CM-UCE). Invoice total is $114,846 DOP. No billed services match the two tariff rules available in the contract (903895, 890201). Multiple financial inconsistencies detected: the sum of patient amount ($263) + payer amount ($88,531) = $88,794 does not equal the invoice total ($114,846), indicating a significant total mismatch. The itemized summary line totals from Document 1 sum to approximately $88,531, which aligns with the payer balance but not the invoice total. The glosa total is $4,260.47. Document 2 (detailed invoice) shows a different invoice number (00001439247) vs the account summary invoice (001376558). Several duplicated laboratory charges detected on the same date. The Formulario de Objeciones requires extraction review. The invoice is not signed by the ARS (payer).",
+    "analyzedTotals": {
+        "invoiceTotal": 114846,
+        "itemizedTotal": 88531.26,
+        "patientAmount": 263,
+        "payerAmount": 88531,
+        "detectedCurrency": "DOP",
+        "totalsMatch": false,
+        "varianceAmount": 26314.74,
+        "variancePercentage": 22.91
+    },
+    "tariffSummary": {
+        "tariffValidationAvailable": true,
+        "totalBilledServicesAnalyzed": 136,
+        "servicesWithMatchingTariff": 0,
+        "servicesWithoutMatchingTariff": 136,
+        "tariffDeviations": 0,
+        "missingSupportDocuments": 0
+    },
+    "findings": [
+        {
+            "findingId": "FV-001",
+            "type": "TOTAL_MISMATCH",
+            "riskLevel": "HIGH",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Invoice total does not match sum of patient amount + payer amount",
+            "billedAmount": 114846,
+            "expectedAmount": 88794,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": 26052,
+            "variancePercentage": 22.69,
+            "sourceDocument": "fdf24247-6b44-4f5e-890a-fdb5b9e31dd6",
+            "sourceField": "Monto total Facturado vs Monto Facturado al Paciente + Monto Facturado a ARS",
+            "reason": "Patient amount (263) + Payer amount (88,531) = 88,794 which is significantly less than the invoice total of 114,846. The difference of 26,052 (22.69%) is unexplained and exceeds the 10% allowed variance.",
+            "recommendation": "Verify the invoice total breakdown. Determine what accounts for the $26,052 difference — possibly glosas, non-covered services, or data extraction error."
+        },
+        {
+            "findingId": "FV-002",
+            "type": "TOTAL_MISMATCH",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Itemized line totals from summary document approximate payer balance but not invoice total",
+            "billedAmount": 88531.26,
+            "expectedAmount": 114846,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": 26314.74,
+            "variancePercentage": 22.91,
+            "sourceDocument": "fdf24247-6b44-4f5e-890a-fdb5b9e31dd6",
+            "sourceField": "billedServices lineTotal sum",
+            "reason": "Sum of all lineTotal values in Document 1 (Factura y Desglose summary) is approximately $88,531.26, matching the payer balance but not the stated invoice total of $114,846.",
+            "recommendation": "Confirm whether the invoice total includes non-covered services (BANCO DE SANGRE $9,668.74 and SERVICIOS NO CUBIERTO $689.44 which have lineTotal=0) and patient copays that are excluded from payer responsibility."
+        },
+        {
+            "findingId": "FV-003",
+            "type": "DUPLICATED_CHARGE",
+            "riskLevel": "MEDIUM",
+            "serviceCode": "30305",
+            "procedureCode": "97",
+            "description": "GLICEMIA billed 3 times on 14/06/2024",
+            "billedAmount": 622.74,
+            "expectedAmount": 207.58,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 3,
+            "varianceAmount": 415.16,
+            "variancePercentage": 200,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "GLICEMIA (serviceCode 30305, procedureCode 97) appears three times on 14/06/2024 at $207.58 each. While repeat glucose testing can be clinically justified in ICU, three identical charges on the same date warrant verification.",
+            "recommendation": "Verify clinical justification for three glucose tests on the same day. If not justified, flag as potential duplicate billing."
+        },
+        {
+            "findingId": "FV-004",
+            "type": "HIGH_VALUE_ITEM",
+            "riskLevel": "MEDIUM",
+            "serviceCode": "8470009723445",
+            "procedureCode": null,
+            "description": "HONORARIOS DE ANESTESIA - $12,449.19",
+            "billedAmount": 12449.19,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 1,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "Anesthesia honorarium of $12,449.19 is one of the highest single-line items. Combined with pre-anesthesia ($500), total anesthesia charges are $12,949.19 which matches the summary document line for HONORARIOS DE ANESTESIA.",
+            "recommendation": "Verify anesthesia fees are consistent with contracted rates and procedure complexity."
+        },
+        {
+            "findingId": "FV-005",
+            "type": "HIGH_VALUE_ITEM",
+            "riskLevel": "MEDIUM",
+            "serviceCode": "4050013",
+            "procedureCode": null,
+            "description": "TRANSFUSION SIN DONANTE - $8,000",
+            "billedAmount": 8000,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 1,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "Blood transfusion without donor charged at $8,000 is a high-value item. The summary document shows BANCO DE SANGRE with lineTotal=0, suggesting this may be a non-covered service.",
+            "recommendation": "Confirm whether blood bank services are covered under the contract or if they are correctly excluded from payer responsibility."
+        },
+        {
+            "findingId": "FV-006",
+            "type": "HIGH_VALUE_ITEM",
+            "riskLevel": "LOW",
+            "serviceCode": "8470009723164",
+            "procedureCode": "2968268",
+            "description": "DREN DE BLAKE NO. 19FR - $3,775.20",
+            "billedAmount": 3775.2,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 1,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "High-value surgical supply item (Blake drain) at $3,775.20.",
+            "recommendation": "Verify pricing is consistent with market rates for this surgical supply."
+        },
+        {
+            "findingId": "FV-007",
+            "type": "HIGH_VALUE_ITEM",
+            "riskLevel": "LOW",
+            "serviceCode": "8470009723166",
+            "procedureCode": "2968268",
+            "description": "S.RESERVORIO 100CC REF. - $2,995.85",
+            "billedAmount": 2995.85,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 1,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "High-value surgical supply (reservoir) at $2,995.85.",
+            "recommendation": "Verify pricing against contracted supply rates."
+        },
+        {
+            "findingId": "FV-008",
+            "type": "MISSING_FINANCIAL_DATA",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Document 2 missing Monto Facturado a ARS",
+            "billedAmount": null,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "Monto Facturado a ARS",
+            "reason": "The detailed invoice (00001439247) has an empty value for 'Monto Facturado a ARS', making it impossible to cross-validate payer billing from this document.",
+            "recommendation": "Request clarification on the payer-billed amount for the detailed invoice document."
+        },
+        {
+            "findingId": "FV-009",
+            "type": "MISSING_FINANCIAL_DATA",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Document 2 missing signature fields",
+            "billedAmount": null,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "Esta Firmado por la ARS? / Esta Firmado por el Centro Médico?",
+            "reason": "Both signature fields are empty in the detailed invoice document. The account summary confirms the invoice is NOT signed by the ARS.",
+            "recommendation": "Ensure ARS signature is obtained before final processing, as unsigned invoices may be subject to rejection."
+        },
+        {
+            "findingId": "FV-010",
+            "type": "LOW_CONFIDENCE_EXTRACTION",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Formulario de Objeciones requires extraction review",
+            "billedAmount": null,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "e7409cc9-ae95-4f54-8aab-5ad412dc5177",
+            "sourceField": "Multiple fields (Nombre del Prestador, Valor Total Glosado, Esta Firmado por la ARS?)",
+            "reason": "The Formulario de Objeciones Auditoría Médica document has extractionReviewStatus=ReviewRequired for all financial fields including the glosa total of $4,260.47. This value needs human verification.",
+            "recommendation": "Manual review required to confirm the glosa total and other extracted values from the objections form."
+        },
+        {
+            "findingId": "FV-011",
+            "type": "MISSING_FINANCIAL_DATA",
+            "riskLevel": "LOW",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Many line items in detailed invoice have null lineTotal values",
+            "billedAmount": null,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices.lineTotal",
+            "reason": "All 136 line items in the detailed invoice (Document 2) have null lineTotal values. Only unitPrice is available, preventing per-line verification of applied discounts or copay splits.",
+            "recommendation": "Use unitPrice × quantity for gross billing verification. Note that the summary document provides category-level lineTotals that reflect applied discounts."
+        },
+        {
+            "findingId": "FV-012",
+            "type": "OTHER",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Discrepant patient balance between documents",
+            "billedAmount": 89847,
+            "expectedAmount": 1316,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": 88531,
+            "variancePercentage": 6727.36,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "Balance del Paciente",
+            "reason": "Document 1 shows patient balance of $1,316 while Document 2 shows patient balance of $89,847. This massive discrepancy suggests the detailed invoice may reflect a pre-adjudication state before payer responsibility was applied.",
+            "recommendation": "Clarify which patient balance is authoritative. The $89,847 figure likely represents the total balance before ARS coverage application."
+        },
+        {
+            "findingId": "FV-013",
+            "type": "OTHER",
+            "riskLevel": "LOW",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "Negative line item (payment received) in detailed invoice",
+            "billedAmount": -25000,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": 1,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "sourceField": "billedServices",
+            "reason": "A negative amount of -$25,000 labeled 'PAGO EN EFECTIVO' (cash payment) on 16/06/2024 is included in the detailed invoice. This represents a patient payment that reduces the outstanding balance.",
+            "recommendation": "Confirm the cash payment was properly received and recorded. Verify it is correctly reflected in the patient balance calculation."
+        },
+        {
+            "findingId": "FV-014",
+            "type": "OTHER",
+            "riskLevel": "LOW",
+            "serviceCode": null,
+            "procedureCode": null,
+            "description": "No tariff rules match any billed services",
+            "billedAmount": null,
+            "expectedAmount": null,
+            "minAmount": null,
+            "maxAmount": null,
+            "billedQuantity": null,
+            "varianceAmount": null,
+            "variancePercentage": null,
+            "sourceDocument": null,
+            "sourceField": null,
+            "reason": "Tariff validation limited — no matching rule. The contract only contains 2 tariff rules (serviceCodes 903895 and 890201) which do not match any of the 136 billed service/procedure codes in this claim.",
+            "recommendation": "Expand tariff agreement rules to cover the service codes billed by CM-UCE for comprehensive tariff validation."
+        }
+    ],
+    "missingData": [
+        {
+            "field": "Comprehensive tariff rules",
+            "reason": "Only 2 tariff rules provided in contract; none match the 136 billed services in this claim",
+            "impact": "HIGH"
+        },
+        {
+            "field": "lineTotal for detailed invoice items",
+            "reason": "All 136 line items in Document 2 have null lineTotal values",
+            "impact": "MEDIUM"
+        },
+        {
+            "field": "Monto Facturado a ARS (Document 2)",
+            "reason": "Empty value prevents cross-validation of payer amount from detailed invoice",
+            "impact": "MEDIUM"
+        },
+        {
+            "field": "Glosa total verification",
+            "reason": "Formulario de Objeciones extraction requires review; glosa of $4,260.47 unverified",
+            "impact": "MEDIUM"
+        }
+    ],
+    "recommendedActions": [
+        {
+            "action": "Resolve total mismatch: Verify why invoice total ($114,846) exceeds patient+payer amounts ($88,794) by $26,052",
+            "priority": "HIGH",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Review and confirm glosa total of $4,260.47 from Formulario de Objeciones (extraction review required)",
+            "priority": "HIGH",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Verify clinical justification for 3x GLICEMIA charges on 14/06/2024",
+            "priority": "MEDIUM",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Obtain ARS signature on invoice before final processing",
+            "priority": "MEDIUM",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Clarify patient balance discrepancy between documents ($1,316 vs $89,847)",
+            "priority": "MEDIUM",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Expand tariff agreement to include service codes used by CM-UCE for future automated validation",
+            "priority": "LOW",
+            "owner": "Contract Analyst"
+        }
+    ],
+    "readyForApproval": false,
+    "requiresManualReview": true
+}
+```
+
 
 ---
 
 ## 9. UI Mapping Notes for Analysis Phase
 
-The Analysis screen can consume this output to populate:
+Widget: `analysis-task-widget` — mapper: `analysis.mapper.ts`.
 
-- Inconsistencies count
-- Missing Docs count
-- Tariff Deviations count
-- Glosa risk score
-- Financial Variance card
-- Billed Items Analysis table
-- Recommended actions
-- Approval readiness
-
-Suggested mapping:
+- **Financial Issues** metric: `findings.length` (includes `TOTAL_MISMATCH`, `DUPLICATED_CHARGE`, `HIGH_VALUE_ITEM`, `TARIFF_DEVIATION`, etc.)
+- **All Findings** panel: every item in `findings[]` with expand for `reason`, `recommendation`, `sourceDocument` / `sourceField`
+- **By service / Account-level** tables: findings with vs without `serviceCode` / `procedureCode`
+- **Recommended Actions** panel: all `recommendedActions[]` (no cap)
+- **Approval state** (text only): `readyForApproval` + `requiresManualReview` — task buttons live in Automate form footer, not in the widget
 
 | UI Element | Output Field |
 |---|---|
-| Risk Score | `overallRiskLevel` + findings severity |
+| Risk Score | Max severity across `overallRiskLevel` + all `findings[]` |
 | Summary Message | `summary` |
-| Tariff Deviations | Count findings where `type = TARIFF_DEVIATION` |
-| Missing Docs | Count findings where `type = MISSING_SUPPORT_DOCUMENT` |
-| Authorization Issues | `authorizationSummary` |
-| Billed Items Analysis | `findings[]` |
-| Approve Proceed Enabled | `readyForApproval` |
-| Manual Review Needed | `requiresManualReview` |
+| Financial Issues count | `findings.length` |
+| Tariff coverage | `tariffSummary` |
+| Financial Variance card | Primary finding + `findings.length` |
+| Billed Items (service) | `findings[]` with service/procedure code |
+| Account-level rows | `findings[]` without service code |
 
 ---
 
@@ -557,29 +867,25 @@ Suggested mapping:
 - Should the outcome remain a JSON string, or can Agent Builder return a JSON object directly?
 - Should the financial agent produce only one outcome or separate outcomes by severity?
 - Will tariffAgreement be manually mocked for the demo or loaded from a data model/API later?
-- Will preAuthorization be mocked or extracted from repository/IDP documents?
-- Should missing support documents be handled by this financial agent or by a separate documentation/compliance agent?
+- Should missing support documents be handled by this financial agent or by Compliance?
 
 ---
 
 ## 11. Configuration Checklist
 
-- [ ] Agent name set to `Financial Variance Agent`
-- [ ] Model selected and validated: `Claude Haiku`
+- [ ] Agent name set to `Financial Variance Agent V4` (key `finantial-v3-znvmy`)
+- [ ] Model: `anthropic.claude-opus-4-6-v1`
 - [ ] Agent description added
-- [ ] Input `batchState` created as string
+- [ ] Input `batchState` created as string (receives slim `financialBatchState`)
 - [ ] Input `tariffAgreement` created as string
-- [ ] Input `preAuthorization` created as string
-- [ ] Prompt references `{{batchState}}`
-- [ ] Prompt references `{{tariffAgreement}}`
-- [ ] Prompt references `{{preAuthorization}}`
+- [ ] Script `BuildFinancialAgentBatchPayload` mapped before agent
+- [ ] Prompt references `{{batchState}}` and `{{tariffAgreement}}` only
 - [ ] Outcome `financialVarianceResult` created
 - [ ] Outcome type set to string
 - [ ] Outcome marked as Required/App required
-- [ ] Outcome instructions added
-- [ ] Manual agent test returns non-empty JSON
+- [ ] Manual agent test returns non-empty JSON with `tariffSummary`
 - [ ] Event log contains `outBoundVariables.financialVarianceResult.value`
-- [ ] BPMN agent activity remapped after Agent Builder variable changes
+- [ ] BPMN agent activity maps `$financialBatchState` → agent `batchState`
 - [ ] Outcome mapped to `BuildIncrementalUnifiedWidgetPayload.json3`
 - [ ] Unified script output `unifiedWidgetPayloadText` mapped to `analysis-task-widget`
 - [ ] No tools configured for first version

@@ -1,9 +1,121 @@
-<article class="spotlight-card dashboard-metric-widget" [class.dashboard-metric-widget--loading]="data.loading">
-    <div class="card-title-row">
-        <h3 *ngIf="config.titleKey">{{ config.titleKey | translate }}</h3>
-        <span class="round-icon material-icons" *ngIf="config.icon">{{ config.icon }}</span>
+<article
+
+    class="dashboard-metric-widget"
+
+    [class.spotlight-card]="!compact && !headerKpi"
+
+    [class.metric-card]="compact && !headerKpi"
+
+    [class.dashboard-metric-widget--header-kpi]="headerKpi"
+
+    [class.dashboard-metric-widget--loading]="data.loading"
+
+    [class.recovery-card]="config.id === 'recovery-rate' && !headerKpi"
+
+    [class.completion-card]="config.id === 'completion-rate' && !headerKpi"
+
+>
+
+    <div class="card-title-row" *ngIf="!compact && !headerKpi">
+
+        <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+
+        <div class="card-title-actions">
+
+            <span class="data-source-badge" [ngClass]="'badge-' + data.source">{{ sourceLabelKey | translate }}</span>
+
+            <span class="round-icon material-icons" *ngIf="config.icon">{{ config.icon }}</span>
+
+        </div>
+
     </div>
-    <strong>{{ data.value }}</strong>
-    <p *ngIf="data.helper">{{ data.helper | translate }}</p>
-    <small *ngIf="data.source === 'content'">{{ 'MEDICAL_RECORDS.DASHBOARD.CONTENT_SOURCE' | translate }}</small>
+
+
+
+    <ng-container *ngIf="compact || headerKpi">
+
+        <span class="dashboard-metric-widget__label">{{ config.title | dashboardWidgetText: config.titleKey }}</span>
+
+        <strong>{{ data.value }}</strong>
+
+
+
+        <p *ngIf="showTrend" class="dashboard-metric-widget__trend" [ngClass]="trendClass">
+
+            <span class="material-icons">{{ trendIcon }}</span>
+
+            <span>{{ data.trendValue }}</span>
+
+            <span class="dashboard-metric-widget__trend-label" *ngIf="data.trendLabel">
+
+                {{ data.trendLabel | translate }}
+
+            </span>
+
+        </p>
+
+
+
+        <p *ngIf="!showTrend && (config.helper || config.helperKey)" [class.negative]="data.positive === false">
+
+            <span class="material-icons" *ngIf="data.positive !== undefined && !headerKpi">
+
+                {{ data.positive ? 'arrow_outward' : 'south_east' }}
+
+            </span>
+
+            {{ config.helper | dashboardWidgetText: config.helperKey }}
+
+        </p>
+
+    </ng-container>
+
+
+
+    <ng-container *ngIf="!compact && !headerKpi">
+
+        <strong>{{ data.value }}</strong>
+
+
+
+        <div class="dashboard-metric-widget__footer" *ngIf="showTrend || config.helper || config.helperKey || data.helperTooltip">
+
+            <p *ngIf="showTrend" class="dashboard-metric-widget__trend" [ngClass]="trendClass">
+
+                <span class="material-icons">{{ trendIcon }}</span>
+
+                <span>{{ data.trendValue }}</span>
+
+                <span class="dashboard-metric-widget__trend-label" *ngIf="data.trendLabel">
+
+                    {{ data.trendLabel | translate }}
+
+                </span>
+
+            </p>
+
+            <p *ngIf="!showTrend && (config.helper || config.helperKey)">
+
+                {{ config.helper | dashboardWidgetText: config.helperKey }}
+
+            </p>
+
+            <span
+
+                class="dashboard-metric-widget__info material-icons"
+
+                *ngIf="data.helperTooltip || config.helperTooltip"
+
+                [attr.title]="data.helperTooltip || config.helperTooltip"
+
+                aria-hidden="true"
+
+            >info</span>
+
+        </div>
+
+    </ng-container>
+
 </article>
+
+

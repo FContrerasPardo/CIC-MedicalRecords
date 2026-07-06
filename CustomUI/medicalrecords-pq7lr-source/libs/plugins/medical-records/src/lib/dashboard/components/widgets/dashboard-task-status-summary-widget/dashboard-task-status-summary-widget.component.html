@@ -1,0 +1,29 @@
+<article class="task-status-widget spotlight-card">
+    <header class="task-status-widget__header">
+        <div>
+            <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+            <p *ngIf="config.helper || config.helperKey">{{ config.helper | dashboardWidgetText: config.helperKey }}</p>
+        </div>
+    </header>
+
+    <p class="task-status-widget__state" *ngIf="loading">{{ 'MEDICAL_RECORDS.TASK_WIDGET.LOADING' | translate }}</p>
+    <p class="task-status-widget__state task-status-widget__state--error" *ngIf="!loading && error">{{ error }}</p>
+
+    <div class="task-status-widget__rows" *ngIf="!loading && !error">
+        <div class="task-status-widget__row" *ngFor="let row of rows; let i = index">
+            <span class="task-status-widget__label">{{ row.labelKey | translate }}</span>
+            <div class="task-status-widget__track">
+                <span class="task-status-widget__bar" [style.width.%]="row.percent" [style.background]="barBackground(row.key)"></span>
+            </div>
+            <span class="task-status-widget__count">{{ row.count }}</span>
+        </div>
+    </div>
+
+    <footer class="task-status-widget__footer" *ngIf="!loading">
+        <span class="task-status-widget__total">{{ 'MEDICAL_RECORDS.TASK_WIDGET.TOTAL' | translate }}: {{ total }}</span>
+        <a class="task-status-widget__cta" [routerLink]="ctaPath" [fragment]="ctaFragment">
+            {{ ctaLabel }}
+            <span class="material-icons" aria-hidden="true">chevron_right</span>
+        </a>
+    </footer>
+</article>

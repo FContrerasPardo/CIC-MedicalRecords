@@ -7,8 +7,12 @@ describe('MedicalRecordsShellComponent template', () => {
     const service = readFileSync(join(__dirname, '..', '..', 'services', 'medical-record.service.ts'), 'utf8');
 
     it('renders the dashboard shell with translation-aware navigation', () => {
-        expect(template).toContain("{{ 'MEDICAL_RECORDS.BRAND' | translate }}");
+        expect(template).toContain('class="page-hero"');
+        expect(template).toContain("{{ 'MEDICAL_RECORDS.EXPERIENCE.PAGE_TITLE' | translate }}");
         expect(template).toContain("routerLink=\"/medical-records/configure\"");
+        expect(template).toContain("routerLink=\"/medical-records/agreements\"");
+        expect(template).not.toContain("{{ 'MEDICAL_RECORDS.TOP_LINKS.REPORT_CONFIG' | translate }}");
+        expect(template).toContain("{{ 'MEDICAL_RECORDS.DASHBOARD.EDIT_DASHBOARD' | translate }}");
         expect(template).toContain("{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}");
         expect(template).toContain('<medical-records-dashboard-overview');
         expect(template).not.toContain('notifications');
@@ -45,10 +49,12 @@ describe('MedicalRecordsShellComponent template', () => {
         expect(component).toContain('openProcessDetails');
         expect(component).toContain('openDocument');
         expect(component).toContain('isConfigureView');
+        expect(component).toContain('isAgreementsView');
         expect(template).toContain('(click)="openStartProcess()"');
         expect(template).toContain('(click)="openProcessDetails({ id:');
         expect(template).toContain('(click)="openDocument()"');
-        expect(template).toContain('(processSelected)="openTaskDetails($event)"');
+        expect(template).toContain('<medical-records-dashboard-overview');
+        expect(template).not.toContain('(processSelected)="openProcessDetails($event)"');
     });
 
     it('uses the medical-records process start form for new intake', () => {

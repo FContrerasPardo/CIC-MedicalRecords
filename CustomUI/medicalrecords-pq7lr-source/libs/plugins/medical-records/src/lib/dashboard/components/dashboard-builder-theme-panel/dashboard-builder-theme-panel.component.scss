@@ -1,0 +1,113 @@
+@import '../../dashboard-shared.styles.scss';
+
+.theme-panel {
+    margin-bottom: 16px;
+    border: 1px solid rgba(110, 51, 255, 0.18);
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.theme-panel__toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    background: #f8f6ff;
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: left;
+}
+
+.theme-panel__body {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+}
+
+.theme-panel__section {
+    display: grid;
+    gap: 8px;
+}
+
+.theme-panel__label {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.theme-panel__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.theme-panel__swatch {
+    width: 28px;
+    height: 28px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(25, 31, 94, 0.12);
+}
+
+.theme-panel__swatch--active {
+    border-color: #191f5e;
+    outline: 2px solid #ffffff;
+    outline-offset: 1px;
+}
+
+.theme-panel__stops {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.theme-panel__stop {
+    display: grid;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #667085;
+}
+
+.theme-panel__stop input[type='color'] {
+    width: 40px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid rgba(194, 198, 212, 0.55);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.theme-panel__preview {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--dash-brand-gray, #f4f6fe);
+}
+
+.theme-panel__preview-bar {
+    width: 28px;
+    height: 48px;
+    border-radius: 8px 8px 3px 3px;
+    box-shadow: 0 6px 14px rgba(110, 51, 255, 0.14);
+}
+
+.theme-panel__preview-bar--short {
+    height: 32px;
+    opacity: 0.85;
+}
+
+.theme-panel__preview-bar--tall {
+    height: 64px;
+}

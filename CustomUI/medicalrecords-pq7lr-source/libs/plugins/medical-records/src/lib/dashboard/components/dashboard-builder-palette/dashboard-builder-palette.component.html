@@ -1,0 +1,57 @@
+<div
+    class="canvas-toolbar"
+    cdkDropList
+    id="palette-drop"
+    [cdkDropListConnectedTo]="connectedDropIds"
+    [cdkDropListSortingDisabled]="true"
+>
+    <div class="canvas-toolbar__header">
+        <div class="canvas-toolbar__intro">
+            <span class="canvas-toolbar__label">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PALETTE_TITLE' | translate }}</span>
+            <span class="canvas-toolbar__target" *ngIf="activeTabLabel">
+                {{
+                    'MEDICAL_RECORDS.DASHBOARD_BUILDER.PALETTE_TARGET'
+                        | translate: { tab: activeTabLabel, section: activeSectionTitle || ('MEDICAL_RECORDS.DASHBOARD_BUILDER.PALETTE_DEFAULT_SECTION' | translate) }
+                }}
+            </span>
+            <span class="canvas-toolbar__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PALETTE_FLOAT_HINT' | translate }}</span>
+        </div>
+
+        <div class="canvas-toolbar__actions page-hero__actions">
+            <button
+                type="button"
+                class="ghost-action"
+                (click)="resetLayout.emit()"
+                [disabled]="layoutLoading || layoutSaving"
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.RESET_LAYOUT' | translate }}
+            </button>
+            <button
+                type="button"
+                class="primary-action"
+                (click)="saveLayout.emit()"
+                [disabled]="layoutLoading || layoutSaving"
+            >
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.SAVE_LAYOUT' | translate }}
+            </button>
+            <a routerLink="/medical-records" class="ghost-action">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}
+            </a>
+        </div>
+    </div>
+
+    <div class="canvas-toolbar__tools">
+        <button
+            type="button"
+            class="canvas-tool-btn"
+            *ngFor="let item of paletteItems"
+            cdkDrag
+            [cdkDragData]="item"
+            [cdkDragDisabled]="true"
+            (click)="add(item.type, item.preset)"
+        >
+            <span class="material-icons">{{ item.icon }}</span>
+            <span>{{ item.labelKey | translate }}</span>
+        </button>
+    </div>
+</div>

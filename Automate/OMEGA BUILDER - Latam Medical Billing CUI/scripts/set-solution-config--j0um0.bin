@@ -1,0 +1,53 @@
+/*
+[SCRIPT NAME]: set-solution-config-part
+[DESCRIPTION]: The purpose of this script is to set the individual sections of the solutionConfiguration json object.
+[TASKS]: Set Solution Config Part [initialize-batch]
+[SCRIPT VARIABLES]:
+ Name - Type
+ ----------- ----------------------- ---------------------------------------
+ part - json object
+ solutionConfiguration - json object
+ configSection - json object
+[HISTORY]:
+ Date Author - Comment
+ ----------- ----------------------- ----------------------------------------
+ 07/24/2025 AS - Original Script
+*/
+
+let part = variables.part.name;
+let fldxlvl = variables.part.levelId;
+let configSection = variables.configSection;
+let solutionConfiguration = variables.solutionConfiguration;
+
+if (part) {
+    if (part == "sep") {
+        variables.solutionConfiguration.solutionConfiguration.sep = configSection;
+    } else if (part == "lvl") {
+        variables.solutionConfiguration.solutionConfiguration.lvl = configSection;
+    } else if (part == "cls") {
+        variables.solutionConfiguration.solutionConfiguration.cls = configSection;
+    } else if (part == "fld") {
+        variables.solutionConfiguration.solutionConfiguration.fld = configSection;
+    } else if (part == "qa") {
+        variables.solutionConfiguration.solutionConfiguration.qa = configSection;
+    } else if (part == "qa-class") {
+        variables.solutionConfiguration.solutionConfiguration.qa.classBased = configSection;
+    } else if (part == "qa-user-group") {
+        variables.solutionConfiguration.solutionConfiguration.qa.userGroupBased = configSection;
+    } else if (part == "qa-capture-location") {
+        variables.solutionConfiguration.solutionConfiguration.qa.captureLocationBased = configSection;
+    } else if (part == "cus") {
+        if (configSection == variables.noValue) {
+            variables.solutionConfiguration.solutionConfiguration.cus = [];
+        } else {
+            variables.solutionConfiguration.solutionConfiguration.cus = configSection;
+        }
+    }
+} else if (fldxlvl) {
+    for (let a = 0; a < configSection.length; a++) {
+        variables.solutionConfiguration.solutionConfiguration.fldxlvl.push(configSection[a]);
+    }
+}
+
+//clear configSection for next iteration
+variables.configSection = variables.noValue;

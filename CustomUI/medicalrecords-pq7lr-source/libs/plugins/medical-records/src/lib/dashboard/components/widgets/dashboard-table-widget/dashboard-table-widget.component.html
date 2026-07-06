@@ -1,0 +1,140 @@
+<article class="dashboard-table-widget" [class.dashboard-table-widget--loading]="data.loading">
+    <header class="dashboard-table-widget__header">
+        <div>
+            <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+            <p *ngIf="config.helper || config.helperKey">{{ config.helper | dashboardWidgetText: config.helperKey }}</p>
+        </div>
+        <div class="dashboard-table-widget__meta">
+            <span class="data-source-badge" [ngClass]="'badge-' + data.source">{{ sourceLabelKey | translate }}</span>
+            <span class="row-count">{{ data.rows.length }} / {{ data.totalCount }}</span>
+            <button
+                type="button"
+                class="dashboard-table-widget__export"
+                [disabled]="exporting || data.loading || data.source === 'demo'"
+                (click)="exportReport()"
+            >
+                <span class="material-icons" aria-hidden="true">download</span>
+                {{ (exporting ? 'MEDICAL_RECORDS.TABLE_WIDGET.EXPORTING' : 'MEDICAL_RECORDS.TABLE_WIDGET.EXPORT') | translate }}
+            </button>
+        </div>
+    </header>
+
+    <label class="dashboard-table-widget__filter" *ngIf="showRowFilter && !data.loading && !data.error && data.columns.length">
+        <span class="material-icons" aria-hidden="true">search</span>
+        <input
+            type="search"
+            [(ngModel)]="rowFilterQuery"
+            [placeholder]="'MEDICAL_RECORDS.TABLE_WIDGET.FILTER_PLACEHOLDER' | translate"
+        />
+    </label>
+
+    <p class="dashboard-table-widget__partial" *ngIf="hasPartialRows">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.PARTIAL_ROWS' | translate: { shown: data.rows.length, total: data.totalCount } }}
+    </p>
+
+    <div class="dashboard-table-widget__state" *ngIf="data.loading">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.LOADING' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state" *ngIf="!data.loading && data.error">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.ERROR' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state dashboard-table-widget__state--error" *ngIf="exportError">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.EXPORT_ERROR' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state" *ngIf="!data.loading && !data.error && hasConfiguredColumns && !data.columns.length">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.NO_COLUMNS' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state" *ngIf="!data.loading && !data.error && data.columns.length && visibleRows.length && !hasVisibleTableContent">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.GROUP_EMPTY' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state" *ngIf="!data.loading && !data.error && data.columns.length && !visibleRows.length">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.FILTER_EMPTY' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__state" *ngIf="!data.loading && !data.error && !data.columns.length && !hasConfiguredColumns && !data.rows.length">
+        {{ 'MEDICAL_RECORDS.TABLE_WIDGET.EMPTY' | translate }}
+    </div>
+
+    <div class="dashboard-table-widget__scroll" *ngIf="!data.loading && data.columns.length && hasVisibleTableContent">
+        <p class="dashboard-table-widget__copy-hint">{{ 'MEDICAL_RECORDS.TABLE_WIDGET.COPY_HINT' | translate }}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th *ngFor="let column of data.columns; trackBy: trackByColumn">{{ columnLabel(column) }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let entry of displayEntries; trackBy: trackDisplayEntry">
+                    <tr *ngIf="entry.type === 'group'" class="dashboard-table-widget__group-row">
+                        <td [attr.colspan]="data.columns.length">
+                            <button
+                                type="button"
+                                class="dashboard-table-widget__group-toggle"
+                                [style.padding-left]="rowIndent(entry.depth)"
+                                (click)="toggleGroup(entry.id)"
+                            >
+                                <span class="material-icons" aria-hidden="true">
+                                    {{ entry.collapsed ? 'chevron_right' : 'expand_more' }}
+                                </span>
+                                <span class="dashboard-table-widget__group-label">
+                                    {{ columnLabel(entry.field!) }}: {{ entry.value }}
+                                </span>
+                                <button
+                                    type="button"
+                                    class="dashboard-table-widget__group-copy"
+                                    [title]="'MEDICAL_RECORDS.TABLE_WIDGET.COPY_VALUE' | translate"
+                                    (click)="copyCellValue(entry.value, entry.id, 'group', $event)"
+                                >
+                                    <span class="material-icons" aria-hidden="true">content_copy</span>
+                                </button>
+                                <span class="dashboard-table-widget__group-count">
+                                    {{ 'MEDICAL_RECORDS.TABLE_WIDGET.GROUP_COUNT' | translate: { count: entry.count } }}
+                                </span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="entry.type === 'row'" class="dashboard-table-widget__data-row">
+                        <td
+                            *ngFor="let column of data.columns; let first = first; trackBy: trackByColumn"
+                            class="dashboard-table-widget__cell"
+                            [class.dashboard-table-widget__cell--copied]="isCopiedCell(entry.id, column)"
+                            [style.padding-left]="first ? rowIndent(entry.depth) : null"
+                            [title]="'MEDICAL_RECORDS.TABLE_WIDGET.COPY_VALUE' | translate"
+                            (click)="copyCellValue(entry.row![column], entry.id, column, $event)"
+                        >
+                            <span class="dashboard-table-widget__cell-value">{{ entry.row![column] }}</span>
+                            <span class="material-icons dashboard-table-widget__cell-icon" *ngIf="isCopiedCell(entry.id, column)">
+                                check
+                            </span>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+        <p class="dashboard-table-widget__copy-feedback" *ngIf="copyFeedbackKey">
+            {{ 'MEDICAL_RECORDS.TABLE_WIDGET.COPY_SUCCESS' | translate }}
+        </p>
+    </div>
+
+    <footer class="dashboard-table-widget__pagination" *ngIf="showPagination">
+        <span class="dashboard-table-widget__page-info">
+            {{ 'MEDICAL_RECORDS.TABLE_WIDGET.PAGE_RANGE' | translate: { start: pageStart, end: pageEnd, total: data.totalCount } }}
+        </span>
+        <div class="dashboard-table-widget__page-actions">
+            <button type="button" class="dashboard-table-widget__page-btn" [disabled]="!canGoPrev" (click)="goToPreviousPage()">
+                {{ 'MEDICAL_RECORDS.TABLE_WIDGET.PREV_PAGE' | translate }}
+            </button>
+            <span class="dashboard-table-widget__page-count">
+                {{ 'MEDICAL_RECORDS.TABLE_WIDGET.PAGE_OF' | translate: { current: currentPage + 1, total: totalPages } }}
+            </span>
+            <button type="button" class="dashboard-table-widget__page-btn" [disabled]="!canGoNext" (click)="goToNextPage()">
+                {{ 'MEDICAL_RECORDS.TABLE_WIDGET.NEXT_PAGE' | translate }}
+            </button>
+        </div>
+    </footer>
+</article>

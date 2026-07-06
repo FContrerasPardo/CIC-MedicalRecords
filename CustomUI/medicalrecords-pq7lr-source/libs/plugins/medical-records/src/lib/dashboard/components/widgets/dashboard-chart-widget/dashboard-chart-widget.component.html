@@ -1,27 +1,214 @@
-<article class="spotlight-card productivity-card dashboard-chart-widget">
+<article
+    class="spotlight-card productivity-card dashboard-chart-widget"
+    [class.dashboard-chart-widget--line]="isLineMode"
+    [class.dashboard-chart-widget--compact]="isCompactChart"
+    [class.dashboard-chart-widget--canvas-fill]="fillCanvasSlot"
+>
     <div class="card-title-row">
         <div>
-            <h3 *ngIf="config.titleKey">{{ config.titleKey | translate }}</h3>
-            <p *ngIf="config.helperKey">{{ config.helperKey | translate }}</p>
+            <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+            <p *ngIf="config.helper || config.helperKey">{{ config.helper | dashboardWidgetText: config.helperKey }}</p>
         </div>
-        <div class="segment-control">
-            <span>{{ 'MEDICAL_RECORDS.CARDS.TODAY' | translate }}</span>
-            <span>{{ 'MEDICAL_RECORDS.CARDS.WEEK' | translate }}</span>
+        <div class="card-title-actions">
+            <div class="dashboard-chart-widget__headline" *ngIf="showHeadline">
+                <span class="dashboard-chart-widget__headline-label" *ngIf="headlineLabel">{{ headlineLabel }}</span>
+                <span class="dashboard-chart-widget__headline-value">{{ headlineValue }}</span>
+            </div>
+            <span class="data-source-badge" [ngClass]="'badge-' + data.source">{{ sourceLabelKey | translate }}</span>
+            <div class="segment-control" *ngIf="showDemoSegment">
+                <span>{{ 'MEDICAL_RECORDS.CARDS.TODAY' | translate }}</span>
+                <span>{{ 'MEDICAL_RECORDS.CARDS.WEEK' | translate }}</span>
+            </div>
         </div>
     </div>
-    <div class="bar-chart" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
-        <span
-            *ngFor="let bar of data.bars; let index = index; trackBy: trackByIndex"
-            [class.alt]="index % 2 === 0"
-            [style.height.%]="bar"
-        ></span>
+
+    <p class="chart-state chart-state--loading" *ngIf="data.loading">{{ 'MEDICAL_RECORDS.CHART.LOADING' | translate }}</p>
+
+    <p class="chart-state chart-state--hint" *ngIf="!data.loading && !hasChartAxis && data.source !== 'demo'">
+        {{ 'MEDICAL_RECORDS.CHART.MISSING_AXIS' | translate }}
+    </p>
+
+    <p class="chart-state chart-state--empty" *ngIf="showEmptyState">
+        {{ 'MEDICAL_RECORDS.CHART.NO_DATA' | translate }}
+    </p>
+
+    <div
+        class="chart-frame chart-frame--donut"
+        *ngIf="showChart && isDonutMode"
+        [class.chart-frame--donut-hover]="hoveredDonutIndex != null"
+        [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate"
+        (mouseleave)="onDonutHover(null)"
+    >
+        <div class="donut-chart__wrap">
+            <svg class="donut-chart" viewBox="0 0 100 100" aria-hidden="true">
+                <path
+                    *ngFor="let segment of donutSegments; trackBy: trackByIndex"
+                    class="donut-chart__segment"
+                    [class.is-hovered]="isDonutSegmentActive(segment.index)"
+                    [class.is-dimmed]="isDonutSegmentDimmed(segment.index)"
+                    [attr.d]="segment.path"
+                    [attr.fill]="segment.color"
+                    (mouseenter)="onDonutHover(segment.index)"
+                    (focus)="onDonutHover(segment.index)"
+                    (blur)="onDonutHover(null)"
+                    tabindex="0"
+                    [attr.aria-label]="segment.label + ': ' + segment.value"
+                />
+            </svg>
+            <div class="donut-chart__center" *ngIf="donutTotal">
+                <span class="donut-chart__center-value">{{ donutCenterValue }}</span>
+                <span class="donut-chart__center-label" *ngIf="hoveredDonutIndex == null">
+                    {{ 'MEDICAL_RECORDS.CHART.DONUT_TOTAL' | translate }}
+                </span>
+                <span class="donut-chart__center-label" *ngIf="hoveredDonutIndex != null">{{ hoveredDonutLabel }}</span>
+            </div>
+        </div>
+        <ul class="donut-chart__legend">
+            <li
+                *ngFor="let segment of donutSegments; trackBy: trackByIndex"
+                class="donut-chart__legend-item"
+                [class.is-hovered]="isDonutSegmentActive(segment.index)"
+                [attr.title]="segment.label + ': ' + segment.value"
+                (mouseenter)="onDonutHover(segment.index)"
+            >
+                <span class="donut-chart__swatch" [style.background]="segment.color"></span>
+                <span class="donut-chart__label">{{ truncateDonutLabel(segment.label, 22) }}</span>
+                <span class="donut-chart__legend-value">{{ segment.value }}</span>
+            </li>
+        </ul>
     </div>
-    <div class="chart-axis">
-        <span>12am</span>
-        <span>4am</span>
-        <span>8am</span>
-        <span>12pm</span>
-        <span>4pm</span>
-        <span>8pm</span>
+
+    <div class="chart-frame chart-frame--horizontal" *ngIf="showChart && renderHorizontalStackedMode" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
+        <div class="horizontal-chart">
+            <div class="horizontal-chart__row" *ngFor="let label of formattedXLabels; let labelIndex = index; trackBy: trackByIndex">
+                <span class="horizontal-chart__label" [attr.title]="horizontalBarLabelTitle(labelIndex)">{{ horizontalBarLabel(labelIndex) }}</span>
+                <div class="horizontal-chart__track">
+                    <ng-container *ngFor="let series of chartSeries; let seriesIndex = index; trackBy: trackSeries">
+                        <span
+                            *ngIf="horizontalBarWidth(seriesIndex, labelIndex) > 0"
+                            class="horizontal-chart__segment"
+                            [style.width.%]="horizontalBarWidth(seriesIndex, labelIndex)"
+                            [style.background]="seriesSegmentBackground(seriesIndex, series.key)"
+                            [attr.title]="series.key + ': ' + (series.values[labelIndex] ?? 0)"
+                        ></span>
+                    </ng-container>
+                </div>
+                <span class="horizontal-chart__total">{{ formatChartValue(horizontalBarTotal(labelIndex)) }}</span>
+            </div>
+        </div>
+        <ul class="stacked-legend" *ngIf="chartSeries.length">
+            <li *ngFor="let series of chartSeries; let index = index; trackBy: trackSeries">
+                <span class="stacked-legend__swatch" [style.background]="seriesSegmentBackground(index, series.key)"></span>
+                <span class="stacked-legend__label">{{ series.key }}</span>
+                <span class="stacked-legend__value">{{ seriesLegendTotal(index) }}</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="chart-frame" *ngIf="showChart && !isDonutMode && !renderHorizontalStackedMode" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
+        <div class="chart-y-caption">
+            <span class="chart-axis-title chart-axis-title--y">
+                <ng-container *ngIf="customYAxisLabel; else defaultY">{{ customYAxisLabel }}</ng-container>
+                <ng-template #defaultY>{{ defaultYAxisLabelKey | translate }}</ng-template>
+            </span>
+        </div>
+
+        <div class="chart-body">
+            <div class="chart-y-axis" aria-hidden="true">
+                <span *ngFor="let tick of yAxisTicksDesc">{{ formatTick(tick) }}</span>
+            </div>
+
+            <div class="chart-plot" #chartPlot>
+                <div class="chart-grid" aria-hidden="true">
+                    <span *ngFor="let line of gridLinePercents" [style.bottom.%]="line"></span>
+                </div>
+
+                <div class="bar-chart" *ngIf="isVerticalBarMode">
+                    <div class="bar-chart__column" *ngFor="let pct of plotPercents; let index = index; trackBy: trackByIndex">
+                        <span class="bar-chart__value">{{ data.values[index] }}</span>
+                        <span
+                            class="bar-chart__bar"
+                            [style.height.%]="pct"
+                            [style.background]="barBackground(index)"
+                            [attr.title]="data.labels[index] + ': ' + data.values[index]"
+                        ></span>
+                    </div>
+                </div>
+
+                <div class="stacked-bar-chart" *ngIf="renderStackedBarMode">
+                    <div class="stacked-bar-chart__column" *ngFor="let label of formattedXLabels; let labelIndex = index; trackBy: trackByIndex">
+                        <div class="stacked-bar-chart__stack">
+                            <ng-container *ngFor="let series of chartSeries; let seriesIndex = index; trackBy: trackSeries">
+                                <span
+                                    *ngIf="stackedSegmentHeight(seriesIndex, labelIndex) > 0"
+                                    class="stacked-bar-chart__segment"
+                                    [style.height.%]="stackedSegmentHeight(seriesIndex, labelIndex)"
+                                    [style.background]="seriesSegmentBackground(seriesIndex, series.key)"
+                                    [attr.title]="series.key + ': ' + (series.values[labelIndex] ?? 0)"
+                                ></span>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+
+                <svg
+                    *ngIf="isLineMode"
+                    class="line-chart"
+                    [attr.viewBox]="lineChartViewBox"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                >
+                    <defs>
+                        <linearGradient [attr.id]="lineGradientId" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" [attr.stop-color]="lineAccentColor" stop-opacity="0.22" />
+                            <stop offset="100%" [attr.stop-color]="lineAccentColor" stop-opacity="0.02" />
+                        </linearGradient>
+                    </defs>
+                    <path class="line-chart__area" [attr.d]="lineAreaPath" [attr.fill]="'url(#' + lineGradientId + ')'" />
+                    <path class="line-chart__stroke" [attr.d]="lineStrokePath" [attr.stroke]="lineAccentColor" />
+                </svg>
+
+                <div class="line-chart-markers" *ngIf="isLineMode" aria-hidden="true">
+                    <span
+                        *ngFor="let point of linePoints; let index = index; trackBy: trackByIndex"
+                        class="line-chart-marker"
+                        [class.line-chart-marker--hidden]="data.values[index] <= 0"
+                        [style.left.%]="lineMarkerLeftPercent(point.x)"
+                        [style.top.%]="lineMarkerTopPercent(point.y)"
+                        [style.border-color]="lineAccentColor"
+                        [attr.title]="data.labels[index] + ': ' + data.values[index]"
+                    ></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-x-block" *ngIf="!isDonutMode">
+            <div class="chart-y-axis-spacer" aria-hidden="true"></div>
+            <div class="chart-x-content">
+                <div
+                    class="chart-x-axis"
+                    [class.chart-x-axis--anchored]="isLineMode"
+                    [class.chart-x-axis--rotated]="rotateXLabels"
+                >
+                    <span
+                        *ngFor="let label of formattedXLabels; let labelIndex = index; trackBy: trackByIndex"
+                        [style.left.%]="isLineMode ? plotXPercent(labelIndex) : null"
+                        [attr.title]="xAxisLabelTitle(labelIndex)"
+                    >{{ label }}</span>
+                </div>
+                <span class="chart-axis-title chart-axis-title--x">
+                    <ng-container *ngIf="customXAxisLabel; else defaultX">{{ customXAxisLabel }}</ng-container>
+                    <ng-template #defaultX>{{ defaultXAxisLabelKey | translate }}</ng-template>
+                </span>
+            </div>
+        </div>
+
+        <ul class="stacked-legend" *ngIf="renderStackedBarMode && chartSeries.length">
+            <li *ngFor="let series of chartSeries; let index = index; trackBy: trackSeries">
+                <span class="stacked-legend__swatch" [style.background]="seriesSegmentBackground(index, series.key)"></span>
+                <span class="stacked-legend__label">{{ series.key }}</span>
+                <span class="stacked-legend__value">{{ seriesLegendTotal(index) }}</span>
+            </li>
+        </ul>
     </div>
 </article>

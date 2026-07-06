@@ -39,6 +39,15 @@
                     ]
                 },
                 {
+                    "id": "medical-records-agreements",
+                    "path": "agreements",
+                    "component": "medical-records.shell",
+                    "auth": [
+                        "medical-records.auth",
+                        "app.extensions.dataLoaderGuard"
+                    ]
+                },
+                {
                     "id": "medical-records-phase",
                     "path": ":phase",
                     "component": "medical-records.shell",

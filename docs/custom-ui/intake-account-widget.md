@@ -53,8 +53,11 @@ Archivos actuales del widget:
 ```text
 CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/intake-account-widget/
   batch-state.mapper.ts
+  batch-state.mutations.ts
   batch-state.model.ts
   intake-account-view.model.ts
+  intake-heuristics.types.ts
+  intake-support-heuristics.json
   intake-account-widget.component.html
   intake-account-widget.component.scss
   intake-account-widget.component.ts
@@ -152,26 +155,30 @@ Reglas actuales:
 - si existen varias cuentas reales, se muestra selector
 - si hubo variantes OCR del mismo paciente, se muestra banner de reconciliación
 
-### 5. Selección visual del nombre reconciliado
+### 5. Selección del nombre reconciliado y persistencia en batchState
 
-Se agregó una mejora visual adicional:
+Cuando el mismo paciente (mismo **MRN** y/o **ID**) tiene variantes OCR de nombre,
+el widget muestra un banner de reconciliación con **todas** las variantes detectadas.
 
-- cuando existe reconciliación OCR con varios alias, el usuario puede elegir
-  cuál alias usar como nombre visible
+El usuario puede:
 
-Alcance actual:
+1. Elegir el alias de visualización en el banner.
+2. Pulsar **Accept** para escribir el nombre canónico en `batchState`:
+   - campos de paciente en documentos del cluster
+   - columna `PACIENTE` en `Tabla de Servicios facturados`
+3. Usar **Merge into selected** en el selector de pacientes para fusionar manualmente
+   dos cuentas del batch (reasigna MRN/ID del paciente destino a los documentos fuente).
 
-- la elección es solo visual
-- no modifica `batchState`
-- no persiste en el formulario
-- no cambia la agrupación de documentos ni servicios
+**Clustering:** los pacientes se agrupan por MRN/ID (y factura compartida si faltan
+identificadores). Los nombres **no** separan cuentas.
 
-La selección visual impacta:
+**Revisión:** `Mark as reviewed` / `Mark all reviews complete` actualizan flags
+`ReviewNotRequired` en **todos** los documentos del `batchState` que tengan
+`ReviewRequired` (documento, campo o tabla), incluidos los fuera del cluster
+visible, y recalculan `extractionStatus` del batch cuando ya no quedan revisiones
+pendientes. Los agentes de Compliance leen ese JSON persistido en AgentMesh.
 
-- nombre del header
-- iniciales del avatar
-- texto del banner de reconciliación
-- label visible del paciente seleccionado
+Archivos: [`batch-state.mapper.ts`](CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/intake-account-widget/batch-state.mapper.ts), [`batch-state.mutations.ts`](CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/intake-account-widget/batch-state.mutations.ts).
 
 ### 6. Service Explorer como centro principal
 
@@ -335,20 +342,68 @@ Cada `IntakeAccountDocumentItemViewModel` expone:
 - `separationReviewStatus`
 - `extractedHighlights`
 
-## Heurísticas actuales del mapper
+## Heurísticas de soporte documental (`intake-support-heuristics.json`)
 
-El widget todavía depende de heurísticas de UI y no de una matriz oficial del
-backend.
+Las reglas de clasificación documental y cobertura por servicio viven en un JSON
+versionado. Solo `batch-state.mapper.ts` lo importa; el widget sigue leyendo
+únicamente `batchState` desde Automate.
 
-Ejemplos:
+**Contrato:** `schemaVersion: intake-support-heuristics/v1`
 
-- la relación `servicio -> soportes requeridos` se calcula por señales del
-  servicio y por tipos documentales presentes
+| Sección | Uso |
+|---------|-----|
+| `alwaysRequired` | Documentos siempre exigidos por servicio (p. ej. `Factura y Desglose`) |
+| `documentClassification` | Mapea `className` → kind interno + label visible |
+| `serviceRequirements` | Requisitos condicionales por kind presente o regex en código+CUP+descripción |
+| `documentPriority` | Orden de prioridad al resolver perfil del cluster |
+
+### Clasificación (`documentClassification`)
+
+Cada regla define `kind`, `classNameContains`, `classNameMatch` (`all` \| `any`) y
+`label`. El `className` se normaliza (mayúsculas, sin acentos) antes de evaluar.
+
+- **billing** exige `classNameMatch: "all"` con `FACTURA` y `DESGLOSE` (comportamiento
+  original).
+- Reglas evaluadas en orden; `other` es el fallback cuando ninguna coincide.
+
+### Cobertura por servicio (`serviceRequirements`)
+
+Para cada servicio facturado, `resolveSupportCoverage`:
+
+1. Parte de `alwaysRequired`.
+2. Por cada entrada en `serviceRequirements`, añade `requiredDocument` si el
+   cluster tiene un documento del `triggerDocumentKind` **o** si
+   `serviceDescriptionPattern` (regex case-insensitive) coincide con
+   `serviceCode + description`.
+3. Calcula presentes, faltantes y `%` de completitud.
+
+### Edición sin tocar TypeScript
+
+Ajustes demo (regex, labels, requisitos) se hacen editando el JSON. Los tipos
+en `intake-heuristics.types.ts` documentan el contrato.
+
+### Fase 2 pendiente (fuera de alcance actual)
+
+Hoy las heurísticas Intake **no** leen `documentationRules` ni variables de
+agente; conviven en paralelo con las reglas de AgentMesh. La fase siguiente
+(unificación) prevé:
+
+- Reglas como variable de proceso Automate (no JSON embebido en repo).
+- Intake recibe `batchState` + reglas (payload compuesto o segundo parámetro).
+- Misma fuente de verdad para cobertura documental en Intake y agentes.
+
+Hasta entonces, `BuildAgentRulesWidgetPayload.ts`, prompts de agente y BPMN no
+cambian.
+
+## Otras heurísticas del mapper
+
+Además de la cobertura documental, el mapper aplica señales locales de UI:
+
 - `readyForAnalysis` se calcula por bloqueos observados en los datos
 - el estado `Low Confidence` depende de umbrales locales de confianza
 
 Esto permite una primera experiencia funcional, pero no debe considerarse
-todavía la regla final de negocio.
+todavía la regla final de negocio unificada con agentes.
 
 ## Interfaz actual
 
@@ -398,14 +453,13 @@ Elementos retirados del layout:
 
 ## Limitaciones actuales
 
-- la elección del nombre reconciliado no persiste
-- no hay escritura de vuelta al formulario
-- la lógica de soportes requeridos sigue siendo heurística
+- la revisión de servicio opera a nivel documento fuente en `batchState` (demo)
+- la cobertura documental usa `intake-support-heuristics.json` (repo), no
+  `documentationRules` de Automate — ver Fase 2 pendiente arriba
 - no existe todavía una integración real para:
   - `Upload`
   - `Acquire Document`
   - `Upload Manually`
-  - `Mark as Reviewed`
   - `View`
 
 ## Archivos tocados a lo largo de esta evolución
@@ -415,8 +469,11 @@ Los cambios del widget se concentraron en:
 ```text
 CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/src/lib/form-widgets/intake-account-widget/
   batch-state.mapper.ts
+  batch-state.mutations.ts
   batch-state.model.ts
   intake-account-view.model.ts
+  intake-heuristics.types.ts
+  intake-support-heuristics.json
   intake-account-widget.component.html
   intake-account-widget.component.scss
   intake-account-widget.component.ts
@@ -430,11 +487,13 @@ dentro de Automate, con:
 
 - UI premium personalizada
 - lectura de `batchState`
+- heurísticas de soporte externalizadas en `intake-support-heuristics.json`
 - soporte inicial para lotes single y multiinvoice
 - reconciliación OCR
 - exploración de servicios
 - repositorio documental enriquecido
 - readiness consolidada en summary
 
-La siguiente fase natural sería endurecer reglas de negocio y, cuando haga
-sentido, decidir qué interacciones visuales deben empezar a persistirse.
+La siguiente fase natural sería unificar reglas con Automate/agentes (Fase 2) y,
+cuando haga sentido, decidir qué interacciones visuales deben empezar a
+persistirse.

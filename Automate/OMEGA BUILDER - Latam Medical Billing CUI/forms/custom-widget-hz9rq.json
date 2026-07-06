@@ -1,0 +1,46 @@
+{
+  "formRepresentation" : {
+    "id" : "form-d2ac5c7a-eb30-4c93-bf51-c18a2744150b",
+    "name" : "Custom Widget",
+    "key" : "custom-widget-hz9rq",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "d13b25da-e326-4fd8-8434-c1b34b881fab",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "customwidget0vyev8",
+                "name" : "custom-widget",
+                "type" : "custom-widget",
+                "required" : false,
+                "readOnly" : false,
+                "isCustomType" : true,
+                "valueType" : "string",
+                "widgetId" : "8edf7462-ff4c-436c-85c3-3fd4f55a24d7",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ],
+            "2" : [ ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

@@ -1,0 +1,36 @@
+@import '../../_kpi-shared-tokens.scss';
+
+:host {
+    display: block;
+}
+
+.dashboard-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.dashboard-kpi-strip__item {
+    min-width: 0;
+}
+
+.dashboard-kpi-strip__item.edit-mode {
+    cursor: pointer;
+}
+
+.dashboard-kpi-strip__item.is-selected {
+    outline: 2px solid rgba(110, 51, 255, 0.35);
+    border-radius: 14px;
+}
+
+@media (max-width: 1180px) {
+    .dashboard-kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .dashboard-kpi-strip {
+        grid-template-columns: 1fr;
+    }
+}

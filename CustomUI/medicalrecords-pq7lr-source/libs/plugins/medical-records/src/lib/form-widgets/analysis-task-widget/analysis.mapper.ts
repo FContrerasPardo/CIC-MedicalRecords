@@ -30,12 +30,20 @@ export interface AgentFinding {
     variancePercentage?: number;
     authorizationId?: string;
     authorizationStatus?: string;
+    resolutionId?: string;
 }
 
 export interface AgentAction {
     action?: string;
     priority?: string;
     owner?: string;
+}
+
+export interface ResolutionEntry {
+    id: string;
+    comment: string;
+    resolvedAt: string;
+    resolvedBy?: string;
 }
 
 export interface AgentResult {
@@ -46,6 +54,7 @@ export interface AgentResult {
     recommendedActions?: AgentAction[];
     readyForApproval?: boolean;
     requiresManualReview?: boolean;
+    resolutions?: ResolutionEntry[];
 }
 
 export interface CodingIntegrityResult extends AgentResult {
@@ -154,6 +163,15 @@ export interface FindingRow {
     sourceDocument?: string;
     sourceField?: string;
     isAccountLevel: boolean;
+    resolutionId?: string;
+}
+
+export interface ResolutionView {
+    id: string;
+    comment: string;
+    resolvedAt: string;
+    resolvedBy?: string;
+    findings: FindingRow[];
 }
 
 export interface MissingDocumentRow {
@@ -182,6 +200,7 @@ export interface AnalysisDashboardModel {
     missingDocuments: MissingDocumentRow[];
     severityDistribution: SeverityBucket[];
     topPriorityInsight: string;
+    resolutions: ResolutionView[];
 }
 
 export interface FindingCluster {
@@ -207,6 +226,16 @@ export interface SeverityBucket {
     tone: RiskTone;
     labelKey: string;
     count: number;
+}
+
+export interface UserSubsanation {
+    id: string;
+    findingIds: string[];
+    findingTypes: string[];
+    agentIds: AgentFieldId[];
+    riskLevels: RiskTone[];
+    comment: string;
+    createdAt: string;
 }
 
 export const AGENT_FIELD_IDS: AgentFieldId[] = [
@@ -285,6 +314,7 @@ export function buildAnalysisDashboardModel(sources: Array<AgentSource<AgentResu
         missingDocuments: buildMissingDocuments(compliance?.result ?? null),
         severityDistribution: buildSeverityDistribution(allFindings),
         topPriorityInsight: buildTopPriorityInsight(allFindings),
+        resolutions: buildResolutionViews(sources, allFindings),
     };
 }
 
@@ -296,6 +326,7 @@ export function filterFindings(
         type?: string | null;
         scope?: 'service' | 'account' | null;
         serviceCode?: string | null;
+        status?: 'resolved' | 'pending' | null;
     }
 ): FindingRow[] {
     return findings.filter((finding) => {
@@ -320,6 +351,14 @@ export function filterFindings(
         }
 
         if (filters.serviceCode && finding.code !== filters.serviceCode) {
+            return false;
+        }
+
+        if (filters.status === 'resolved' && !finding.resolutionId) {
+            return false;
+        }
+
+        if (filters.status === 'pending' && finding.resolutionId) {
             return false;
         }
 
@@ -438,7 +477,7 @@ function mapFindingRow(agentId: AgentFieldId, finding: AgentFinding, index: numb
     const serviceCode = finding.serviceCode ?? finding.procedureCode ?? undefined;
 
     return {
-        id: finding.findingId ?? `${agentId}-${index}`,
+        id: `${agentId}-${index}`,
         agentId,
         agentLabel: AGENT_LABELS[agentId],
         agentTone: AGENT_TONES[agentId],
@@ -455,7 +494,46 @@ function mapFindingRow(agentId: AgentFieldId, finding: AgentFinding, index: numb
         sourceDocument: finding.sourceDocument ?? undefined,
         sourceField: finding.sourceField ?? undefined,
         isAccountLevel: !serviceCode && !finding.diagnosisCode,
+        resolutionId: finding.resolutionId ?? undefined,
     };
+}
+
+function buildResolutionViews(
+    sources: Array<AgentSource<AgentResult>>,
+    allFindings: FindingRow[]
+): ResolutionView[] {
+    const entries = new Map<string, ResolutionEntry>();
+    for (const source of sources) {
+        for (const resolution of source.result?.resolutions ?? []) {
+            if (resolution?.id && !entries.has(resolution.id)) {
+                entries.set(resolution.id, resolution);
+            }
+        }
+    }
+
+    const grouped = new Map<string, FindingRow[]>();
+    for (const finding of allFindings) {
+        if (!finding.resolutionId) {
+            continue;
+        }
+        const list = grouped.get(finding.resolutionId) ?? [];
+        list.push(finding);
+        grouped.set(finding.resolutionId, list);
+    }
+
+    const views: ResolutionView[] = [];
+    grouped.forEach((findings, id) => {
+        const entry = entries.get(id);
+        views.push({
+            id,
+            comment: entry?.comment ?? '',
+            resolvedAt: entry?.resolvedAt ?? '',
+            resolvedBy: entry?.resolvedBy,
+            findings,
+        });
+    });
+
+    return views.sort((left, right) => (right.resolvedAt ?? '').localeCompare(left.resolvedAt ?? ''));
 }
 
 function buildMetrics(

@@ -36,8 +36,8 @@ export function mapTaskToAttentionItem(
     const status = normalizeTaskStatus(task.status);
     const taskLabel = stringify(task.name) ?? stringify(task.formKey) ?? stringify(task.taskDefinitionKey) ?? 'Task';
     const taskType = resolveMedicalRecordsTaskType(taskLabel, task.formKey, task.taskDefinitionKey);
-    const variablesProcessId =
-        stringify(task.rootProcessInstanceId) ?? stringify(task.processInstanceId) ?? taskId;
+    const subprocessInstanceId = stringify(task.processInstanceId);
+    const rootProcessInstanceId = stringify(task.rootProcessInstanceId);
     const title = buildTitle(batchContext.patientName, taskLabel, taskId);
     const subtitle = buildSubtitle(batchContext, variables, taskLabel);
     const meta = buildMeta(status, task.createdDate, batchContext.reviewRequired, task.assignee);
@@ -57,7 +57,8 @@ export function mapTaskToAttentionItem(
         nativeReference: {
             taskId,
             taskProcessName: appName,
-            processInstanceId: variablesProcessId,
+            processInstanceId: subprocessInstanceId ?? rootProcessInstanceId,
+            rootProcessInstanceId: rootProcessInstanceId ?? subprocessInstanceId,
             processName: stringify(task.processDefinitionKey) ?? MEDICAL_RECORDS_PROCESS_KEY,
         },
     };

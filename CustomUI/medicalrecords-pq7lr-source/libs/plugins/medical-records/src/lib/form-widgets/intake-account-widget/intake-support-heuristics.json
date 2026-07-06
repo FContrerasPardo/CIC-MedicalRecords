@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "intake-support-heuristics/v1",
+  "alwaysRequired": ["Factura y Desglose"],
+  "documentClassification": [
+    {
+      "kind": "billing",
+      "classNameContains": ["FACTURA", "DESGLOSE"],
+      "classNameMatch": "all",
+      "label": "Factura y Desglose"
+    },
+    {
+      "kind": "authorization",
+      "classNameContains": ["AUTORIZ"],
+      "classNameMatch": "any",
+      "label": "Formato de Autorización"
+    },
+    {
+      "kind": "admission",
+      "classNameContains": ["ADMISION"],
+      "classNameMatch": "any",
+      "label": "Planilla de Admisión"
+    },
+    {
+      "kind": "objection",
+      "classNameContains": ["OBJECION"],
+      "classNameMatch": "any",
+      "label": "Formulario de Objeciones Auditoría Médica"
+    },
+    {
+      "kind": "pathology",
+      "classNameContains": ["PATOLOG"],
+      "classNameMatch": "any",
+      "label": "Reporte de Patología"
+    },
+    {
+      "kind": "lab",
+      "classNameContains": ["LABORATORIO"],
+      "classNameMatch": "any",
+      "label": "Laboratorios"
+    },
+    {
+      "kind": "other",
+      "classNameContains": [],
+      "classNameMatch": "any",
+      "label": "Supporting Document"
+    }
+  ],
+  "serviceRequirements": [
+    {
+      "requiredDocument": "Planilla de Admisión",
+      "triggerDocumentKind": "admission",
+      "serviceDescriptionPattern": "ADMISION|HOSP|INGRESO|CUARTA PLANTA|CUIDADO INT|PRIVADO"
+    },
+    {
+      "requiredDocument": "Formato de Autorización",
+      "triggerDocumentKind": "authorization",
+      "serviceDescriptionPattern": "AUTORIZ|AMBULATORIO|PROCEDIMIENTO|CIRUG|QUIR"
+    },
+    {
+      "requiredDocument": "Laboratorios",
+      "triggerDocumentKind": "lab",
+      "serviceDescriptionPattern": "RADIO|RAYO|ULTRA|SONO|LAB|RX"
+    },
+    {
+      "requiredDocument": "Reporte de Patología",
+      "triggerDocumentKind": "pathology",
+      "serviceDescriptionPattern": "PATOLOG|BIOPS"
+    }
+  ],
+  "documentPriority": {
+    "billing": 0,
+    "authorization": 1,
+    "admission": 2,
+    "objection": 3,
+    "pathology": 4,
+    "lab": 5,
+    "other": 6
+  }
+}

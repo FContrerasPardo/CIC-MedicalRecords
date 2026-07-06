@@ -229,5 +229,6 @@ The overview dashboard lists **open user tasks** for the `medical-records` proce
 - Service: `MedicalRecordsTaskQueryService` (`TaskListCloudService` + variables via `rootProcessInstanceId`).
 - Row click → `/task-details-cloud/{taskId}` (form widgets execute the workflow stage).
 - Bulk approve (custom overview only): select multiple tasks of the same type and complete eligible ones via `MedicalRecordsBulkTaskService` without opening each form. Eligibility reuses widget rules (`readyForAnalysis`, agent readiness, validate-rules issues).
+- Configurable insight/metric widgets and builder: `docs/custom-ui/dashboard-widgets.md`.
 - Process/subprocess/task model: `docs/custom-ui/processes-tasks-subprocesses.md`.
 - CIC reference: `docs/custom-ui/reference-docs/hyland/Vibecoding.md`.

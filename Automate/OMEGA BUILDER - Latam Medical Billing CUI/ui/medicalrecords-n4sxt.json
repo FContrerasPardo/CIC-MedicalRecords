@@ -1,0 +1,10 @@
+{
+  "id" : "ui-64c33e44-dcef-445d-80e7-7a5ad8690cc5",
+  "name" : "MedicalRecords",
+  "description" : "",
+  "adf-template" : "content",
+  "key" : "medicalrecords-n4sxt",
+  "primary" : true,
+  "customUI" : "workspace-hxp-lw02z",
+  "uiType" : "custom"
+}

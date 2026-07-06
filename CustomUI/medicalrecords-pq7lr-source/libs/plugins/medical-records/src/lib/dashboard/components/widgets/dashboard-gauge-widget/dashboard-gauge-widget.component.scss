@@ -1,0 +1,211 @@
+@import '../../../dashboard-shared.styles.scss';
+@import '../../../_kpi-shared-tokens.scss';
+
+:host {
+    display: block;
+}
+
+:host.dashboard-widget--canvas-slot {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+:host.dashboard-widget--canvas-slot > .dashboard-gauge-widget {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+:host.dashboard-widget--canvas-slot > .spotlight-card {
+    min-height: 0;
+    height: 100%;
+}
+
+.dashboard-gauge-widget {
+    position: relative;
+    min-height: 248px;
+}
+
+.dashboard-gauge-widget--loading .dashboard-gauge-widget__body {
+    opacity: 0.45;
+}
+
+.dashboard-gauge-widget__body {
+    display: flex;
+    justify-content: center;
+    padding: 4px 8px 0;
+}
+
+.dashboard-gauge-widget__chart {
+    position: relative;
+    width: 100%;
+    max-width: 220px;
+}
+
+.dashboard-gauge-widget__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.gauge-track {
+    fill: none;
+    stroke: rgba(194, 198, 212, 0.55);
+    stroke-width: 14;
+    stroke-linecap: round;
+}
+
+.gauge-value {
+    fill: none;
+    stroke: var(--dash-accent, #6e33ff);
+    stroke-width: 14;
+    stroke-linecap: round;
+}
+
+.dashboard-gauge-widget[data-tone='high'] .gauge-value {
+    stroke: var(--dash-brand-teal, #13eac1);
+}
+
+.dashboard-gauge-widget[data-tone='low'] .gauge-value {
+    stroke: var(--dash-brand-purple-light, #d3a7ff);
+}
+
+.dashboard-gauge-widget[data-tone='medium'] .gauge-value {
+    stroke: var(--dash-brand-purple, #6e33ff);
+}
+
+.gauge-target {
+    fill: none;
+    stroke: #001b3d;
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.75;
+}
+
+.dashboard-gauge-widget__value {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    display: grid;
+    gap: 2px;
+    justify-items: center;
+    width: 100%;
+    pointer-events: none;
+}
+
+.dashboard-gauge-widget__value strong {
+    color: #001b3d;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.dashboard-gauge-widget__target {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.dashboard-gauge-widget__helper {
+    margin: 8px 0 0;
+    color: #5d6778;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.dashboard-gauge-widget__state {
+    padding: 24px 12px;
+    color: #667085;
+    font-size: 13px;
+    text-align: center;
+}
+
+.dashboard-gauge-widget__state--error {
+    color: #b42318;
+}
+
+.recovery-card .gauge-track {
+    stroke: rgba(255, 255, 255, 0.55);
+}
+
+.completion-card .gauge-track {
+    stroke: rgba(255, 255, 255, 0.55);
+}
+
+.dashboard-gauge-widget--header-kpi {
+    padding: var(--kpi-stat-card-padding);
+    border: 1px solid var(--kpi-stat-card-border);
+    border-radius: var(--kpi-stat-card-radius);
+    background: var(--kpi-stat-card-bg);
+    min-height: auto;
+}
+
+.dashboard-gauge-widget__header-label {
+    display: block;
+    color: var(--kpi-stat-label-color);
+    font-size: var(--kpi-stat-label-size);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dashboard-gauge-widget__body--compact {
+    padding: 8px 0 0;
+}
+
+.dashboard-gauge-widget__body--compact .dashboard-gauge-widget__chart {
+    max-width: 140px;
+    margin: 0 auto;
+}
+
+.dashboard-gauge-widget__body--compact .dashboard-gauge-widget__value strong {
+    font-size: 18px;
+}
+
+.dashboard-gauge-widget--canvas-fill {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+
+    &.spotlight-card {
+        min-height: 0;
+    }
+
+    .card-title-row {
+        flex-shrink: 0;
+    }
+
+    .dashboard-gauge-widget__body {
+        flex: 1 1 auto;
+        align-items: center;
+        min-height: 0;
+        padding-bottom: 8px;
+    }
+
+    .dashboard-gauge-widget__chart {
+        width: 100%;
+        max-width: min(100%, 320px);
+        height: 100%;
+        max-height: min(280px, 100%);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dashboard-gauge-widget__svg {
+        height: 100%;
+        width: auto;
+        max-height: 100%;
+    }
+}

@@ -1,21 +1,13 @@
 <section class="intake-account-widget" [attr.data-form-field-id]="formFieldId">
   <ng-container *ngIf="!viewModel.meta.parseError; else parseErrorState">
-    <nav class="stage-nav" aria-label="Medical records stages">
-      <ng-container *ngFor="let stage of viewModel.stageNav.stages">
-        <span class="stage-pill" [class.active]="stage.active" [class.completed]="stage.completed">
-          {{ stage.label }}
-        </span>
-      </ng-container>
-    </nav>
-
-    <section class="alias-banner" *ngIf="viewModel.patientResolution.showAliasBanner">
+    <section class="alias-banner" *ngIf="showAliasBannerExpanded">
       <span class="material-icons">merge_type</span>
-      <div>
-        <strong>OCR reconciliation applied</strong>
+      <div class="alias-banner__body">
+        <strong>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.TITLE' | translate }}</strong>
         <p>{{ patientResolutionMessage }}</p>
 
         <div class="alias-choice-group" *ngIf="aliasChoices.length > 1">
-          <span class="alias-choice-label">Use as display name</span>
+          <span class="alias-choice-label">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.USE_DISPLAY_NAME' | translate }}</span>
           <div class="alias-choice-list">
             <button
               type="button"
@@ -28,34 +20,55 @@
             </button>
           </div>
         </div>
+
+        <div class="alias-banner__actions">
+          <button type="button" class="text-link" (click)="acceptAliasResolution($event)">
+            {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.ACCEPT' | translate }}
+          </button>
+          <button type="button" class="text-link text-link--muted" (click)="collapseAliasBanner($event)">
+            {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.COLLAPSE' | translate }}
+          </button>
+        </div>
       </div>
     </section>
 
     <section class="patient-selector-card" *ngIf="viewModel.patientSelector.visible">
       <div class="card-header">
         <div>
-          <span class="eyebrow">Patient selector</span>
-          <h2>Patients included in this batch</h2>
+          <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.EYEBROW' | translate }}</span>
+          <h2>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.TITLE' | translate }}</h2>
         </div>
         <span class="verified-pill">
           <span class="material-icons">groups</span>
-          {{ viewModel.patientSelector.totalPatients }} patients
+          {{ viewModel.patientSelector.totalPatients }} {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.PATIENTS' | translate }}
         </span>
       </div>
 
       <div class="patient-selector-grid">
-        <button
-          type="button"
-          class="patient-option"
+        <div
+          class="patient-option-wrapper"
           *ngFor="let option of viewModel.patientSelector.options"
-          [class.active]="option.selected"
-          [attr.data-tone]="option.tone"
-          (click)="selectPatient(option.key)"
         >
-          <strong>{{ getPatientOptionLabel(option) }}</strong>
-          <span>{{ option.subtitle ?? 'Demographics pending' }}</span>
-          <small>{{ option.serviceCount }} services - {{ option.documentCount }} docs</small>
-        </button>
+          <button
+            type="button"
+            class="patient-option"
+            [class.active]="option.selected"
+            [attr.data-tone]="option.tone"
+            (click)="selectPatient(option.key)"
+          >
+            <strong>{{ getPatientOptionLabel(option) }}</strong>
+            <span>{{ option.subtitle ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.DEMOGRAPHICS_PENDING' | translate) }}</span>
+            <small>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.SERVICES_DOCS' | translate:{ services: option.serviceCount, docs: option.documentCount } }}</small>
+          </button>
+          <button
+            type="button"
+            class="patient-merge-btn"
+            *ngIf="canMergePatientOption(option.key)"
+            (click)="mergePatientIntoSelected(option.key, $event)"
+          >
+            {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.MERGE_INTO_SELECTED' | translate }}
+          </button>
+        </div>
       </div>
     </section>
 
@@ -65,68 +78,51 @@
 
         <div class="identity-copy">
           <div class="title-row">
-            <h1>{{ currentDisplayName ?? 'Patient pending' }}</h1>
-            <span class="state-pill" [attr.data-tone]="viewModel.readiness.readyForAnalysis ? 'success' : 'warning'">
-              {{ viewModel.header.intakeStatus }}
+            <h1>{{ currentDisplayName ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PATIENT_PENDING' | translate) }}</h1>
+            <span class="state-pill" [attr.data-tone]="effectiveReadiness.readyForAnalysis ? 'success' : 'warning'">
+              {{ translateIntakeStatus(effectiveIntakeStatus) }}
             </span>
-            <span class="read-only-pill" *ngIf="isReadOnly">Read only</span>
+            <button
+              type="button"
+              class="reopen-alias-chip"
+              *ngIf="showReopenAliasChip"
+              (click)="reopenAliasResolution($event)"
+            >
+              <span class="material-icons">merge_type</span>
+              {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.REOPEN' | translate }}
+            </button>
+            <span class="read-only-pill" *ngIf="isReadOnly">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.READ_ONLY' | translate }}</span>
           </div>
 
           <div class="patient-meta">
-            <span><span class="material-icons">badge</span> MRN: {{ viewModel.header.mrn ?? 'Pending' }}</span>
-            <span><span class="material-icons">fingerprint</span> ID: {{ viewModel.header.patientId ?? 'Pending' }}</span>
+            <span><span class="material-icons">badge</span> {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.MRN' | translate }}: {{ viewModel.header.mrn ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}</span>
+            <span><span class="material-icons">fingerprint</span> {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.ID' | translate }}: {{ viewModel.header.patientId ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}</span>
             <span>
               <span class="material-icons">cake</span>
-              DOB: {{ viewModel.header.dob ?? 'Pending' }}<ng-container *ngIf="viewModel.header.ageLabel"> ({{ viewModel.header.ageLabel }})</ng-container>
+              {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.DOB' | translate }}: {{ viewModel.header.dob ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}<ng-container *ngIf="viewModel.header.ageLabel"> ({{ viewModel.header.ageLabel }})</ng-container>
             </span>
-            <span><span class="material-icons">local_hospital</span> {{ viewModel.header.provider ?? 'Provider pending' }}</span>
-            <span><span class="material-icons">receipt_long</span> Invoice: {{ viewModel.header.invoiceNumber ?? 'Pending' }}</span>
-            <span><span class="material-icons">event</span> Admission: {{ viewModel.header.admissionDate ?? 'Pending' }}</span>
-            <span><span class="material-icons">event_available</span> Discharge: {{ viewModel.header.dischargeDate ?? 'Pending' }}</span>
-            <span><span class="material-icons">verified_user</span> {{ viewModel.header.insurancePlan ?? 'Insurance pending' }}</span>
+            <span><span class="material-icons">receipt_long</span> {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.INVOICE' | translate }}: {{ viewModel.header.invoiceNumber ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}</span>
+            <span><span class="material-icons">event</span> {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.ADMISSION' | translate }}: {{ viewModel.header.admissionDate ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}</span>
+            <span><span class="material-icons">event_available</span> {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.DISCHARGE' | translate }}: {{ viewModel.header.dischargeDate ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING' | translate) }}</span>
+            <span><span class="material-icons">local_hospital</span> {{ providerLabel(viewModel.header.provider) }}</span>
+            <span><span class="material-icons">verified_user</span> {{ insuranceLabel(viewModel.header.insurancePlan) }}</span>
           </div>
-        </div>
-      </div>
 
-      <div class="header-actions">
-        <div class="schema-hints">
-          <span class="schema-pill" *ngFor="let hint of viewModel.meta.schemaHints">{{ hint }}</span>
-        </div>
-
-        <div class="action-row">
-          <button type="button" class="ghost-action" disabled [attr.aria-disabled]="true">
-            <span class="material-icons">upload_file</span>
-            Upload
-          </button>
-          <button type="button" class="primary-action" [class.blocked]="!viewModel.readiness.readyForAnalysis" disabled [attr.aria-disabled]="true">
-            Proceed to Analysis
-            <span class="material-icons">arrow_forward</span>
-          </button>
+          <div class="schema-hints" *ngIf="viewModel.meta.schemaHints.length">
+            <span class="schema-pill" *ngFor="let hint of viewModel.meta.schemaHints">{{ translateSchemaHint(hint) }}</span>
+          </div>
         </div>
       </div>
     </header>
 
-    <section class="summary-panel">
-      <div class="summary-grid">
-        <button
-          type="button"
-          class="summary-card summary-card--interactive"
-          *ngFor="let card of primarySummaryCards"
-          [class.summary-card--active]="isFilterActive(card.filterKey || 'all')"
-          [attr.data-tone]="card.tone"
-          (click)="setActiveFilter(card.filterKey || 'all', $event)"
-        >
-          <span>{{ card.label }}</span>
+    <section class="summary-panel" *ngIf="insightSummaryCards.length">
+      <div class="summary-secondary-grid">
+        <article class="summary-card summary-card--secondary" *ngFor="let card of insightSummaryCards" [attr.data-tone]="card.tone">
+          <span>{{ secondarySummaryLabelKey(card.key) | translate }}</span>
           <strong>{{ card.value }}</strong>
-          <small *ngIf="card.helperText">{{ card.helperText }}</small>
-        </button>
-      </div>
-
-      <div class="summary-secondary-grid" *ngIf="secondarySummaryCards.length">
-        <article class="summary-card summary-card--secondary" *ngFor="let card of secondarySummaryCards" [attr.data-tone]="card.tone">
-          <span>{{ card.label }}</span>
-          <strong>{{ card.value }}</strong>
-          <small *ngIf="card.helperText">{{ card.helperText }}</small>
+          <small *ngIf="card.key === 'readiness'">{{ translateReadinessHelper(card) }}</small>
+          <small *ngIf="card.key !== 'readiness' && secondarySummaryHelperKey(card.key)">{{ secondarySummaryHelperKey(card.key) | translate }}</small>
+          <small *ngIf="card.key !== 'readiness' && !secondarySummaryHelperKey(card.key)">{{ card.helperText }}</small>
         </article>
       </div>
     </section>
@@ -135,42 +131,58 @@
       <article class="service-explorer-card">
         <div class="card-header">
           <div>
-            <span class="eyebrow">Services</span>
-            <h2>Service Explorer</h2>
+            <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.EYEBROW' | translate }}</span>
+            <h2>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.TITLE' | translate }}</h2>
           </div>
           <span class="verified-pill">
             <span class="material-icons">playlist_add_check</span>
-            {{ filteredServices.length }} visible
+            {{ filteredServices.length }} {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.VISIBLE' | translate }}
           </span>
         </div>
 
         <div class="explorer-toolbar">
           <label class="search-field">
-            <span>Search services</span>
+            <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.SEARCH_LABEL' | translate }}</span>
             <input
               type="text"
               [value]="searchTerm"
               (input)="updateSearchTerm($event)"
-              placeholder="Service code, CUP, description or category"
+              [placeholder]="'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.SEARCH_PLACEHOLDER' | translate"
             />
           </label>
 
           <button type="button" class="ghost-action small" *ngIf="searchTerm" (click)="clearSearch()">
-            Clear search
+            {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.CLEAR_SEARCH' | translate }}
           </button>
         </div>
 
-        <div class="filter-chip-row">
-          <button
-            type="button"
-            class="filter-chip"
-            *ngFor="let tab of filterTabs"
-            [class.active]="isFilterActive(tab.key)"
-            (click)="setActiveFilter(tab.key, $event)"
-          >
-            {{ tab.label }}
-            <span>{{ tab.count }}</span>
-          </button>
+        <div class="explorer-filter-panel">
+          <div class="summary-grid summary-grid--compact">
+            <button
+              type="button"
+              class="summary-card summary-card--interactive"
+              *ngFor="let card of explorerFilterCards; trackBy: trackByFilterKey"
+              [class.summary-card--active]="isFilterActive(card.filterKey || 'all')"
+              [attr.data-tone]="card.tone"
+              (click)="setActiveFilter(card.filterKey || 'all', $event)"
+            >
+              <span>{{ summaryLabelKey(card.filterKey || card.key) | translate }}</span>
+              <strong>{{ card.value }}</strong>
+              <small *ngIf="card.helperText">{{ summaryHelperKey(card.filterKey || card.key) | translate }}</small>
+            </button>
+          </div>
+
+          <div class="explorer-filter-toolbar">
+            <button
+              type="button"
+              class="text-link"
+              *ngIf="hasPendingReviewItems"
+              [disabled]="isReadOnly"
+              (click)="markAllPendingAsReviewed($event)"
+            >
+              {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SUMMARY.MARK_ALL_REVIEWED' | translate }}
+            </button>
+          </div>
         </div>
 
         <div class="service-card-list" *ngIf="viewModel.services.length; else emptyServices">
@@ -179,11 +191,11 @@
               <button type="button" class="service-card__summary" (click)="toggleServiceExpansion(service.id)">
                 <div class="service-card__title">
                   <div>
-                    <span class="service-card__date">{{ service.serviceDate ?? 'Pending date' }}</span>
-                    <strong>{{ service.description ?? service.serviceCode ?? 'Detected service' }}</strong>
+                    <span class="service-card__date">{{ service.serviceDate ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PENDING_DATE' | translate) }}</span>
+                    <strong>{{ service.description ?? service.serviceCode ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.DETECTED_SERVICE' | translate) }}</strong>
                     <p>
-                      Code {{ service.serviceCode ?? 'N/A' }}
-                      <ng-container *ngIf="service.cup"> - CUP {{ service.cup }}</ng-container>
+                      {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.CODE' | translate }} {{ service.serviceCode ?? 'N/A' }}
+                      <ng-container *ngIf="service.cup"> - {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.CUP' | translate }} {{ service.cup }}</ng-container>
                       <ng-container *ngIf="service.category"> - {{ service.category }}</ng-container>
                     </p>
                   </div>
@@ -191,42 +203,44 @@
 
                 <div class="service-card__metrics">
                   <div class="metric-pill">
-                    <span>Qty</span>
+                    <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.QTY' | translate }}</span>
                     <strong>{{ service.quantity ?? '—' }}</strong>
                   </div>
                   <div class="metric-pill">
-                    <span>Price</span>
+                    <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PRICE' | translate }}</span>
                     <strong>{{ service.price ?? '—' }}</strong>
                   </div>
                   <div class="metric-pill">
-                    <span>Completion</span>
+                    <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.COMPLETION' | translate }}</span>
                     <strong>{{ service.completionPercent }}%</strong>
                   </div>
-                  <span class="service-status" [attr.data-tone]="service.tone">{{ service.supportStatus }}</span>
-                  <span class="expand-pill">{{ isServiceExpanded(service.id) ? 'Collapse' : 'Expand' }}</span>
+                  <div class="service-card__actions">
+                    <span class="service-status" [attr.data-tone]="service.tone">{{ translateStatus(service.supportStatus) }}</span>
+                    <span class="expand-pill">{{ isServiceExpanded(service.id) ? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.COLLAPSE' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.EXPAND' | translate) }}</span>
+                  </div>
                 </div>
               </button>
 
               <div class="service-card__details" *ngIf="isServiceExpanded(service.id)">
                 <div class="service-detail-grid">
                   <section class="detail-panel">
-                    <span class="eyebrow">Support package</span>
+                    <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.SUPPORT_PACKAGE' | translate }}</span>
                     <div class="chip-group">
-                      <span class="chip-label">Required</span>
+                      <span class="chip-label">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.REQUIRED' | translate }}</span>
                       <div class="chip-stack">
                         <span class="data-chip" *ngFor="let item of service.requiredDocuments">{{ item }}</span>
                       </div>
                     </div>
 
                     <div class="chip-group" *ngIf="service.presentDocuments.length">
-                      <span class="chip-label">Present</span>
+                      <span class="chip-label">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PRESENT' | translate }}</span>
                       <div class="chip-stack">
                         <span class="data-chip success" *ngFor="let item of service.presentDocuments">{{ item }}</span>
                       </div>
                     </div>
 
                     <div class="chip-group" *ngIf="service.missingDocuments.length">
-                      <span class="chip-label">Missing</span>
+                      <span class="chip-label">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.MISSING' | translate }}</span>
                       <div class="chip-stack">
                         <span class="data-chip danger" *ngFor="let item of service.missingDocuments">{{ item }}</span>
                       </div>
@@ -234,37 +248,37 @@
                   </section>
 
                   <section class="detail-panel">
-                    <span class="eyebrow">Detection details</span>
+                    <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.DETECTION_DETAILS' | translate }}</span>
                     <div class="detail-list">
                       <div>
-                        <span>Source</span>
-                        <strong>{{ service.extractionSource ?? 'Pending source' }}</strong>
+                        <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.SOURCE' | translate }}</span>
+                        <strong>{{ service.extractionSource ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PENDING_SOURCE' | translate) }}</strong>
                       </div>
                       <div>
-                        <span>Invoice</span>
-                        <strong>{{ service.invoiceNumber ?? 'Pending invoice' }}</strong>
+                        <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.INVOICE' | translate }}</span>
+                        <strong>{{ service.invoiceNumber ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PENDING_INVOICE' | translate) }}</strong>
                       </div>
                       <div>
-                        <span>Coverage</span>
-                        <strong>{{ service.coverage ?? 'Pending coverage' }}</strong>
+                        <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.COVERAGE' | translate }}</span>
+                        <strong>{{ service.coverage ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.PENDING_COVERAGE' | translate) }}</strong>
                       </div>
                       <div>
-                        <span>Confidence</span>
-                        <strong>{{ service.confidenceSummary ?? 'Not available' }}</strong>
+                        <span>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.CONFIDENCE' | translate }}</span>
+                        <strong>{{ service.confidenceSummary ?? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.NOT_AVAILABLE' | translate) }}</strong>
                       </div>
                     </div>
                   </section>
                 </div>
 
                 <section class="detail-panel" *ngIf="service.alerts.length">
-                  <span class="eyebrow">Alerts</span>
+                  <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.ALERTS' | translate }}</span>
                   <div class="alerts-inline">
-                    <span class="alert-chip" *ngFor="let alert of service.alerts">{{ alert }}</span>
+                    <span class="alert-chip" *ngFor="let alert of service.alerts">{{ translateStatus(alert) }}</span>
                   </div>
                 </section>
 
                 <div class="future-actions">
-                  <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">Acquire Document</button>
+                  <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.ACQUIRE_DOCUMENT' | translate }}</button>
                   <button
                     type="button"
                     class="ghost-action small"
@@ -272,9 +286,18 @@
                     [attr.aria-disabled]="isReadOnly"
                     (click)="triggerNativeUpload($event)"
                   >
-                    Upload Manually
+                    {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.UPLOAD_MANUALLY' | translate }}
                   </button>
-                  <button type="button" class="primary-action small blocked" disabled [attr.aria-disabled]="true">Mark as Reviewed</button>
+                  <button
+                    type="button"
+                    class="primary-action small"
+                    [class.blocked]="isServiceReviewed(service.id)"
+                    [disabled]="isReadOnly || isServiceReviewed(service.id)"
+                    [attr.aria-disabled]="isReadOnly || isServiceReviewed(service.id)"
+                    (click)="markServiceAsReviewed(service.id, $event)"
+                  >
+                    {{ isServiceReviewed(service.id) ? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.MARKED_REVIEWED' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.MARK_REVIEWED' | translate) }}
+                  </button>
                 </div>
               </div>
             </article>
@@ -286,24 +309,25 @@
         <article class="document-control-card">
           <div class="card-header">
             <div>
-              <span class="eyebrow">Repository</span>
-              <h2>Document Control Center</h2>
+              <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.EYEBROW' | translate }}</span>
+              <h2>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.TITLE' | translate }}</h2>
             </div>
             <span class="verified-pill">
               <span class="material-icons">folder_open</span>
-              {{ viewModel.documents.length }} docs
+              {{ viewModel.documents.length }} {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.DOCS' | translate }}
             </span>
           </div>
 
           <section class="capture-module-card" [attr.data-tone]="pendingUploadTone">
             <div class="capture-module-header">
               <div>
-                <span class="eyebrow">Capture</span>
-                <h3>Pending Support Documents</h3>
+                <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.CAPTURE' | translate }}</span>
+                <h3>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.PENDING_TITLE' | translate }}</h3>
                 <p>{{ pendingUploadHelperText }}</p>
               </div>
               <span class="document-badge" [attr.data-tone]="pendingUploadTone">
-                {{ pendingUploadCount }} {{ pendingUploadCount === 1 ? 'pending' : 'pending' }}
+                {{ pendingUploadCount }}
+                {{ pendingUploadCount === 1 ? ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.PENDING_BADGE' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.PENDING_BADGE_PLURAL' | translate) }}
               </span>
             </div>
 
@@ -317,7 +341,7 @@
               >
                 <div class="capture-module-item__copy">
                   <strong>{{ item.label }}</strong>
-                  <span>Required by {{ item.serviceCount }} {{ item.serviceCount === 1 ? 'service' : 'services' }}</span>
+                  <span>{{ item.serviceCount === 1 ? ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.REQUIRED_BY_ONE' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.REQUIRED_BY' | translate:{ count: item.serviceCount }) }}</span>
                 </div>
                 <span class="document-mini" data-tone="warning">{{ item.serviceCount }}x</span>
               </button>
@@ -332,7 +356,7 @@
                 *ngIf="activePendingUploadFilterLabel"
                 (click)="clearPendingUploadFilter()"
               >
-                Clear filter: {{ activePendingUploadFilterLabel }}
+                {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.CLEAR_FILTER' | translate }}: {{ activePendingUploadFilterLabel }}
               </button>
               <button
                 type="button"
@@ -342,7 +366,7 @@
                 [attr.aria-disabled]="isReadOnly"
                 (click)="triggerNativeUpload($event)"
               >
-                Upload document
+                {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.UPLOAD' | translate }}
               </button>
             </div>
           </section>
@@ -356,11 +380,13 @@
                 </div>
 
                 <div class="document-card__badges">
-                  <span class="document-badge" [attr.data-tone]="document.tone">{{ document.status }}</span>
-                  <span class="document-mini">Class: {{ document.classificationStatus }}</span>
-                  <span class="document-mini">Extract: {{ document.extractionStatus }}</span>
+                  <span class="document-badge" [attr.data-tone]="document.tone">{{ translateStatus(document.status) }}</span>
+                  <span class="document-mini">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.CLASS' | translate }}: {{ translateStatus(document.classificationStatus) }}</span>
+                  <span class="document-mini">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.EXTRACT' | translate }}: {{ translateStatus(document.extractionStatus) }}</span>
                   <span class="document-mini" *ngIf="document.classificationConfidence !== null">{{ document.classificationConfidence }}%</span>
-                  <span class="expand-pill">{{ isDocumentExpanded(document.id) ? 'Collapse' : 'Expand' }}</span>
+                  <div class="document-card__actions">
+                    <span class="expand-pill">{{ isDocumentExpanded(document.id) ? ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.COLLAPSE' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.EXPAND' | translate) }}</span>
+                  </div>
                 </div>
               </button>
 
@@ -396,7 +422,15 @@
                 </div>
 
                 <div class="document-actions">
-                  <button type="button" class="view-action" (click)="openDocumentViewer(document)">{{ document.viewLabel }}</button>
+                  <button type="button" class="view-action" (click)="openDocumentViewer(document)">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.VIEW_DOCUMENT' | translate }}</button>
+                  <button
+                    type="button"
+                    class="ghost-action small"
+                    [disabled]="isReadOnly || isDocumentReviewed(document.id)"
+                    (click)="markDocumentAsReviewed(document.id, $event)"
+                  >
+                    {{ isDocumentReviewed(document.id) ? ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.MARKED_REVIEWED' | translate) : ('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.MARK_REVIEWED' | translate) }}
+                  </button>
                 </div>
               </div>
             </article>

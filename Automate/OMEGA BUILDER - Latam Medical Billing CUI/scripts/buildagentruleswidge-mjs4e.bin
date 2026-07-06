@@ -1,0 +1,167 @@
+/**
+ * Script: BuildAgentRulesWidgetPayload
+ *
+ * Purpose:
+ * Builds the array payload consumed by the Custom UI widget
+ * `agent-rules-widget` before the AgentMesh user task.
+ *
+ * Use this script to verify that all rule/context variables are populated
+ * before sending them to the agents.
+ *
+ * Inputs (map from process variables in the Script task):
+ * - variables.batchState
+ * - variables.documentationRules
+ * - variables.payerCompliancePolicy
+ * - variables.preAuthorization
+ * - variables.tariffAgreement
+ * - variables.payerCodingPolicy
+ * - variables.codingRules
+ *
+ * Outputs:
+ * - variables.agentRulesWidget   Array<object> for Array<any> form widget
+ *
+ * Important:
+ * - Do not use return in Automate script runtime.
+ * - Keep process variable names aligned with AgentMesh mappings.
+ * - batchState may be large; preview is truncated for quick UI scan.
+ */
+
+function isEmpty(value) {
+    return value === null || value === undefined || value === "";
+}
+
+function safePreview(value, maxLength) {
+    var text;
+
+    try {
+        if (typeof value === "string") {
+            text = value;
+        } else {
+            text = JSON.stringify(value);
+        }
+    } catch (error) {
+        text = String(value);
+    }
+
+    if (!text) {
+        return "";
+    }
+
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + "...";
+    }
+
+    return text;
+}
+
+function detectValueType(value) {
+    if (isEmpty(value)) {
+        return "empty";
+    }
+
+    if (typeof value === "object") {
+        return "object";
+    }
+
+    if (typeof value === "string") {
+        try {
+            JSON.parse(value);
+            return "json-string";
+        } catch (error) {
+            return "string";
+        }
+    }
+
+    return typeof value;
+}
+
+function buildRuleItem(config) {
+    var value = config.value;
+    var isValueEmpty = isEmpty(value);
+
+    return {
+        id: config.id,
+        label: config.label,
+        agent: config.agent,
+        group: config.group,
+        value: value,
+        valueType: detectValueType(value),
+        isEmpty: isValueEmpty,
+        preview: isValueEmpty ? "" : safePreview(value, 500)
+    };
+}
+
+var rules = [
+    buildRuleItem({
+        id: "batchState",
+        label: "Batch State",
+        agent: "All agents",
+        group: "Shared",
+        value: variables.batchState
+    }),
+    buildRuleItem({
+        id: "documentationRules",
+        label: "Documentation Rules",
+        agent: "Compliance Alert Agent",
+        group: "Compliance",
+        value: variables.documentationRules
+    }),
+    buildRuleItem({
+        id: "payerCompliancePolicy",
+        label: "Payer Compliance Policy",
+        agent: "Compliance Alert Agent",
+        group: "Compliance",
+        value: variables.payerCompliancePolicy
+    }),
+    buildRuleItem({
+        id: "preAuthorization",
+        label: "Pre Authorization",
+        agent: "Compliance Alert / Financial Variance",
+        group: "Shared",
+        value: variables.preAuthorization
+    }),
+    buildRuleItem({
+        id: "tariffAgreement",
+        label: "Tariff Agreement",
+        agent: "Financial Variance Agent",
+        group: "Financial",
+        value: variables.tariffAgreement
+    }),
+    buildRuleItem({
+        id: "payerCodingPolicy",
+        label: "Payer Coding Policy",
+        agent: "Coding Integrity Agent",
+        group: "Coding",
+        value: variables.payerCodingPolicy
+    }),
+    buildRuleItem({
+        id: "codingRules",
+        label: "Coding Rules",
+        agent: "Coding Integrity Agent",
+        group: "Coding",
+        value: variables.codingRules
+    })
+];
+
+var populatedCount = 0;
+var emptyCount = 0;
+
+for (var i = 0; i < rules.length; i++) {
+    if (rules[i].isEmpty) {
+        emptyCount = emptyCount + 1;
+    } else {
+        populatedCount = populatedCount + 1;
+    }
+}
+
+variables.agentRulesWidget = rules;
+variables.agentRulesWidgetSummary = {
+    schemaVersion: "agent-rules-widget/v1",
+    generatedAt: new Date().toISOString(),
+    source: "Automate Script - BuildAgentRulesWidgetPayload",
+    totalRules: rules.length,
+    populatedCount: populatedCount,
+    emptyCount: emptyCount,
+    hasAnyValue: populatedCount > 0,
+    isComplete: emptyCount === 0
+};

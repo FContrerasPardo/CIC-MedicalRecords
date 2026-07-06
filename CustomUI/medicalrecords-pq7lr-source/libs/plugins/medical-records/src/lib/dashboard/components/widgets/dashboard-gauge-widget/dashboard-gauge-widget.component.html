@@ -1,0 +1,101 @@
+<article
+
+    class="dashboard-gauge-widget"
+
+    [class.spotlight-card]="!headerKpi"
+
+    [class.dashboard-gauge-widget--header-kpi]="headerKpi"
+
+    [class.recovery-card]="config.id === 'recovery-rate' && !headerKpi"
+
+    [class.completion-card]="config.id === 'completion-rate' && !headerKpi"
+
+    [class.dashboard-gauge-widget--loading]="data.loading"
+    [class.dashboard-gauge-widget--canvas-fill]="fillCanvasSlot"
+    [attr.data-tone]="data.tone"
+
+>
+
+    <div class="card-title-row" *ngIf="!headerKpi">
+
+        <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+
+        <div class="card-title-actions">
+
+            <span class="data-source-badge" [ngClass]="'badge-' + data.source">{{ sourceLabelKey | translate }}</span>
+
+            <span class="round-icon material-icons" *ngIf="config.icon">{{ config.icon }}</span>
+
+        </div>
+
+    </div>
+
+
+
+    <span class="dashboard-gauge-widget__header-label" *ngIf="headerKpi">
+
+        {{ config.title | dashboardWidgetText: config.titleKey }}
+
+    </span>
+
+
+
+    <div class="dashboard-gauge-widget__state" *ngIf="data.loading">
+
+        {{ 'MEDICAL_RECORDS.GAUGE.LOADING' | translate }}
+
+    </div>
+
+
+
+    <div class="dashboard-gauge-widget__state dashboard-gauge-widget__state--error" *ngIf="!data.loading && data.error">
+
+        {{ 'MEDICAL_RECORDS.GAUGE.ERROR' | translate }}
+
+    </div>
+
+
+
+    <div class="dashboard-gauge-widget__body" *ngIf="!data.loading && !data.error" [class.dashboard-gauge-widget__body--compact]="headerKpi">
+
+        <div class="dashboard-gauge-widget__chart">
+
+            <svg class="dashboard-gauge-widget__svg" viewBox="0 0 200 108" role="img" [attr.aria-label]="data.displayValue">
+
+                <path class="gauge-track" [attr.d]="trackArcPath" />
+
+                <path class="gauge-value" *ngIf="valueArcPath" [attr.d]="valueArcPath" />
+
+                <path class="gauge-target" *ngIf="targetArcPath && !headerKpi" [attr.d]="targetArcPath" />
+
+            </svg>
+
+
+
+            <div class="dashboard-gauge-widget__value">
+
+                <strong>{{ data.displayValue }}</strong>
+
+                <span *ngIf="data.target != null && !headerKpi" class="dashboard-gauge-widget__target">
+
+                    {{ 'MEDICAL_RECORDS.GAUGE.TARGET' | translate }}: {{ data.target }}{{ data.unit || '' }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <p *ngIf="(config.helper || config.helperKey) && !headerKpi" class="dashboard-gauge-widget__helper">
+
+        {{ config.helper | dashboardWidgetText: config.helperKey }}
+
+    </p>
+
+</article>
+
+

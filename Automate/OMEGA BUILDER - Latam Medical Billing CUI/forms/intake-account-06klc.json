@@ -1,0 +1,121 @@
+{
+  "formRepresentation" : {
+    "id" : "form-06c2746a-43aa-4724-9a1f-35a152d4dfe8",
+    "name" : "intake-account",
+    "key" : "intake-account-06klc",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "f7b518c2-e547-4168-9d1c-03e7ac9a26ab",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "intakeaccountwidget04v3pb",
+                "name" : "intake-account-widget",
+                "type" : "intake-account-widget",
+                "required" : false,
+                "readOnly" : false,
+                "isCustomType" : true,
+                "valueType" : "json",
+                "widgetId" : "9bf79144-0ed4-48da-ade2-2d255c921627",
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "9cc952d3-e54d-4acb-aa3a-db4a0f3e14d0",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "supportDocumentUpload",
+                "name" : "Attach file",
+                "type" : "hxp-upload",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2,
+                  "fileSource" : {
+                    "name" : "HxP Content and Local",
+                    "serviceId" : "all-file-sources",
+                    "destinationFolderPath" : {
+                      "value" : "/CIDP/Input",
+                      "type" : "static"
+                    }
+                  },
+                  "contentType" : "SysFile",
+                  "multiple" : true,
+                  "link" : false,
+                  "menuOptions" : {
+                    "show" : true,
+                    "download" : true,
+                    "remove" : true
+                  }
+                }
+              }
+            ],
+            "2" : [
+              {
+                "id" : "Fileviewer0dj79r",
+                "name" : "File viewer",
+                "type" : "hxp-file-viewer",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          },
+          "visibilityCondition" : {
+            "leftType" : "variable",
+            "leftValue" : "Visibility",
+            "operator" : "==",
+            "rightValue" : "true",
+            "rightType" : "value",
+            "nextConditionOperator" : "",
+            "nextCondition" : null
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [
+        {
+          "id" : "65bf55ea-4765-4f82-8214-80678db0b59f",
+          "name" : "Visibility",
+          "type" : "boolean",
+          "model" : {
+            "$ref" : "#/$defs/primitive/boolean"
+          },
+          "value" : false
+        }
+      ]
+    }
+  }
+}

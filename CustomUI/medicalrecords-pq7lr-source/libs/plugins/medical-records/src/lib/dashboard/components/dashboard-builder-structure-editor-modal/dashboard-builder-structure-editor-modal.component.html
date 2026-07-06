@@ -1,0 +1,82 @@
+<div class="widget-editor-modal structure-editor-modal" role="dialog" aria-modal="true" (click)="onBackdropClick($event)">
+    <section class="widget-editor-modal__panel structure-editor-modal__panel" (click)="$event.stopPropagation()">
+        <header class="widget-editor-modal__header">
+            <div>
+                <span class="widget-editor-modal__eyebrow">
+                    {{
+                        (mode === 'tab'
+                            ? 'MEDICAL_RECORDS.DASHBOARD_BUILDER.STRUCTURE_MODAL.TAB_EYEBROW'
+                            : 'MEDICAL_RECORDS.DASHBOARD_BUILDER.STRUCTURE_MODAL.CONTAINER_EYEBROW') | translate
+                    }}
+                </span>
+                <h2>
+                    {{
+                        (mode === 'tab'
+                            ? 'MEDICAL_RECORDS.DASHBOARD_BUILDER.TAB_SETTINGS'
+                            : 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_SETTINGS') | translate
+                    }}
+                </h2>
+            </div>
+            <button type="button" class="ghost-action" (click)="closeModal.emit()">
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.CLOSE' | translate }}
+            </button>
+        </header>
+
+        <div class="structure-editor-modal__body" *ngIf="mode === 'tab' && page as tab">
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.TAB_LABEL' | translate }}</span>
+                <input
+                    type="text"
+                    class="dashboard-form-control"
+                    [ngModel]="tab.label"
+                    (ngModelChange)="pagePatch.emit({ label: $event })"
+                />
+            </label>
+            <p class="structure-editor-modal__summary">
+                {{
+                    'MEDICAL_RECORDS.DASHBOARD_BUILDER.STRUCTURE_MODAL.TAB_SUMMARY'
+                        | translate: { count: tab.containers.length }
+                }}
+            </p>
+        </div>
+
+        <div class="structure-editor-modal__body" *ngIf="mode === 'container' && container as section">
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_TITLE' | translate }}</span>
+                <input
+                    type="text"
+                    class="dashboard-form-control"
+                    [ngModel]="section.title"
+                    (ngModelChange)="containerPatch.emit({ title: $event })"
+                />
+            </label>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_SUBTITLE' | translate }}</span>
+                <input
+                    type="text"
+                    class="dashboard-form-control"
+                    [ngModel]="section.subtitle || ''"
+                    (ngModelChange)="containerPatch.emit({ subtitle: $event })"
+                />
+            </label>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_LAYOUT_MODE' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="section.layoutMode"
+                    (ngModelChange)="containerPatch.emit({ layoutMode: $event })"
+                >
+                    <option *ngFor="let layoutMode of containerLayoutModes" [ngValue]="layoutMode">
+                        {{ containerLayoutModeLabel(layoutMode) | translate }}
+                    </option>
+                </select>
+            </label>
+            <p class="structure-editor-modal__summary">
+                {{
+                    'MEDICAL_RECORDS.DASHBOARD_BUILDER.STRUCTURE_MODAL.CONTAINER_SUMMARY'
+                        | translate: { count: section.widgetIds.length }
+                }}
+            </p>
+        </div>
+    </section>
+</div>

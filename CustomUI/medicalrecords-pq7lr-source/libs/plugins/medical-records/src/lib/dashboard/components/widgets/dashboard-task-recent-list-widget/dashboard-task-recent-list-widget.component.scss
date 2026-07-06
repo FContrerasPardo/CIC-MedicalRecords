@@ -1,0 +1,123 @@
+@import '../../../dashboard-shared.styles.scss';
+
+:host {
+    display: block;
+}
+
+.task-recent-widget {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(110, 51, 255, 0.1);
+    box-shadow: 0 10px 28px rgba(25, 31, 94, 0.05);
+}
+
+.task-recent-widget__header h3 {
+    margin: 0;
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.task-recent-widget__header p {
+    margin: 6px 0 0;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.task-recent-widget__header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(194, 198, 212, 0.45);
+}
+
+.task-recent-widget__state {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.task-recent-widget__state--error {
+    color: #b42318;
+}
+
+.task-recent-widget__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.task-recent-widget__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(194, 198, 212, 0.35);
+}
+
+.task-recent-widget__item:last-child {
+    border-bottom: 0;
+}
+
+.task-recent-widget__main {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.task-recent-widget__main strong {
+    color: var(--dash-brand-dark-blue, #191f5e);
+    font-size: 13px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-recent-widget__meta {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-recent-widget__badge {
+    display: inline-flex;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.task-recent-widget__footer {
+    padding-top: 6px;
+}
+
+.task-recent-widget__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    padding: 9px 14px;
+    border: 1px solid rgba(110, 51, 255, 0.24);
+    border-radius: 999px;
+    color: var(--dash-accent, #6e33ff);
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.task-recent-widget__cta .material-icons {
+    font-size: 18px;
+}

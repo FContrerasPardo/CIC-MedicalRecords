@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { PdfViewerComponent, ViewerComponent, WidgetComponent } from '@alfresco/adf-core';
 import { BlobDownloadService } from '@alfresco/adf-hx-content-services/services';
-import { Component, inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs/operators';
 import { BatchStateSource } from './batch-state.model';
-import { createEmptyIntakeAccountViewModel, mapBatchStateToIntakeAccountViewModel } from './batch-state.mapper';
+import { createEmptyIntakeAccountViewModel, computeIntakeReadiness, mapBatchStateToIntakeAccountViewModel } from './batch-state.mapper';
+import {
+    applyCanonicalPatientName,
+    markAllPendingReviewsComplete,
+    markDocumentReviewComplete,
+    markServiceReviewComplete,
+    mergePatientClusters,
+} from './batch-state.mutations';
 import {
     IntakeAccountDocumentItemViewModel,
+    IntakeAccountReadinessViewModel,
     IntakeAccountServiceItemViewModel,
     IntakeAccountSummaryCardViewModel,
     IntakeServiceFilterKey,
@@ -24,12 +33,20 @@ type PendingUploadItem = {
     styleUrls: ['./intake-account-widget.component.scss'],
     selector: 'medical-records-intake-account-widget',
     standalone: true,
-    imports: [CommonModule, ViewerComponent, PdfViewerComponent],
+    imports: [CommonModule, ViewerComponent, PdfViewerComponent, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Default,
 })
-export class IntakeAccountWidgetComponent extends WidgetComponent {
+export class IntakeAccountWidgetComponent extends WidgetComponent implements OnInit {
     private readonly UPLOAD_FIELD_ID = 'supportDocumentUpload';
     private readonly UPLOAD_HIGHLIGHT_TIMEOUT_MS = 2000;
     private readonly blobDownloadService = inject(BlobDownloadService);
+    private readonly translate = inject(TranslateService);
+    private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
+    private readonly aliasBannerDismissedByPatient = new Map<string, boolean>();
+    private readonly reviewedServiceIds = new Set<string>();
+    private readonly reviewedDocumentIds = new Set<string>();
+    visibleServices: IntakeAccountServiceItemViewModel[] = [];
 
     private cachedPrimaryValue: unknown;
     private cachedFallbackValue: unknown;
@@ -94,6 +111,7 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
             this.activeFilterKey = this.cachedViewModel.activeFilter;
         }
 
+        this.refreshVisibleServices();
         return this.cachedViewModel;
     }
 
@@ -160,47 +178,388 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
     }
 
     get primarySummaryCards(): IntakeAccountSummaryCardViewModel[] {
-        return this.viewModel.summaryCards.primary.filter((card) => card.visible);
+        const services = this.getEffectiveServices();
+
+        return this.viewModel.summaryCards.primary
+            .filter((card) => card.visible)
+            .map((card) => this.applySummaryCardOverrides(card, services))
+            .filter((card) => card.filterKey !== 'low-confidence' || Number(card.value) > 0);
     }
 
     get secondarySummaryCards(): IntakeAccountSummaryCardViewModel[] {
         return this.viewModel.summaryCards.secondary.filter((card) => card.visible);
     }
 
-    get filterTabs(): Array<{ key: IntakeServiceFilterKey; label: string; count: string }> {
-        return this.primarySummaryCards
-            .filter((card) => Boolean(card.filterKey))
-            .map((card) => ({
-                key: card.filterKey as IntakeServiceFilterKey,
-                label: card.label,
-                count: card.value,
-            }));
+    ngOnInit(): void {
+        this.refreshVisibleServices();
+    }
+
+    get explorerFilterCards(): IntakeAccountSummaryCardViewModel[] {
+        return this.primarySummaryCards;
+    }
+
+    get insightSummaryCards(): IntakeAccountSummaryCardViewModel[] {
+        const readiness = this.effectiveReadiness;
+
+        return this.viewModel.summaryCards.secondary
+            .filter((card) => card.visible)
+            .map((card) => (card.key === 'readiness' ? this.applyReadinessCardOverride(card, readiness) : card));
+    }
+
+    get effectiveReadiness(): IntakeAccountReadinessViewModel {
+        return computeIntakeReadiness(
+            this.getEffectiveServices(),
+            this.hasRejectedDocuments,
+            this.viewModel.alerts
+        );
+    }
+
+    get effectiveIntakeStatus(): string {
+        const readiness = this.effectiveReadiness;
+        return readiness.readyForAnalysis ? 'Ready for Analysis' : readiness.statusLabel;
     }
 
     get filteredServices(): IntakeAccountServiceItemViewModel[] {
-        const search = this.searchTerm.trim().toLowerCase();
-        const pendingDocumentFilter = this.pendingUploadItems.some((item) => item.normalizedLabel === this.activePendingDocumentFilter)
-            ? this.activePendingDocumentFilter
-            : null;
+        return this.visibleServices;
+    }
 
-        return this.viewModel.services.filter((service) => {
-            const matchesSearch = !search || [
-                service.serviceCode,
-                service.cup,
-                service.description,
-                service.category,
-            ].some((value) => value?.toLowerCase().includes(search));
+    get showAliasBannerExpanded(): boolean {
+        return this.viewModel.patientResolution.showAliasBanner && !this.isAliasBannerDismissed;
+    }
 
-            const matchesPendingDocument = !pendingDocumentFilter || service.missingDocuments.some((documentLabel) =>
-                this.normalizeMissingDocumentLabel(documentLabel) === pendingDocumentFilter
-            );
+    get showReopenAliasChip(): boolean {
+        return this.viewModel.patientResolution.showAliasBanner && this.isAliasBannerDismissed;
+    }
 
-            return matchesSearch && matchesPendingDocument && this.matchesActiveFilter(service, this.currentFilterKey);
+    get isAliasBannerDismissed(): boolean {
+        return Boolean(this.aliasBannerDismissedByPatient.get(this.currentPatientKey));
+    }
+
+    get hasPendingReviewItems(): boolean {
+        return this.viewModel.services.some((service) => service.hasReviewRequired && !this.reviewedServiceIds.has(service.id))
+            || this.viewModel.documents.some((document) => document.tone !== 'success' && !this.reviewedDocumentIds.has(document.id));
+    }
+
+    summaryLabelKey(filterKey: string): string {
+        return `MEDICAL_RECORDS.INTAKE_WIDGET.SUMMARY.${filterKey.toUpperCase().replace(/-/g, '_')}`;
+    }
+
+    summaryHelperKey(filterKey: string): string {
+        return `${this.summaryLabelKey(filterKey)}_HELPER`;
+    }
+
+    secondarySummaryLabelKey(cardKey: string): string {
+        return cardKey === 'readiness'
+            ? 'MEDICAL_RECORDS.INTAKE_WIDGET.SUMMARY.READINESS'
+            : 'MEDICAL_RECORDS.INTAKE_WIDGET.SUMMARY.DOCUMENTS';
+    }
+
+    secondarySummaryHelperKey(cardKey: string): string {
+        return cardKey === 'readiness'
+            ? ''
+            : 'MEDICAL_RECORDS.INTAKE_WIDGET.SUMMARY.DOCUMENTS_HELPER';
+    }
+
+    translateReadinessHelper(card: IntakeAccountSummaryCardViewModel): string {
+        if (card.key !== 'readiness') {
+            return card.helperText ?? '';
+        }
+
+        const readiness = this.effectiveReadiness;
+        const status = this.translateIntakeStatus(readiness.statusLabel);
+
+        if (readiness.readyForAnalysis || !readiness.blockers.length) {
+            return status;
+        }
+
+        const blockers = readiness.blockers.map((blocker) => this.translateReadinessBlocker(blocker));
+
+        if (blockers.length === 1) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.HELPER_SINGLE', {
+                status,
+                blocker: blockers[0],
+            });
+        }
+
+        return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.HELPER_MULTIPLE', {
+            status,
+            blocker: blockers[0],
+            more: blockers.length - 1,
         });
     }
 
+    translateReadinessBlocker(text: string): string {
+        const missingSupportMatch = text.match(/^(\d+) service\(s\) still have missing support\.$/i);
+        if (missingSupportMatch) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.BLOCKER_MISSING_SUPPORT', {
+                count: missingSupportMatch[1],
+            });
+        }
+
+        const pendingReviewMatch = text.match(/^(\d+) service\(s\) still need review\.$/i);
+        if (pendingReviewMatch) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.BLOCKER_PENDING_REVIEW', {
+                count: pendingReviewMatch[1],
+            });
+        }
+
+        if (/rejected documents must be resolved before advancing to analysis/i.test(text)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.BLOCKER_REJECTED');
+        }
+
+        if (/no billable services were mapped for this account/i.test(text)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.READINESS.BLOCKER_NO_SERVICES');
+        }
+
+        return text;
+    }
+
+    translateStatus(value: string | null | undefined): string {
+        if (!value) {
+            return '';
+        }
+
+        const normalized = value
+            .trim()
+            .toUpperCase()
+            .replace(/[^A-Z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+
+        const key = `MEDICAL_RECORDS.INTAKE_WIDGET.STATUS.${normalized}`;
+        const translated = this.translate.instant(key);
+
+        return translated !== key ? translated : value;
+    }
+
+    translateSchemaHint(hint: string): string {
+        const docsMatch = hint.match(/^(\d+)\s+docs$/i);
+        if (docsMatch) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HINTS.DOCS', { count: docsMatch[1] });
+        }
+
+        const servicesMatch = hint.match(/^(\d+)\s+services$/i);
+        if (servicesMatch) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HINTS.SERVICES', { count: servicesMatch[1] });
+        }
+
+        if (/single patient batch/i.test(hint)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HINTS.SINGLE_BATCH');
+        }
+
+        if (/ocr reconciliation/i.test(hint)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HINTS.OCR');
+        }
+
+        if (/patient accounts/i.test(hint)) {
+            const countMatch = hint.match(/^(\d+)/);
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HINTS.PATIENT_ACCOUNTS', {
+                count: countMatch?.[1] ?? '0',
+            });
+        }
+
+        return hint;
+    }
+
+    providerLabel(value: string | null | undefined): string {
+        if (this.isProviderPending(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PROVIDER_PENDING');
+        }
+
+        return `${this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PROVIDER')}: ${value}`;
+    }
+
+    insuranceLabel(value: string | null | undefined): string {
+        if (this.isInsurancePending(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.INSURANCE_PENDING');
+        }
+
+        return `${this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.INSURANCE')}: ${value}`;
+    }
+
+    private isProviderPending(value: string | null | undefined): boolean {
+        if (!value) {
+            return true;
+        }
+
+        const normalized = value.trim().toLowerCase();
+        return normalized === 'pending'
+            || normalized === 'pendiente'
+            || /provider pending/i.test(value)
+            || /prestador pendiente/i.test(value);
+    }
+
+    private isInsurancePending(value: string | null | undefined): boolean {
+        if (!value) {
+            return true;
+        }
+
+        const normalized = value.trim().toLowerCase();
+        return normalized === 'pending'
+            || normalized === 'pendiente'
+            || /insurance pending/i.test(value)
+            || /seguro pendiente/i.test(value);
+    }
+
+    pendingLabel(value: string | null | undefined): string {
+        if (!value) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PENDING');
+        }
+
+        if (/provider pending/i.test(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.PROVIDER_PENDING');
+        }
+
+        if (/insurance pending/i.test(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.HEADER.INSURANCE_PENDING');
+        }
+
+        return value;
+    }
+
+    translateIntakeStatus(value: string | null | undefined): string {
+        if (!value) {
+            return '';
+        }
+
+        if (/ready for analysis/i.test(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.STATUS.READY_FOR_ANALYSIS');
+        }
+
+        if (/review in progress/i.test(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.STATUS.REVIEW_IN_PROGRESS');
+        }
+
+        if (/support pending/i.test(value)) {
+            return this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.STATUS.SUPPORT_PENDING');
+        }
+
+        return value;
+    }
+
+    isServiceReviewed(serviceId: string): boolean {
+        return this.reviewedServiceIds.has(serviceId);
+    }
+
+    isDocumentReviewed(documentId: string): boolean {
+        return this.reviewedDocumentIds.has(documentId);
+    }
+
+    acceptAliasResolution(event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+
+        const clusterKey = this.viewModel.patientSelector.selectedKey;
+        const canonicalName = this.selectedAliasChoice;
+        const batchState = this.getWorkingBatchState();
+
+        if (!clusterKey || !canonicalName || !batchState || this.isReadOnly) {
+            this.dismissAliasBanner();
+            return;
+        }
+
+        const next = applyCanonicalPatientName(batchState, clusterKey, canonicalName);
+        this.selectedDisplayNameByPatientKey.set(clusterKey, canonicalName);
+        this.commitBatchState(next);
+        this.dismissAliasBanner();
+    }
+
+    collapseAliasBanner(event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+        this.dismissAliasBanner();
+    }
+
+    reopenAliasResolution(event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+        this.aliasBannerDismissedByPatient.set(this.currentPatientKey, false);
+        this.changeDetectorRef.detectChanges();
+    }
+
+    expandAliasBanner(event?: Event): void {
+        this.reopenAliasResolution(event);
+    }
+
+    markServiceAsReviewed(serviceId: string, event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+
+        if (this.isReadOnly || !serviceId) {
+            return;
+        }
+
+        const batchState = this.getWorkingBatchState();
+        if (!batchState) {
+            return;
+        }
+
+        this.commitBatchState(markServiceReviewComplete(batchState, serviceId));
+    }
+
+    markDocumentAsReviewed(documentId: string, event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+
+        if (this.isReadOnly || !documentId) {
+            return;
+        }
+
+        const batchState = this.getWorkingBatchState();
+        if (!batchState) {
+            return;
+        }
+
+        this.commitBatchState(markDocumentReviewComplete(batchState, documentId));
+    }
+
+    markAllPendingAsReviewed(event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+
+        if (this.isReadOnly) {
+            return;
+        }
+
+        const batchState = this.getWorkingBatchState();
+        if (!batchState) {
+            return;
+        }
+
+        this.commitBatchState(markAllPendingReviewsComplete(batchState));
+    }
+
+    mergePatientIntoSelected(sourceKey: string, event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+
+        const targetKey = this.selectedPatientKey ?? this.viewModel.patientSelector.selectedKey;
+
+        if (this.isReadOnly || !targetKey || !sourceKey || targetKey === sourceKey) {
+            return;
+        }
+
+        const batchState = this.getWorkingBatchState();
+        if (!batchState) {
+            return;
+        }
+
+        const next = mergePatientClusters(batchState, targetKey, sourceKey);
+        this.commitBatchState(next);
+        this.selectedPatientKey = targetKey;
+        this.aliasBannerDismissedByPatient.set(targetKey, false);
+    }
+
+    canMergePatientOption(optionKey: string): boolean {
+        const selectedKey = this.selectedPatientKey ?? this.viewModel.patientSelector.selectedKey;
+        return Boolean(selectedKey && optionKey !== selectedKey && !this.isReadOnly);
+    }
+
     get filteredDocuments(): IntakeAccountDocumentItemViewModel[] {
-        return this.viewModel.documents;
+        return this.viewModel.documents.map((document) => this.applyDocumentReviewOverride(document));
+    }
+
+    get currentPatientKey(): string {
+        return this.viewModel.patientSelector.selectedKey ?? 'default';
     }
 
     get selectedViewerDocument(): IntakeAccountDocumentItemViewModel | null {
@@ -209,7 +568,7 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
             return null;
         }
 
-        return this.viewModel.documents.find((document) => document.id === selectedId) ?? null;
+        return this.filteredDocuments.find((document) => document.id === selectedId) ?? null;
     }
 
     get isViewerOpen(): boolean {
@@ -320,8 +679,8 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
 
     get pendingUploadHelperText(): string {
         return this.pendingUploadCount > 0
-            ? 'Derived from current services in this account.'
-            : 'All required support documents are currently mapped.';
+            ? this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.PENDING_HELPER')
+            : this.translate.instant('MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.PENDING_COMPLETE_HELPER');
     }
 
     get uploadCaptureMessage(): string | null {
@@ -379,17 +738,26 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
 
         this.selectedPatientKey = patientKey;
         this.resetInteractiveState();
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
     }
 
     setActiveFilter(filterKey: IntakeServiceFilterKey, event?: Event): void {
         event?.preventDefault();
         event?.stopPropagation();
 
-        if (filterKey === this.currentFilterKey) {
-            return;
+        if (filterKey === this.currentFilterKey && filterKey !== 'all') {
+            this.activeFilterKey = 'all';
+        } else {
+            this.activeFilterKey = filterKey;
         }
 
-        this.activeFilterKey = filterKey;
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
+    }
+
+    trackByFilterKey(_index: number, card: IntakeAccountSummaryCardViewModel): string {
+        return card.filterKey || card.key;
     }
 
     isFilterActive(filterKey: IntakeServiceFilterKey): boolean {
@@ -398,10 +766,14 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
 
     updateSearchTerm(event: Event): void {
         this.searchTerm = this.readControlValue(event);
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
     }
 
     clearSearch(): void {
         this.searchTerm = '';
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
     }
 
     togglePendingUploadFilter(item: PendingUploadItem): void {
@@ -414,10 +786,14 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
 
         this.activePendingDocumentFilter = nextFilter;
         this.activeFilterKey = 'missing-support';
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
     }
 
     clearPendingUploadFilter(): void {
         this.activePendingDocumentFilter = null;
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
     }
 
     isPendingUploadFilterActive(item: PendingUploadItem): boolean {
@@ -601,6 +977,169 @@ export class IntakeAccountWidgetComponent extends WidgetComponent {
             default:
                 return true;
         }
+    }
+
+    private applyReadinessCardOverride(
+        card: IntakeAccountSummaryCardViewModel,
+        readiness: IntakeAccountReadinessViewModel
+    ): IntakeAccountSummaryCardViewModel {
+        return {
+            ...card,
+            value: `${readiness.score}%`,
+            tone: readiness.readyForAnalysis
+                ? 'success'
+                : (readiness.blockers.some((blocker) => /missing support|rejected documents/i.test(blocker.toLowerCase()))
+                    ? 'danger'
+                    : (readiness.blockers.length ? 'warning' : 'neutral')),
+        };
+    }
+
+    private get hasRejectedDocuments(): boolean {
+        return this.viewModel.readiness.blockers.some((blocker) =>
+            /rejected documents must be resolved/i.test(blocker)
+        );
+    }
+
+    private getEffectiveServices(): IntakeAccountServiceItemViewModel[] {
+        return this.viewModel.services.map((service) => this.applyServiceReviewOverride(service));
+    }
+
+    private applySummaryCardOverrides(
+        card: IntakeAccountSummaryCardViewModel,
+        services: IntakeAccountServiceItemViewModel[]
+    ): IntakeAccountSummaryCardViewModel {
+        const filterKey = (card.filterKey || card.key) as IntakeServiceFilterKey;
+        const count = this.countServicesForFilter(filterKey, services);
+
+        switch (filterKey) {
+            case 'complete':
+                return { ...card, value: `${count}`, tone: count > 0 ? 'success' : 'neutral' };
+            case 'missing-support':
+                return { ...card, value: `${count}`, tone: count > 0 ? 'danger' : 'neutral' };
+            case 'pending-review':
+                return { ...card, value: `${count}`, tone: count > 0 ? 'warning' : 'neutral' };
+            case 'low-confidence':
+                return { ...card, value: `${count}`, tone: count > 0 ? 'warning' : 'neutral' };
+            case 'all':
+            default:
+                return { ...card, value: `${count}` };
+        }
+    }
+
+    private countServicesForFilter(
+        filterKey: IntakeServiceFilterKey,
+        services: IntakeAccountServiceItemViewModel[]
+    ): number {
+        if (filterKey === 'all') {
+            return services.length;
+        }
+
+        return services.filter((service) => this.matchesActiveFilter(service, filterKey)).length;
+    }
+
+    private applyServiceReviewOverride(service: IntakeAccountServiceItemViewModel): IntakeAccountServiceItemViewModel {
+        if (!this.reviewedServiceIds.has(service.id)) {
+            return service;
+        }
+
+        const stillMissing = service.missingDocuments.length > 0;
+        const supportStatus = stillMissing ? 'Missing Support' : 'Complete';
+
+        return {
+            ...service,
+            hasReviewRequired: false,
+            hasLowConfidence: false,
+            supportStatus,
+            tone: stillMissing ? 'danger' : 'success',
+            alerts: service.alerts.filter((alert) => !/review required/i.test(alert)),
+        };
+    }
+
+    private dismissAliasBanner(): void {
+        this.aliasBannerDismissedByPatient.set(this.currentPatientKey, true);
+        this.changeDetectorRef.detectChanges();
+    }
+
+    private refreshVisibleServices(): void {
+        const search = this.searchTerm.trim().toLowerCase();
+        const pendingDocumentFilter = this.pendingUploadItems.some((item) => item.normalizedLabel === this.activePendingDocumentFilter)
+            ? this.activePendingDocumentFilter
+            : null;
+        const effectiveServices = this.viewModel.services.map((service) => this.applyServiceReviewOverride(service));
+
+        if (
+            this.currentFilterKey === 'low-confidence'
+            && this.countServicesForFilter('low-confidence', effectiveServices) === 0
+        ) {
+            this.activeFilterKey = 'all';
+        }
+
+        this.visibleServices = effectiveServices.filter((service) => this.matchesVisibleServiceFilters(
+            service,
+            search,
+            pendingDocumentFilter,
+            this.currentFilterKey
+        ));
+    }
+
+    private matchesVisibleServiceFilters(
+        service: IntakeAccountServiceItemViewModel,
+        search: string,
+        pendingDocumentFilter: string | null,
+        filterKey: IntakeServiceFilterKey
+    ): boolean {
+        const matchesSearch = !search || [
+            service.serviceCode,
+            service.cup,
+            service.description,
+            service.category,
+        ].some((value) => value?.toLowerCase().includes(search));
+
+        const matchesPendingDocument = !pendingDocumentFilter || service.missingDocuments.some((documentLabel) =>
+            this.normalizeMissingDocumentLabel(documentLabel) === pendingDocumentFilter
+        );
+
+        return matchesSearch && matchesPendingDocument && this.matchesActiveFilter(service, filterKey);
+    }
+
+    private getWorkingBatchState(): BatchStateSource | null {
+        return this.resolveBatchState(this.field?.value, this.field?.form?.getFieldById('batchState')?.value);
+    }
+
+    private commitBatchState(next: BatchStateSource): void {
+        const batchField = this.field?.form?.getFieldById('batchState');
+        const serialized = typeof batchField?.value === 'string' || typeof this.field?.value === 'string'
+            ? JSON.stringify(next)
+            : next;
+
+        if (batchField) {
+            batchField.value = serialized;
+        }
+
+        if (this.field) {
+            this.field.value = serialized;
+        }
+
+        this.cachedPrimaryValue = undefined;
+        this.cachedFallbackValue = undefined;
+        this.reviewedServiceIds.clear();
+        this.reviewedDocumentIds.clear();
+        this.refreshVisibleServices();
+        this.changeDetectorRef.detectChanges();
+    }
+
+    private applyDocumentReviewOverride(document: IntakeAccountDocumentItemViewModel): IntakeAccountDocumentItemViewModel {
+        if (!this.reviewedDocumentIds.has(document.id)) {
+            return document;
+        }
+
+        return {
+            ...document,
+            status: 'Reviewed',
+            tone: 'success',
+            extractionReviewStatus: 'ReviewNotRequired',
+            separationReviewStatus: 'ReviewNotRequired',
+        };
     }
 
     private isFilterAvailable(filterKey: IntakeServiceFilterKey, model: IntakeAccountViewModel): boolean {

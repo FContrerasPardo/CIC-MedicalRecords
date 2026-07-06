@@ -1,0 +1,26 @@
+<section class="dashboard-kpi-strip" aria-label="Key performance indicators">
+    <article
+        class="dashboard-kpi-strip__item"
+        *ngFor="let widgetId of widgetIds; trackBy: trackByWidgetId"
+        [class.is-selected]="isSelected(widgetId)"
+        [class.edit-mode]="editMode"
+        (click)="onSelect(widgetId, $event)"
+    >
+        <ng-container *ngIf="widgets[widgetId] as widgetConfig">
+            <medical-records-dashboard-metric-widget
+                *ngIf="widgetConfig.type === 'metric'"
+                [config]="widgetConfig"
+                [compact]="true"
+                [headerKpi]="true"
+                [pageActive]="pageActive"
+            ></medical-records-dashboard-metric-widget>
+
+            <medical-records-dashboard-gauge-widget
+                *ngIf="widgetConfig.type === 'gauge'"
+                [config]="widgetConfig"
+                [headerKpi]="true"
+                [pageActive]="pageActive"
+            ></medical-records-dashboard-gauge-widget>
+        </ng-container>
+    </article>
+</section>

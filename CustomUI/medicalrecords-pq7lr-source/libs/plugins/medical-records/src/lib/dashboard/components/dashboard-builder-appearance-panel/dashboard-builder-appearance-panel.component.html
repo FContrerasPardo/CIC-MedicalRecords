@@ -1,0 +1,216 @@
+<section class="appearance-panel">
+    <h4 class="appearance-panel__title">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.APPEARANCE_TITLE' | translate }}</h4>
+
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_TITLE' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="text"
+            [ngModel]="widget.title || ''"
+            (ngModelChange)="patch({ title: $event })"
+        />
+    </label>
+
+    <label class="dashboard-form-field" *ngIf="showHelperFields()">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_HELPER' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="text"
+            [ngModel]="widget.helper || ''"
+            (ngModelChange)="patch({ helper: $event })"
+        />
+    </label>
+
+    <label class="dashboard-form-field" *ngIf="showCardSizeControl">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_CARD_SIZE' | translate }}</span>
+        <select class="dashboard-form-control" [ngModel]="selectedCardSpan" (ngModelChange)="onCardSpanChange(+$event)">
+            <option *ngFor="let option of cardSpanOptions" [ngValue]="option.value">
+                {{ option.labelKey | translate }}
+            </option>
+        </select>
+    </label>
+
+    <label class="dashboard-form-field" *ngIf="showCardSizeControl">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_ROW_SPAN' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="number"
+            min="1"
+            max="24"
+            [ngModel]="selectedRowSpan"
+            (ngModelChange)="onRowSpanChange(+$event || 1)"
+        />
+        <p class="appearance-panel__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_ROW_SPAN_HINT' | translate }}</p>
+    </label>
+
+    <label class="dashboard-form-field" *ngIf="showCardSizeControl">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_CARD_HEIGHT' | translate }}</span>
+        <input
+            class="dashboard-form-control"
+            type="number"
+            min="120"
+            max="960"
+            [ngModel]="widget.cardHeightPx ?? ''"
+            (ngModelChange)="onCardHeightChange($event === '' ? null : +$event)"
+            placeholder="auto"
+        />
+    </label>
+
+    <ng-container *ngIf="isLinkCardWidget">
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.FIELD_ICON' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="widget.icon || 'open_in_new'"
+                (ngModelChange)="patch({ icon: $event })"
+            />
+        </label>
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.FIELD_TARGET_TYPE' | translate }}</span>
+            <select
+                class="dashboard-form-control"
+                [ngModel]="linkOptions.linkTargetType || 'route'"
+                (ngModelChange)="patchLinkOptions({ linkTargetType: $event })"
+            >
+                <option *ngFor="let type of linkTargetTypes" [ngValue]="type">
+                    {{ ('MEDICAL_RECORDS.LINK_CARD.TARGET_' + type.toUpperCase()) | translate }}
+                </option>
+            </select>
+        </label>
+        <label class="dashboard-form-field" *ngIf="linkOptions.linkTargetType !== 'external'">
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.FIELD_ROUTE' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="linkOptions.linkRoute || ''"
+                (ngModelChange)="patchLinkOptions({ linkRoute: $event })"
+                placeholder="/medical-records"
+            />
+        </label>
+        <label class="dashboard-form-field" *ngIf="linkOptions.linkTargetType === 'external'">
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.FIELD_URL' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="url"
+                [ngModel]="linkOptions.linkUrl || ''"
+                (ngModelChange)="patchLinkOptions({ linkUrl: $event })"
+                placeholder="https://"
+            />
+        </label>
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.FIELD_BUTTON' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="linkOptions.buttonLabel || ''"
+                (ngModelChange)="patchLinkOptions({ buttonLabel: $event })"
+            />
+        </label>
+        <label class="checkbox-row" *ngIf="linkOptions.linkTargetType === 'external'">
+            <input
+                type="checkbox"
+                [checked]="linkOptions.openInNewTab === true"
+                (change)="patchLinkOptions({ openInNewTab: $any($event.target).checked })"
+            />
+            <span>{{ 'MEDICAL_RECORDS.LINK_CARD.OPEN_NEW_TAB' | translate }}</span>
+        </label>
+    </ng-container>
+
+    <ng-container *ngIf="isTaskWidget">
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.TASK_WIDGET.FIELD_MAX_ITEMS' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="number"
+                min="1"
+                max="20"
+                [ngModel]="taskOptions.maxItems ?? 5"
+                (ngModelChange)="patchTaskOptions({ maxItems: +$event || 5 })"
+            />
+        </label>
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.TASK_WIDGET.FIELD_CTA_LABEL' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="taskOptions.ctaLabel || ''"
+                (ngModelChange)="patchTaskOptions({ ctaLabel: $event })"
+            />
+        </label>
+        <label class="dashboard-form-field">
+            <span>{{ 'MEDICAL_RECORDS.TASK_WIDGET.FIELD_CTA_ROUTE' | translate }}</span>
+            <input
+                class="dashboard-form-control"
+                type="text"
+                [ngModel]="taskOptions.ctaRoute || ''"
+                (ngModelChange)="patchTaskOptions({ ctaRoute: $event })"
+                placeholder="/medical-records#tasks"
+            />
+        </label>
+    </ng-container>
+
+    <ng-container *ngIf="isChartWidget">
+        <div class="appearance-panel__subsection">
+            <span class="appearance-panel__subtitle">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_TITLE' | translate }}</span>
+            <label class="checkbox-row">
+                <input
+                    type="checkbox"
+                    [checked]="widget.chartHeadline?.show === true"
+                    (change)="patchChartHeadline({ show: $any($event.target).checked })"
+                />
+                <span>{{ 'MEDICAL_RECORDS.CHART.HEADLINE_SHOW' | translate }}</span>
+            </label>
+            <label class="dashboard-form-field" *ngIf="widget.chartHeadline?.show">
+                <span>{{ 'MEDICAL_RECORDS.CHART.HEADLINE_LABEL' | translate }}</span>
+                <input
+                    class="dashboard-form-control"
+                    type="text"
+                    [ngModel]="widget.chartHeadline?.label || ''"
+                    (ngModelChange)="patchChartHeadline({ label: $event })"
+                />
+            </label>
+            <label class="dashboard-form-field" *ngIf="widget.chartHeadline?.show">
+                <span>{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGGREGATION' | translate }}</span>
+                <select
+                    class="dashboard-form-control"
+                    [ngModel]="widget.chartHeadline?.aggregation || 'last'"
+                    (ngModelChange)="patchChartHeadline({ aggregation: $event })"
+                >
+                    <option value="last">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGG_LAST' | translate }}</option>
+                    <option value="sum">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGG_SUM' | translate }}</option>
+                    <option value="avg">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGG_AVG' | translate }}</option>
+                    <option value="max">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGG_MAX' | translate }}</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="appearance-panel__subsection">
+            <span class="appearance-panel__subtitle">{{ 'MEDICAL_RECORDS.CHART.SERIES_STYLE' | translate }}</span>
+            <select class="dashboard-form-control" [ngModel]="chartPreset()" (ngModelChange)="selectChartPreset($event)">
+                <option *ngFor="let preset of gradientPresets" [ngValue]="preset">
+                    {{ presetLabelKey(preset) | translate }}
+                </option>
+            </select>
+            <div class="appearance-panel__stops" *ngIf="chartPreset() === 'custom' && widget.chartSeriesStyle?.gradientStops?.length">
+                <label *ngFor="let stop of widget.chartSeriesStyle?.gradientStops; let i = index" class="appearance-panel__stop">
+                    <input type="color" [ngModel]="stop.color" (ngModelChange)="updateChartStop(i, $event)" />
+                    <span>{{ stop.position ?? 0 }}%</span>
+                </label>
+            </div>
+            <div class="appearance-panel__preview" *ngIf="widget.chartSeriesStyle">
+                <span class="appearance-panel__preview-bar" [style.background]="widget.chartSeriesStyle | seriesStyleBg"></span>
+            </div>
+            <button type="button" class="ghost-action appearance-panel__clear" (click)="clearChartSeriesOverride()">
+                {{ 'MEDICAL_RECORDS.CHART.USE_GLOBAL_THEME' | translate }}
+            </button>
+        </div>
+
+        <medical-records-dashboard-builder-data-binding
+            panel="axes"
+            [bindingScope]="bindingScope"
+            [widget]="widget"
+            (widgetPatch)="patch($event)"
+        ></medical-records-dashboard-builder-data-binding>
+    </ng-container>
+</section>

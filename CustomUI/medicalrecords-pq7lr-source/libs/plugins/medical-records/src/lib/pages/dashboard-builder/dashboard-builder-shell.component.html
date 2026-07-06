@@ -1,0 +1,204 @@
+<section class="dashboard-builder" [ngStyle]="builderStyle">
+
+    <header class="page-hero page-hero--builder">
+
+        <div class="page-hero__copy">
+
+            <span class="page-hero__eyebrow">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.EYEBROW' | translate }}</span>
+
+            <h1>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.TITLE' | translate }}</h1>
+
+            <p>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.DESCRIPTION' | translate }}</p>
+
+        </div>
+
+        <div class="page-hero__actions">
+
+            <button type="button" class="ghost-action" (click)="resetLayoutDemo()">
+
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.RESET_LAYOUT' | translate }}
+
+            </button>
+
+            <button type="button" class="primary-action" (click)="saveLayout()" [disabled]="layoutLoading || layoutSaving">
+
+                {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.SAVE_LAYOUT' | translate }}
+
+            </button>
+
+            <a routerLink="/medical-records" class="ghost-action">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}</a>
+
+        </div>
+
+    </header>
+
+
+
+    <p class="dashboard-builder__note" *ngIf="savedMessage">{{ savedMessage | translate: savedMessageParams }}</p>
+
+    <p class="dashboard-builder__note dashboard-builder__note--muted" *ngIf="layoutLoading">
+        {{ 'MEDICAL_RECORDS.DASHBOARD.LOADING_LAYOUT' | translate }}
+    </p>
+
+    <p class="dashboard-builder__note dashboard-builder__note--muted" *ngIf="!layoutLoading">
+        {{
+            (layoutLoadSource === 'repo'
+                ? 'MEDICAL_RECORDS.DASHBOARD.LOAD_SOURCE_REPO'
+                : 'MEDICAL_RECORDS.DASHBOARD.LOAD_SOURCE_DEFAULT')
+                | translate
+        }}
+    </p>
+
+    <p class="dashboard-builder__note dashboard-builder__note--muted">
+
+        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.REPO_STORAGE_HINT' | translate }}
+
+    </p>
+
+
+
+    <medical-records-dashboard-builder-layout-source-panel
+        [loading]="layoutLoading || layoutSaving || layoutCopying"
+        [activeDocument]="activeLayoutDocument"
+        (applyDocument)="onLayoutDocumentApply($event)"
+        (copyDocument)="onLayoutDocumentCopy()"
+        (refreshDocuments)="onLayoutDocumentsRefresh()"
+    ></medical-records-dashboard-builder-layout-source-panel>
+
+    <medical-records-dashboard-builder-theme-panel
+
+        [theme]="theme"
+
+        (themeChange)="onThemeChange($event)"
+
+    ></medical-records-dashboard-builder-theme-panel>
+
+
+
+    <section class="dashboard-builder__canvas">
+
+        <div class="dashboard-builder__canvas-body">
+
+            <p class="dashboard-builder__canvas-hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CANVAS_LAYOUT_HINT' | translate }}</p>
+
+            <medical-records-dashboard-widget-grid
+
+                *ngIf="!layoutLoading"
+                [editMode]="true"
+
+                [pages]="layout.pages"
+
+                [activePageId]="activePageId"
+
+                [widgets]="layout.widgets"
+
+                [theme]="theme"
+
+                [layoutSourceDocumentId]="layout.layoutSourceDocumentId"
+
+                [selectedWidgetId]="selectedWidgetId"
+
+                [selectedContainerId]="selectedContainerId"
+
+                [activeContainerId]="activeContainerId"
+
+                [selectedPageId]="selectedPageId"
+
+                (layoutChange)="onLayoutChange($event)"
+
+                (activePageChange)="onActivePageChange($event)"
+
+                (pageSelect)="onPageSelect($event)"
+
+                (containerSelect)="onContainerSelect($event)"
+
+                (containerActivate)="onContainerActivate($event)"
+
+                (widgetSelect)="onWidgetSelect($event)"
+
+                (widgetRemove)="onWidgetRemove($event)"
+
+                (addPage)="addPage()"
+
+                (addContainer)="addContainer()"
+
+                (removePage)="removePage($event)"
+
+                (removeContainer)="removeContainer($event)"
+
+            ></medical-records-dashboard-widget-grid>
+
+        </div>
+
+    </section>
+
+
+
+    <div class="dashboard-builder__palette-dock" [ngStyle]="paletteDockStyle">
+
+        <medical-records-dashboard-builder-palette
+            [connectedDropIds]="sectionDropIds"
+            [activeTabLabel]="activeTabLabel"
+            [activeSectionTitle]="activeSectionTitle"
+            [layoutLoading]="layoutLoading"
+            [layoutSaving]="layoutSaving"
+            (addWidget)="addWidget($event)"
+            (saveLayout)="saveLayout()"
+            (resetLayout)="resetLayoutDemo()"
+        ></medical-records-dashboard-builder-palette>
+
+    </div>
+
+
+
+    <medical-records-dashboard-builder-widget-editor-modal
+
+        *ngIf="editorModalOpen && selectedWidget as widget"
+
+        [widget]="widget"
+
+        [containerLayoutMode]="selectedWidgetContainerLayoutMode"
+
+        (widgetPatch)="updateSelectedWidget($event)"
+
+        (closeModal)="closeEditorModal()"
+
+    ></medical-records-dashboard-builder-widget-editor-modal>
+
+
+
+    <medical-records-dashboard-builder-structure-editor-modal
+
+        *ngIf="structureModalOpen && structureModalMode === 'tab' && selectedPage as page"
+
+        mode="tab"
+
+        [page]="page"
+
+        (pagePatch)="updateSelectedPage($event)"
+
+        (closeModal)="closeStructureModal()"
+
+    ></medical-records-dashboard-builder-structure-editor-modal>
+
+
+
+    <medical-records-dashboard-builder-structure-editor-modal
+
+        *ngIf="structureModalOpen && structureModalMode === 'container' && selectedContainer as container"
+
+        mode="container"
+
+        [container]="container"
+
+        [containerLayoutModes]="containerLayoutModes"
+
+        (containerPatch)="updateSelectedContainer($event)"
+
+        (closeModal)="closeStructureModal()"
+
+    ></medical-records-dashboard-builder-structure-editor-modal>
+
+</section>
+
+

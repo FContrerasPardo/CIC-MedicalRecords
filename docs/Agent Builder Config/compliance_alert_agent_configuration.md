@@ -4,7 +4,24 @@
 
 This document centralizes the Agent Builder configuration for the **Compliance Alert Agent** used in the Hyland Cuentas Médicas demo.
 
-The agent validates whether the medical account has the required supporting documentation and authorization evidence before approval. It analyzes the IDP-extracted `batchState`, documentation requirements, payer rules, and pre-authorization data to detect missing documents, incomplete support evidence, review-required documents, and compliance risks.
+The agent validates whether the medical account has the required supporting
+documentation and payer compliance evidence before approval. It analyzes the
+IDP-extracted **`batchState`** (full payload) and **`payerCompliancePolicy`** to
+detect missing documents, incomplete support evidence, review-required documents,
+and compliance risks.
+
+**Not passed to this agent:** `documentationRules`, `preAuthorization` (widget /
+Intake only). Mapping extra inputs to the agent caused empty or failed responses
+in pilot testing.
+
+### Automate deploy reference
+
+| Field | Value |
+|-------|-------|
+| Studio key | `compliance-alert-age-4x5t2` |
+| Export JSON | `automate/.../agents/compliance-alert-age-4x5t2.json` |
+| batchState at runtime | **Full** string via `$SbatchState` (`jsontostring`) |
+| BPMN mappings | `automate/.../processes/agentmesh-hk5kb-extensions.json` |
 
 ---
 
@@ -19,13 +36,10 @@ Compliance Alert Agent
 ### Large Language Model
 
 ```text
-Claude Haiku
+anthropic.claude-opus-4-6-v1
 ```
 
-Use this as the current validation baseline for the demo. This agent was the
-first stable reference because its required outcome produced a non-empty JSON
-string in the Automate event log. If another model is selected, keep it only
-after a manual agent test and event-log validation confirm the same behavior.
+Configured in the current Automate export as **Claude Opus 4.6**.
 
 ### Agent Description
 
@@ -69,37 +83,14 @@ IDP-generated JSON with classified documents, extracted fields, tables, document
 
 **Purpose**
 
-Represents what IDP extracted and classified from the account. It is used to identify which documents are present, their classification status, extraction status, confidence, extracted fields, and review requirements.
+Represents what IDP extracted and classified from the account. Passed as the
+**full** IDP payload (`SbatchState`). Used to identify which documents are
+present, their classification status, extraction status, confidence, extracted
+fields, tables, and review requirements.
 
 ---
 
-### Input 2 — documentationRules
-
-**Input Name**
-
-```text
-documentationRules
-```
-
-**Input Type**
-
-```text
-string
-```
-
-**Input Description**
-
-```text
-JSON with required support documents by service, procedure, payer, diagnosis, authorization type, and account context.
-```
-
-**Purpose**
-
-Represents the rules that define which support documents are required for each service, procedure, diagnosis, payer, or account type.
-
----
-
-### Input 3 — payerCompliancePolicy
+### Input 2 — payerCompliancePolicy
 
 **Input Name**
 
@@ -121,33 +112,13 @@ JSON with payer-specific documentation, authorization, filing, and compliance ru
 
 **Purpose**
 
-Represents payer-specific compliance requirements, such as prior authorization requirements, required evidence, mandatory forms, validity windows, and document acceptance rules.
+Represents payer-specific compliance requirements, such as prior authorization
+rules, mandatory forms, required evidence, filing rules, accepted document types,
+validity windows, and document acceptance rules.
 
----
-
-### Input 4 — preAuthorization
-
-**Input Name**
-
-```text
-preAuthorization
-```
-
-**Input Type**
-
-```text
-string
-```
-
-**Input Description**
-
-```text
-JSON with approved services for the patient/account, including authorization identifiers, dates, status, approved quantities, and amounts.
-```
-
-**Purpose**
-
-Represents the authorization record for the specific patient/account. The agent uses it to confirm whether the required authorization exists, is approved, is active, and matches the billed services.
+**Operational note:** Do not map `documentationRules` or `preAuthorization` to
+this agent in BPMN. Those variables remain available on the **agent-rules widget**
+for Intake review only.
 
 ---
 
@@ -267,54 +238,35 @@ You are the Compliance Alert Agent for a Hyland Medical Accounts workflow.
 
 Your role is to validate whether the medical account has the required supporting documentation and authorization evidence before it proceeds to approval.
 
-You will receive four inputs as JSON-formatted strings:
+You will receive this inputs as JSON-formatted strings:
 
 batchState:
 {{batchState}}
 
-documentationRules:
-{{documentationRules}}
-
 payerCompliancePolicy:
 {{payerCompliancePolicy}}
-
-preAuthorization:
-{{preAuthorization}}
 
 Interpret these inputs as structured JSON content.
 
 batchState represents what was processed by IDP. It may include classified documents, extracted fields, tables, document types, document statuses, extraction review statuses, confidence values, billed services, procedure codes, diagnosis codes, dates, amounts, and review-required flags.
 
-documentationRules represents required support documentation rules. It may include required documents by service, procedure, diagnosis, payer, account type, authorization type, and billing scenario.
-
 payerCompliancePolicy represents payer-specific documentation and compliance requirements. It may include prior authorization rules, mandatory forms, required evidence, filing rules, accepted document types, validity windows, and required metadata.
 
-preAuthorization represents authorization records for this specific patient/account. It may include authorization identifiers, approved services, procedure codes, quantities, approved amounts, authorization status, and validity dates.
-
 Your tasks:
-1. Identify documents present in batchState and their classification/extraction status.
-2. Identify services, procedures, diagnoses, and account context from batchState.
-3. Determine required support documents using documentationRules.
-4. Apply payer-specific documentation requirements using payerCompliancePolicy.
-5. Validate whether required documents are present.
-6. Validate whether present documents are classified and extracted with sufficient confidence.
-7. Detect documents with ReviewRequired, low confidence, missing extracted fields, or rejected status.
-8. Validate whether prior authorization is required for billed services.
-9. Validate whether required authorization evidence exists in the documents or preAuthorization input.
-10. Detect missing, expired, rejected, or mismatched authorization evidence.
-11. Identify which services/procedures are blocked by missing support documentation.
-12. Assign a risk level to each compliance finding.
-13. Recommend a concrete action for each finding.
+- Identify documents present in batchState and their classification/extraction status.
+- Identify services, procedures, diagnoses, and account context from batchState.
+- Apply payer-specific documentation requirements using payerCompliancePolicy.
+- Validate whether prior authorization evidence appears in batchState documents when required by policy.
+- Detect missing, expired, rejected, or mismatched authorization evidence inferred from documents.
+- Assign a risk level to each compliance finding.
+- Recommend a concrete action for each finding.
 
 Important rules:
 - Do not invent documents.
 - Do not invent authorization records.
 - Do not invent payer requirements.
-- If documentationRules do not define requirements for an item, state that documentation validation is limited for that item.
-- If payerCompliancePolicy does not define payer-specific requirements, state that payer-specific compliance validation is limited.
-- If a required document is not present in batchState, flag it as MISSING_SUPPORT_DOCUMENT.
-- If a document is present but extractionReviewStatus or classification status indicates ReviewRequired, flag it as DOCUMENT_REVIEW_REQUIRED.
-- If an authorization is required but missing from both documents and preAuthorization, flag it as MISSING_AUTHORIZATION_DOCUMENT.
+- If documentationRules are needed, they are **not** an agent input in this pilot; infer requirements from payerCompliancePolicy and document types in batchState.
+- If an authorization is required but no evidence exists in batchState documents, flag as MISSING_AUTHORIZATION_DOCUMENT.
 - If authorization status is not APPROVED, flag it as INVALID_AUTHORIZATION_STATUS.
 - If authorization validity dates do not cover the service date, flag it as EXPIRED_OR_INVALID_AUTHORIZATION.
 - If extracted document confidence is low or unclear, flag it as LOW_CONFIDENCE_DOCUMENT.
@@ -479,7 +431,20 @@ Return the result as a valid JSON object with this structure:
 
 ---
 
-## 8. Example preAuthorization Input
+## 8. Variables not mapped to this agent
+
+These process variables exist for the **agent-rules widget** and Intake but are
+**not** Agent Builder inputs for Compliance in the current pilot:
+
+| Variable | Where used |
+|----------|------------|
+| `documentationRules` | agent-rules widget (Intake tab) |
+| `preAuthorization` | agent-rules widget (hidden when empty) |
+
+Mapping them to the Compliance agent caused empty or failed responses. Keep
+BPMN mappings to **two inputs only** (`batchState`, `payerCompliancePolicy`).
+
+Example `preAuthorization` shape (reference only — not an agent input):
 
 ```json
 {
@@ -567,38 +532,281 @@ Return the result as a valid JSON object with this structure:
   "requiresManualReview": true
 }
 ```
-
+Example
+```json
+{
+    "agentName": "Compliance Alert Agent",
+    "overallRiskLevel": "HIGH",
+    "summary": "Medical account for patient ARIANNY PEÑA TERRERO (Record 2406-2848) at CM-UCE contains 8 documents including 2 invoices, 1 medical audit objection form, 1 pathology report, 3 radiology/imaging reports, and 1 admission form. Key compliance issues identified: (1) The Formulario de Objeciones has extraction review required with low-confidence fields and missing ARS signature; (2) Radiology services billed lack explicit prior authorization documentation per payer policy COMP-001; (3) Hospitalization services lack formal clinical notes per payer policy COMP-002; (4) The invoice indicates the ARS has NOT signed the document. Authorization numbers found in the objection form (9089941/4677889) but no standalone prior authorization document exists in the batch.",
+    "complianceSummary": {
+        "payerPolicyValidationAvailable": true
+    },
+    "findings": [
+        {
+            "findingId": "F-001",
+            "type": "DOCUMENT_REVIEW_REQUIRED",
+            "riskLevel": "HIGH",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": "Formulario de Objeciones Auditoría Médica",
+            "matchedDocumentName": "Formulario de Objeciones Auditoría Médica",
+            "matchedDocumentId": "e7409cc9-ae95-4f54-8aab-5ad412dc5177",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": "Formulario de Objeciones Auditoría Médica",
+            "sourceField": "Multiple fields (No. Autorización, Valor Total Glosado, Esta Firmado por la ARS?)",
+            "matchedRuleId": null,
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "The medical audit objection form has extractionReviewStatus 'ReviewRequired' with multiple fields flagged for low OCR confidence including authorization number, total glossed value, and ARS signature status. The ARS signature field indicates 'No' - the document is not signed by ARS Primera.",
+            "recommendation": "Manual review required to verify authorization numbers (9089941/4677889), total glossed value ($4260.47), and confirm whether ARS signature is truly absent. If ARS has not signed, escalate to obtain ARS endorsement before proceeding."
+        },
+        {
+            "findingId": "F-002",
+            "type": "MISSING_AUTHORIZATION_DOCUMENT",
+            "riskLevel": "HIGH",
+            "serviceCode": "71010",
+            "procedureCode": "903895",
+            "diagnosisCode": null,
+            "requiredDocumentType": "Prior Authorization",
+            "matchedDocumentName": null,
+            "matchedDocumentId": null,
+            "authorizationId": "9089941/4677889",
+            "authorizationStatus": "Referenced in objection form but no standalone document",
+            "sourceDocument": null,
+            "sourceField": null,
+            "matchedRuleId": "COMP-001",
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "Payer policy COMP-001 requires prior authorization documentation for radiology procedures. Radiology services (RX TORAX 1V) are billed in the account. Authorization numbers 9089941/4677889 are referenced in the objection form but no standalone prior authorization document is present in the batch.",
+            "recommendation": "Obtain and attach the original prior authorization document from ARS Primera confirming authorization numbers 9089941/4677889 cover the radiology services billed."
+        },
+        {
+            "findingId": "F-003",
+            "type": "MISSING_SUPPORT_DOCUMENT",
+            "riskLevel": "HIGH",
+            "serviceCode": "71010",
+            "procedureCode": "903895",
+            "diagnosisCode": null,
+            "requiredDocumentType": "Radiology Report",
+            "matchedDocumentName": "Laboratorios (RX TORAX 1V)",
+            "matchedDocumentId": "b1a180f9-584d-4e61-9458-10b775be9f28",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": null,
+            "sourceField": null,
+            "matchedRuleId": "COMP-001",
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "Payer policy COMP-001 requires a radiology report for radiology procedures. Two RX Torax reports are present in the batch (documents b1a180f9 and 31763756), which satisfies this requirement. However, these are classified as 'Laboratorios' rather than explicitly as 'Radiology Report'. The content confirms they are radiology reports.",
+            "recommendation": "Verify that the two chest X-ray reports (documents b1a180f9 and 31763756) are accepted by ARS Primera as fulfilling the radiology report requirement. No additional action needed if payer accepts the current classification."
+        },
+        {
+            "findingId": "F-004",
+            "type": "MISSING_SUPPORT_DOCUMENT",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": "Clinical Notes",
+            "matchedDocumentName": null,
+            "matchedDocumentId": null,
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": null,
+            "sourceField": null,
+            "matchedRuleId": "COMP-002",
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "Payer policy COMP-002 requires clinical notes for hospitalization services. The patient was admitted 2024-06-13 to 2024-06-16 with ICU stay and surgery (LAPAROTOMIA EXPLORATORIA). No document classified as 'Clinical Notes' or 'Notas Clínicas' is present in the batch.",
+            "recommendation": "Obtain and attach clinical notes (progress notes, physician orders, nursing notes) covering the hospitalization period 2024-06-13 to 2024-06-16 to satisfy payer requirement COMP-002."
+        },
+        {
+            "findingId": "F-005",
+            "type": "PAYER_COMPLIANCE_CONFLICT",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": "Admission Notes",
+            "matchedDocumentName": "Planilla de Admisión",
+            "matchedDocumentId": "ace979a5-2ab7-41fe-b536-84f7b70900ee",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": "Planilla de Admisión",
+            "sourceField": null,
+            "matchedRuleId": "COMP-002",
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "Payer policy COMP-002 requires admission notes for hospitalization. A 'Planilla de Admisión' (admission form) is present but it is a consent/authorization form rather than clinical admission notes documenting the patient's condition at admission. This may not fully satisfy the payer's requirement for 'Admission Notes'.",
+            "recommendation": "Verify with ARS Primera whether the Planilla de Admisión satisfies their 'Admission Notes' requirement, or obtain formal medical admission notes documenting the patient's clinical status at time of admission."
+        },
+        {
+            "findingId": "F-006",
+            "type": "PAYER_COMPLIANCE_CONFLICT",
+            "riskLevel": "HIGH",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": null,
+            "matchedDocumentName": "Factura y Desglose (001376558)",
+            "matchedDocumentId": "fdf24247-6b44-4f5e-890a-fdb5b9e31dd6",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": "Factura y Desglose",
+            "sourceField": "Esta Firmado por la ARS?",
+            "matchedRuleId": null,
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "The primary invoice (001376558) indicates 'Esta Firmado por la ARS?' = 'No'. The invoice has not been signed/endorsed by ARS Primera, which may indicate the payer has not reviewed or accepted the charges.",
+            "recommendation": "Obtain ARS Primera's signature/endorsement on the invoice before submitting for final approval. This is typically required for claim acceptance."
+        },
+        {
+            "findingId": "F-007",
+            "type": "LOW_CONFIDENCE_DOCUMENT",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": null,
+            "matchedDocumentName": "Factura y Desglose (001376558)",
+            "matchedDocumentId": "fdf24247-6b44-4f5e-890a-fdb5b9e31dd6",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": "Factura y Desglose",
+            "sourceField": "Nombre del Paciente, Monto Facturado al Paciente, Monto Facturado a ARS, Monto total Facturado, Balance ARS",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "Multiple critical financial fields on the primary invoice have zero extraction confidence with 'ThresholdNotMet.OcrConfidence' flags, including amounts billed to patient (263), amounts billed to ARS (88,531), total billed (114,846), and ARS balance (88,531). Patient name OCR confidence is only 0.471.",
+            "recommendation": "Manually verify all financial amounts on invoice 001376558 against source documents. Confirm patient name spelling and all monetary values before submission."
+        },
+        {
+            "findingId": "F-008",
+            "type": "OTHER",
+            "riskLevel": "MEDIUM",
+            "serviceCode": null,
+            "procedureCode": null,
+            "diagnosisCode": null,
+            "requiredDocumentType": null,
+            "matchedDocumentName": "Formulario de Objeciones Auditoría Médica",
+            "matchedDocumentId": "e7409cc9-ae95-4f54-8aab-5ad412dc5177",
+            "authorizationId": null,
+            "authorizationStatus": null,
+            "sourceDocument": "Formulario de Objeciones Auditoría Médica",
+            "sourceField": "Monto de Objeción",
+            "matchedRuleId": null,
+            "payerPolicyId": "ARS-PRIMERA-COMPLIANCE-2024",
+            "reason": "The medical audit objection form documents objections totaling $4,200.42-$4,476.60 for medications (Ceftriaxona, Esomeprazol, Nitrofurantoina, Xigaxano, Ondansetron) and laboratory tests. These objections represent potential glosas that will reduce the reimbursable amount.",
+            "recommendation": "Ensure the conciliation amount ($4,260.42/$4,476.60) is properly reflected in the final claim amount. Verify whether the provider accepted or contested these objections and adjust billing accordingly."
+        }
+    ],
+    "missingDocuments": [
+        {
+            "documentType": "Prior Authorization Document",
+            "requiredFor": "Radiology procedures (RX TORAX) and surgical procedures",
+            "serviceCode": "71010",
+            "procedureCode": "903895",
+            "priority": "HIGH",
+            "reason": "Payer policy COMP-001 requires prior authorization documentation. Authorization numbers referenced (9089941/4677889) but no standalone authorization document in batch."
+        },
+        {
+            "documentType": "Clinical Notes",
+            "requiredFor": "Hospitalization services (ICU stay, surgery)",
+            "serviceCode": null,
+            "procedureCode": null,
+            "priority": "MEDIUM",
+            "reason": "Payer policy COMP-002 requires clinical notes for hospitalization. No clinical notes document found in the batch covering the 3-day admission."
+        },
+        {
+            "documentType": "Surgical Report / Operative Notes",
+            "requiredFor": "Surgical procedures (LAPAROTOMIA EXPLORATORIA + LIBERACION DE)",
+            "serviceCode": null,
+            "procedureCode": null,
+            "priority": "MEDIUM",
+            "reason": "Major surgical procedure performed but no operative/surgical report is present in the batch to document the procedure performed."
+        }
+    ],
+    "documentsRequiringReview": [
+        {
+            "documentId": "e7409cc9-ae95-4f54-8aab-5ad412dc5177",
+            "documentName": "Formulario de Objeciones Auditoría Médica",
+            "documentType": "Formulario de Objeciones Auditoría Médica",
+            "reason": "Extraction review required. Multiple fields have low OCR confidence: authorization number, total glossed value, ARS signature status. ARS signature indicated as 'No'.",
+            "confidence": 0.94,
+            "priority": "HIGH"
+        },
+        {
+            "documentId": "fdf24247-6b44-4f5e-890a-fdb5b9e31dd6",
+            "documentName": "Factura y Desglose (001376558)",
+            "documentType": "Factura y Desglose",
+            "reason": "Multiple critical financial fields have zero extraction confidence. Patient name OCR confidence is 0.471. ARS has not signed the invoice.",
+            "confidence": 0.9195,
+            "priority": "MEDIUM"
+        },
+        {
+            "documentId": "08a9e03b-7f72-4480-85ec-ec82cfe76b20",
+            "documentName": "Factura y Desglose (00001439247)",
+            "documentType": "Factura y Desglose",
+            "reason": "Several fields have zero extraction confidence including patient name, financial amounts, and balance. Record field shows '.NULL.' as original value.",
+            "confidence": 0.9195,
+            "priority": "MEDIUM"
+        }
+    ],
+    "recommendedActions": [
+        {
+            "action": "Obtain and attach the original prior authorization document from ARS Primera (authorization numbers 9089941/4677889) to satisfy payer compliance rule COMP-001.",
+            "priority": "HIGH",
+            "owner": "Authorization Team"
+        },
+        {
+            "action": "Manually review and validate the Formulario de Objeciones Auditoría Médica - confirm authorization numbers, glossed amounts, and ARS signature status.",
+            "priority": "HIGH",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Obtain ARS Primera signature/endorsement on the primary invoice (001376558) before final submission.",
+            "priority": "HIGH",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Obtain and attach clinical notes and operative report covering the hospitalization period 2024-06-13 to 2024-06-16 to satisfy payer requirement COMP-002.",
+            "priority": "MEDIUM",
+            "owner": "Documentation Team"
+        },
+        {
+            "action": "Manually verify all financial amounts on both invoices against source documents, particularly amounts with zero extraction confidence.",
+            "priority": "MEDIUM",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Confirm conciliation of medical audit objections ($4,260.42) and adjust final claim amount accordingly.",
+            "priority": "MEDIUM",
+            "owner": "Billing Team"
+        }
+    ],
+    "readyForApproval": false,
+    "requiresManualReview": true
+}
+```
 ---
 
 ## 10. UI Mapping Notes for Analysis Phase
 
-The Analysis screen can consume this output to populate:
+Widget: `analysis-task-widget` — mapper: `analysis.mapper.ts`.
 
-- Missing Docs count
-- Compliance Alert card
-- Request Authorization action
-- Review-required documentation alerts
-- Manual review status
-- Approval readiness
-
-Suggested mapping:
+- **Compliance Gaps** metric: `findings.length` (payer readiness, not only missing documents)
+- **All Findings** panel: all compliance `findings[]` including `DOCUMENT_REVIEW_REQUIRED`, `PAYER_COMPLIANCE_CONFLICT`, etc.
+- Agent card **Request Authorization** opens informational modal with findings + `recommendedActions[]`
+- Task completion buttons are **not** in the widget (Automate form footer)
 
 | UI Element | Output Field |
 |---|---|
-| Missing Docs Count | `complianceSummary.missingRequiredDocuments` |
-| Compliance Alert Card | First HIGH/CRITICAL finding |
-| Request Authorization Button | Findings with `MISSING_AUTHORIZATION_DOCUMENT` |
-| Missing Documents List | `missingDocuments[]` |
-| Review Required Docs | `documentsRequiringReview[]` |
-| Approve Proceed Enabled | `readyForApproval` |
-| Manual Review Needed | `requiresManualReview` |
+| Compliance Gaps count | `findings.length` |
+| Compliance Alert card | Highest-risk finding + `findings.length` |
+| All Findings list | `findings[]` with `type`, `reason`, `recommendation` |
+| Recommended Actions | `recommendedActions[]` |
+| Approval state (text) | `readyForApproval`, `requiresManualReview` |
 
 ---
 
 ## 11. Current Open Questions
 
 - Should missing support documents be detected only by this agent, or also by the Coding Integrity Agent?
-- Should preAuthorization be reused from the Financial Agent input, or should this agent receive a compliance-specific authorization input?
 - Should documentationRules be mocked for the demo or maintained later in a data model/API?
 - Should the agent validate document confidence thresholds, or should that remain in the Intake widget?
 - Should the agent produce one compliance result or separate outcomes for missing documents and authorization issues?
@@ -607,24 +815,19 @@ Suggested mapping:
 
 ## 12. Configuration Checklist
 
-- [ ] Agent name set to `Compliance Alert Agent`
-- [ ] Model selected and validated: `Claude Haiku`
+- [ ] Agent name set to `Compliance Alert Agent v3` (key `compliance-alert-age-4x5t2`)
+- [ ] Model: `anthropic.claude-opus-4-6-v1`
 - [ ] Agent description added
-- [ ] Input `batchState` created as string
-- [ ] Input `documentationRules` created as string
+- [ ] Input `batchState` created as string (full `$SbatchState`)
 - [ ] Input `payerCompliancePolicy` created as string
-- [ ] Input `preAuthorization` created as string
-- [ ] Prompt references `{{batchState}}`
-- [ ] Prompt references `{{documentationRules}}`
-- [ ] Prompt references `{{payerCompliancePolicy}}`
-- [ ] Prompt references `{{preAuthorization}}`
+- [ ] **Do not** map `documentationRules` or `preAuthorization` to this agent
+- [ ] Prompt references `{{batchState}}` and `{{payerCompliancePolicy}}` only
 - [ ] Outcome `complianceAlertResult` created
 - [ ] Outcome type set to string
 - [ ] Outcome marked as Required/App required
-- [ ] Outcome instructions added
 - [ ] Manual agent test returns non-empty JSON
 - [ ] Event log contains `outBoundVariables.complianceAlertResult.value`
-- [ ] BPMN agent activity remapped after Agent Builder variable changes
+- [ ] BPMN maps `$SbatchState` → agent `batchState`
 - [ ] Outcome mapped to `BuildIncrementalUnifiedWidgetPayload.json2`
 - [ ] Unified script output `unifiedWidgetPayloadText` mapped to `analysis-task-widget`
 - [ ] No tools configured for first version

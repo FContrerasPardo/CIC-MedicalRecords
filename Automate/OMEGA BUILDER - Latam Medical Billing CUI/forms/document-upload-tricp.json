@@ -1,0 +1,58 @@
+{
+  "formRepresentation" : {
+    "id" : "form-dff85f23-5d64-4f3c-944d-d0762d52e4c7",
+    "name" : "Document Upload",
+    "key" : "document-upload-tricp",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "28154bc1-2783-4ddc-bc3a-bde52e51b5fb",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Attachfile0ou9kk",
+                "name" : "Attach file",
+                "type" : "hxp-upload",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2,
+                  "fileSource" : {
+                    "name" : "HxP Content and Local",
+                    "serviceId" : "all-file-sources",
+                    "destinationFolderPath" : {
+                      "value" : "/MedRec/Temp",
+                      "type" : "static"
+                    }
+                  },
+                  "contentType" : "SysFile",
+                  "multiple" : true,
+                  "link" : false,
+                  "menuOptions" : {
+                    "show" : true,
+                    "download" : true,
+                    "remove" : true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

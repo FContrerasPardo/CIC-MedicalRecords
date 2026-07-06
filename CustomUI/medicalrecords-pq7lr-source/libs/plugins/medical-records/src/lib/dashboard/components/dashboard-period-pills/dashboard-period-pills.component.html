@@ -1,0 +1,38 @@
+<div class="dashboard-date-range" role="group" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD.DATE_RANGE_ARIA' | translate">
+    <span class="dashboard-date-range__label">{{ 'MEDICAL_RECORDS.DASHBOARD.DATE_RANGE_LABEL' | translate }}</span>
+
+    <div class="dashboard-date-range__presets">
+        <button
+            type="button"
+            class="dashboard-date-range__preset"
+            *ngFor="let preset of presets"
+            [class.dashboard-date-range__preset--active]="isPresetActive(preset.days)"
+            (click)="applyPreset(preset.days)"
+        >
+            {{ preset.labelKey | translate }}
+        </button>
+    </div>
+
+    <div class="dashboard-date-range__inputs">
+        <label class="dashboard-date-range__field">
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD.DATE_RANGE_FROM' | translate }}</span>
+            <input
+                type="date"
+                [ngModel]="startInput"
+                (ngModelChange)="onStartInputChange($event)"
+                (focus)="onStartFocus()"
+                (blur)="onStartBlur()"
+            />
+        </label>
+        <label class="dashboard-date-range__field">
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD.DATE_RANGE_TO' | translate }}</span>
+            <input
+                type="date"
+                [ngModel]="endInput"
+                (ngModelChange)="onEndInputChange($event)"
+                (focus)="onEndFocus()"
+                (blur)="onEndBlur()"
+            />
+        </label>
+    </div>
+</div>

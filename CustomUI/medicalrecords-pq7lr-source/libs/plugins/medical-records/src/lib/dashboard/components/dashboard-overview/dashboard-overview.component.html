@@ -1,6 +1,27 @@
+<p class="dashboard-overview__loading" *ngIf="layoutLoading">
+
+    {{ 'MEDICAL_RECORDS.DASHBOARD.LOADING_LAYOUT' | translate }}
+
+</p>
+
+
+
 <medical-records-dashboard-widget-grid
-    [widgetOrder]="widgetOrder"
+
+    *ngIf="!layoutLoading"
+
+    [pages]="pages"
+
+    [activePageId]="activePageId"
+
     [widgets]="widgets"
-    [performanceMetrics]="performanceMetrics"
+
+    [theme]="theme"
+
     (processSelected)="onProcessSelected($event)"
+
+    (activePageChange)="onActivePageChange($event)"
+
 ></medical-records-dashboard-widget-grid>
+
+

@@ -1,0 +1,30 @@
+<article class="link-card-widget spotlight-card">
+    <div class="link-card-widget__icon" aria-hidden="true">
+        <span class="material-icons">{{ iconName }}</span>
+    </div>
+
+    <div class="link-card-widget__copy">
+        <h3>{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+        <p *ngIf="config.helper || config.helperKey">{{ config.helper | dashboardWidgetText: config.helperKey }}</p>
+    </div>
+
+    <a
+        *ngIf="!isExternal && options.linkRoute"
+        class="link-card-widget__cta"
+        [routerLink]="options.linkRoute"
+    >
+        {{ buttonLabel }}
+        <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </a>
+
+    <a
+        *ngIf="isExternal && options.linkUrl"
+        class="link-card-widget__cta"
+        [href]="options.linkUrl"
+        [attr.target]="options.openInNewTab ? '_blank' : null"
+        [attr.rel]="options.openInNewTab ? 'noopener noreferrer' : null"
+    >
+        {{ buttonLabel }}
+        <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </a>
+</article>

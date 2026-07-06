@@ -1,0 +1,233 @@
+{
+  "formRepresentation" : {
+    "id" : "form-c2764678-ba33-4ab5-ab46-5b6092060207",
+    "name" : "insurance-claim",
+    "key" : "insurance-claim-vbd2m",
+    "description" : "",
+    "version" : 0,
+    "formDefinition" : {
+      "tabs" : [ ],
+      "fields" : [
+        {
+          "id" : "Group00ntbm",
+          "name" : "Customer Information:",
+          "type" : "group",
+          "tab" : null,
+          "params" : {
+            "hideHeader" : false,
+            "allowCollapse" : false,
+            "collapseByDefault" : false
+          },
+          "numberOfColumns" : 2,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "v_firstname",
+                "name" : "First Name:",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              },
+              {
+                "id" : "v_policynum",
+                "name" : "Policy Number:",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ],
+            "2" : [
+              {
+                "id" : "v_lastname",
+                "name" : "Last Name:",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "Group03xmwk",
+          "name" : "Claim Information:",
+          "type" : "group",
+          "tab" : null,
+          "params" : {
+            "hideHeader" : false,
+            "allowCollapse" : false,
+            "collapseByDefault" : false
+          },
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "v_device",
+                "name" : "Choose your covered device:",
+                "type" : "dropdown",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "optionType" : "manual",
+                "options" : [
+                  {
+                    "id" : "d0",
+                    "name" : "Phone"
+                  },
+                  {
+                    "id" : "d1",
+                    "name" : "Laptop"
+                  }
+                ],
+                "authName" : null,
+                "restUrl" : null,
+                "restResponsePath" : null,
+                "restIdProperty" : null,
+                "restLabelProperty" : null,
+                "selectionType" : "single",
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                },
+                "rule" : null
+              },
+              {
+                "id" : "v_peril",
+                "name" : "Peril Type:",
+                "type" : "dropdown",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "optionType" : "manual",
+                "options" : [
+                  {
+                    "id" : "p0",
+                    "name" : "Lost/Stolen"
+                  },
+                  {
+                    "id" : "p1",
+                    "name" : "Damaged"
+                  },
+                  {
+                    "id" : "p2",
+                    "name" : "Other"
+                  }
+                ],
+                "authName" : null,
+                "restUrl" : null,
+                "restResponsePath" : null,
+                "restIdProperty" : null,
+                "restLabelProperty" : null,
+                "selectionType" : "single",
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                },
+                "rule" : null
+              },
+              {
+                "id" : "v_pdate",
+                "name" : "Peril Date:",
+                "type" : "date",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minValue" : null,
+                "maxValue" : null,
+                "minDateRangeValue" : -30,
+                "maxDateRangeValue" : 0,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                },
+                "dateDisplayFormat" : "yyyy-MM-dd",
+                "dynamicDateRangeSelection" : true
+              }
+            ]
+          }
+        },
+        {
+          "id" : "ab7aa654-1093-4289-afe4-589c5b9fc743",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [
+              {
+                "id" : "Text0vfzbp",
+                "name" : "case_payload",
+                "type" : "text",
+                "readOnly" : false,
+                "required" : false,
+                "colspan" : 1,
+                "rowspan" : 1,
+                "placeholder" : null,
+                "minLength" : 0,
+                "maxLength" : 0,
+                "regexPattern" : null,
+                "visibilityCondition" : null,
+                "params" : {
+                  "existingColspan" : 1,
+                  "maxColspan" : 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id" : "0f3f0ff8-dd64-4893-aca5-244b6bc096d7",
+          "name" : "Section",
+          "tab" : null,
+          "type" : "section",
+          "numberOfColumns" : 1,
+          "fields" : {
+            "1" : [ ]
+          }
+        }
+      ],
+      "outcomes" : [ ],
+      "metadata" : {},
+      "variables" : [ ]
+    }
+  }
+}

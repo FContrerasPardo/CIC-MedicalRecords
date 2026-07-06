@@ -1,0 +1,65 @@
+@import '../../dashboard/dashboard-shared.styles.scss';
+
+.dashboard-builder {
+    width: 100%;
+    max-width: 1440px;
+    min-width: 0;
+    margin: 0 auto;
+    min-height: 100%;
+    padding: 28px 32px 112px;
+    color: #001b3d;
+    box-sizing: border-box;
+}
+
+.dashboard-builder__note {
+    margin: 0 0 16px;
+    color: #5d6778;
+    line-height: 1.6;
+}
+
+.dashboard-builder__canvas {
+    border: 1px solid rgba(194, 198, 212, 0.35);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 12px 40px rgba(0, 94, 184, 0.06);
+    padding: 16px;
+}
+
+.dashboard-builder__canvas-body {
+    min-width: 0;
+    overflow: auto;
+    padding: 8px 8px 0;
+}
+
+.dashboard-builder__palette-dock {
+    position: fixed;
+    z-index: 100;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.dashboard-builder__palette-dock > * {
+    pointer-events: auto;
+}
+
+.dashboard-builder__canvas-hint {
+    margin: 0 8px 12px;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.dashboard-builder__note--muted {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.page-hero--builder {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+    .dashboard-builder {
+        padding: 20px 16px 112px;
+    }
+}

@@ -1,26 +1,47 @@
 <section class="medical-records-experience" [attr.aria-label]="activeDetail.titleKey | translate">
-    <medical-records-dashboard-builder-shell *ngIf="isConfigureView; else dashboardExperience"></medical-records-dashboard-builder-shell>
+    <medical-records-dashboard-builder-shell *ngIf="isConfigureView; else shellContent"></medical-records-dashboard-builder-shell>
+
+    <ng-template #shellContent>
+    <section class="agreements-placeholder" *ngIf="isAgreementsView; else dashboardExperience">
+        <span class="material-icons">handshake</span>
+        <h1>{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</h1>
+        <p>{{ 'MEDICAL_RECORDS.AGREEMENTS.PLACEHOLDER' | translate }}</p>
+        <a routerLink="/medical-records" class="ghost-action">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}</a>
+    </section>
 
     <ng-template #dashboardExperience>
     <div class="dashboard-shell">
-        <header class="experience-header">
-            <div class="brand-cluster">
-                <div class="brand-copy">
-                    <span class="brand-name">{{ 'MEDICAL_RECORDS.BRAND' | translate }}</span>
-                    <p class="brand-subtitle" *ngIf="activePhase.key === 'overview'">{{ 'MEDICAL_RECORDS.PAGES.OVERVIEW.TITLE' | translate }}</p>
-                </div>
-                <nav class="top-links" [attr.aria-label]="'MEDICAL_RECORDS.NAV.QUICK_LINKS_ARIA' | translate">
-                    <a routerLink="/medical-records/configure">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</a>
-                    <span class="top-link-disabled" [title]="'MEDICAL_RECORDS.TOP_LINKS.ANALYTICS_SOON' | translate">
-                        {{ 'MEDICAL_RECORDS.TOP_LINKS.ANALYTICS' | translate }}
-                    </span>
-                </nav>
+        <header class="experience-header" *ngIf="activePhase.key !== 'overview'">
+            <div class="brand-copy">
+                <span class="brand-name">{{ 'MEDICAL_RECORDS.BRAND' | translate }}</span>
             </div>
+
+            <nav class="top-links" [attr.aria-label]="'MEDICAL_RECORDS.NAV.QUICK_LINKS_ARIA' | translate">
+                <a routerLink="/medical-records/agreements">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</a>
+            </nav>
 
             <div class="header-actions">
                 <button type="button" class="primary-action" (click)="openStartProcess()">{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}</button>
             </div>
         </header>
+
+        <header class="experience-header experience-header--compact" *ngIf="activePhase.key === 'overview'">
+            <nav class="top-links" [attr.aria-label]="'MEDICAL_RECORDS.NAV.QUICK_LINKS_ARIA' | translate">
+                <a routerLink="/medical-records/agreements">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</a>
+            </nav>
+        </header>
+
+        <section class="page-hero" *ngIf="activePhase.key === 'overview'">
+            <div class="page-hero__copy">
+                <span class="page-hero__eyebrow">{{ 'MEDICAL_RECORDS.EXPERIENCE.EYEBROW' | translate }}</span>
+                <h1>{{ 'MEDICAL_RECORDS.EXPERIENCE.PAGE_TITLE' | translate }}</h1>
+                <p>{{ 'MEDICAL_RECORDS.PAGES.OVERVIEW.DESCRIPTION' | translate }}</p>
+            </div>
+            <div class="page-hero__actions">
+                <a routerLink="/medical-records/configure" class="ghost-action">{{ 'MEDICAL_RECORDS.DASHBOARD.EDIT_DASHBOARD' | translate }}</a>
+                <button type="button" class="primary-action" (click)="openStartProcess()">{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}</button>
+            </div>
+        </section>
 
         <section class="process-heading" *ngIf="activePhase.key !== 'overview'">
             <h1>{{ activeDetail.titleKey | translate }}</h1>
@@ -28,7 +49,7 @@
         </section>
 
         <ng-container *ngIf="activePhase.key === 'overview'; else nonOverviewWorkspace">
-            <medical-records-dashboard-overview (processSelected)="openTaskDetails($event)"></medical-records-dashboard-overview>
+            <medical-records-dashboard-overview></medical-records-dashboard-overview>
         </ng-container>
 
         <ng-template #nonOverviewWorkspace>
@@ -696,5 +717,6 @@
             </ng-container>
         </ng-template>
     </div>
+    </ng-template>
     </ng-template>
 </section>

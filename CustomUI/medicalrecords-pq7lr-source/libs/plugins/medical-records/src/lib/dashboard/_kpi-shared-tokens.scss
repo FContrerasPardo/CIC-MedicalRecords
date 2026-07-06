@@ -1,0 +1,15 @@
+// Shared stat-card tokens used by analysis-task-widget and dashboard KPI strip.
+:root {
+    --kpi-stat-card-bg: rgba(255, 255, 255, 0.78);
+    --kpi-stat-card-border: rgba(194, 198, 212, 0.5);
+    --kpi-stat-card-radius: 14px;
+    --kpi-stat-card-padding: 14px 16px;
+    --kpi-stat-value-color: #0b1c30;
+    --kpi-stat-value-size: 24px;
+    --kpi-stat-label-color: #727783;
+    --kpi-stat-label-size: 11px;
+    --kpi-stat-helper-color: #9aa0ab;
+    --kpi-stat-positive: var(--dash-brand-teal, #13eac1);
+    --kpi-stat-negative: #ba1a1a;
+    --kpi-stat-flat: #667085;
+}

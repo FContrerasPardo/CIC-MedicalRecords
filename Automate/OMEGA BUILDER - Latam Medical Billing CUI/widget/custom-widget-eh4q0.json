@@ -1,0 +1,11 @@
+{
+  "id" : "custom-form-widget-d93c9ff8-b1b9-4dc6-901d-ab8cc7ac126a",
+  "name" : "custom-widget",
+  "key" : "custom-widget-eh4q0",
+  "description" : "",
+  "type" : "custom-widget",
+  "isCustomType" : true,
+  "valueType" : "string",
+  "icon" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAEZ0FNQQAAsY58+1GTAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAOZJREFUeNpjYBjqgJlC/bJAXAzEjED8AJsCRjR+FwEDy9AMTwFiTih/OxDvR9fARKbL5YA4FWr4QyD+B8SeQOyIrpCFCJei+0wO6nIOIL4IxMuB2BCIQ6GWMCD7hIUMl6MbDnL9Wag8zBJQ0O8jJ4jcoIb/gYb5PyS580D8CMp2IDcOlkANYYHGgQCSOeFArADEP4B4DiWpiAMaTKDgegvEs4DYAxoPMMMfUZKKkA0RBuJSXIZj8wEpANknWA2nBkC2hIGaOZnoHM9E68KOnJxMkjqa+2DoW4ArDrqI1N814D4YBQQBACr8LonbEIBuAAAAAElFTkSuQmCC",
+  "className" : ""
+}

@@ -185,7 +185,14 @@
             "SPAN_METRIC_QUARTER": "[TODO] Compact (1 column)",
             "SPAN_METRIC_HALF": "[TODO] Medium (2 columns)",
             "SPAN_METRIC_THREE_QUARTERS": "[TODO] Large (3 columns)",
-            "SPAN_METRIC_FULL": "[TODO] Full row (4 columns)"
+            "SPAN_METRIC_FULL": "[TODO] Full row (4 columns)",
+            "FIELD_INCLUDE_PROCESS_VARIABLES": "[TODO] Include process variables",
+            "INCLUDE_PROCESS_VARIABLES_HINT": "[TODO] Adds BPMN variables as columns (var_ prefix). Loaded for the first 100 rows per request.",
+            "FIELD_TABLE_ROW_FILTER": "[TODO] Show row filter in report",
+            "APPEARANCE_TITLE": "[TODO] Appearance",
+            "WIDGET_LINK_CARD": "[TODO] Link card",
+            "WIDGET_TASK_STATUS": "[TODO] Task status summary",
+            "WIDGET_TASK_RECENT": "[TODO] Recent tasks"
         },
         "CHART": {
             "EDITOR_TITLE": "[TODO] Chart axes",
@@ -221,7 +228,10 @@
             "AXIS_X_HOUR": "[TODO] Hour",
             "AXIS_X_CATEGORY": "[TODO] Category",
             "AXIS_Y_COUNT": "[TODO] Count",
-            "AXIS_Y_SUM": "[TODO] Sum"
+            "AXIS_Y_SUM": "[TODO] Sum",
+            "FIELD_MAX_BUCKETS_HINT": "[TODO] Limits how many date intervals or categories appear on the horizontal axis.",
+            "SERIES_STYLE": "[TODO] Series colors",
+            "USE_GLOBAL_THEME": "[TODO] Use dashboard theme"
         },
         "QUERY_HELP": {
             "CONTENT_TITLE": "[TODO] Content query help",
@@ -254,7 +264,18 @@
             "NEW_HELPER": "[TODO] Flat report to inspect columns returned by Content or process queries.",
             "LOADING": "[TODO] Loading rows...",
             "EMPTY": "[TODO] No rows returned for this query.",
-            "ERROR": "[TODO] Unable to load table rows."
+            "ERROR": "[TODO] Unable to load table rows.",
+            "EXPORT": "[TODO] Export CSV",
+            "EXPORTING": "[TODO] Exporting...",
+            "EXPORT_ERROR": "[TODO] Unable to export this report.",
+            "PARTIAL_ROWS": "[TODO] Showing {{shown}} of {{total}} rows. Export CSV for the full result set.",
+            "PREV_PAGE": "[TODO] Previous",
+            "NEXT_PAGE": "[TODO] Next",
+            "PAGE_OF": "[TODO] Page {{current}} of {{total}}",
+            "PAGE_RANGE": "[TODO] Rows {{start}}–{{end}} of {{total}}",
+            "NO_COLUMNS": "[TODO] Select at least one column in the panel on the right.",
+            "FILTER_PLACEHOLDER": "[TODO] Filter visible rows…",
+            "FILTER_EMPTY": "[TODO] No rows match the current filter."
         },
         "PROCESS_LIST": {
             "LOADING": "[TODO] Loading open tasks...",
@@ -331,7 +352,10 @@
                 "SCOPE_ALL": "[TODO] All",
                 "SCOPE_SERVICE": "[TODO] By service",
                 "SCOPE_ACCOUNT": "[TODO] Account-level",
-                "SERVICE": "[TODO] Service"
+                "SERVICE": "[TODO] Service",
+                "STATUS": "[TODO] Status",
+                "STATUS_PENDING": "[TODO] Pending",
+                "STATUS_RESOLVED": "Résolu"
             },
             "ACTIONS_PANEL": {
                 "EYEBROW": "[TODO] Resolution Queue",
@@ -359,6 +383,38 @@
                 "CLOSE": "[TODO] Close",
                 "LOADING_TITLE": "[TODO] Loading contract",
                 "LOADING_MESSAGE": "[TODO] Retrieving the agreement document from the repository."
+            },
+            "DOCUMENTS": {
+                "EYEBROW": "[TODO] Remediation",
+                "TITLE": "[TODO] Documents",
+                "UPLOAD": "[TODO] Upload document",
+                "VIEW": "[TODO] View",
+                "MARK_REVIEWED": "[TODO] Mark reviewed",
+                "MARK_ALL": "[TODO] Mark all reviewed ({{count}})",
+                "REVIEWED": "[TODO] Reviewed",
+                "EMPTY": "[TODO] No documents to remediate.",
+                "UPLOAD_OPENED": "[TODO] Opening the file upload field.",
+                "UPLOAD_HIGHLIGHTED": "[TODO] Use the highlighted upload field to attach the document.",
+                "UPLOAD_NOT_FOUND": "[TODO] Could not find the upload field on the form."
+            },
+            "SUBSANATIONS": {
+                "EYEBROW": "[TODO] Reviewer notes",
+                "TITLE": "[TODO] Resolutions",
+                "EMPTY": "[TODO] No resolutions recorded.",
+                "SELECTED": "[TODO] finding(s) selected",
+                "ACTION": "[TODO] Resolve",
+                "CLEAR": "[TODO] Clear selection",
+                "MODAL_TITLE": "[TODO] Add resolution",
+                "MODAL_HINT": "[TODO] This comment will be included in the agent context when reprocessing.",
+                "PLACEHOLDER": "[TODO] Describe the correction or clarification for the selected findings...",
+                "CONFIRM": "[TODO] Confirm",
+                "CANCEL": "[TODO] Cancel",
+                "FINDING_COUNT": "[TODO] {{count}} finding(s)",
+                "SAVED_AT": "[TODO] Saved {{date}}",
+                "VIEW_TITLE": "[TODO] Resolution detail",
+                "SAVE_CHANGES": "[TODO] Save changes",
+                "UNDO": "[TODO] Undo resolution",
+                "RESOLVED_BADGE": "Résolu"
             }
         },
         "INTAKE_WIDGET": {
@@ -623,13 +679,17 @@
             "FIELDS_TIP": "[TODO] Drag a field into a slot below, or click a field to assign it automatically.",
             "FIELD_CLICK_HINT": "[TODO] Drag to a slot or click to assign",
             "FIELDS_IN_PROVIDER": "[TODO] Detect fields in the Data provider panel (left), then drag them here.",
-            "TABLE_ITEMS_INTRO": "[TODO] Check the fields you want as table columns. Use the order list to rearrange them.",
+            "TABLE_ITEMS_INTRO": "[TODO] Click fields to add or remove columns. Drag selected cards or use arrows to reorder them.",
             "TABLE_FIELDS_TIP": "[TODO] Use + on a field to add it as a column, or select columns in the panel on the right.",
+            "TABLE_PROVIDER_COLUMNS_HINT": "[TODO] Detect fields here, then configure columns in the right panel.",
             "TABLE_FIELD_ADD_HINT": "[TODO] Click + to add or remove this column",
+            "TABLE_FIELD_CARD_HINT": "[TODO] Click to toggle column, drag or use arrows to reorder selected columns",
             "TABLE_TOGGLE_COLUMN": "[TODO] Toggle column {{ field }}",
             "SELECT_ALL_COLUMNS": "[TODO] Select all",
             "CLEAR_COLUMNS": "[TODO] Clear",
             "COLUMN_ORDER": "[TODO] Column order",
+            "MOVE_COLUMN_UP": "[TODO] Move column up",
+            "MOVE_COLUMN_DOWN": "[TODO] Move column down",
             "FIELD_SEARCH_PLACEHOLDER": "[TODO] Search by field name…",
             "FIELD_KIND_FILTER": "[TODO] Field type",
             "FIELD_KIND_ALL": "[TODO] All types",
@@ -638,7 +698,8 @@
             "FIELD_KIND_CATEGORY": "[TODO] Category",
             "FIELD_CLEAR_FILTERS": "[TODO] Clear filters",
             "FIELDS_FILTER_COUNT": "[TODO] {{ count }} of {{ total }} fields",
-            "FIELDS_NO_MATCH": "[TODO] No fields match your search or type filter."
+            "FIELDS_NO_MATCH": "[TODO] No fields match your search or type filter.",
+            "TABLE_FIELD_FILTER_HINT": "[TODO] Detect fields first, then filter the list below by name or type."
         },
         "PROCESS_CATALOG": {
             "MEDICAL_RECORDS": "[TODO] Medical Records",
@@ -654,6 +715,41 @@
             "FIELD_MAX": "[TODO] Scale maximum",
             "FIELD_TARGET": "[TODO] Target value",
             "FIELD_UNIT": "[TODO] Value suffix (e.g. %)"
+        },
+        "THEME": {
+            "PANEL_TITLE": "[TODO] Dashboard appearance",
+            "PRIMARY_ACCENT": "[TODO] Primary accent",
+            "SERIES_GRADIENT": "[TODO] Default series gradient",
+            "CUSTOM_STOPS": "[TODO] Gradient colors",
+            "ACCENT_PURPLE": "[TODO] Hyland purple",
+            "ACCENT_BLUE": "[TODO] Hyland blue",
+            "ACCENT_TEAL": "[TODO] Hyland teal",
+            "ACCENT_DARK_BLUE": "[TODO] Hyland dark blue",
+            "PRESET_HYLAND_PURPLE_WAVE": "[TODO] Purple → blue → teal",
+            "PRESET_HYLAND_TEAL": "[TODO] Teal gradient",
+            "PRESET_HYLAND_PURPLE_SOLID": "[TODO] Purple solid",
+            "PRESET_HYLAND_BLUE_SOLID": "[TODO] Blue solid",
+            "PRESET_CUSTOM": "[TODO] Custom gradient"
+        },
+        "LINK_CARD": {
+            "FIELD_ICON": "[TODO] Icon (Material name)",
+            "FIELD_TARGET_TYPE": "[TODO] Link type",
+            "FIELD_ROUTE": "[TODO] App route",
+            "FIELD_URL": "[TODO] External URL",
+            "FIELD_BUTTON": "[TODO] Button label",
+            "OPEN_NEW_TAB": "[TODO] Open in new tab",
+            "TARGET_ROUTE": "[TODO] Internal route",
+            "TARGET_EXTERNAL": "[TODO] External URL"
+        },
+        "TASK_WIDGET": {
+            "LOADING": "[TODO] Loading tasks…",
+            "EMPTY": "[TODO] No recent tasks found.",
+            "TOTAL": "[TODO] Total",
+            "FIELD_MAX_ITEMS": "[TODO] Max items",
+            "FIELD_CTA_LABEL": "[TODO] Footer button label",
+            "FIELD_CTA_ROUTE": "[TODO] Footer link route",
+            "STATUS_CREATED": "[TODO] Created",
+            "STATUS_ASSIGNED": "[TODO] Assigned"
         }
     }
 }

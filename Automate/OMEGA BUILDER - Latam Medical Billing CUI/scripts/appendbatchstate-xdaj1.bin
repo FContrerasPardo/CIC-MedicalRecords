@@ -1,0 +1,207 @@
+/**
+ * Script: Append BatchState
+ *
+ * Purpose:
+ * Consolidates two IDP batchState JSON objects into a single batchState output.
+ *
+ * Input script variables:
+ * - variables.batchState
+ *   Existing/base IDP batchState JSON.
+ *
+ * - variables.newbatchState
+ *   New IDP batchState JSON generated after processing an additional document or file.
+ *
+ * Output script variable:
+ * - variables.consolidatedBatchState
+ *   Consolidated batchState JSON result.
+ *
+ * Important IDP rule:
+ * This script does NOT merge documents by ID.
+ * It appends new documents to the existing documents array to preserve the IDP structure.
+ *
+ * Important contentFileReferences rule:
+ * IDP document pages reference files by contentFileReferenceIndex.
+ * When appending new contentFileReferences, the new documents' page indexes must be adjusted
+ * using the current length of the base contentFileReferences array.
+ *
+ * Example:
+ * If baseBatchState.contentFileReferences has 5 entries,
+ * and a new document page points to contentFileReferenceIndex = 0,
+ * after appending, that page must point to index 5.
+ */
+
+/**
+ * Safely converts a value into a JSON object.
+ *
+ * Automate JSON variables may already arrive as objects.
+ * However, in some cases they may arrive as strings.
+ *
+ * @param {any} value - Input value from Automate script variable.
+ * @param {object} fallback - Default value used when value is empty or invalid.
+ * @returns {object}
+ */
+function safeJson(value, fallback = {}) {
+  if (!value) return fallback;
+
+  if (typeof value === "object") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  return fallback;
+}
+
+/**
+ * Deep clones an object to avoid mutating the original input variables.
+ *
+ * @param {any} value - Value to clone.
+ * @returns {any}
+ */
+function clone(value) {
+  return JSON.parse(JSON.stringify(value ?? null));
+}
+
+/**
+ * Adjusts contentFileReferenceIndex values inside new documents.
+ *
+ * This is required because new documents originally reference their own
+ * contentFileReferences array starting at index 0.
+ *
+ * After appending the new contentFileReferences to the base array,
+ * all new document page indexes must be shifted by the base array length.
+ *
+ * @param {Array} documents - New documents to append.
+ * @param {number} offset - Current length of base contentFileReferences.
+ * @returns {Array}
+ */
+function adjustContentFileReferenceIndexes(documents, offset) {
+  return (documents || []).map((document) => {
+    const clonedDocument = clone(document);
+
+    clonedDocument.pages = (clonedDocument.pages || []).map((page) => ({
+      ...page,
+      contentFileReferenceIndex:
+        typeof page.contentFileReferenceIndex === "number"
+          ? page.contentFileReferenceIndex + offset
+          : page.contentFileReferenceIndex,
+    }));
+
+    return clonedDocument;
+  });
+}
+
+/**
+ * Resolves global IDP status fields.
+ *
+ * If either batch has ReviewRequired, the consolidated result should keep ReviewRequired,
+ * because at least one part of the consolidated batch still requires review.
+ *
+ * @param {string} baseStatus - Status from the existing batchState.
+ * @param {string} newStatus - Status from the new batchState.
+ * @returns {string}
+ */
+function resolveStatus(baseStatus, newStatus) {
+  if (baseStatus === "ReviewRequired" || newStatus === "ReviewRequired") {
+    return "ReviewRequired";
+  }
+
+  return newStatus || baseStatus;
+}
+
+/**
+ * Input variables mapped from Automate Script Variables.
+ *
+ * These names must match the script variable names configured in Studio Modeler:
+ * - batchState
+ * - newbatchState
+ */
+const baseBatchState = safeJson(variables.batchState, {
+  documents: [],
+  deletedPages: [],
+  contentFileReferences: [],
+});
+
+const newBatchState = safeJson(variables.newbatchState, {
+  documents: [],
+  deletedPages: [],
+  contentFileReferences: [],
+});
+
+/**
+ * Calculate the offset required for the new documents.
+ *
+ * Existing contentFileReferences keep their original indexes.
+ * New contentFileReferences are appended after them.
+ */
+const contentFileReferenceOffset =
+  baseBatchState.contentFileReferences?.length || 0;
+
+/**
+ * Adjust only the new documents before appending them.
+ */
+const adjustedNewDocuments = adjustContentFileReferenceIndexes(
+  newBatchState.documents || [],
+  contentFileReferenceOffset
+);
+
+/**
+ * Build the consolidated batchState.
+ *
+ * Important:
+ * - documents are appended, not merged.
+ * - contentFileReferences are appended.
+ * - deletedPages are appended.
+ * - global review/status flags are resolved conservatively.
+ */
+const consolidatedBatchState = {
+  ...baseBatchState,
+
+  documents: [
+    ...(baseBatchState.documents || []),
+    ...adjustedNewDocuments,
+  ],
+
+  contentFileReferences: [
+    ...(baseBatchState.contentFileReferences || []),
+    ...(newBatchState.contentFileReferences || []),
+  ],
+
+  deletedPages: [
+    ...(baseBatchState.deletedPages || []),
+    ...(newBatchState.deletedPages || []),
+  ],
+
+  hasRejectedDocuments:
+    Boolean(baseBatchState.hasRejectedDocuments) ||
+    Boolean(newBatchState.hasRejectedDocuments),
+
+  extractionStatus: resolveStatus(
+    baseBatchState.extractionStatus,
+    newBatchState.extractionStatus
+  ),
+
+  separationStatus: resolveStatus(
+    baseBatchState.separationStatus,
+    newBatchState.separationStatus
+  ),
+
+  classificationStatus: resolveStatus(
+    baseBatchState.classificationStatus,
+    newBatchState.classificationStatus
+  ),
+};
+
+/**
+ * Output variable mapped in Automate.
+ *
+ * This output should be mapped to the process variable that will hold
+ * the updated consolidated batchState.
+ */
+variables.consolidatedBatchState = consolidatedBatchState;

@@ -1,0 +1,72 @@
+.dashboard-date-range {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+}
+
+.dashboard-date-range__label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.dashboard-date-range__presets {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.dashboard-date-range__preset {
+    appearance: none;
+    border: 1px solid rgba(110, 51, 255, 0.18);
+    background: rgba(255, 255, 255, 0.72);
+    color: #334155;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: 600 12px/1 Manrope, 'Segoe UI', sans-serif;
+    cursor: pointer;
+}
+
+.dashboard-date-range__preset--active {
+    border-color: rgba(110, 51, 255, 0.45);
+    background: rgba(110, 51, 255, 0.12);
+    color: #4f46e5;
+}
+
+.dashboard-date-range__preset:hover:not(.dashboard-date-range__preset--active) {
+    border-color: rgba(110, 51, 255, 0.28);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.dashboard-date-range__inputs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.dashboard-date-range__field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.dashboard-date-range__field input[type='date'] {
+    border: 1px solid rgba(110, 51, 255, 0.18);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font: 600 12px/1 Manrope, 'Segoe UI', sans-serif;
+    color: #334155;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.dashboard-date-range__field input[type='date']:focus {
+    outline: 2px solid rgba(110, 51, 255, 0.25);
+    outline-offset: 1px;
+}

@@ -4,9 +4,20 @@
 
 This document centralizes the Agent Builder configuration for the **Coding Integrity Agent** used in the Hyland Cuentas Médicas demo.
 
-The agent validates clinical and billing code consistency before approval. It analyzes diagnosis codes, procedure/service codes, extracted billing details, and payer coding policies to detect incompatible procedure combinations, missing diagnosis support, invalid or outdated codes, duplicated charges, and coding items requiring manual review.
+The agent validates clinical and billing code consistency before approval. It
+analyzes diagnosis codes, procedure/service codes, extracted billing details, and
+payer coding policies to detect incompatible procedure combinations, missing
+diagnosis support, invalid or outdated codes, duplicated charges, and coding items
+requiring manual review.
 
----
+### Automate deploy reference
+
+| Field | Value |
+|-------|-------|
+| Studio key | `coding-integrity-age-tkfvy` |
+| Export JSON | `automate/.../agents/coding-integrity-age-tkfvy.json` |
+| batchState at runtime | **Full** string via `$SbatchState` (`jsontostring`) |
+| BPMN mappings | `automate/.../processes/agentmesh-hk5kb-extensions.json` |
 
 ## 1. Agent Details
 
@@ -19,13 +30,10 @@ Coding Integrity Agent
 ### Large Language Model
 
 ```text
-Claude Haiku
+anthropic.claude-opus-4-6-v1
 ```
 
-Use this as the current validation baseline for the demo. Earlier tests with
-other engines returned intermittent or empty outcomes for long JSON prompts. If
-another model is selected, keep it only after a manual agent test and event-log
-validation confirm a non-empty required outcome.
+Configured in the current Automate export as **Claude Opus 4.6**.
 
 ### Agent Description
 
@@ -474,31 +482,293 @@ Return the result as a valid JSON object with this structure:
   "requiresManualReview": true
 }
 ```
-
+Example
+```json
+{
+    "agentName": "Coding Integrity Agent",
+    "overallRiskLevel": "HIGH",
+    "summary": "Analysis of medical account 2406-2848 for patient ARIANNY PEÑA TERRERO reveals several coding integrity concerns: (1) No formal ICD-10 diagnosis codes are present in the extracted data—only free-text diagnostic descriptions; (2) Multiple laboratory tests (GLICEMIA/CUP 97) are repeated on the same date (14/06/2024) without clear justification, triggering duplicate-charge review; (3) Radiology procedures billed lack explicit prior authorization documentation per payer policy; (4) Anesthesia and recovery charges may be subject to bundling per payer surgical package rules; (5) Several extraction fields have low confidence or review-required status. General coding rule validation is limited because extracted service codes do not directly match the coded rule identifiers, but structural duplicate and payer policy issues are identifiable.",
+    "codingSummary": {
+        "codingValidationAvailable": true,
+        "payerPolicyValidationAvailable": true,
+        "diagnosisCodesDetected": 0,
+        "procedureCodesDetected": 66,
+        "serviceItemsAnalyzed": 120,
+        "incompatibilitiesDetected": 0,
+        "duplicatesDetected": 3,
+        "missingDiagnosisSupport": 1,
+        "obsoleteOrInvalidCodes": 0
+    },
+    "findings": [
+        {
+            "findingId": "F-001",
+            "type": "MISSING_CODING_DATA",
+            "riskLevel": "HIGH",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": null,
+            "description": "No formal ICD-10 diagnosis codes are present in the batch. Only free-text descriptions exist: 'ABDOMEN AGUDO P/B ECTOPICO ROTO' and 'LAPAROTOMIA EXPLORATORIA +LIBERACION DE'.",
+            "serviceDate": null,
+            "quantity": null,
+            "sourceDocument": "Factura y Desglose (Doc ID: fdf24247)",
+            "sourceField": "Diagnostico / Motivo de la Visita",
+            "matchedRuleId": "CR-001",
+            "payerPolicyId": null,
+            "reason": "Coding rules require diagnosis-procedure linkage validation (CR-001), but no structured ICD-10 codes are available to validate against allowed diagnosis lists. This prevents proper coding integrity verification.",
+            "recommendation": "Assign proper ICD-10 codes (e.g., O00.1 for ectopic pregnancy, K65.0 for acute abdomen) before submission. Ensure diagnosis codes support all billed procedures."
+        },
+        {
+            "findingId": "F-002",
+            "type": "DUPLICATED_CHARGE",
+            "riskLevel": "MEDIUM",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": "30305",
+            "description": "GLICEMIA (CUP 97, Service 30305) billed 3 times on 14/06/2024 for the same patient.",
+            "serviceDate": "14/06/2024",
+            "quantity": 3,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b)",
+            "sourceField": "Tabla de Servicios facturados",
+            "matchedRuleId": "CR-003",
+            "payerPolicyId": null,
+            "reason": "Coding rule CR-003 flags same laboratory panel repeated on the same day as requiring justification. Three GLICEMIA tests on 14/06/2024 may indicate duplicate billing unless clinically justified (e.g., insulin protocol monitoring in ICU).",
+            "recommendation": "Verify clinical justification for 3 glucose tests on same day. If ICU insulin protocol, attach supporting medical order. Otherwise, remove duplicate charges."
+        },
+        {
+            "findingId": "F-003",
+            "type": "PAYER_POLICY_CONFLICT",
+            "riskLevel": "HIGH",
+            "diagnosisCode": null,
+            "procedureCode": "71010",
+            "serviceCode": "71010",
+            "description": "RX TORAX 1V (FRONTAL O LATER) billed on 14/06/2024 and 15/06/2024. Payer policy PCP-001 requires prior authorization and supporting documentation for radiology procedures.",
+            "serviceDate": "14/06/2024, 15/06/2024",
+            "quantity": 2,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b)",
+            "sourceField": "Tabla de Servicios facturados",
+            "matchedRuleId": null,
+            "payerPolicyId": "PCP-001",
+            "reason": "Payer policy PCP-001 requires Prior Authorization, Radiology Report, and Medical Order for radiology-related procedures. While radiology reports are present in the batch, no explicit prior authorization document was identified for these chest X-rays.",
+            "recommendation": "Confirm prior authorization exists for radiology services. Ensure authorization number covers both dates. Attach medical order to support repeat imaging on consecutive days."
+        },
+        {
+            "findingId": "F-004",
+            "type": "PAYER_POLICY_CONFLICT",
+            "riskLevel": "MEDIUM",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": "3600002",
+            "description": "RECUPERACION POR HORA (CUP 1085) and HONORARIOS DE ANESTESIA are billed separately. Payer policy PCP-002 indicates anesthesia and recovery room charges may be bundled under surgical package agreement.",
+            "serviceDate": "13/06/2024",
+            "quantity": null,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b)",
+            "sourceField": "Tabla de Servicios facturados",
+            "matchedRuleId": null,
+            "payerPolicyId": "PCP-002",
+            "reason": "Payer policy PCP-002 states anesthesia and recovery room charges may be bundled depending on surgical package agreement. Recovery (570.00) and Anesthesia (12,449.19 + 500.00 pre-anesthesia) are billed separately alongside surgery charges.",
+            "recommendation": "Review contractual surgical package agreement with ARS Primera to determine if recovery and anesthesia are included in the surgical package rate or may be billed separately."
+        },
+        {
+            "findingId": "F-005",
+            "type": "DUPLICATED_CHARGE",
+            "riskLevel": "MEDIUM",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": "30010",
+            "description": "HEMOGRAMA COMPLETO (CUP 111, Service 30010) billed on 13/06/2024, 14/06/2024, and 15/06/2024 - three consecutive days.",
+            "serviceDate": "13/06/2024, 14/06/2024, 15/06/2024",
+            "quantity": 3,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b)",
+            "sourceField": "Tabla de Servicios facturados",
+            "matchedRuleId": "CR-003",
+            "payerPolicyId": null,
+            "reason": "While daily CBC in ICU may be clinically appropriate for post-surgical monitoring, the frequency should be supported by medical orders. This is flagged for documentation completeness.",
+            "recommendation": "Ensure medical orders support daily hemograms during ICU stay. Low risk if ICU protocol documentation is available."
+        },
+        {
+            "findingId": "F-006",
+            "type": "LOW_CONFIDENCE_EXTRACTION",
+            "riskLevel": "MEDIUM",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": null,
+            "description": "Multiple fields in the Formulario de Objeciones have ReviewRequired status: 'Nombre del Prestador', 'No. Autorización' (confidence 0.47), 'Valor Total Glosado' (confidence 0.53), 'Esta Firmado por la ARS?' (confidence 0).",
+            "serviceDate": null,
+            "quantity": null,
+            "sourceDocument": "Formulario de Objeciones Auditoría Médica (Doc ID: e7409cc9)",
+            "sourceField": "Multiple fields",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "Low OCR confidence on critical audit objection form fields means the glosa amount ($4,260.47) and authorization numbers (9089941/4677889) may be inaccurate, affecting reconciliation.",
+            "recommendation": "Manually verify the objection form values: authorization number, total glosado amount, and ARS signature status before proceeding with reconciliation."
+        },
+        {
+            "findingId": "F-007",
+            "type": "LOW_CONFIDENCE_EXTRACTION",
+            "riskLevel": "LOW",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": null,
+            "description": "Patient name field extracted with low OCR confidence (0.471) as 'ARIANNY PEVA TERRERO' on primary invoice, corrected to 'ARIANNY PEÑA TERRERO'.",
+            "serviceDate": null,
+            "quantity": null,
+            "sourceDocument": "Factura y Desglose (Doc ID: fdf24247)",
+            "sourceField": "Nombre del Paciente",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "Low confidence extraction on patient name. The correction appears reasonable (Ñ character recognition issue), but should be verified.",
+            "recommendation": "Confirm patient name matches cedula records (223-0176730-1). Low risk as correction is consistent across documents."
+        },
+        {
+            "findingId": "F-008",
+            "type": "MISSING_DIAGNOSIS_SUPPORT",
+            "riskLevel": "HIGH",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": "76856",
+            "description": "US PELVICA COMPLETA billed on 14/06/2024. Sonography report shows normal findings with no pathology detected, yet the primary diagnosis is 'ABDOMEN AGUDO P/B ECTOPICO ROTO'. The pathology report confirms 'QUISTE LÚTEO HEMORRÁGICO. SALPINGITIS CRÓNICA' but the ultrasound found no abnormalities.",
+            "serviceDate": "14/06/2024",
+            "quantity": 1,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b) / Laboratorios (Doc ID: 3f883e0c)",
+            "sourceField": "Estudio / Conclusión",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "The pelvic ultrasound was performed post-operatively (surgery was 13/06/2024) and showed normal findings. While post-surgical follow-up imaging can be justified, the normal result combined with the surgical pathology findings may raise questions about medical necessity for this specific study.",
+            "recommendation": "Ensure medical order documents the clinical indication for post-operative pelvic ultrasound. The study may be justified as post-surgical follow-up but should have supporting documentation."
+        },
+        {
+            "findingId": "F-009",
+            "type": "OTHER",
+            "riskLevel": "MEDIUM",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": null,
+            "description": "Objection form documents a glosa of $4,260.47 for medications (Ceftriaxona, Esomeprazol, Nitrofurantoina, Xigaxano, Ondansetron) and laboratory tests. The prestador response indicates conciliation at $4,476.60.",
+            "serviceDate": "2024-07-23",
+            "quantity": null,
+            "sourceDocument": "Formulario de Objeciones Auditoría Médica (Doc ID: e7409cc9)",
+            "sourceField": "Procedimientos Objetados / Respuesta del prestador",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "Prior audit objections exist for this account. Some objected medications (Nitrofurantoina, Xigaxano, Ondansetron) do not appear in the detailed invoice breakdown, suggesting they may have already been removed or the objection references different billing items.",
+            "recommendation": "Reconcile the objection form findings with the current invoice to ensure all previously objected items have been properly adjusted before resubmission."
+        },
+        {
+            "findingId": "F-010",
+            "type": "OTHER",
+            "riskLevel": "LOW",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": null,
+            "description": "Invoice 001376558 indicates 'Esta Firmado por la ARS? = No'. The ARS has not signed the primary invoice.",
+            "serviceDate": null,
+            "quantity": null,
+            "sourceDocument": "Factura y Desglose (Doc ID: fdf24247)",
+            "sourceField": "Esta Firmado por la ARS?",
+            "matchedRuleId": null,
+            "payerPolicyId": null,
+            "reason": "Missing ARS signature on the invoice may indicate the claim has not been formally accepted by the payer, which could affect payment processing.",
+            "recommendation": "Verify if ARS signature is required at this stage of the workflow or if it is obtained post-approval."
+        },
+        {
+            "findingId": "F-011",
+            "type": "DUPLICATED_CHARGE",
+            "riskLevel": "LOW",
+            "diagnosisCode": null,
+            "procedureCode": null,
+            "serviceCode": "30460",
+            "description": "SGPT ALT (CUP 156) and SGOT AST (CUP 155) each billed on 13/06, 14/06, and 15/06 - three consecutive days of liver function monitoring.",
+            "serviceDate": "13/06/2024, 14/06/2024, 15/06/2024",
+            "quantity": 3,
+            "sourceDocument": "Factura y Desglose (Doc ID: 08a9e03b)",
+            "sourceField": "Tabla de Servicios facturados",
+            "matchedRuleId": "CR-003",
+            "payerPolicyId": null,
+            "reason": "Daily liver function tests over 3 days in ICU post-laparotomy may be clinically justified but should be supported by medical orders demonstrating clinical need.",
+            "recommendation": "Low risk if ICU monitoring protocol is documented. Ensure medical orders support daily hepatic panel."
+        }
+    ],
+    "missingData": [
+        {
+            "field": "ICD-10 Diagnosis Codes",
+            "reason": "No structured ICD-10 diagnosis codes are present in the extracted data. Only free-text descriptions ('ABDOMEN AGUDO P/B ECTOPICO ROTO', 'LAPAROTOMIA EXPLORATORIA +LIBERACION DE') are available.",
+            "impact": "HIGH"
+        },
+        {
+            "field": "Prior Authorization Document",
+            "reason": "No prior authorization document was identified in the batch for radiology services, which is required per payer policy PCP-001.",
+            "impact": "HIGH"
+        },
+        {
+            "field": "Medical Orders",
+            "reason": "No medical order documents were identified in the batch to support repeated laboratory tests and imaging studies.",
+            "impact": "MEDIUM"
+        },
+        {
+            "field": "NCF on Second Invoice",
+            "reason": "The detailed invoice (Doc ID: 08a9e03b) does not have an NCF (Numero de Comprobante Fiscal) extracted.",
+            "impact": "LOW"
+        }
+    ],
+    "recommendedActions": [
+        {
+            "action": "Assign structured ICD-10 diagnosis codes to the account before submission to enable proper coding validation.",
+            "priority": "HIGH",
+            "owner": "Coding Specialist"
+        },
+        {
+            "action": "Verify and attach prior authorization documentation for radiology services (RX Torax x2) per payer policy PCP-001.",
+            "priority": "HIGH",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Manually verify low-confidence fields on the Objection Form (authorization number, glosa amount, ARS signature).",
+            "priority": "MEDIUM",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Obtain or attach medical orders supporting repeated laboratory tests (3x GLICEMIA on 14/06, daily CBC, daily hepatic panel).",
+            "priority": "MEDIUM",
+            "owner": "Medical Reviewer"
+        },
+        {
+            "action": "Review surgical package agreement with ARS Primera to confirm whether anesthesia and recovery charges are separately billable.",
+            "priority": "MEDIUM",
+            "owner": "Billing Team"
+        },
+        {
+            "action": "Reconcile objection form findings with current invoice to ensure previously objected items are properly adjusted.",
+            "priority": "MEDIUM",
+            "owner": "Auditor"
+        },
+        {
+            "action": "Confirm patient identity across all documents matches cedula 223-0176730-1.",
+            "priority": "LOW",
+            "owner": "System"
+        }
+    ],
+    "readyForApproval": false,
+    "requiresManualReview": true
+}
+```
 ---
 
 ## 9. UI Mapping Notes for Analysis Phase
 
-The Analysis screen can consume this output to populate:
+Widget: `analysis-task-widget` — mapper: `analysis.mapper.ts`.
 
-- Inconsistencies count
-- Coding Integrity card
-- Billed Items Analysis table
-- Recommended actions
-- Manual review status
-- Approval readiness
-
-Suggested mapping:
+- **Inconsistencies** metric: `findings.length`
+- **All Findings** panel + **By service** table: coding `findings[]`
+- **Account-level** table: findings without service code (e.g. `MISSING_CODING_DATA`)
+- Agent card **Update CUPS** opens informational modal (demo disclaimer)
 
 | UI Element | Output Field |
 |---|---|
-| Coding Integrity Card Title | First high-risk finding summary |
-| Inconsistencies Count | Count `findings[]` where type is coding-related |
-| AI Status | `overallRiskLevel` |
-| Billed Items Analysis | `findings[]` |
-| Update CUPS Button | Findings with `INVALID_CODE`, `OBSOLETE_CODE`, or `INCOMPATIBLE_*` |
-| Approve Proceed Enabled | `readyForApproval` |
-| Manual Review Needed | `requiresManualReview` |
+| Inconsistencies count | `findings.length` |
+| Coding Integrity card | Highest-risk finding + `findings.length` |
+| All Findings list | `findings[]` |
+| Recommended Actions | `recommendedActions[]` |
+| Approval state (text) | `readyForApproval`, `requiresManualReview` |
 
 ---
 
@@ -514,10 +784,10 @@ Suggested mapping:
 
 ## 11. Configuration Checklist
 
-- [ ] Agent name set to `Coding Integrity Agent`
-- [ ] Model selected and validated: `Claude Haiku`
+- [ ] Agent name set to `Coding Integrity Agent 5` (key `coding-integrity-age-tkfvy`)
+- [ ] Model: `anthropic.claude-opus-4-6-v1`
 - [ ] Agent description added
-- [ ] Input `batchState` created as string
+- [ ] Input `batchState` created as string (full `$SbatchState`)
 - [ ] Input `codingRules` created as string
 - [ ] Input `payerCodingPolicy` created as string
 - [ ] Prompt references `{{batchState}}`
@@ -529,7 +799,7 @@ Suggested mapping:
 - [ ] Outcome instructions added
 - [ ] Manual agent test returns non-empty JSON
 - [ ] Event log contains `outBoundVariables.codingIntegrityResult.value`
-- [ ] BPMN agent activity remapped after Agent Builder variable changes
+- [ ] BPMN maps `$SbatchState` → agent `batchState`
 - [ ] Outcome mapped to `BuildIncrementalUnifiedWidgetPayload.json1`
 - [ ] Unified script output `unifiedWidgetPayloadText` mapped to `analysis-task-widget`
 - [ ] No tools configured for first version

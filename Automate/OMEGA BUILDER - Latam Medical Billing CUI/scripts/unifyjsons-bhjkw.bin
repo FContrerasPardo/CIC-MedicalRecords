@@ -1,0 +1,520 @@
+/**
+ * Script: BuildIncrementalUnifiedWidgetPayload
+ *
+ * Purpose:
+ * Builds or updates a reusable JSON envelope from multiple JSON inputs.
+ *
+ * Designed for sequential execution:
+ * - It can receive a previous unifiedWidgetPayload as one of the json inputs.
+ * - It preserves existing agents.
+ * - It appends new agents.
+ * - It updates an existing agent only when the incoming value is valid.
+ * - Empty inputs do not delete previous data.
+ * - Invalid inputs are reported as warnings but do not break the output.
+ *
+ * Inputs:
+ * - variables.json1 ... variables.json10
+ *
+ * Outputs:
+ * - variables.unifiedWidgetPayload      JSON object
+ * - variables.unifiedWidgetPayloadText  JSON string
+ *
+ * Important:
+ * - Do not use return in Automate script runtime.
+ * - Use unifiedWidgetPayload when the target supports JSON.
+ * - Use unifiedWidgetPayloadText when the target only supports string.
+ */
+
+function isEmpty(value) {
+    return value === null || value === undefined || value === "";
+}
+
+function nowIso() {
+    return new Date().toISOString();
+}
+
+function safeString(value, maxLength) {
+    var text;
+
+    try {
+        if (typeof value === "string") {
+            text = value;
+        } else {
+            text = JSON.stringify(value);
+        }
+    } catch (error) {
+        text = String(value);
+    }
+
+    if (!text) {
+        return "";
+    }
+
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + "...";
+    }
+
+    return text;
+}
+
+/**
+ * Supports:
+ * - Real JSON object
+ * - JSON string
+ * - Double encoded JSON string
+ */
+function parseJsonDeep(value, maxDepth) {
+    var current = value;
+    var depth = 0;
+
+    if (isEmpty(current)) {
+        return {
+            ok: false,
+            empty: true,
+            value: null,
+            errorMessage: "Value is empty."
+        };
+    }
+
+    while (depth < maxDepth) {
+        if (typeof current === "object") {
+            return {
+                ok: true,
+                empty: false,
+                value: current,
+                errorMessage: null
+            };
+        }
+
+        if (typeof current !== "string") {
+            return {
+                ok: false,
+                empty: false,
+                value: null,
+                errorMessage: "Value is not an object or JSON string."
+            };
+        }
+
+        var trimmed = current.trim();
+
+        if (!trimmed) {
+            return {
+                ok: false,
+                empty: true,
+                value: null,
+                errorMessage: "Value is an empty string."
+            };
+        }
+
+        try {
+            current = JSON.parse(trimmed);
+            depth = depth + 1;
+        } catch (error) {
+            return {
+                ok: false,
+                empty: false,
+                value: null,
+                errorMessage: "Invalid JSON string."
+            };
+        }
+    }
+
+    if (typeof current === "object") {
+        return {
+            ok: true,
+            empty: false,
+            value: current,
+            errorMessage: null
+        };
+    }
+
+    return {
+        ok: false,
+        empty: false,
+        value: null,
+        errorMessage: "Could not parse JSON after maximum depth."
+    };
+}
+
+function isUnifiedEnvelope(value) {
+    return (
+        value &&
+        typeof value === "object" &&
+        value.agents &&
+        typeof value.agents === "object" &&
+        (
+            value.schemaVersion === "widget-payload-envelope/v1" ||
+            value.schemaVersion === "analysis-widget-payload/v1" ||
+            value.schemaVersion === "incremental-widget-payload-envelope/v1"
+        )
+    );
+}
+
+function toCamelCase(value) {
+    var text = String(value || "");
+
+    text = text.replace(/[^a-zA-Z0-9]+(.)/g, function (match, chr) {
+        return chr.toUpperCase();
+    });
+
+    text = text.replace(/[^a-zA-Z0-9]/g, "");
+
+    return text.replace(/^./, function (chr) {
+        return chr.toLowerCase();
+    });
+}
+
+function resolveAgentKey(slotName, parsedValue, fallbackIndex) {
+    if (parsedValue && parsedValue.agentKey) {
+        return String(parsedValue.agentKey);
+    }
+
+    if (parsedValue && parsedValue.outputKey) {
+        return String(parsedValue.outputKey);
+    }
+
+    if (parsedValue && parsedValue.resultKey) {
+        return String(parsedValue.resultKey);
+    }
+
+    if (parsedValue && parsedValue.agentName) {
+        return toCamelCase(parsedValue.agentName);
+    }
+
+    if (parsedValue && parsedValue.result && parsedValue.result.agentName) {
+        return toCamelCase(parsedValue.result.agentName);
+    }
+
+    return slotName || "json" + fallbackIndex;
+}
+
+function resolveAgentName(agentKey, parsedValue, fallbackIndex) {
+    if (parsedValue && parsedValue.agentName) {
+        return String(parsedValue.agentName);
+    }
+
+    if (parsedValue && parsedValue.name) {
+        return String(parsedValue.name);
+    }
+
+    if (parsedValue && parsedValue.result && parsedValue.result.agentName) {
+        return String(parsedValue.result.agentName);
+    }
+
+    return agentKey || "Agent " + fallbackIndex;
+}
+
+/**
+ * Supports wrapper format:
+ *
+ * {
+ *   "agentKey": "financialVarianceResult",
+ *   "agentName": "Financial Variance Agent",
+ *   "payload": { ... }
+ * }
+ *
+ * Also supports:
+ *
+ * {
+ *   "agentKey": "...",
+ *   "result": { ... }
+ * }
+ */
+function extractPayload(parsedValue) {
+    if (
+        parsedValue &&
+        typeof parsedValue === "object" &&
+        parsedValue.payload !== undefined
+    ) {
+        return parseJsonDeep(parsedValue.payload, 5);
+    }
+
+    if (
+        parsedValue &&
+        typeof parsedValue === "object" &&
+        parsedValue.result !== undefined &&
+        parsedValue.status !== "AVAILABLE"
+    ) {
+        return parseJsonDeep(parsedValue.result, 5);
+    }
+
+    return {
+        ok: true,
+        empty: false,
+        value: parsedValue,
+        errorMessage: null
+    };
+}
+
+function normalizeAgentInput(value, slotName, fallbackIndex) {
+    var parsed = parseJsonDeep(value, 5);
+
+    if (parsed.empty) {
+        return {
+            kind: "EMPTY",
+            key: slotName,
+            item: null,
+            warning: {
+                slotName: slotName,
+                type: "EMPTY_INPUT",
+                message: "Input is empty and was ignored."
+            }
+        };
+    }
+
+    if (!parsed.ok) {
+        return {
+            kind: "INVALID",
+            key: slotName,
+            item: null,
+            warning: {
+                slotName: slotName,
+                type: "INVALID_JSON",
+                message: parsed.errorMessage,
+                rawPreview: safeString(value, 1000)
+            }
+        };
+    }
+
+    if (isUnifiedEnvelope(parsed.value)) {
+        return {
+            kind: "ENVELOPE",
+            key: slotName,
+            envelope: parsed.value,
+            item: null,
+            warning: null
+        };
+    }
+
+    var agentKey = resolveAgentKey(slotName, parsed.value, fallbackIndex);
+    var agentName = resolveAgentName(agentKey, parsed.value, fallbackIndex);
+    var payload = extractPayload(parsed.value);
+
+    if (!payload.ok) {
+        return {
+            kind: "INVALID_AGENT",
+            key: agentKey,
+            item: null,
+            warning: {
+                slotName: slotName,
+                agentKey: agentKey,
+                agentName: agentName,
+                type: "INVALID_AGENT_PAYLOAD",
+                message: payload.errorMessage,
+                rawPreview: safeString(parsed.value, 1000)
+            }
+        };
+    }
+
+    return {
+        kind: "AGENT",
+        key: agentKey,
+        item: {
+            status: "AVAILABLE",
+            slotName: slotName,
+            agentKey: agentKey,
+            agentName: agentName,
+            result: payload.value,
+            message: "Agent result available.",
+            lastUpdatedAt: nowIso(),
+            rawPreview: null
+        },
+        warning: null
+    };
+}
+
+function addUnique(array, value) {
+    if (!value) {
+        return;
+    }
+
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === value) {
+            return;
+        }
+    }
+
+    array.push(value);
+}
+
+function mergeExistingEnvelope(target, incomingEnvelope) {
+    if (!incomingEnvelope || !incomingEnvelope.agents) {
+        return;
+    }
+
+    var incomingKeys = Object.keys(incomingEnvelope.agents);
+
+    for (var i = 0; i < incomingKeys.length; i++) {
+        var key = incomingKeys[i];
+
+        target.agents[key] = incomingEnvelope.agents[key];
+        addUnique(target.agentOrder, key);
+    }
+
+    if (incomingEnvelope.warnings && incomingEnvelope.warnings.length) {
+        for (var w = 0; w < incomingEnvelope.warnings.length; w++) {
+            target.warnings.push(incomingEnvelope.warnings[w]);
+        }
+    }
+
+    if (incomingEnvelope.executionHistory && incomingEnvelope.executionHistory.length) {
+        for (var h = 0; h < incomingEnvelope.executionHistory.length; h++) {
+            target.executionHistory.push(incomingEnvelope.executionHistory[h]);
+        }
+    }
+}
+
+/**
+ * Merge strategy:
+ * - Valid incoming agent replaces previous agent with the same key.
+ * - Empty input does not delete existing agent.
+ * - Invalid input does not delete existing agent.
+ */
+function mergeAgent(target, normalized) {
+    if (!normalized || normalized.kind !== "AGENT" || !normalized.item) {
+        return;
+    }
+
+    var key = normalized.key;
+
+    target.agents[key] = normalized.item;
+    addUnique(target.agentOrder, key);
+}
+
+/**
+ * Generic reusable inputs.
+ *
+ * You can map:
+ * json1 = previous unifiedWidgetPayload
+ * json2 = new agent result
+ * json3 = another agent result
+ *
+ * Or:
+ * json1 = codingIntegrityResult
+ * json2 = complianceAlertResult
+ * json3 = financialVarianceResult
+ */
+var inputs = [
+    { slotName: "json1", value: variables.json1 },
+    { slotName: "json2", value: variables.json2 },
+    { slotName: "json3", value: variables.json3 },
+    { slotName: "json4", value: variables.json4 },
+    { slotName: "json5", value: variables.json5 },
+    { slotName: "json6", value: variables.json6 },
+    { slotName: "json7", value: variables.json7 },
+    { slotName: "json8", value: variables.json8 },
+    { slotName: "json9", value: variables.json9 },
+    { slotName: "json10", value: variables.json10 }
+];
+
+var envelope = {
+    schemaVersion: "incremental-widget-payload-envelope/v1",
+    generatedAt: nowIso(),
+    source: "Automate Script - BuildIncrementalUnifiedWidgetPayload",
+    agents: {},
+    agentOrder: [],
+    warnings: [],
+    executionHistory: []
+};
+
+var processedInputs = 0;
+var emptyInputs = 0;
+var invalidInputs = 0;
+var envelopeInputs = 0;
+var agentInputs = 0;
+
+for (var i = 0; i < inputs.length; i++) {
+    var normalized = normalizeAgentInput(
+        inputs[i].value,
+        inputs[i].slotName,
+        i + 1
+    );
+
+    processedInputs = processedInputs + 1;
+
+    if (normalized.kind === "EMPTY") {
+        emptyInputs = emptyInputs + 1;
+        continue;
+    }
+
+    if (
+        normalized.kind === "INVALID" ||
+        normalized.kind === "INVALID_AGENT"
+    ) {
+        invalidInputs = invalidInputs + 1;
+        envelope.warnings.push(normalized.warning);
+        continue;
+    }
+
+    if (normalized.kind === "ENVELOPE") {
+        envelopeInputs = envelopeInputs + 1;
+        mergeExistingEnvelope(envelope, normalized.envelope);
+        continue;
+    }
+
+    if (normalized.kind === "AGENT") {
+        agentInputs = agentInputs + 1;
+        mergeAgent(envelope, normalized);
+        continue;
+    }
+}
+
+var availableAgents = 0;
+var invalidAgents = 0;
+var pendingAgents = 0;
+
+var finalKeys = Object.keys(envelope.agents);
+
+for (var a = 0; a < finalKeys.length; a++) {
+    var agent = envelope.agents[finalKeys[a]];
+
+    if (agent.status === "AVAILABLE") {
+        availableAgents = availableAgents + 1;
+    } else if (agent.status === "INVALID_JSON") {
+        invalidAgents = invalidAgents + 1;
+    } else if (agent.status === "PENDING") {
+        pendingAgents = pendingAgents + 1;
+    }
+}
+
+envelope.summary = {
+    processedInputs: processedInputs,
+    emptyInputs: emptyInputs,
+    invalidInputs: invalidInputs,
+    envelopeInputs: envelopeInputs,
+    agentInputs: agentInputs,
+    totalAgents: finalKeys.length,
+    availableAgents: availableAgents,
+    pendingAgents: pendingAgents,
+    invalidAgents: invalidAgents,
+    hasAnyResult: availableAgents > 0,
+    hasWarnings: envelope.warnings.length > 0,
+    isComplete: finalKeys.length > 0 && invalidAgents === 0
+};
+
+envelope.executionHistory.push({
+    executedAt: nowIso(),
+    processedInputs: processedInputs,
+    emptyInputs: emptyInputs,
+    invalidInputs: invalidInputs,
+    envelopeInputs: envelopeInputs,
+    agentInputs: agentInputs,
+    totalAgentsAfterExecution: finalKeys.length
+});
+
+/**
+ * Keep executionHistory bounded so the JSON does not grow indefinitely.
+ */
+if (envelope.executionHistory.length > 10) {
+    envelope.executionHistory = envelope.executionHistory.slice(
+        envelope.executionHistory.length - 10
+    );
+}
+
+/**
+ * Dual output:
+ * - JSON object output
+ * - JSON string output
+ */
+variables.unifiedWidgetPayload = envelope;
+variables.unifiedWidgetPayloadText = JSON.stringify(envelope);

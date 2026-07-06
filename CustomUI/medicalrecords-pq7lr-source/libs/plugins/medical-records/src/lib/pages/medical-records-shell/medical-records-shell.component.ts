@@ -1,10 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { DashboardOverviewComponent } from '../../dashboard/components/dashboard-overview/dashboard-overview.component';
 import { ProcessAttentionItem } from '../../dashboard/definitions/process-attention.model';
 import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
-
+import { DashboardBuilderShellComponent } from '../dashboard-builder/dashboard-builder-shell.component';
 type MedicalRecordsPhaseKey = 'overview' | 'intake' | 'analysis' | 'approval' | 'execution' | 'review' | 'completed';
 
 interface PhaseNavigationItem {
@@ -40,11 +43,11 @@ interface NativeNavigationItem {
 
 @Component({
   selector: 'medical-records-shell',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, RouterModule, TranslateModule, DashboardOverviewComponent, DashboardBuilderShellComponent],
   templateUrl: './medical-records-shell.component.html',
   styleUrls: ['./medical-records-shell.component.scss']
-})
-export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
+})export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     private routeSubscription?: Subscription;
 
     readonly phases: PhaseNavigationItem[] = [
@@ -266,6 +269,7 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
     activePhase = this.phases[0];
     activeDetail = this.phaseDetails.overview;
     isConfigureView = false;
+    isAgreementsView = false;
 
     constructor(
         private readonly route: ActivatedRoute,
@@ -280,7 +284,8 @@ export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
 
     private syncRouteState(): void {
         this.isConfigureView = this.router.url.includes('/medical-records/configure');
-        if (this.isConfigureView) {
+        this.isAgreementsView = this.router.url.includes('/medical-records/agreements');
+        if (this.isConfigureView || this.isAgreementsView) {
             return;
         }
 

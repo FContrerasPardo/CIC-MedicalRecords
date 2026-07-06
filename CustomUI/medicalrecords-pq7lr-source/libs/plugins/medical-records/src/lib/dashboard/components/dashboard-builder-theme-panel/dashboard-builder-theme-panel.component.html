@@ -1,0 +1,52 @@
+<section class="theme-panel">
+    <button type="button" class="theme-panel__toggle" (click)="toggleExpanded()">
+        <span class="material-icons">{{ expanded ? 'expand_less' : 'expand_more' }}</span>
+        <span>{{ 'MEDICAL_RECORDS.THEME.PANEL_TITLE' | translate }}</span>
+    </button>
+
+    <div class="theme-panel__body" *ngIf="expanded">
+        <div class="theme-panel__section">
+            <span class="theme-panel__label">{{ 'MEDICAL_RECORDS.THEME.PRIMARY_ACCENT' | translate }}</span>
+            <div class="theme-panel__swatches">
+                <button
+                    type="button"
+                    *ngFor="let swatch of accentSwatches"
+                    class="theme-panel__swatch"
+                    [class.theme-panel__swatch--active]="theme.primaryAccent === swatch.color"
+                    [style.background]="swatch.color"
+                    [attr.title]="swatch.labelKey | translate"
+                    (click)="selectAccent(swatch.color)"
+                ></button>
+            </div>
+        </div>
+
+        <div class="theme-panel__section">
+            <span class="theme-panel__label">{{ 'MEDICAL_RECORDS.THEME.SERIES_GRADIENT' | translate }}</span>
+            <select
+                class="dashboard-form-control"
+                [ngModel]="currentPreset()"
+                (ngModelChange)="selectPreset($event)"
+            >
+                <option *ngFor="let preset of gradientPresets" [ngValue]="preset">
+                    {{ presetLabelKey(preset) | translate }}
+                </option>
+            </select>
+        </div>
+
+        <div class="theme-panel__section" *ngIf="currentPreset() === 'custom'">
+            <span class="theme-panel__label">{{ 'MEDICAL_RECORDS.THEME.CUSTOM_STOPS' | translate }}</span>
+            <div class="theme-panel__stops">
+                <label *ngFor="let stop of theme.defaultSeriesStyle.gradientStops; let i = index" class="theme-panel__stop">
+                    <input type="color" [ngModel]="stop.color" (ngModelChange)="updateGradientStop(i, $event)" />
+                    <span>{{ stop.position ?? 0 }}%</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="theme-panel__preview">
+            <span class="theme-panel__preview-bar" [style.background]="theme.defaultSeriesStyle | seriesStyleBg"></span>
+            <span class="theme-panel__preview-bar theme-panel__preview-bar--short" [style.background]="theme.defaultSeriesStyle | seriesStyleBg"></span>
+            <span class="theme-panel__preview-bar theme-panel__preview-bar--tall" [style.background]="theme.defaultSeriesStyle | seriesStyleBg"></span>
+        </div>
+    </div>
+</section>

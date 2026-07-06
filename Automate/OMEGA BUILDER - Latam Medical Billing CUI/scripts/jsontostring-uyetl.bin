@@ -1,0 +1,2 @@
+const in_Json = variables.in_Json;
+variables.out_String = JSON.stringify(in_Json);

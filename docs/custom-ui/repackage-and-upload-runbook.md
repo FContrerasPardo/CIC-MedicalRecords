@@ -243,7 +243,7 @@ Resultado esperado: la sesion queda en
 ### 3. Priorizar el runtime Node validado
 
 ```powershell
-$nodeBin = "C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
 $env:Path = "$nodeBin;$env:Path"
 $env:NX_DAEMON = "false"
 $env:NX_ISOLATE_PLUGINS = "false"

@@ -36,15 +36,16 @@ Los mockups visuales que se van a migrar a componentes Angular estan en:
 UI design/
 ```
 
-La rama recomendada para cambios de UI es:
+La rama recomendada para el frente actual de dashboard/widgets es:
 
 ```text
-codex/integration
+analysis-widget-redesign
 ```
 
 `main` se mantiene como punto estable. Antes de cambios grandes en la plantilla
-o en generadores de Hyland, trabajar en `codex/integration` permite volver
-rapido a una base conocida si una iteracion rompe el build.
+o en generadores de Hyland, trabajar en una rama dedicada permite volver rapido
+a una base conocida si una iteracion rompe el build. `codex/integration` queda
+como referencia historica de integracion anterior.
 
 ## Importante para usar el repo desde git
 
@@ -83,14 +84,40 @@ La plantilla trae `.nvmrc` y el `package.json` exige Node `>=24.14.0 <25.0.0`
 y npm `>=11.9.0 <12.0.0`. Algunas guias Hyland mencionan Node 22, pero esta
 plantilla concreta debe ejecutarse con Node 24.
 
-Con nvm for Windows se puede usar:
+Con **nvm-windows** o el **Node empaquetado de Codex/Cursor** se puede usar
+Node 24.14.0. En Windows, si Node esta en `C:\Program Files\nodejs\` y aparecen
+errores `EACCES` o `[vite] proxy error` con `AggregateError`, ver
+`docs/custom-ui/local-development-findings.md` (seccion **Windows: bloqueo
+EACCES**).
+
+**Opcion rapida (Codex/Cursor ya instalado):**
+
+```powershell
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
+$env:Path = "$nodeBin;$env:Path"
+node -v
+npm -v
+```
+
+**Opcion nvm-noinstall** - al abrir una terminal nueva (o tras reiniciar Cursor):
+
+```powershell
+$env:NVM_HOME = "C:\nvm"
+$env:NVM_SYMLINK = "C:\tempnodejs"
+$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path
+
+nvm version
+nvm install 24.14.0
+nvm use 24.14.0
+$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path
+node -v
+npm -v
+```
+
+Luego, desde la plantilla:
 
 ```powershell
 cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
-nvm install 24.14.0
-nvm use 24.14.0
-node -v
-npm -v
 ```
 
 ## Setup despues de clonar
@@ -159,7 +186,7 @@ es el metodo recomendado para levantar la app principal `workspace-hxp`:
 
 ```powershell
 $work = "C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source"
-$nodeBin = "C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
 
 Set-Location $work
 
@@ -169,7 +196,6 @@ $env:NX_ISOLATE_PLUGINS = "false"
 
 $portProcess = Get-NetTCPConnection -LocalPort 4200 -ErrorAction SilentlyContinue |
   Select-Object -ExpandProperty OwningProcess -Unique
-
 if ($portProcess) {
   Stop-Process -Id $portProcess -Force
 }
@@ -185,7 +211,7 @@ Servidor local equivalente si la shell ya esta usando Node 24/npm 11.9:
 
 ```powershell
 cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
-npm start workspace-hxp
+npm start workspace-hxp -- --host localhost --port 4200 --open=false
 ```
 
 El target `serve` ejecuta antes `workspace-hxp:preserve`, que genera

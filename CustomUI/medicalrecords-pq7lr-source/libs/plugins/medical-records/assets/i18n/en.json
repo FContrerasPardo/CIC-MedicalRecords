@@ -665,6 +665,12 @@
                 "SAVE_CHANGES": "Save changes",
                 "UNDO": "Undo resolution",
                 "RESOLVED_BADGE": "Resolved"
+            },
+            "ARIA": {
+                "AGENT_FINDINGS": "Agent findings",
+                "ALL_FINDINGS": "All findings",
+                "MISSING_REQUIRED_DOCUMENTS": "Missing required documents",
+                "USER_SUBSANATIONS": "User resolutions"
             }
         },
         "INTAKE_WIDGET": {

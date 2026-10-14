@@ -84,12 +84,21 @@ npm >=11.9.0 <12.0.0
 ```
 
 En esta maquina se encontro que la instalacion global era Node `20.9.0` y npm
-`10.1.0`, insuficientes para la plantilla. La ejecucion validada uso Node
-`24.14.0` desde:
+`10.1.0`, insuficientes para la plantilla. La ejecucion validada puede usar
+Node `24.14.0` desde el runtime empaquetado de Codex/Cursor:
+
+```powershell
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
+```
+
+Equivalente tipico:
 
 ```text
-C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+C:\Users\<tu-usuario>\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
 ```
+
+No hardcodear un usuario distinto (`ferch`, etc.); usar siempre
+`$env:USERPROFILE`.
 
 El sitio debe abrirse en:
 
@@ -99,6 +108,187 @@ http://localhost:4200/
 
 No usar `127.0.0.1` para login local, porque puede activar problemas CORS con
 el IDP de Hyland.
+
+## Windows: bloqueo `EACCES` en Node y solucion con nvm-noinstall
+
+Fecha de validacion: 2026-07-14.
+
+### Sintoma
+
+- `npm start workspace-hxp` arranca en `http://localhost:4200/`, pero Vite muestra
+  `[vite] http proxy error` con `AggregateError` / `connect EACCES :443`.
+- `node fetch()` o `npm ci` fallan con `EACCES`, mientras PowerShell
+  (`Invoke-WebRequest`) y el navegador llegan a los mismos hosts con HTTP 200.
+
+Esto no es un fallo de `contexts.json5`, `.env` ni del plugin `medical-records`.
+Indica que **solo `node.exe` esta bloqueado** para conexiones TCP salientes,
+tipicamente por una politica reciente de endpoint (Microsoft Purview Endpoint DLP)
+cuando Node esta instalado en `C:\Program Files\nodejs\`.
+
+### Diagnostico rapido
+
+```powershell
+node -e "require('node:https').get('https://www.google.com', r => console.log(r.statusCode)).on('error', e => console.error(e.code))"
+```
+
+- **`200`**: Node puede salir a internet; el problema es otro.
+- **`EACCES`**: aplicar una de las soluciones de esta seccion.
+
+### Alternativa A: Node empaquetado de Codex/Cursor (recomendada si ya tienes Codex)
+
+Si Codex o Cursor ya descargaron su runtime, Node 24 suele estar en:
+
+```powershell
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
+$env:Path = "$nodeBin;$env:Path"
+node -v
+npm -v
+```
+
+Verificar conectividad:
+
+```powershell
+node -e "require('node:https').get('https://www.google.com', r => console.log(r.statusCode)).on('error', e => console.error(e.code))"
+```
+
+Si imprime `200`, usar ese Node para todo el proyecto sin depender de
+`C:\Program Files\nodejs\` ni del symlink de nvm:
+
+```powershell
+cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+$env:NX_DAEMON = "false"
+$env:NX_ISOLATE_PLUGINS = "false"
+npm ci
+npm run setenv -- -c workspace-hxp:_customApp
+npm run nx:run-target -- workspace-hxp:preserve
+& "$nodeBin\node.exe" ".\node_modules\nx\bin\nx.js" serve workspace-hxp --host localhost --port 4200 --open=false
+```
+
+Ventaja: evita problemas de symlink/`nvm use` cuando PowerShell no resuelve
+`node` en el `PATH` aunque `C:\tempnodejs\node.exe` exista.
+
+### Alternativa B: nvm-noinstall (sin permisos de administrador)
+
+Usar **nvm-windows portable** (`nvm-noinstall.zip`) y mantener el symlink de
+Node fuera de `Program Files`.
+
+#### 1. Desinstalar Node de `C:\Program Files\nodejs\`
+
+Cerrar terminales con `npm start` y detener procesos:
+
+```powershell
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+Desinstalar "Node.js" desde Configuracion → Aplicaciones.
+
+#### 2. Extraer nvm-noinstall
+
+Descargar `nvm-noinstall.zip` desde
+[coreybutler/nvm-windows releases](https://github.com/coreybutler/nvm-windows/releases)
+y extraer en:
+
+```text
+C:\nvm\
+```
+
+Debe existir `C:\nvm\nvm.exe`.
+
+#### 3. Crear `C:\nvm\settings.txt`
+
+```text
+root: C:\nvm
+path: C:\tempnodejs
+arch: 64
+proxy: none
+```
+
+Sin este archivo, `nvm install` falla con `ERROR open \settings.txt`.
+
+#### 4. Variables de entorno de usuario (permanentes)
+
+En Variables de entorno → **Variables de usuario**:
+
+| Variable | Valor |
+|----------|-------|
+| `NVM_HOME` | `C:\nvm` |
+| `NVM_SYMLINK` | `C:\tempnodejs` |
+
+Editar la variable **`Path`** existente (no crear otra) y agregar al inicio:
+
+```text
+C:\nvm
+C:\tempnodejs
+```
+
+`C:\tempnodejs` no debe existir como carpeta fisica antes del primer `nvm use`;
+nvm la crea como symlink.
+
+#### 5. Refrescar la sesion y activar Node 24.14.0
+
+Cerrar **Cursor por completo** (no solo la terminal) o ejecutar este bloque al
+inicio de cada sesion nueva:
+
+```powershell
+$env:NVM_HOME = "C:\nvm"
+$env:NVM_SYMLINK = "C:\tempnodejs"
+$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path
+
+nvm version
+nvm install 24.14.0
+nvm use 24.14.0
+$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path
+node -v
+npm -v
+```
+
+Si `nvm use` dice *Now using node v24.14.0* pero `node -v` sigue sin
+reconocerse, el symlink puede estar bien y el `PATH` de la sesion no:
+
+```powershell
+C:\tempnodejs\node.exe -v
+```
+
+- Si eso imprime `v24.14.0`, repetir solo
+  `$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path` **despues** de `nvm use`, o
+  reiniciar Cursor por completo.
+- Si sigue fallando, usar la **Alternativa A** (Node de Codex con
+  `$env:USERPROFILE`).
+
+Verificar conectividad:
+
+```powershell
+node -e "require('node:https').get('https://www.google.com', r => console.log(r.statusCode)).on('error', e => console.error(e.code))"
+```
+
+Debe imprimir `200`.
+
+#### 6. Retomar el proyecto
+
+```powershell
+cd C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source
+$env:NX_DAEMON = "false"
+$env:NX_ISOLATE_PLUGINS = "false"
+npm ci
+npm run setenv -- -c workspace-hxp:_customApp
+npm run nx:run-target -- workspace-hxp:preserve
+npm start workspace-hxp
+```
+
+### Errores frecuentes de nvm-noinstall
+
+| Error | Causa | Accion |
+|-------|-------|--------|
+| `nvm` no se reconoce | Path de usuario no recargado en Cursor | Reiniciar Cursor o ejecutar el bloque `$env:Path = ...` |
+| `ERROR open \settings.txt` | Falta `settings.txt` o `NVM_HOME` vacio en la sesion | Crear `C:\nvm\settings.txt` y exportar `$env:NVM_HOME` |
+| `nvm use` OK pero `node` no se reconoce | Symlink activo pero `PATH` de sesion desactualizado | `C:\tempnodejs\node.exe -v`; luego `$env:Path = "C:\tempnodejs;C:\nvm;" + $env:Path`; o usar Node de Codex |
+| `nvm use` falla por carpeta fisica | `C:\tempnodejs` existe como directorio real | `Remove-Item C:\tempnodejs -Recurse -Force` y repetir `nvm use` |
+
+### Escalamiento IT (si la solucion anterior no aplica)
+
+Solicitar exclusion de DLP/firewall para `node.exe` hacia `*.app.hyland.com`,
+`registry.npmjs.org` y `npm.pkg.github.com`. Ver plantilla de ticket en el chat
+interno del equipo Automate Front End (Windows + Purview Endpoint DLP).
 
 ## Configuracion de Automate
 
@@ -293,7 +483,7 @@ metodo recomendado para la aplicacion principal `workspace-hxp` es:
 
 ```powershell
 $work = "C:\CIC-MedicalRecords\CustomUI\medicalrecords-pq7lr-source"
-$nodeBin = "C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin"
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
 
 Set-Location $work
 
@@ -371,7 +561,7 @@ Validacion:
 Accion correctiva:
 
 - Levantar `workspace-hxp` nuevamente con Node 24 desde
-  `C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe`.
+  `Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'`.
 - Esperar hasta ver `Application bundle generation complete` y
   `Local: http://localhost:4200/`.
 

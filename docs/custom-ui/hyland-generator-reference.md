@@ -11,7 +11,7 @@ The goal was to answer whether we should replace the manually adjusted plugin wi
 The validation was intentionally executed with `--dry-run` because the current workspace had active medical-records changes. Running the generators without dry-run would modify shared workspace files such as `apps/workspace-hxp/project.json`, `nx.json`, `tsconfig.base.json`, `tsconfig.adf.json`, and `libs/plugins/index.ts`.
 
 ```powershell
-$nodeBin = 'C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
+$nodeBin = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
 $env:PATH = "$nodeBin;$env:PATH"
 $env:NX_DAEMON = 'false'
 $env:NX_ISOLATE_PLUGINS = 'false'

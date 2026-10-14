@@ -43,7 +43,8 @@ en este repositorio.
 
 ## Estado tecnico validado
 
-- Branch de trabajo recomendado: `codex/integration`.
+- Branch de trabajo actual/recomendado para este frente: `analysis-widget-redesign`.
+- `codex/integration` queda como referencia historica de integracion anterior.
 - `main` queda como base estable.
 - La plantilla exige Node `>=24.14.0 <25.0.0` y npm `>=11.9.0 <12.0.0`.
 - Regla obligatoria para IA: no ejecutar `npm ci`, `setenv`, `nx`, `serve`,
@@ -52,7 +53,7 @@ en este repositorio.
   falsos `EPERM`. Estos comandos deben correr en el entorno local de Windows,
   sobre `http://localhost:4200/`, con permisos fuera de sandbox.
 - Metodo recomendado para `workspace-hxp`: usar el `node.exe` del runtime
-  `C:\Users\ferch\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin`,
+  `Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'`,
   anteponer ese directorio al `PATH`, desactivar `NX_DAEMON` y
   `NX_ISOLATE_PLUGINS`, y ejecutar `.\node_modules\nx\bin\nx.js serve` sin
   depender del Node global de Windows.
@@ -75,11 +76,11 @@ en este repositorio.
 
 El bloque `_customApp` en `contexts.json5` contiene:
 
-- deployed app: `fc-gb-customui-class-xm8b4-58e71b1e`
-- studioClientId: `hxps:fc-gb-customui-class-xm8b4-58e71b1e:clients:158e0fdb-7f9d-4b4f-9c38-fa294f6d325b:env:58e71b1e`
-- contentHost: `https://dev-75634925ac034690aeaf6236e36d0810.content.experience.hyland.com`
-- processHost: `https://d41b2703-40b0-4b4b-9a2b-2f592759edb7.studio.experience.hyland.com`
-- idpURL: `https://auth.iam.experience.hyland.com/idp`
+- deployed app: `omega-builder-latam--ty6yt-58e71b1e`
+- studioClientId: `hxps:omega-builder-latam--ty6yt-58e71b1e:clients:158e0fdb-7f9d-4b4f-9c38-fa294f6d325b:env:58e71b1e`
+- contentHost: `https://dev-75634925ac034690aeaf6236e36d0810.content.app.hyland.com`
+- processHost: `https://d41b2703-40b0-4b4b-9a2b-2f592759edb7.studio.app.hyland.com`
+- idpURL: `https://auth.app.hyland.com/idp`
 
 ## Decisiones de implementacion
 
@@ -139,9 +140,9 @@ El bloque `_customApp` en `contexts.json5` contiene:
 - El overview `medical-records` lista **tareas abiertas** (`CREATED` + `ASSIGNED`)
   alineadas con My Tasks, no instancias de proceso en background.
 - Servicios clave en el plugin:
-  - `MedicalRecordsTaskQueryService` — consulta tareas + variables por `rootProcessInstanceId`.
-  - `MedicalRecordsBulkTaskService` — aprobacion masiva de tareas elegibles (mismo tipo).
-- Click en fila del overview → `task-details-cloud` (no `process-details-cloud`).
+  - `MedicalRecordsTaskQueryService` - consulta tareas + variables por `rootProcessInstanceId`.
+  - `MedicalRecordsBulkTaskService` - aprobacion masiva de tareas elegibles (mismo tipo).
+- Click en fila del overview -> `task-details-cloud` (no `process-details-cloud`).
 - Subprocesos (p. ej. AgentMesh): las tareas tienen otro `processDefinitionKey`; filtrar por `rootProcessInstanceId` del proceso raiz `medical-records`.
 
 ## Documentacion revisada
@@ -206,6 +207,11 @@ docs/custom-ui/local-development-findings.md
 Resumen para futuras IAs:
 
 - Global Node/npm puede no servir; esta plantilla requiere Node 24/npm 11.9.
+- En Windows, si `node` devuelve `EACCES` en HTTPS pero PowerShell responde 200,
+  Node esta bloqueado por DLP (tipicamente en `C:\Program Files\nodejs\`). Usar
+  Node de Codex (`Join-Path $env:USERPROFILE '.cache\codex-runtimes\...'`) o
+  `nvm-noinstall` en `C:\nvm` con `NVM_SYMLINK=C:\tempnodejs`. Detalle en
+  `docs/custom-ui/local-development-findings.md` (seccion Windows EACCES).
 - `node_modules` incompleto provoca fallas de `nx` faltante.
 - Procesos antiguos `nx`, `run-executor` o `esbuild` pueden bloquear
   dependencias nativas durante `npm ci`.

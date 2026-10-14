@@ -8,8 +8,8 @@
             }
         ],
         "studioClientId": "hxps:omega-builder-latam--ty6yt-58e71b1e:clients:158e0fdb-7f9d-4b4f-9c38-fa294f6d325b:env:58e71b1e",
-        "contentHost": "https://dev-75634925ac034690aeaf6236e36d0810.content.experience.hyland.com",
-        "processHost": "https://d41b2703-40b0-4b4b-9a2b-2f592759edb7.studio.experience.hyland.com",
-        "idpURL": "https://auth.iam.experience.hyland.com/idp"
+        "contentHost": "https://dev-75634925ac034690aeaf6236e36d0810.content.app.hyland.com",
+        "processHost": "https://d41b2703-40b0-4b4b-9a2b-2f592759edb7.studio.app.hyland.com",
+        "idpURL": "https://auth.app.hyland.com/idp"
     }
 }

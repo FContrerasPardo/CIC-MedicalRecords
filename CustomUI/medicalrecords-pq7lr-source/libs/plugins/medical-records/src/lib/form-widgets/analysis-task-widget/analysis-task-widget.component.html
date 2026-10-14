@@ -91,7 +91,7 @@
       {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_AGENTS' | translate:{ agents: model.missingAgentLabels.join(', ') } }}
     </div>
 
-    <section class="analysis-task-widget__agent-grid" aria-label="Agent findings">
+    <section class="analysis-task-widget__agent-grid" [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.ARIA.AGENT_FINDINGS' | translate">
       <article
         class="analysis-task-widget__agent-card"
         *ngFor="let card of model.agentCards; trackBy: trackByCard"
@@ -126,7 +126,7 @@
     </section>
 
     <section class="analysis-task-widget__review-grid">
-      <section class="analysis-task-widget__findings-panel" #findingsPanel aria-label="All findings">
+      <section class="analysis-task-widget__findings-panel" #findingsPanel [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.ARIA.ALL_FINDINGS' | translate">
       <div class="analysis-task-widget__panel-header">
         <div>
           <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.FINDINGS.EYEBROW' | translate }}</span>
@@ -341,7 +341,7 @@
     </section>
 
       <div class="analysis-task-widget__review-side">
-        <section class="analysis-task-widget__missing-docs-panel" *ngIf="model.missingDocuments.length" aria-label="Missing required documents">
+        <section class="analysis-task-widget__missing-docs-panel" *ngIf="model.missingDocuments.length" [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.ARIA.MISSING_REQUIRED_DOCUMENTS' | translate">
           <div class="analysis-task-widget__panel-header">
             <div>
               <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.MISSING_DOCS.EYEBROW' | translate }}</span>
@@ -414,7 +414,7 @@
           </button>
         </section>
 
-        <section class="analysis-task-widget__subsanations-panel" *ngIf="resolutionViews.length" aria-label="User subsanations">
+        <section class="analysis-task-widget__subsanations-panel" *ngIf="resolutionViews.length" [attr.aria-label]="'MEDICAL_RECORDS.ANALYSIS_WIDGET.ARIA.USER_SUBSANATIONS' | translate">
           <div class="analysis-task-widget__panel-header">
             <div>
               <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.SUBSANATIONS.EYEBROW' | translate }}</span>

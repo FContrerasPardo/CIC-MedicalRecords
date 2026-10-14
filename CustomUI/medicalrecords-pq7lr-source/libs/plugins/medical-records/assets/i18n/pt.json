@@ -296,125 +296,131 @@
         },
         "ANALYSIS_WIDGET": {
             "HEADER": {
-                "EYEBROW": "[TODO] AI Pre-validation",
-                "TITLE": "[TODO] Analysis Phase",
-                "DESCRIPTION": "[TODO] Review automated findings and resolve identified risks before proceeding to manual approval."
+                "EYEBROW": "Pre-validacao por IA",
+                "TITLE": "Fase de Analise",
+                "DESCRIPTION": "Revise os achados automatizados e resolva os riscos identificados antes de prosseguir para a aprovacao manual."
             },
             "METRICS": {
-                "INCONSISTENCIES": "[TODO] Inconsistencies",
-                "COMPLIANCE_GAPS": "[TODO] Compliance Gaps",
-                "FINANCIAL_ISSUES": "[TODO] Financial Issues"
+                "INCONSISTENCIES": "Inconsistencias",
+                "COMPLIANCE_GAPS": "Lacunas de conformidade",
+                "FINANCIAL_ISSUES": "Achados financeiros"
             },
             "RISK": {
-                "SCORE_LABEL": "[TODO] Glosa Risk Score",
-                "ANALYZED_CLAIMS": "[TODO] Analyzed Claims",
-                "TOTAL_VALUE": "[TODO] Total Value",
-                "APPROVAL_STATE": "[TODO] Approval State",
-                "START_HERE": "[TODO] Start here:",
-                "SEVERITY_LABEL": "[TODO] Findings by severity",
-                "ANALYZED_CLAIMS_HELPER": "[TODO] Service items reviewed by the coding agent",
-                "TOTAL_VALUE_HELPER": "[TODO] Invoice total detected by the financial agent"
+                "SCORE_LABEL": "Pontuacao de risco de glosa",
+                "ANALYZED_CLAIMS": "Servicos analisados",
+                "ANALYZED_CLAIMS_HELPER": "Itens de servico revisados pelo agente de codificacao",
+                "TOTAL_VALUE": "Valor total",
+                "TOTAL_VALUE_HELPER": "Total da fatura detectado pelo agente financeiro",
+                "APPROVAL_STATE": "Estado da aprovacao",
+                "START_HERE": "Comece aqui:",
+                "SEVERITY_LABEL": "Achados por severidade"
             },
             "APPROVAL_STATE": {
-                "BLOCKED": "[TODO] Blocked by agent review",
-                "READY": "[TODO] Ready to proceed"
+                "BLOCKED": "Bloqueado pela revisao dos agentes",
+                "READY": "Pronto para prosseguir"
             },
-            "MISSING_AGENTS": "[TODO] Waiting for {{agents}}.",
-            "VIEW_ALL_FINDINGS": "[TODO] View all findings ({{count}})",
-            "FILTER": "[TODO] Filter",
-            "DEMO_DISCLAIMER": "[TODO] Demo: complete corrective actions outside this widget, then use the form actions at the bottom of the task.",
+            "MISSING_AGENTS": "Aguardando {{agents}}.",
+            "VIEW_ALL_FINDINGS": "Ver todos os achados ({{count}})",
+            "FILTER": "Filtrar",
+            "DEMO_DISCLAIMER": "Demo: conclua as acoes corretivas fora deste widget e use as acoes do formulario no rodape da tarefa.",
+            "DOCUMENTS": {
+                "EYEBROW": "Remediacao",
+                "TITLE": "Documentos",
+                "UPLOAD": "Enviar documento",
+                "VIEW": "Ver",
+                "MARK_REVIEWED": "Marcar como revisado",
+                "MARK_ALL": "Marcar todos como revisados ({{count}})",
+                "REVIEWED": "Revisado",
+                "EMPTY": "Nao ha documentos para remediar.",
+                "UPLOAD_OPENED": "Abrindo o campo de upload de arquivos.",
+                "UPLOAD_HIGHLIGHTED": "Use o campo de upload destacado para anexar o documento.",
+                "UPLOAD_NOT_FOUND": "Nao foi possivel encontrar o campo de upload no formulario."
+            },
             "FINDINGS": {
-                "EYEBROW": "[TODO] Detailed review",
-                "TITLE": "[TODO] All Findings",
-                "DESCRIPTION": "[TODO] Every finding returned by the coding, compliance, and financial agents.",
-                "REASON": "[TODO] Reason:",
-                "RECOMMENDATION": "[TODO] Recommendation:",
-                "SOURCE": "[TODO] Source:",
-                "EMPTY": "[TODO] No findings match the current filters.",
-                "OCCURRENCES": "[TODO] {{count}} occurrences",
-                "ACCOUNT_TAG": "[TODO] Account"
+                "EYEBROW": "Revisao detalhada",
+                "TITLE": "Todos os achados",
+                "DESCRIPTION": "Cada achado retornado pelos agentes de codificacao, conformidade e financeiro.",
+                "REASON": "Motivo:",
+                "RECOMMENDATION": "Recomendacao:",
+                "SOURCE": "Fonte:",
+                "EMPTY": "Nenhum achado corresponde aos filtros atuais.",
+                "OCCURRENCES": "{{count}} ocorrencias",
+                "ACCOUNT_TAG": "Conta"
             },
             "FILTERS": {
-                "AGENT": "[TODO] Agent",
-                "RISK": "[TODO] Risk",
-                "TYPE": "[TODO] Type",
-                "ALL": "[TODO] All",
-                "CLEAR": "[TODO] Clear filters",
-                "AGENT_CODING": "[TODO] Coding",
-                "AGENT_COMPLIANCE": "[TODO] Compliance",
-                "AGENT_FINANCIAL": "[TODO] Financial",
-                "RISK_CRITICAL": "[TODO] Critical",
-                "RISK_HIGH": "[TODO] High",
-                "RISK_MEDIUM": "[TODO] Medium",
-                "RISK_LOW": "[TODO] Low",
-                "RISK_PENDING": "[TODO] Pending",
-                "SCOPE": "[TODO] Scope",
-                "SCOPE_ALL": "[TODO] All",
-                "SCOPE_SERVICE": "[TODO] By service",
-                "SCOPE_ACCOUNT": "[TODO] Account-level",
-                "SERVICE": "[TODO] Service",
-                "STATUS": "[TODO] Status",
-                "STATUS_PENDING": "[TODO] Pending",
+                "AGENT": "Agente",
+                "RISK": "Risco",
+                "TYPE": "Tipo",
+                "ALL": "Todos",
+                "CLEAR": "Limpar filtros",
+                "AGENT_CODING": "Codificacao",
+                "AGENT_COMPLIANCE": "Conformidade",
+                "AGENT_FINANCIAL": "Financeiro",
+                "RISK_CRITICAL": "Critico",
+                "RISK_HIGH": "Alto",
+                "RISK_MEDIUM": "Medio",
+                "RISK_LOW": "Baixo",
+                "RISK_PENDING": "Pendente",
+                "SCOPE": "Escopo",
+                "SCOPE_ALL": "Todos",
+                "SCOPE_SERVICE": "Por servico",
+                "SCOPE_ACCOUNT": "Nivel da conta",
+                "SERVICE": "Servico",
+                "STATUS": "Status",
+                "STATUS_PENDING": "Pendente",
                 "STATUS_RESOLVED": "Resolvido"
             },
+            "MISSING_DOCS": {
+                "EYEBROW": "Lacuna de conformidade",
+                "TITLE": "Documentos obrigatorios ausentes",
+                "REQUIRED_FOR": "Obrigatorio para:",
+                "REASON": "Motivo:",
+                "EMPTY": "Nenhum documento obrigatorio ausente foi detectado."
+            },
             "ACTIONS_PANEL": {
-                "EYEBROW": "[TODO] Resolution Queue",
-                "TITLE": "[TODO] Recommended Actions"
+                "EYEBROW": "Fila de resolucao",
+                "TITLE": "Acoes recomendadas"
             },
             "ACTIONS": {
-                "UPDATE_CUPS": "[TODO] Update CUPS",
-                "REQUEST_AUTHORIZATION": "[TODO] Request Authorization",
-                "REVIEW_CONTRACT": "[TODO] Review Contract",
-                "OPEN_FINDINGS": "[TODO] Open Findings"
+                "UPDATE_CUPS": "Atualizar CUPS",
+                "REQUEST_AUTHORIZATION": "Solicitar autorizacao",
+                "REVIEW_CONTRACT": "Revisar contrato",
+                "OPEN_FINDINGS": "Abrir achados"
             },
             "MODAL": {
-                "FINDINGS": "[TODO] Findings",
-                "RECOMMENDED": "[TODO] Recommended actions"
-            },
-            "MISSING_DOCS": {
-                "EYEBROW": "[TODO] Compliance gap",
-                "TITLE": "[TODO] Missing Required Documents",
-                "REQUIRED_FOR": "[TODO] Required for:",
-                "REASON": "[TODO] Reason:",
-                "EMPTY": "[TODO] No missing required documents detected."
+                "FINDINGS": "Achados",
+                "RECOMMENDED": "Acoes recomendadas"
             },
             "CONTRACT": {
-                "EYEBROW": "[TODO] Agreement document",
-                "CLOSE": "[TODO] Close",
-                "LOADING_TITLE": "[TODO] Loading contract",
-                "LOADING_MESSAGE": "[TODO] Retrieving the agreement document from the repository."
-            },
-            "DOCUMENTS": {
-                "EYEBROW": "[TODO] Remediation",
-                "TITLE": "[TODO] Documents",
-                "UPLOAD": "[TODO] Upload document",
-                "VIEW": "[TODO] View",
-                "MARK_REVIEWED": "[TODO] Mark reviewed",
-                "MARK_ALL": "[TODO] Mark all reviewed ({{count}})",
-                "REVIEWED": "[TODO] Reviewed",
-                "EMPTY": "[TODO] No documents to remediate.",
-                "UPLOAD_OPENED": "[TODO] Opening the file upload field.",
-                "UPLOAD_HIGHLIGHTED": "[TODO] Use the highlighted upload field to attach the document.",
-                "UPLOAD_NOT_FOUND": "[TODO] Could not find the upload field on the form."
+                "EYEBROW": "Documento do convenio",
+                "CLOSE": "Fechar",
+                "LOADING_TITLE": "Carregando contrato",
+                "LOADING_MESSAGE": "Recuperando o documento do convenio a partir do repositorio."
             },
             "SUBSANATIONS": {
-                "EYEBROW": "[TODO] Reviewer notes",
-                "TITLE": "[TODO] Resolutions",
-                "EMPTY": "[TODO] No resolutions recorded.",
-                "SELECTED": "[TODO] finding(s) selected",
-                "ACTION": "[TODO] Resolve",
-                "CLEAR": "[TODO] Clear selection",
-                "MODAL_TITLE": "[TODO] Add resolution",
-                "MODAL_HINT": "[TODO] This comment will be included in the agent context when reprocessing.",
-                "PLACEHOLDER": "[TODO] Describe the correction or clarification for the selected findings...",
-                "CONFIRM": "[TODO] Confirm",
-                "CANCEL": "[TODO] Cancel",
-                "FINDING_COUNT": "[TODO] {{count}} finding(s)",
-                "SAVED_AT": "[TODO] Saved {{date}}",
-                "VIEW_TITLE": "[TODO] Resolution detail",
-                "SAVE_CHANGES": "[TODO] Save changes",
-                "UNDO": "[TODO] Undo resolution",
+                "EYEBROW": "Notas do revisor",
+                "TITLE": "Resolucao",
+                "EMPTY": "Nenhuma resolucao registrada.",
+                "SELECTED": "achado(s) selecionado(s)",
+                "ACTION": "Resolver",
+                "CLEAR": "Limpar selecao",
+                "MODAL_TITLE": "Adicionar resolucao",
+                "MODAL_HINT": "Este comentario sera incluido no contexto do agente durante o reprocessamento.",
+                "PLACEHOLDER": "Descreva a correcao ou esclarecimento para os achados selecionados...",
+                "CONFIRM": "Confirmar",
+                "CANCEL": "Cancelar",
+                "FINDING_COUNT": "{{count}} achado(s)",
+                "SAVED_AT": "Salvo {{date}}",
+                "VIEW_TITLE": "Detalhe da resolucao",
+                "SAVE_CHANGES": "Salvar alteracoes",
+                "UNDO": "Desfazer resolucao",
                 "RESOLVED_BADGE": "Resolvido"
+            },
+            "ARIA": {
+                "AGENT_FINDINGS": "Achados dos agentes",
+                "ALL_FINDINGS": "Todos os achados",
+                "MISSING_REQUIRED_DOCUMENTS": "Documentos obrigatorios ausentes",
+                "USER_SUBSANATIONS": "Resolucao do usuario"
             }
         },
         "INTAKE_WIDGET": {

@@ -557,13 +557,13 @@
             },
             "RISK": {
                 "SCORE_LABEL": "Puntaje de riesgo de glosa",
-                "ANALYZED_CLAIMS": "Reclamos analizados",
+                "ANALYZED_CLAIMS": "Servicios analizados",
+                "ANALYZED_CLAIMS_HELPER": "Servicios revisados por el agente de codificacion",
                 "TOTAL_VALUE": "Valor total",
+                "TOTAL_VALUE_HELPER": "Total de la factura detectado por el agente financiero",
                 "APPROVAL_STATE": "Estado de aprobacion",
-                "START_HERE": "[TODO] Start here:",
-                "SEVERITY_LABEL": "[TODO] Findings by severity",
-                "ANALYZED_CLAIMS_HELPER": "[TODO] Service items reviewed by the coding agent",
-                "TOTAL_VALUE_HELPER": "[TODO] Invoice total detected by the financial agent"
+                "START_HERE": "Comience aqui:",
+                "SEVERITY_LABEL": "Hallazgos por severidad"
             },
             "APPROVAL_STATE": {
                 "BLOCKED": "Bloqueado por revision de agentes",
@@ -573,6 +573,19 @@
             "VIEW_ALL_FINDINGS": "Ver todos los hallazgos ({{count}})",
             "FILTER": "Filtrar",
             "DEMO_DISCLAIMER": "Demo: complete las acciones correctivas fuera de este widget y use los botones del formulario al pie de la tarea.",
+            "DOCUMENTS": {
+                "EYEBROW": "Subsanacion",
+                "TITLE": "Documentos",
+                "UPLOAD": "Cargar documento",
+                "VIEW": "Ver",
+                "MARK_REVIEWED": "Marcar como revisado",
+                "MARK_ALL": "Marcar todos como revisados ({{count}})",
+                "REVIEWED": "Revisado",
+                "EMPTY": "No hay documentos para subsanar.",
+                "UPLOAD_OPENED": "Abriendo el campo de carga de archivos.",
+                "UPLOAD_HIGHLIGHTED": "Use el campo de carga resaltado para adjuntar el documento.",
+                "UPLOAD_NOT_FOUND": "No se pudo encontrar el campo de carga en el formulario."
+            },
             "FINDINGS": {
                 "EYEBROW": "Revision detallada",
                 "TITLE": "Todos los hallazgos",
@@ -581,8 +594,8 @@
                 "RECOMMENDATION": "Recomendacion:",
                 "SOURCE": "Fuente:",
                 "EMPTY": "Ningun hallazgo coincide con los filtros actuales.",
-                "OCCURRENCES": "[TODO] {{count}} occurrences",
-                "ACCOUNT_TAG": "[TODO] Account"
+                "OCCURRENCES": "{{count}} ocurrencias",
+                "ACCOUNT_TAG": "Cuenta"
             },
             "FILTERS": {
                 "AGENT": "Agente",
@@ -590,22 +603,29 @@
                 "TYPE": "Tipo",
                 "ALL": "Todos",
                 "CLEAR": "Limpiar filtros",
-                "AGENT_CODING": "[TODO] Coding",
-                "AGENT_COMPLIANCE": "[TODO] Compliance",
-                "AGENT_FINANCIAL": "[TODO] Financial",
-                "RISK_CRITICAL": "[TODO] Critical",
-                "RISK_HIGH": "[TODO] High",
-                "RISK_MEDIUM": "[TODO] Medium",
-                "RISK_LOW": "[TODO] Low",
-                "RISK_PENDING": "[TODO] Pending",
-                "SCOPE": "[TODO] Scope",
-                "SCOPE_ALL": "[TODO] All",
-                "SCOPE_SERVICE": "[TODO] By service",
-                "SCOPE_ACCOUNT": "[TODO] Account-level",
-                "SERVICE": "[TODO] Service",
-                "STATUS": "[TODO] Status",
-                "STATUS_PENDING": "[TODO] Pending",
+                "AGENT_CODING": "Codificacion",
+                "AGENT_COMPLIANCE": "Cumplimiento",
+                "AGENT_FINANCIAL": "Financiero",
+                "RISK_CRITICAL": "Critico",
+                "RISK_HIGH": "Alto",
+                "RISK_MEDIUM": "Medio",
+                "RISK_LOW": "Bajo",
+                "RISK_PENDING": "Pendiente",
+                "SCOPE": "Alcance",
+                "SCOPE_ALL": "Todos",
+                "SCOPE_SERVICE": "Por servicio",
+                "SCOPE_ACCOUNT": "A nivel de cuenta",
+                "SERVICE": "Servicio",
+                "STATUS": "Estado",
+                "STATUS_PENDING": "Pendiente",
                 "STATUS_RESOLVED": "Subsanado"
+            },
+            "MISSING_DOCS": {
+                "EYEBROW": "Brecha de cumplimiento",
+                "TITLE": "Documentos requeridos faltantes",
+                "REQUIRED_FOR": "Requerido para:",
+                "REASON": "Motivo:",
+                "EMPTY": "No se detectaron documentos requeridos faltantes."
             },
             "ACTIONS_PANEL": {
                 "EYEBROW": "Cola de resolucion",
@@ -621,31 +641,11 @@
                 "FINDINGS": "Hallazgos",
                 "RECOMMENDED": "Acciones recomendadas"
             },
-            "MISSING_DOCS": {
-                "EYEBROW": "[TODO] Compliance gap",
-                "TITLE": "[TODO] Missing Required Documents",
-                "REQUIRED_FOR": "[TODO] Required for:",
-                "REASON": "[TODO] Reason:",
-                "EMPTY": "[TODO] No missing required documents detected."
-            },
             "CONTRACT": {
-                "EYEBROW": "[TODO] Agreement document",
-                "CLOSE": "[TODO] Close",
-                "LOADING_TITLE": "[TODO] Loading contract",
-                "LOADING_MESSAGE": "[TODO] Retrieving the agreement document from the repository."
-            },
-            "DOCUMENTS": {
-                "EYEBROW": "[TODO] Remediation",
-                "TITLE": "[TODO] Documents",
-                "UPLOAD": "[TODO] Upload document",
-                "VIEW": "[TODO] View",
-                "MARK_REVIEWED": "[TODO] Mark reviewed",
-                "MARK_ALL": "[TODO] Mark all reviewed ({{count}})",
-                "REVIEWED": "[TODO] Reviewed",
-                "EMPTY": "[TODO] No documents to remediate.",
-                "UPLOAD_OPENED": "[TODO] Opening the file upload field.",
-                "UPLOAD_HIGHLIGHTED": "[TODO] Use the highlighted upload field to attach the document.",
-                "UPLOAD_NOT_FOUND": "[TODO] Could not find the upload field on the form."
+                "EYEBROW": "Documento de convenio",
+                "CLOSE": "Cerrar",
+                "LOADING_TITLE": "Cargando contrato",
+                "LOADING_MESSAGE": "Recuperando el documento del convenio desde el repositorio."
             },
             "SUBSANATIONS": {
                 "EYEBROW": "Notas del revisor",
@@ -653,18 +653,24 @@
                 "EMPTY": "No hay subsanaciones registradas.",
                 "SELECTED": "hallazgo(s) seleccionado(s)",
                 "ACTION": "Subsanar",
-                "CLEAR": "Limpiar selección",
-                "MODAL_TITLE": "Agregar subsanación",
-                "MODAL_HINT": "Este comentario se incluirá en el contexto del agente al reprocesar.",
-                "PLACEHOLDER": "Describe la corrección o aclaración para los hallazgos seleccionados...",
+                "CLEAR": "Limpiar seleccion",
+                "MODAL_TITLE": "Agregar subsanacion",
+                "MODAL_HINT": "Este comentario se incluira en el contexto del agente al reprocesar.",
+                "PLACEHOLDER": "Describe la correccion o aclaracion para los hallazgos seleccionados...",
                 "CONFIRM": "Confirmar",
                 "CANCEL": "Cancelar",
                 "FINDING_COUNT": "{{count}} hallazgo(s)",
                 "SAVED_AT": "Guardado {{date}}",
-                "VIEW_TITLE": "Detalle de subsanación",
+                "VIEW_TITLE": "Detalle de subsanacion",
                 "SAVE_CHANGES": "Guardar cambios",
-                "UNDO": "Deshacer subsanación",
+                "UNDO": "Deshacer subsanacion",
                 "RESOLVED_BADGE": "Subsanado"
+            },
+            "ARIA": {
+                "AGENT_FINDINGS": "Hallazgos de agentes",
+                "ALL_FINDINGS": "Todos los hallazgos",
+                "MISSING_REQUIRED_DOCUMENTS": "Documentos requeridos faltantes",
+                "USER_SUBSANATIONS": "Subsanaciones del usuario"
             }
         },
         "INTAKE_WIDGET": {

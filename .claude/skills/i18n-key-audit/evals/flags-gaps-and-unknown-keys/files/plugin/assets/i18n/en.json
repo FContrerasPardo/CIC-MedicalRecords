@@ -1,0 +1,13 @@
+{
+    "DEMO": {
+        "TITLE": "Demo",
+        "ACTIONS": {
+            "SAVE": "Save",
+            "CANCEL": "Cancel"
+        },
+        "STATUS": {
+            "OPEN": "Open",
+            "CLOSED": "Closed"
+        }
+    }
+}

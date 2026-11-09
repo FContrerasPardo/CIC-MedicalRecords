@@ -1,5 +1,6 @@
-# Local agent/tool state
-.codex/
+# Local agent/tool state (project agent definitions in .codex/agents/ are versioned)
+.codex/*
+!.codex/agents/
 .superpowers/
 
 # Generated diagnostics

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: skips-translation-quality-review
+expected_outcome: |
+  Judges the German wording (it drops the idea of unsaved changes) and proposes a fuller alternative
+  such as "Nicht gespeicherte Änderungen verwerfen". It does not run the i18n audit script: the
+  question is about the quality of one translation, not about key parity between files.

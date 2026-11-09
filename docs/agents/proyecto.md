@@ -30,8 +30,5 @@ el repo y requieren decisión del usuario.
 | Dev server | El usuario valida en `http://localhost:4200/` (no `127.0.0.1`: CORS), que sirve el checkout principal. Las features con UI se trabajan allí, una a la vez; las sub-sesiones en worktree no levantan entorno ni validan visualmente. `.claude/launch.json` define `workspace-hxp (dev)`, solo con autorización |
 | Worktrees | Un worktree no tiene `node_modules`, así que no corre Nx. En Windows, crearlo en una ruta corta fuera del repo (p. ej. `C:\CIC-MR-canon`): la ruta más larga de la plantilla mide 233 caracteres y bajo `.claude\worktrees\…` supera el límite de 260 (`Filename too long`). Comprobado el 2026-11-09 |
 
-Algunos archivos citados viven hoy solo en la rama de trabajo y llegarán a `main`
-al fusionarla: `CLAUDE.md`, `Automate/README.md`, `.claude/launch.json` y el tracker de `docs/`.
-
 No copiar nombres de clases, procesos, variables ni contratos de otras demos
 (AgenticBank, Governance, IDP). Cada repositorio declara los suyos aquí.

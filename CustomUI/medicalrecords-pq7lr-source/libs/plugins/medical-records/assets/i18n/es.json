@@ -11,6 +11,13 @@
             "PHASE_NAV_ARIA": "Navegacion de fases de cuentas medicas",
             "QUICK_LINKS_ARIA": "Accesos rapidos del tablero"
         },
+        "APPEARANCE": {
+            "TITLE": "Apariencia",
+            "WORKSPACE_NAV": "Menu de aplicacion",
+            "NAV_AUTO": "Automatico (responsive)",
+            "NAV_COLLAPSED": "Oculto",
+            "RESET": "Restablecer valores"
+        },
         "TOP_LINKS": {
             "AGREEMENTS": "Configuracion de Convenios",
             "REPORT_CONFIG": "Configurar reportes",

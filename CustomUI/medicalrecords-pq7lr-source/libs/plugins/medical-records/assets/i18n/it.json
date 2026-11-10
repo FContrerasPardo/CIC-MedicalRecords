@@ -7,6 +7,13 @@
             "PHASE_NAV_ARIA": "Navigazione delle fasi dei conti medici",
             "QUICK_LINKS_ARIA": "Collegamenti rapidi dei conti medici"
         },
+        "APPEARANCE": {
+            "TITLE": "[TODO] Appearance",
+            "WORKSPACE_NAV": "[TODO] Application menu",
+            "NAV_AUTO": "[TODO] Automatic (responsive)",
+            "NAV_COLLAPSED": "[TODO] Hidden",
+            "RESET": "[TODO] Restore defaults"
+        },
         "TOP_LINKS": {
             "AGREEMENTS": "Configurazione accordi",
             "ANALYTICS": "Analitica dei processi",

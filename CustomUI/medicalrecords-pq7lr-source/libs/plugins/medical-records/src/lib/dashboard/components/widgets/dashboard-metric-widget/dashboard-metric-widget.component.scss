@@ -104,7 +104,7 @@
 
 .dashboard-metric-widget__info {
     flex-shrink: 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 18px;
     cursor: help;
 }

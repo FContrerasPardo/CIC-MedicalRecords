@@ -1,48 +1,55 @@
 # Catálogo de skills
 
-Consultar antes de explorar el repositorio (canon skill-first en
-[README.md](README.md)). Mantener cada fila breve; el detalle vive en el
-`SKILL.md` de cada skill. Estados: **instalada** (existe en el repo y se usó con
-evidencia), **disponible** (existe en el entorno del usuario, sin uso verificado
-aquí), **candidata** (procedimiento identificado, sin skill todavía).
+Consultar solo la fila aplicable y después su SKILL.md. **Incorporada** significa
+archivo presente; **disponible** requiere descubrimiento del cliente;
+**verificada** requiere evidencia de ejecución. No confundir los estados.
 
-## Instaladas
+## Incorporadas al proyecto
 
-Las skills de proyecto viven en `.claude/skills/`.
+| Skill | Entrada | Uso y límites |
+| --- | --- | --- |
+| hyland-ui-refactor | `.agents/skills/hyland-ui-refactor/SKILL.md` | UI/Satori compatibles; no instala ni migra el shell |
+| hyland-technical-docs | `.agents/skills/hyland-technical-docs/SKILL.md` | Documentación con fuentes; publicar conserva autorización |
+| hyland-issue-triage | `.agents/skills/hyland-issue-triage/SKILL.md` | Diagnóstico acotado; no publica ni ejecuta reproducciones automáticamente |
+| hyland-cin-cli | `.agents/skills/hyland-cin-cli/SKILL.md` | Consultas/diagnóstico; CLI y autenticación no comprobadas |
+| i18n-key-audit | `.agents/skills/i18n-key-audit/SKILL.md` y `.claude/skills/i18n-key-audit/` | Codex referencia el único script existente; claves, no calidad ni placeholders |
 
-| Skill | Ubicación | Disparador | Límites |
-| --- | --- | --- | --- |
-| i18n-key-audit | `.claude/skills/i18n-key-audit/` (la skill es de Claude Code; su script `scripts/audit.cjs` corre con Node 20+ desde cualquier cliente) | Revisar claves faltantes, sobrantes, `[TODO]` y deriva de código entre `en.json` y los otros idiomas de un plugin; antes de un commit o PR que toque `assets/i18n` o plantillas con `\| translate` | Solo cuenta claves: no compara placeholders ni juzga calidad, y las claves armadas en ejecución no son verificables. Disparador sin medir. Evidencia en [references/verification.md](../../.claude/skills/i18n-key-audit/references/verification.md) |
+Las cuatro adaptaciones Hyland provienen de [CIC-Learn](cic-learn.md).
+La auditoría i18n conserva sus casos y
+[evidencia de 2026-11-09](../../.claude/skills/i18n-key-audit/references/verification.md):
+Node 20+, sin npm/Nx; cuenta claves y deriva estática, no cadenas dinámicas.
+No se volvió a ejecutar durante esta integración. La carga del cliente se
+comprueba por máquina; si falta descubrimiento, leer el archivo explícitamente.
 
-## Disponibles en el entorno
+## Skills personales y referencias del toolkit
 
-No viven en este repo: dependen del plugin `hyland` o de `~/.claude/skills/` del
-usuario. Quien no las tenga aplica el perfil del rol directamente en el chat.
-Reutilizarlas antes de crear otra (regla 2 de skill first).
+`automate-custom-ui-task-forms` se ofreció en Codex en la máquina original:
+resolver/renderizar/enviar/reprocesar formularios de tareas, no start forms.
+`skill-creator` es la herramienta de autoría usada para estas adaptaciones.
+Su disponibilidad en otro cliente no se presume.
 
-| Skill | Ubicación | Disparador | Límites |
-| --- | --- | --- | --- |
-| hyland:ux-discovery | plugin `hyland` | Personas, journeys, críticas de wireframe y riesgos UX antes de implementar | Genérica; la narrativa de la demo vive en proyecto.md |
-| hyland:issue-triage | plugin `hyland` | Triage de un issue: reproducción, análisis y reporte | Requiere un issue tracker; sin backlog en GitHub aún no aplica |
-| hyland:fix-issue | plugin `hyland` | Corrección de un issue de punta a punta (plan, rama, prueba, PR) | Ídem; comandos y PR sujetos a las autorizaciones del turno |
-| hyland:finalize-commit-message | plugin `hyland` | Aplastar la rama en un commit y redactar su mensaje antes de fusionar | Reescribe historia: requiere autorización explícita; crea una rama de respaldo |
-| hyland:write-documentation | plugin `hyland` | Escribir o editar documentación técnica con la guía de estilo de Hyland | No sustituye las convenciones de `docs/` de este repo |
-| hyland:cin-cli | plugin `hyland` | Agent Builder, Content Lake, ontologías, trazas y RAG con la CLI `cin` | Requiere la CLI y un perfil autenticados; ejecuta comandos |
-| ontology-builder | `~/.claude/skills/` (solo Claude Code) | Ontologías y BusinessObjects de Knowledge Enrichment / ECE | No define contratos de Automate |
+El canon original referenciaba las siguientes skills de Claude/Hyland.
+Conservarlas como referencias opcionales; no se afirma instalación en Codex:
 
-## Candidatas
+| Referencia | Aplicación | Límite |
+| --- | --- | --- |
+| hyland:ux-discovery | Personas, journeys, wireframes | Adaptación acotada en hyland-ui-refactor |
+| hyland:issue-triage / fix-issue | Triage y corrección de issues | Permisos de comandos, commits y PR no se heredan |
+| hyland:write-documentation | Estilo técnico Hyland | Adaptación local hyland-technical-docs |
+| hyland:cin-cli | Agent Builder, Content Lake, ontologías, trazas | CLI y perfil autenticados requieren comprobación |
+| hyland:finalize-commit-message | Consolidar historia | Reescribe historia; no forma parte automática del cierre |
+| ontology-builder | Ontologías / BusinessObjects en Claude | Disponibilidad no comprobada en esta máquina; no define contratos Automate |
 
-| Candidata | Disparador | Rol responsable | Origen |
-| --- | --- | --- | --- |
-| custom-ui-repackage | Re-empaquetar la Custom UI y preparar la subida a Automate (checkpoint Git, prebuild, zip) | hyland-platform | Runbook `docs/custom-ui/repackage-and-upload-runbook.md` |
-| automate-export-diff | Comparar dos exportaciones de Automate (BPMN, variables, formularios, agentes) | hyland-integration | Candidata en AgenticBank; aquí el export de `Automate/` es la fuente de verdad de los agentes |
-| synthetic-doc-set | Generar documentos y variantes desde datos maestros sintéticos | hyland-demo-data | Candidata en AgenticBank; aplicaría a los sets de cuentas médicas |
-| feature-start, feature-close | Empezar un issue (leerlo, rama, sub-sesión) y cerrarlo (PR con `Closes #N`, continuidad) | hyland-platform, hyland-issues | Dependen de la capa C (issues en GitHub) |
+## Candidatas y reglas
 
-## Reglas
+| Candidata | Fuente | Pendiente |
+| --- | --- | --- |
+| custom-ui-repackage | Runbook local de empaquetado | Verificar caso autorizado antes de extraer skill |
+| automate-export-diff | Export de Automate | Comparación acotada y evidencia |
+| synthetic-doc-set | hyland-demo-data | Datos maestros y evidencia de extracción |
+| feature-start / feature-close | Coordinación por issues | Acordar el flujo y los permisos de este proyecto |
 
-- Una candidata pasa a instalada solo tras verificar el procedimiento en un caso
-  real y documentar entradas, resultado, verificación y límites.
-- Las skills genéricas parametrizan lo que varía según
-  [proyecto.md](proyecto.md); no incluir rutas, hosts ni contratos de una demo.
-- Retirar o fusionar duplicados con trazabilidad en el issue correspondiente.
+Un procedimiento repetido se evalúa para mejorar una skill existente antes de
+crear otra. Parametrizar rutas y contratos; no copiar hosts o datos de otra demo.
+Registrar evidencia y límites antes de llamarla verificada. No ejecutar scripts
+al consultar el catálogo ni instalar plugins para comprobar descubrimiento.

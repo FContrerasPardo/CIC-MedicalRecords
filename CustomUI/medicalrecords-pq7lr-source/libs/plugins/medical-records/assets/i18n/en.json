@@ -11,6 +11,13 @@
             "PHASE_NAV_ARIA": "Medical records phase navigation",
             "QUICK_LINKS_ARIA": "Dashboard quick links"
         },
+        "APPEARANCE": {
+            "TITLE": "Appearance",
+            "WORKSPACE_NAV": "Application menu",
+            "NAV_AUTO": "Automatic (responsive)",
+            "NAV_COLLAPSED": "Hidden",
+            "RESET": "Restore defaults"
+        },
         "TOP_LINKS": {
             "AGREEMENTS": "Agreement Configuration",
             "REPORT_CONFIG": "Configure Reports",

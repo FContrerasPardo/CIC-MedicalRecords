@@ -1,0 +1,143 @@
+@use './appearance-tokens' as appearance;
+
+// ViewEncapsulation.None on purpose: besides the panel, this stylesheet carries the html-level
+// rules that hide Hyland's ADF application menu, which lives outside this component's DOM.
+
+html {
+    @include appearance.tokens;
+
+    --dash-accent: var(--mr-accent);
+    --dash-brand-dark-blue: var(--mr-brand-heading);
+    --dash-brand-teal: var(--mr-brand-teal);
+    --dash-brand-gray: var(--mr-brand-gray);
+}
+
+// --- Application menu: hidden -------------------------------------------------------------
+// Only the ADF side menu goes away. The CIC platform rail (`sat-platform-nav`) belongs to the
+// application chrome and stays. `!important` is needed because ADF writes widths and margins
+// inline (animations and style bindings).
+html[data-mr-workspace-nav='collapsed'] {
+    mat-sidenav.adf-layout-container-sidenav {
+        display: none !important;
+    }
+
+    .adf-layout-container {
+        // ADF animates the content offset on `.adf-container-full-width`, and Material can add its
+        // own margin to the auto-wrapped content element. Neither is needed without the menu.
+        .adf-container-full-width,
+        > .mat-drawer-content,
+        > .mat-sidenav-content {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        // On small screens the drawer opens in `over` mode and leaves a backdrop that would block clicks.
+        .mat-drawer-backdrop {
+            display: none !important;
+        }
+    }
+}
+
+// --- Floating panel -----------------------------------------------------------------------
+.mr-appearance {
+    --mr-appearance-offset: calc(var(--sat-platform-nav-collapsed-width, 56px) + 16px);
+
+    position: fixed;
+    inset-inline-start: var(--mr-appearance-offset);
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    z-index: 900;
+    max-width: calc(100vw - var(--mr-appearance-offset) - 16px);
+    color: var(--mat-sys-on-surface, #172b4d);
+    font: 13px 'Noto Sans', Arial, sans-serif;
+
+    &__summary {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        box-sizing: border-box;
+        width: fit-content;
+        padding: 11px 18px;
+        border: 1px solid var(--mat-sys-primary, #005eb8);
+        border-radius: 24px;
+        background: var(--mat-sys-primary, #005eb8);
+        color: var(--mat-sys-on-primary, #ffffff);
+        font-weight: 600;
+        list-style: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+    }
+
+    // Opens upwards so the button stays where the user left it.
+    &__panel {
+        position: absolute;
+        inset-inline-start: 0;
+        bottom: calc(100% + 8px);
+        display: grid;
+        gap: 14px;
+        width: 260px;
+        max-width: calc(100vw - var(--mr-appearance-offset) - 16px);
+        max-height: calc(100vh - 108px - env(safe-area-inset-bottom, 0px));
+        max-height: calc(100dvh - 108px - env(safe-area-inset-bottom, 0px));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        box-sizing: border-box;
+        padding: 18px;
+        border: 1px solid var(--mat-sys-outline-variant, #dfe6f0);
+        border-radius: 12px;
+        background: var(--mat-sys-surface, #ffffff);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    &__field {
+        display: grid;
+        gap: 6px;
+        font-weight: 600;
+    }
+
+    select,
+    button {
+        min-height: 44px;
+        min-width: 0;
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--mat-sys-outline-variant, #b8c2d5);
+        border-radius: 8px;
+        background: var(--mat-sys-surface, #ffffff);
+        color: inherit;
+        font: inherit;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--mat-sys-primary, #005eb8);
+        outline-offset: 3px;
+    }
+}
+
+@media (max-width: 600px) {
+    .mr-appearance {
+        --mr-appearance-offset: 16px;
+
+        inset-inline-start: auto;
+        inset-inline-end: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+
+        &__panel {
+            inset-inline-start: auto;
+            inset-inline-end: 0;
+        }
+    }
+}
+
+@media print {
+    .mr-appearance {
+        display: none;
+    }
+}

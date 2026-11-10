@@ -132,7 +132,61 @@ El bloque `_customApp` en `contexts.json5` contiene:
   Esa navegacion puede existir como legado visual, pero no debe guiar nuevas
   implementaciones funcionales.
 
+## Apariencia y menu lateral (refactor de interfaz integrada, Fase 1)
+
+- Origen: selector de apariencia de Agentic Bank (`C:\CIC-FIn`, `theme-mode.ts`), reescrito como
+  servicio + componente Angular para respetar i18n (`MEDICAL_RECORDS.APPEARANCE.*`).
+- Codigo: `libs/plugins/medical-records/src/lib/appearance/`. `provideAppearanceManager()` (en
+  `MedicalRecordsModule`) aplica la preferencia al arrancar y monta el panel flotante en `<body>`,
+  visible tambien en las paginas nativas de Automate.
+- Eje activo: menu de aplicacion `auto` / `collapsed` -> `html[data-mr-workspace-nav]`, clave
+  `localStorage` `medicalrecords.workspaceNav`. Oculta solo `mat-sidenav.adf-layout-container-sidenav`
+  (no la barra `sat-platform-nav`) con CSS en `appearance-manager.component.scss`.
+- Diferencias con Agentic Bank: no hay modo `expanded` ni sincronizador JS de estilos inline. Esta
+  plantilla usa ADF 8.5 (menu y contenido animados con `[@sidenavAnimation]` / `[@contentAnimationLeft]`);
+  Agentic Bank usa ADF 9.2 (ancho del menu enlazado con `[style.width.px]`). Los selectores existen en
+  ambas, pero el comportamiento en runtime se debe validar en esta plantilla.
+- Pendiente: paleta, modo claro/oscuro y densidad (Fase 2) requieren unificar los tokens `--dash-*`,
+  `--arw-*` y `--kpi-*`. El panel solo suma ejes que ya tengan efecto real.
+- Validacion runtime pendiente: ocultar y restaurar el menu en escritorio y en ancho movil.
+- Primer tramo del refactor (2026-11-10): base semantica `--mr-*` en
+  `appearance/_appearance-tokens.scss`, aplicada por el panel global. Los tokens
+  `--dash-*`, `--arw-*` y los colores de `--kpi-*` apuntan a esta base conservando
+  sus valores y fallbacks. Shell y encabezado compartido comienzan a consumirla;
+  aun quedan colores locales por migrar antes de habilitar modo oscuro o paletas.
+- Panel de apariencia: cierre al pulsar fuera, controles de 44px y limites de
+  ancho/alto con scroll interno; en movil se ancla a la derecha. Escape conserva
+  el retorno de foco al disparador. Pendiente comprobar en el navegador del usuario.
+- Segundo tramo (overview): cabecera responsive, superficies opacas y bordes,
+  radios y sombras compartidos en la grilla; colores neutros de los ocho tipos
+  de widget conectados a `--mr-*`. Tintes de interaccion usan `--dash-accent`
+  para seguir el tema guardado. Se conservan colores de series/estados y datos.
+  Hay foco visible en acciones/controles. Estos estilos compartidos tambien
+  se reflejan en el editor del dashboard. Pendiente revision visual del usuario;
+  no se ejecutaron builds, pruebas ni lint en este tramo.
+
 ## Procesos, tareas y subprocesos
+
+### Continuidad: evaluacion Oncopilot / OncoTask (2026-11-10)
+
+- Handoff completo para otra maquina: `docs/oncology-clinic-ars-handoff.md`.
+  Contiene el contexto del usuario, evidencia, limites y secuencia para crear
+  el backlog de la demostracion clinica–ARS cuando lleguen las capturas.
+- Seguimiento creado: issue #126 de `FContrerasPardo/CIC-MedicalRecords`.
+  Subir alli las capturas; el descubrimiento queda abierto.
+
+- El usuario propone conectar clinica oncologica y aseguradora (ARS) en una sola
+  demo, con entradas estructuradas y documentales, via directa y excepciones con CIC.
+  Es una ampliacion por evaluar; no reemplaza todavia el contrato ni el alcance vigente.
+- Referencia: `https://oncopilot-v2.libertyti.com.br/` y `/oncotask`.
+  La captura aportada muestra la experiencia medica OncoTask. La inspeccion de
+  recursos publicos identifico perfiles analista, gestor y comision; no valida sus flujos.
+- Recorrido visual pendiente: el controlador no inicia por
+  `sandbox ... setup refresh had errors`, incluso despues del reinicio.
+  No se verifico la integracion real del partner con el backend ni se crearon issues.
+- El usuario hara el recorrido por fuera y subira capturas a GitHub.
+  Retomar desde esa evidencia, contrastar contratos/export disponibles y crear
+  epicas e historias sin duplicar el backlog actual. No trasladar datos clinicos reales.
 
 - Guia de proyecto: `docs/custom-ui/processes-tasks-subprocesses.md` (glosario, APIs, flujo del dashboard, bulk approve, gotchas).
 - Referencia CIC (procesos, tareas, subprocesos, HCS, gotchas):
@@ -163,6 +217,14 @@ El bloque `_customApp` en `contexts.json5` contiene:
   diagnostico consolidado del fallo de deployment asociado a `ABValidation`.
 
 ## Como debe actuar una IA en este repo
+
+- Harness integrado el 2026-11-10 desde el worktree `C:\CIC-MR-canon`
+  (`docs/agents-canon`, commit `2851908`): protocolo y perfiles en
+  `docs/agents/`, definiciones de cliente en `.codex/agents/` y `.claude/agents/`.
+  Catalogo: `docs/agents/skills.md`; adaptaciones locales de CIC-Learn para Codex
+  en `.agents/skills/`. Fuentes y limites en `docs/agents/cic-learn.md`.
+  Archivos incorporados no equivalen a descubrimiento del cliente ni a runtime
+  validado. No se instalo el plugin Hyland ni se cambiaron hooks o MCP.
 
 - Trabajar siempre en `C:\CIC-MedicalRecords`, no en la copia vieja de OneDrive.
 - Priorizar modo ahorro de tokens: respuestas breves, no repetir contexto ya

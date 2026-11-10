@@ -102,34 +102,34 @@
 }
 
 .dashboard-gauge-widget__value strong {
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 26px;
     font-weight: 900;
     line-height: 1.1;
 }
 
 .dashboard-gauge-widget__target {
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 11px;
     font-weight: 700;
 }
 
 .dashboard-gauge-widget__helper {
     margin: 8px 0 0;
-    color: #5d6778;
+    color: var(--mr-muted, #667085);
     font-size: 12px;
     line-height: 1.45;
 }
 
 .dashboard-gauge-widget__state {
     padding: 24px 12px;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 13px;
     text-align: center;
 }
 
 .dashboard-gauge-widget__state--error {
-    color: #b42318;
+    color: var(--mr-error-text, #b42318);
 }
 
 .recovery-card .gauge-track {

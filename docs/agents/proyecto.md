@@ -1,34 +1,44 @@
-# Parámetros del proyecto para los roles
+# Parámetros de MedicalRecords
 
-Los perfiles de `docs/agents/hyland-*.md` son genéricos para demos de Content
-Innovation Cloud con Custom UI. Este archivo concentra lo específico de esta
-demo; al replicar los roles en otro repositorio, copiar solo esta plantilla y
-completarla con sus datos.
+Combina el canon de 2026-11-09 con el estado contrastado el 2026-11-10.
+Los roles son reutilizables; este archivo conserva los datos de esta demo.
 
-Estado: borrador del 2026-11-09, redactado desde `IA_CONTEXT.md`, `CONTEXT.md` y
-`CLAUDE.md`. Las filas marcadas **por confirmar** no tienen una regla escrita en
-el repo y requieren decisión del usuario.
-
-| Parámetro | Valor en Medical Records |
+| Parámetro | Valor |
 | --- | --- |
-| Demo | Cuentas Médicas (Latam Medical Billing): armado y validación de cuentas médicas con malla agéntica sobre Hyland CIC/Automate (demostración, no productivo) |
-| Repositorio GitHub | `FContrerasPardo/CIC-MedicalRecords` |
-| Ramas | `main` es la base estable. Las ramas de trabajo vigentes se listan en `IA_CONTEXT.md` |
-| Workspace Custom UI | `CustomUI/medicalrecords-pq7lr-source/` (plantilla exportada por Automate). `CustomUI/workspace-hxp-edited/` es solo referencia |
-| Plugin | `CustomUI/medicalrecords-pq7lr-source/libs/plugins/medical-records/` |
-| Exportación Automate | `Automate/OMEGA BUILDER - Latam Medical Billing CUI/`, fuente de verdad de BPMN y agentes: leerla antes de inferir prompts, inputs o mappings; índice en `Automate/README.md`. El contexto de despliegue está en `CustomUI/medicalrecords-pq7lr-source/config/contexts.json5` (no registrar secretos) |
-| Documentación de agentes | `docs/Agent Builder Config/`; si contradice el export, se actualiza el markdown |
-| Idiomas | `assets/i18n/` del plugin: `en.json` es la fuente; `de`, `es`, `fr`, `it`, `pl` y `pt` la siguen sin claves faltantes ni sobrantes. Las claves nuevas entran como `[TODO] <inglés>` (`es` se traduce). Detalle en `CLAUDE.md` |
-| Dominio sensible | Salud: cuentas médicas, glosas y apelaciones. **Por confirmar:** el repo no declara una política de datos ni tiene `SECURITY.md`. Mientras tanto, los roles tratan todo contenido como sintético y señalan cualquier dato que parezca real (PII/PHI) |
-| Datos | **Por confirmar** el origen y el alcance de los documentos de prueba. Los sets sintéticos se generan desde datos maestros (perfil hyland-demo-data) |
-| Artefactos vivos | `docs/medical-records-demo-process-specification.md` es la fuente de la narrativa y del paso a paso por etapas; los documentos de widgets y agentes son anexos técnicos (`docs/Agent Builder Config/`, `docs/custom-ui/`). No hay `docs/demo/` en este repo |
-| Backlog | Propuesta en preparación en `docs/backlog/` (epics, historias y tareas; aún no versionada ni creada en GitHub) y su tracker de origen en `docs/` (`Proyecto Omega Build - Tracker v2 (realineado demo).xlsx`). Pasa a GitHub Issues con la capa C |
-| Reclamo | Pendiente de la capa C (labels `agente:claude` y `agente:codex`). Mientras tanto: declarar rama y áreas al abrir la sub-sesión (ver README) |
-| Runtime | Node `>=24.14.0 <25`, npm `>=11.9.0 <12` y Nx. Comandos solo con autorización y en PowerShell local de Windows, fuera del sandbox (falsos `EPERM`; ver `IA_CONTEXT.md`) |
-| Verificación | Durante la iteración no se corre el build AOT: el dev server del usuario (HMR) da el feedback. Antes de un commit o push: `npx nx build workspace-hxp --configuration=development` desde la plantilla, el único chequeo que tipa las plantillas Angular. Los specs del plugin usan solo `describe`/`it`/`expect`: el build de la app los tipa con Jasmine (`apps/workspace-hxp/tsconfig.app.json`), así que no hay `jest` global. Detalle en `CLAUDE.md` |
-| Tiempos | El build AOT es lento: no hacer polling ni relanzar por impaciencia. Duración típica por medir |
-| Dev server | El usuario valida en `http://localhost:4200/` (no `127.0.0.1`: CORS), que sirve el checkout principal. Las features con UI se trabajan allí, una a la vez; las sub-sesiones en worktree no levantan entorno ni validan visualmente. `.claude/launch.json` define `workspace-hxp (dev)`, solo con autorización |
-| Worktrees | Un worktree no tiene `node_modules`, así que no corre Nx. En Windows, crearlo en una ruta corta fuera del repo (p. ej. `C:\CIC-MR-canon`): la ruta más larga de la plantilla mide 233 caracteres y bajo `.claude\worktrees\…` supera el límite de 260 (`Filename too long`). Comprobado el 2026-11-09 |
+| Demo vigente | Cuentas Médicas / Latam Medical Billing: prevención de glosas con CIC/Automate; demostración, no productivo |
+| Ampliación propuesta | Clínica oncológica ↔ ARS; ver [handoff](../oncology-clinic-ars-handoff.md). Aún no redefine el proceso vigente |
+| Repositorio | `FContrerasPardo/CIC-MedicalRecords` |
+| Ramas | `main` es base estable; trabajo UI en `refactor/integrated-ui`. Nuevas ramas según AGENTS.md |
+| Canon de origen | Worktree `C:\CIC-MR-canon`, rama `docs/agents-canon`, commit `2851908` |
+| Referencias externas locales | `C:\CIC-FIn` y `C:\CIC-Learn`; no se transfieren al clonar |
+| Workspace | `CustomUI/medicalrecords-pq7lr-source/`, plantilla de Automate; `workspace-hxp-edited/` es referencia |
+| Plugin | `libs/plugins/medical-records/` dentro del workspace |
+| Plataforma | Angular 19, ADF 8.5; contrastar APIs antes de portar patrones de CIC-Fin/ADF 9.2 |
+| Export Automate | `Automate/OMEGA BUILDER - Latam Medical Billing CUI/`; índice `Automate/README.md` |
+| Documentación de agentes | `docs/Agent Builder Config/`; derivada del export, actualizarla si lo contradice |
+| Configuración | `config/contexts.json5` es fuente de verdad; .env se genera y no se publica |
+| Contratos UI | batchState en intake y unifiedWidgetPayloadText en análisis; confirmar mappings en el export |
+| Navegación | Overview de tareas; las etapas reales viven en formularios/widgets de Automate |
+| Idiomas | en.json es fuente; de/es/fr/it/pl/pt siguen las convenciones de CLAUDE.md |
+| Dominio | Salud: cuentas, autorizaciones, glosas y apelaciones. Origen de documentos por confirmar; no asumir que son sintéticos |
+| Artefactos vivos | Spec de demo, `docs/custom-ui/` y anexos de widgets/agentes; no hay un centro `docs/demo/` |
+| UI | `UI Change Instructions/`, spec visual histórica en `docs/superpowers/specs/`, mockups en `UI design/` |
+| Backlog | GitHub Issues; `docs/backlog/` conserva propuesta/manifiesto y progreso local no versionado. No recrear la migración |
+| Coordinación | Revisar trabajo concurrente y reclamos; labels, comentarios y estados necesitan autorización aplicable |
+| Runtime | Node >=24.14.0 <25, npm >=11.9.0 <12 y Nx; comandos autorizados en PowerShell Windows según IA_CONTEXT |
+| Entorno local | `http://localhost:4200/`, no 127.0.0.1 por CORS; no levantar otro servidor por iniciativa propia |
+| Empaquetado | `docs/custom-ui/repackage-and-upload-runbook.md`; subida manual según el runbook |
+| Verificación | Proponer AOT antes del commit Angular, pero ejecutar solo con permiso explícito; si no, registrar pendiente. No hacer build por documentos |
+| Specs | describe/it/expect, sin jest global: la app tipa specs con Jasmine. Detalle en CLAUDE.md |
+| Tiempos | Build lento; duración sin medir. No repetirlo ni hacer polling por impaciencia |
+| Worktrees | Rutas cortas fuera del repo; el canon documentó un archivo de 233 caracteres y fallos sobre 260 en Windows (2026-11-09). Sin node_modules no se acredita Nx ni se instalan dependencias automáticamente |
 
-No copiar nombres de clases, procesos, variables ni contratos de otras demos
-(AgenticBank, Governance, IDP). Cada repositorio declara los suyos aquí.
+## Precedencia por materia
+
+- Alcance: CONTEXT.md y `docs/medical-records-demo-process-specification.md`.
+- Estado técnico: IA_CONTEXT.md y la documentación cercana al cambio.
+- BPMN, formularios, agentes y mappings: export de Automate; markdown derivado.
+- APIs/versiones: plantilla local; CIC-Learn es referencia, no prueba de compatibilidad.
+- Trabajo: issue actual; manifiesto y .state.json son evidencia de migración, no estado remoto actualizado.
+
+No trasladar ambientes, permisos, contratos ni reglas financieras de otras demos.

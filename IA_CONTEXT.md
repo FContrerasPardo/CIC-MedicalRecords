@@ -169,6 +169,10 @@ El bloque `_customApp` en `contexts.json5` contiene:
 
 ### Continuidad: evaluacion Oncopilot / OncoTask (2026-11-10)
 
+- Handoff completo para otra maquina: `docs/oncology-clinic-ars-handoff.md`.
+  Contiene el contexto del usuario, evidencia, limites y secuencia para crear
+  el backlog de la demostracion clinica–ARS cuando lleguen las capturas.
+
 - El usuario propone conectar clinica oncologica y aseguradora (ARS) en una sola
   demo, con entradas estructuradas y documentales, via directa y excepciones con CIC.
   Es una ampliacion por evaluar; no reemplaza todavia el contrato ni el alcance vigente.

@@ -4,6 +4,9 @@ Fecha: 2026-11-10. Este documento permite retomar el trabajo desde otra máquina
 Describe el encargo del usuario, la evidencia disponible y los próximos pasos.
 La evaluación oncológica sigue abierta; no acredita una integración desplegada.
 
+Seguimiento y destino de capturas:
+[issue #126](https://github.com/FContrerasPardo/CIC-MedicalRecords/issues/126).
+
 ## Objetivo y contexto aportado por el usuario
 
 Larissa trabajó en una solución semejante para una clínica oncológica, enfocada

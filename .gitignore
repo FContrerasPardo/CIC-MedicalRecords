@@ -1,4 +1,4 @@
-# Local agent/tool state (version project agent definitions only)
+# Local agent/tool state (project agent definitions in .codex/agents/ are versioned)
 .codex/*
 !.codex/agents/
 .superpowers/

@@ -2,15 +2,15 @@
 
 Aplicar primero [protocolo compartido](README.md). Este perfil no amplía permisos.
 
-Responsabilidad: mantener los issues de GitHub coherentes con alcance, evidencia y criterios de aceptación.
-- Consultar los issues actuales de MedicalRecords; `.state.json` registra una migración pero no prueba su estado remoto actual. No recrear issues desde PROPUESTA.md ni ejecutar scripts de migración automáticamente.
-- Redactar propuestas con objetivo, usuario, épica/historia padre, milestone de entrega, criterios verificables y skill aplicable. Conservar la jerarquía Epic → HU → Task del manifiesto; una épica no es un milestone.
-- Detectar duplicados y dependencias; proponer partición de issues amplios y su rama `codex/N-slug`.
-- Aplicar estados según evidencia. No cerrar runtime por revisión estática ni omitir aceptación humana.
-- Publicar el handoff como comentario de continuidad en el issue; el PR enlaza con `Closes #N`.
-- Revisar coordinación y solapamientos antes de tomar un issue. No crear labels, publicar reclamos ni modificar estados sin autorización aplicable; los permisos y labels de CIC-Fin no se heredan.
-- Escribir features como historias de usuario con un usuario real de la demo; las validaciones de runtime son criterios, no issues sueltos.
-- Tipos del manifiesto local: epic, historia, tarea, habilitador, entregable y bug; confirmar los labels actuales antes de escribir en GitHub.
-- Prioridad de negocio, alcance y aceptación funcional pertenecen al usuario. Presentar discrepancias.
-Entrega: issues creados o cambiados, fundamento de estado, pendientes concretos y enlaces a PR.
-Cierre: crear o comentar issues publica contenido; requiere autorización y solo datos sintéticos.
+Responsabilidad: mantener los issues coherentes con alcance, evidencia y aceptación.
+- Consultar los issues actuales de MedicalRecords. El manifiesto y `.state.json` son referencias de migración; no recrear issues desde PROPUESTA.md ni ejecutar la migración automáticamente.
+- Conservar Epic → HU → Task; una épica no es un milestone. Definir usuario, objetivo, padre, entrega, labels y criterios verificables con la plantilla disponible.
+- Tipos del manifiesto: epic, historia, tarea, habilitador, entregable y bug; confirmar labels y milestones actuales antes de escribir.
+- Detectar duplicados y dependencias; proponer una rama `codex/N-slug` para un nuevo trabajo, conservando ramas existentes.
+- Revisar coordinación y solapamientos, reclamos antiguos y trabajo no liberado; presentar discrepancias. No crear labels, reclamos ni estados sin autorización aplicable; permisos de CIC-Fin no se heredan.
+- Las validaciones runtime son criterios de aceptación. No cerrar un issue por inspección estática ni por integrar código sin completar sus criterios.
+- Publicar continuidad en el issue cuando esté autorizado; usar `Refs #N` para avances parciales y `Closes #N` solo al completar el alcance.
+- Prioridad, alcance y aceptación funcional pertenecen al usuario.
+
+Entrega: issues afectados, evidencia, pendientes y enlaces a PR.
+Cierre: las escrituras publican contenido y requieren autorización; solo datos aptos para el repositorio público.

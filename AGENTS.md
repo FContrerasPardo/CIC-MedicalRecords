@@ -40,3 +40,12 @@ Work in TOKEN SAVING MODE unless I explicitly say otherwise.
 - Read current issues before relying on migration snapshots in `docs/backlog/`; do not recreate or change issues just by running migration scripts.
 - Before an authorized commit affecting the Angular plugin, explain the final AOT command in `CLAUDE.md` and obtain command authorization if missing. A commit request alone does not waive the no-build rule. Documentation-only commits do not need an app build.
 - End with changed files, evidence, pending checks and next action. Push, PR, merge and publishing require applicable user authorization; permissions from CIC-Fin are not inherited.
+## Source order
+Read only what the task needs, in this order: `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md` (functional scope), `IA_CONTEXT.md` (technical state and paths), then the docs closest to the code you will change.
+
+## Session close
+- One topic per session: one commit or PR scoped to the session's goal; anything else goes to another branch or stays unstaged.
+- In a shared checkout stage explicit paths only; never `git add -A`, `commit -a`, `stash`, `reset` or `checkout --` over changes that are not yours.
+- Do not switch branches while a build or the dev server is running.
+- Commit when asked; push and PR only with explicit authorization in the turn.
+- Close with a short summary: changed files, validations run, pending items.

@@ -42,14 +42,14 @@
 
 .chart-state {
     margin: 48px 0 24px;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 13px;
     font-weight: 700;
     text-align: center;
 }
 
 .chart-state--empty {
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
 }
 
 .chart-frame {
@@ -64,7 +64,7 @@
 }
 
 .chart-axis-title {
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -90,7 +90,7 @@
     justify-content: space-between;
     align-items: flex-end;
     padding: 2px 0 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
@@ -160,7 +160,7 @@
     min-height: 2px;
     border-radius: 8px 8px 3px 3px;
     background: var(--dash-series-gradient, linear-gradient(180deg, #6e33ff 0%, #52a1ff 55%, #13eac1 100%));
-    box-shadow: 0 6px 14px rgba(110, 51, 255, 0.14);
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 14%, transparent);
     transition: transform 160ms ease;
 }
 
@@ -207,7 +207,7 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     border: 3px solid var(--dash-accent, #6e33ff);
     box-sizing: border-box;
     transform: translate(-50%, -50%);
@@ -251,7 +251,7 @@
 .chart-x-axis span {
     flex: 1 1 0;
     min-width: 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 10px;
     font-weight: 700;
     text-align: center;
@@ -306,7 +306,7 @@
 }
 
 .dashboard-chart-widget__headline-label {
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.05em;
@@ -314,7 +314,7 @@
 }
 
 .dashboard-chart-widget__headline-value {
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 15px;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -370,7 +370,7 @@
 }
 
 .horizontal-chart__label {
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 11px;
     font-weight: 700;
     overflow: hidden;
@@ -394,7 +394,7 @@
 
 .horizontal-chart__total {
     min-width: 28px;
-    color: #334155;
+    color: var(--mr-on-surface-variant, #424752);
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -414,17 +414,17 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 11px;
     font-weight: 700;
 }
 
 .stacked-legend__label {
-    color: #667085;
+    color: var(--mr-muted, #667085);
 }
 
 .stacked-legend__value {
-    color: #334155;
+    color: var(--mr-on-surface-variant, #424752);
     font-variant-numeric: tabular-nums;
 }
 
@@ -468,12 +468,12 @@
     }
 
     &.is-hovered {
-        filter: brightness(1.1) drop-shadow(0 0 3px rgba(110, 51, 255, 0.35));
+        filter: brightness(1.1) drop-shadow(0 0 3px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent));
         opacity: 1;
     }
 
     &:focus-visible {
-        filter: brightness(1.08) drop-shadow(0 0 0 2px rgba(110, 51, 255, 0.45));
+        filter: brightness(1.08) drop-shadow(0 0 0 2px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 45%, transparent));
     }
 }
 
@@ -495,7 +495,7 @@
 }
 
 .donut-chart__center-value {
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 17px;
     font-weight: 800;
     letter-spacing: -0.03em;
@@ -504,7 +504,7 @@
 }
 
 .donut-chart__center-label {
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -539,13 +539,13 @@
 
     &.is-hovered,
     &:hover {
-        background: rgba(110, 51, 255, 0.06);
+        background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 6%, transparent);
     }
 }
 
 .donut-chart__label {
     grid-column: 2;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 10px;
     font-weight: 600;
     line-height: 1.25;
@@ -556,7 +556,7 @@
 
 .donut-chart__legend-value {
     grid-column: 2;
-    color: #334155;
+    color: var(--mr-on-surface-variant, #424752);
     font-size: 11px;
     font-weight: 700;
     line-height: 1.2;

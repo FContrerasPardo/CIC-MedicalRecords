@@ -10,9 +10,9 @@
     gap: 14px;
     height: 100%;
     padding: 18px;
-    border: 1px solid rgba(110, 51, 255, 0.14);
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 14%, transparent);
     border-radius: 16px;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 10px 28px rgba(25, 31, 94, 0.06);
 }
 
@@ -23,8 +23,8 @@
     height: 44px;
     border-radius: 999px;
     background: var(--dash-accent, #6e33ff);
-    color: #ffffff;
-    box-shadow: 0 8px 18px rgba(110, 51, 255, 0.28);
+    color: var(--mr-on-primary, #ffffff);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 28%, transparent);
 }
 
 .link-card-widget__icon .material-icons {
@@ -41,7 +41,7 @@
 
 .link-card-widget__copy p {
     margin: 8px 0 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 13px;
     font-weight: 600;
     line-height: 1.5;
@@ -54,9 +54,9 @@
     gap: 4px;
     margin-top: auto;
     padding: 10px 16px;
-    border: 1px solid rgba(110, 51, 255, 0.28);
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 28%, transparent);
     border-radius: 999px;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     color: var(--dash-accent, #6e33ff);
     font-size: 12px;
     font-weight: 800;
@@ -65,7 +65,7 @@
 }
 
 .link-card-widget__cta:hover {
-    background: rgba(110, 51, 255, 0.06);
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 6%, transparent);
     transform: translateY(-1px);
 }
 

@@ -7,6 +7,13 @@
             "PHASE_NAV_ARIA": "Navigation des phases des dossiers medicaux",
             "QUICK_LINKS_ARIA": "Liens rapides des dossiers medicaux"
         },
+        "APPEARANCE": {
+            "TITLE": "[TODO] Appearance",
+            "WORKSPACE_NAV": "[TODO] Application menu",
+            "NAV_AUTO": "[TODO] Automatic (responsive)",
+            "NAV_COLLAPSED": "[TODO] Hidden",
+            "RESET": "[TODO] Restore defaults"
+        },
         "TOP_LINKS": {
             "AGREEMENTS": "Configuration des accords",
             "ANALYTICS": "Analyse des processus",

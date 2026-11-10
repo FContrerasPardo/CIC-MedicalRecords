@@ -7,6 +7,13 @@
             "PHASE_NAV_ARIA": "Nawigacja faz kont medycznych",
             "QUICK_LINKS_ARIA": "Szybkie linki kont medycznych"
         },
+        "APPEARANCE": {
+            "TITLE": "[TODO] Appearance",
+            "WORKSPACE_NAV": "[TODO] Application menu",
+            "NAV_AUTO": "[TODO] Automatic (responsive)",
+            "NAV_COLLAPSED": "[TODO] Hidden",
+            "RESET": "[TODO] Restore defaults"
+        },
         "TOP_LINKS": {
             "AGREEMENTS": "Konfiguracja umow",
             "ANALYTICS": "Analityka procesow",

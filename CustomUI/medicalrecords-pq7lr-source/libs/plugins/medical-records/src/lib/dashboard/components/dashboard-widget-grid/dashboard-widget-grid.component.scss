@@ -3,9 +3,9 @@
 :host {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
     min-width: 0;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-family: Manrope, 'Segoe UI', sans-serif;
 }
 
@@ -34,14 +34,14 @@
 }
 
 .dashboard-tab-wrap--settings {
-    outline: 2px solid rgba(110, 51, 255, 0.35);
+    outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
 }
 
 .dashboard-tab-settings {
     appearance: none;
     border: 0;
     background: transparent;
-    color: #64748b;
+    color: var(--mr-muted, #667085);
     width: 28px;
     height: 28px;
     border-radius: 999px;
@@ -56,15 +56,15 @@
 }
 
 .dashboard-tab-settings:hover {
-    background: rgba(110, 51, 255, 0.1);
-    color: #4f46e5;
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 10%, transparent);
+    color: var(--dash-accent, var(--mr-accent, #6e33ff));
 }
 
 .dashboard-tab-delete {
     appearance: none;
     border: 0;
     background: transparent;
-    color: #64748b;
+    color: var(--mr-muted, #667085);
     width: 28px;
     height: 28px;
     border-radius: 999px;
@@ -80,7 +80,7 @@
 
 .dashboard-tab-delete:hover {
     background: rgba(186, 26, 26, 0.08);
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
 }
 
 .dashboard-tabs-bar {
@@ -107,16 +107,16 @@
     flex: 0 1 auto;
     margin: 0;
     padding: 8px 12px;
-    border: 1px solid rgba(110, 51, 255, 0.12);
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 12%, transparent);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--mr-surface, #ffffff);
 }
 
 .dashboard-tab {
     appearance: none;
-    border: 1px solid rgba(110, 51, 255, 0.18);
-    background: rgba(255, 255, 255, 0.72);
-    color: #334155;
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 18%, transparent);
+    background: var(--mr-surface, #ffffff);
+    color: var(--mr-on-surface-variant, #424752);
     border-radius: 999px;
     padding: 8px 16px;
     font: 600 14px/1 Manrope, 'Segoe UI', sans-serif;
@@ -124,9 +124,9 @@
 }
 
 .dashboard-tab--active {
-    background: linear-gradient(135deg, #6e33ff 0%, #4f46e5 100%);
+    background: var(--dash-accent, var(--mr-accent, #6e33ff));
     border-color: transparent;
-    color: #fff;
+    color: var(--mr-on-primary, #ffffff);
 }
 
 .dashboard-tab--add {
@@ -139,19 +139,19 @@
 
 .dashboard-container {
     padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.92);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.04);
+    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
+    border-radius: var(--mr-card-radius, 18px);
+    background: var(--mr-surface, #ffffff);
+    box-shadow: var(--mr-card-shadow, 0 8px 24px rgba(11, 28, 48, 0.04));
 }
 
 .dashboard-container--kpi {
-    border-color: rgba(110, 51, 255, 0.14);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 249, 255, 0.98) 100%);
+    border-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 14%, transparent);
+    background: var(--mr-surface, #ffffff);
 }
 
 .dashboard-container--selected {
-    outline: 2px solid rgba(110, 51, 255, 0.35);
+    outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
 }
 
 .dashboard-container--palette-target {
@@ -161,7 +161,7 @@
 .dashboard-containers-drop {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
 }
 
 .dashboard-container--dragging.cdk-drag-preview {
@@ -183,8 +183,8 @@
 .container-drag-handle {
     appearance: none;
     border: 0;
-    background: rgba(110, 51, 255, 0.08);
-    color: #64748b;
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 8%, transparent);
+    color: var(--mr-muted, #667085);
     width: 32px;
     height: 32px;
     border-radius: 10px;
@@ -212,7 +212,7 @@
 
 .ghost-action-sm {
     appearance: none;
-    border: 1px solid rgba(110, 51, 255, 0.2);
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 20%, transparent);
     background: transparent;
     border-radius: 10px;
     padding: 6px 12px;
@@ -228,7 +228,7 @@
     height: 34px;
     padding: 0;
     border-color: rgba(186, 26, 26, 0.18);
-    color: #667085;
+    color: var(--mr-muted, #667085);
 }
 
 .section-delete-btn .material-icons {
@@ -238,12 +238,12 @@
 .section-delete-btn:hover {
     border-color: rgba(186, 26, 26, 0.35);
     background: rgba(186, 26, 26, 0.06);
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
 }
 
 .add-container-btn {
     appearance: none;
-    border: 1px dashed rgba(110, 51, 255, 0.35);
+    border: 1px dashed color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
     background: rgba(255, 255, 255, 0.5);
     border-radius: 16px;
     padding: 14px 18px;
@@ -252,7 +252,7 @@
     gap: 8px;
     cursor: pointer;
     font: 600 14px/1 Manrope, 'Segoe UI', sans-serif;
-    color: #4f46e5;
+    color: var(--dash-accent, var(--mr-accent, #6e33ff));
 }
 
 .container-grid {
@@ -287,17 +287,17 @@
 .dashboard-tasks,
 .dashboard-executive-band {
     padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.92);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.04);
+    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
+    border-radius: var(--mr-card-radius, 18px);
+    background: var(--mr-surface, #ffffff);
+    box-shadow: var(--mr-card-shadow, 0 8px 24px rgba(11, 28, 48, 0.04));
 }
 
 .dashboard-executive-band {
     margin-bottom: 28px;
-    border-color: rgba(110, 51, 255, 0.14);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 249, 255, 0.98) 100%);
-    box-shadow: 0 14px 36px rgba(110, 51, 255, 0.07);
+    border-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 14%, transparent);
+    background: var(--mr-surface, #ffffff);
+    box-shadow: 0 14px 36px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 7%, transparent);
 }
 
 .dashboard-executive-band .section-heading {
@@ -321,15 +321,15 @@
     width: 36px;
     height: 36px;
     border-radius: 12px;
-    color: #667085;
-    background: rgba(255, 255, 255, 0.72);
+    color: var(--mr-muted, #667085);
+    background: var(--mr-surface, #ffffff);
     cursor: pointer;
     transition: background 160ms ease, color 160ms ease;
 }
 
 .section-collapse-toggle:hover {
     color: var(--dash-accent, #6e33ff);
-    background: rgba(110, 51, 255, 0.08);
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 8%, transparent);
 }
 
 .widget-drop-zone {
@@ -395,7 +395,7 @@
 }
 
 .widget-slot.is-selected {
-    outline: 2px solid rgba(110, 51, 255, 0.35);
+    outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
     border-radius: 24px;
 }
 
@@ -417,7 +417,7 @@
     height: 28px;
     place-items: center;
     padding: 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     border: 0;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.92);
@@ -440,7 +440,7 @@
     opacity: 0.35;
     grid-column: span 4;
     min-height: 180px;
-    border: 2px dashed rgba(110, 51, 255, 0.2);
+    border: 2px dashed color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 20%, transparent);
     border-radius: 20px;
     background: rgba(248, 250, 252, 0.8);
 }
@@ -466,7 +466,7 @@
 }
 
 .widget-canvas--freeform .widget-slot.is-selected .widget-slot__canvas {
-    outline: 2px solid rgba(110, 51, 255, 0.35);
+    outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
     border-radius: 40px;
 }
 
@@ -521,7 +521,7 @@
     height: 28px;
     place-items: center;
     padding: 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     border: 0;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.92);
@@ -551,8 +551,8 @@
     height: 16px;
     padding: 0;
     border: 0;
-    border-right: 3px solid rgba(110, 51, 255, 0.55);
-    border-bottom: 3px solid rgba(110, 51, 255, 0.55);
+    border-right: 3px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 55%, transparent);
+    border-bottom: 3px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 55%, transparent);
     border-radius: 0 0 6px 0;
     background: transparent;
     cursor: nwse-resize;

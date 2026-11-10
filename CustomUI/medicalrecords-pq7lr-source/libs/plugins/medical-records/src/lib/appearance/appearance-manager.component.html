@@ -1,0 +1,24 @@
+<details class="mr-appearance" #panel (keydown.escape)="closeOnEscape(panel, summary)">
+    <summary class="mr-appearance__summary" #summary>
+        {{ 'MEDICAL_RECORDS.APPEARANCE.TITLE' | translate }}
+    </summary>
+
+    <div class="mr-appearance__panel">
+        <label class="mr-appearance__field">
+            <span>{{ 'MEDICAL_RECORDS.APPEARANCE.WORKSPACE_NAV' | translate }}</span>
+            <select (change)="onWorkspaceNavChange($event)">
+                <option
+                    *ngFor="let option of workspaceNavOptions"
+                    [value]="option.value"
+                    [selected]="option.value === preferences().workspaceNav"
+                >
+                    {{ option.labelKey | translate }}
+                </option>
+            </select>
+        </label>
+
+        <button type="button" (click)="reset()">
+            {{ 'MEDICAL_RECORDS.APPEARANCE.RESET' | translate }}
+        </button>
+    </div>
+</details>

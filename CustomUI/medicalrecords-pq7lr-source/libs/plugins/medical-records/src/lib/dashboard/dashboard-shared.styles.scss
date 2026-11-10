@@ -13,6 +13,11 @@ button {
     -webkit-appearance: none;
 }
 
+:is(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid var(--dash-accent, var(--mr-accent, #6e33ff));
+    outline-offset: 3px;
+}
+
 .ghost-action,
 .filter-button {
     appearance: none;
@@ -62,7 +67,7 @@ button {
 
 .page-hero h1 {
     margin: 8px 0 0;
-    color: #001b3d;
+    color: var(--mr-heading, #001b3d);
     font-size: clamp(32px, 4vw, 44px);
     font-weight: 900;
     letter-spacing: -0.04em;
@@ -73,7 +78,7 @@ button {
 .page-hero p {
     margin: 10px 0 0;
     max-width: 640px;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.55;
@@ -101,18 +106,18 @@ button {
     padding: 0 20px;
     border: 0;
     border-radius: 14px;
-    color: #ffffff;
+    color: var(--mr-on-primary, #ffffff);
     background: linear-gradient(135deg, var(--dash-brand-purple, #6e33ff) 0%, var(--dash-brand-blue, #52a1ff) 100%);
     font-size: 13px;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 10px 24px rgba(110, 51, 255, 0.24);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 24%, transparent);
     transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .primary-action:hover {
     transform: translateY(-1px);
-    box-shadow: 0 14px 28px rgba(110, 51, 255, 0.28);
+    box-shadow: 0 14px 28px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 28%, transparent);
 }
 
 .btn-ghost-sm {
@@ -121,9 +126,9 @@ button {
     min-height: 30px;
     padding: 0 10px;
     color: var(--dash-accent, #6e33ff);
-    border: 1px solid var(--dash-accent-muted, rgba(110, 51, 255, 0.2));
+    border: 1px solid var(--dash-accent-muted, color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 20%, transparent));
     border-radius: 10px;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     font: inherit;
     font-size: 11px;
     font-weight: 800;
@@ -131,13 +136,13 @@ button {
 }
 
 .btn-ghost-sm:hover {
-    background: rgba(110, 51, 255, 0.06);
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 6%, transparent);
 }
 
 .dashboard-form-field {
     display: grid;
     gap: 6px;
-    color: #424752;
+    color: var(--mr-on-surface-variant, #424752);
     font-size: 12px;
     font-weight: 700;
 }
@@ -145,18 +150,18 @@ button {
 .dashboard-form-control {
     width: 100%;
     padding: 10px 12px;
-    color: #001b3d;
-    border: 1px solid rgba(194, 198, 212, 0.55);
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
+    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
     border-radius: 12px;
     font: inherit;
     box-sizing: border-box;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
 }
 
 .dashboard-form-control:focus {
     outline: none;
-    border-color: rgba(110, 51, 255, 0.45);
-    box-shadow: 0 0 0 3px rgba(110, 51, 255, 0.12);
+    border-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 45%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 12%, transparent);
 }
 
 .ghost-action {
@@ -170,8 +175,8 @@ button {
     font-size: 13px;
     font-weight: 900;
     color: var(--dash-accent, #6e33ff);
-    background: rgba(255, 255, 255, 0.56);
-    border: 1px solid rgba(110, 51, 255, 0.15);
+    background: var(--mr-surface, #ffffff);
+    border: 1px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 15%, transparent);
     backdrop-filter: blur(12px);
 }
 
@@ -182,7 +187,7 @@ button {
 
 .section-block h2 {
     margin: 0;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 20px;
     font-weight: 900;
     letter-spacing: -0.035em;
@@ -198,7 +203,7 @@ button {
 
 .section-heading p {
     margin: 6px 0 0;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     font-size: 13px;
     font-weight: 600;
     line-height: 1.45;
@@ -318,13 +323,13 @@ button {
 }
 
 .badge-demo {
-    color: #667085;
-    background: #f2f4f7;
+    color: var(--mr-muted, #667085);
+    background: var(--mr-surface-muted, #f2f4f7);
 }
 
 .badge-content {
     color: var(--dash-accent, #6e33ff);
-    background: var(--dash-accent-muted, rgba(110, 51, 255, 0.1));
+    background: var(--dash-accent-muted, color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 10%, transparent));
 }
 
 .badge-process {
@@ -335,7 +340,7 @@ button {
 .card-title-row h3 {
     margin: 0;
     min-width: 0;
-    color: #0f172a;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 17px;
     font-weight: 900;
     letter-spacing: -0.02em;
@@ -357,14 +362,14 @@ button {
     place-items: center;
     color: var(--dash-accent, #6e33ff);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
 }
 
 .spotlight-card strong {
     display: block;
     margin-top: 48px;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 56px;
     font-weight: 900;
     letter-spacing: -0.08em;
@@ -381,20 +386,20 @@ button {
     gap: 4px;
     padding: 4px;
     border-radius: 12px;
-    background: #f8f9ff;
+    background: var(--mr-background, #f8f9ff);
 }
 
 .segment-control span {
     padding: 4px 9px;
-    color: #667085;
+    color: var(--mr-muted, #667085);
     border-radius: 9px;
     font-size: 11px;
     font-weight: 800;
 }
 
 .segment-control span:first-child {
-    color: #001b3d;
-    background: #ffffff;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
@@ -408,9 +413,9 @@ button {
 
 .metric-card {
     padding: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.84);
+    border: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.82);
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.03);
     backdrop-filter: blur(12px);
 }
@@ -427,7 +432,7 @@ button {
 
 .metric-card strong {
     display: block;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 30px;
     font-weight: 900;
     letter-spacing: -0.05em;
@@ -444,7 +449,7 @@ button {
 }
 
 .metric-card p.negative {
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
 }
 
 .metric-card .material-icons {
@@ -477,7 +482,7 @@ button {
 
 .attention-title > span.badge-open {
     color: var(--dash-accent, #6e33ff);
-    background: var(--dash-accent-muted, rgba(110, 51, 255, 0.1));
+    background: var(--dash-accent-muted, color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 10%, transparent));
 }
 
 .attention-title > span.badge-clear {
@@ -510,11 +515,11 @@ button {
     width: 100%;
     min-height: 42px;
     padding: 0 16px 0 42px;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     border: 0;
     border-radius: 16px;
     outline: none;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
     box-sizing: border-box;
 }
@@ -525,9 +530,9 @@ button {
     gap: 8px;
     min-height: 42px;
     padding: 0 18px;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     border-radius: 16px;
-    background: #ffffff;
+    background: var(--mr-surface, #ffffff);
     font-weight: 900;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
@@ -542,16 +547,16 @@ button {
     padding: 16px 18px;
     border: 1px solid rgba(255, 255, 255, 0.9);
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--mr-surface, #ffffff);
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
     backdrop-filter: blur(12px);
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .attention-item:hover {
-    border-color: rgba(110, 51, 255, 0.16);
-    background: #ffffff;
-    box-shadow: 0 14px 32px rgba(110, 51, 255, 0.08);
+    border-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 16%, transparent);
+    background: var(--mr-surface, #ffffff);
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 8%, transparent);
     transform: translateY(-1px);
 }
 
@@ -571,7 +576,7 @@ button {
     padding: 3px 9px;
     color: var(--dash-accent, #6e33ff);
     border-radius: 999px;
-    background: rgba(110, 51, 255, 0.08);
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 8%, transparent);
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.04em;
@@ -607,7 +612,7 @@ button {
 
 .status-pill.status-assigned {
     color: var(--dash-brand-purple, #6e33ff);
-    background: rgba(110, 51, 255, 0.12);
+    background: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 12%, transparent);
 }
 
 .status-pill.status-created {
@@ -616,7 +621,7 @@ button {
 }
 
 .status-pill.status-review {
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
     background: rgba(186, 26, 26, 0.1);
 }
 
@@ -640,7 +645,7 @@ button {
 
 .attention-item strong {
     display: block;
-    color: #001b3d;
+    color: var(--dash-on-surface, var(--mr-heading, #001b3d));
     font-size: 15px;
     font-weight: 900;
     line-height: 1.25;
@@ -648,7 +653,7 @@ button {
 
 .attention-item p {
     margin: 4px 0 0;
-    color: #43474e;
+    color: var(--mr-on-surface-variant, #424752);
     font-size: 12px;
     line-height: 1.45;
 }
@@ -662,7 +667,7 @@ button {
 }
 
 .native-link-row:focus-visible {
-    outline: 2px solid rgba(110, 51, 255, 0.45);
+    outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 45%, transparent);
     outline-offset: 2px;
 }
 
@@ -676,23 +681,23 @@ button {
 }
 
 .tone-red .attention-icon {
-    color: #ba1a1a;
+    color: var(--mr-error, #ba1a1a);
     background: rgba(186, 26, 26, 0.1);
 }
 
 .tone-orange .attention-icon {
-    color: #ea580c;
-    background: #ffedd5;
+    color: var(--mr-attention, #ea580c);
+    background: var(--mr-attention-surface, #ffedd5);
 }
 
 .tone-amber .attention-icon {
-    color: #d97706;
-    background: #fef3c7;
+    color: var(--mr-warning, #d97706);
+    background: var(--mr-warning-surface, #fef3c7);
 }
 
 .tone-blue .attention-icon {
     color: var(--dash-accent, #6e33ff);
-    background: var(--dash-accent-muted, rgba(110, 51, 255, 0.1));
+    background: var(--dash-accent-muted, color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 10%, transparent));
 }
 
 .tone-green .attention-icon {

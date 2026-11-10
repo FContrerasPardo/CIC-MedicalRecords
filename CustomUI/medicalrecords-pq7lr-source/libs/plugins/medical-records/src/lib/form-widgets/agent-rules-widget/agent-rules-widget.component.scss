@@ -1,13 +1,13 @@
 .agent-rules-widget {
-    --arw-background: #f8f9ff;
-    --arw-primary: #00478d;
-    --arw-primary-container: #005eb8;
-    --arw-secondary: #006a64;
-    --arw-outline-variant: #c2c6d4;
-    --arw-on-surface: #0b1c30;
-    --arw-on-surface-variant: #424752;
-    --arw-surface-container-low: #eff4ff;
-    --arw-ambient-shadow: 0 8px 32px rgba(0, 94, 184, 0.04);
+    --arw-background: var(--mr-background, #f8f9ff);
+    --arw-primary: var(--mr-primary, #00478d);
+    --arw-primary-container: var(--mr-primary-container, #005eb8);
+    --arw-secondary: var(--mr-secondary, #006a64);
+    --arw-outline-variant: var(--mr-outline, #c2c6d4);
+    --arw-on-surface: var(--mr-on-surface, #0b1c30);
+    --arw-on-surface-variant: var(--mr-on-surface-variant, #424752);
+    --arw-surface-container-low: var(--mr-surface-low, #eff4ff);
+    --arw-ambient-shadow: var(--mr-ambient-shadow, 0 8px 32px rgba(0, 94, 184, 0.04));
 
     display: block;
     position: relative;

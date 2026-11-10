@@ -25,6 +25,7 @@ import { IntakeAccountWidgetModule } from './form-widgets/intake-account-widget/
 import { AgentRulesWidgetModule } from './form-widgets/agent-rules-widget/agent-rules-widget.module';
 import { DASHBOARD_LAYOUT_PERSISTENCE } from './dashboard/services/dashboard-layout-persistence.interface';
 import { DashboardLayoutRepositoryService } from './dashboard/services/dashboard-layout-repository.service';
+import { provideAppearanceManager } from './appearance/appearance.provider';
 
 @NgModule({
     declarations: [
@@ -57,6 +58,7 @@ import { DashboardLayoutRepositoryService } from './dashboard/services/dashboard
         provideExtensionConfig(['medical-records.extension.json']),
         provideTranslations('medical-records', 'assets/medical-records'),
         { provide: DASHBOARD_LAYOUT_PERSISTENCE, useExisting: DashboardLayoutRepositoryService },
+        provideAppearanceManager(),
     ],
 })
 export class MedicalRecordsModule {

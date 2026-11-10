@@ -2,6 +2,8 @@
 
 This repo also has an `AGENTS.md` with token-saving rules — follow those too. This file adds the **verification workflow** for the Medical Records Angular 19 plugin under `CustomUI/medicalrecords-pq7lr-source/`.
 
+Shared role protocol and skill catalog: `docs/agents/README.md` and `docs/agents/skills.md`. Client profiles reference the shared documents; no Hyland plugin installation is implied. Project Codex adapters live in `.agents/skills/`; the existing Claude i18n skill keeps its script in `.claude/skills/i18n-key-audit/`.
+
 ## Verification workflow
 
 **During iteration (template / SCSS / logic tweaks): do NOT run the AOT build.** It's slow and competes with the user's running dev server.
@@ -11,7 +13,7 @@ This repo also has an `AGENTS.md` with token-saving rules — follow those too. 
   - i18n validation — only when changing translations.
 - For purely visual tweaks, run nothing; let HMR show the result.
 
-**Before a git commit/push: run the AOT build as the final gate.**
+**Before an authorized commit/push affecting the Angular plugin: propose the AOT build as the final gate.** Run it only with the explicit command authorization required by `AGENTS.md`; otherwise report the gate as pending. Documentation-only changes do not require this build.
 - `npx nx build workspace-hxp --configuration=development` (run from `CustomUI/medicalrecords-pq7lr-source`).
 - This is the only thing that type-checks the plugin's **templates**: the `medical-records` library has no `build` target (only `lint`, `stylelint`, `test`), and unit tests don't compile component templates. So the app build is what catches template/binding/type/SCSS errors.
 - Fix any failure before committing.

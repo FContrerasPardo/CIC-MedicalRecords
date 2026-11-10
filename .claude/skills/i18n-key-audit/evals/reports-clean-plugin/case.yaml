@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: reports-clean-plugin
+expected_outcome: |
+  Audits the plugin in plugin/ (the audit script, run with --plugin plugin) and reports that de.json
+  and es.json have no missing or extra keys and no [TODO] values, and that the template only uses keys
+  that en.json defines. The verdict is that the translations are in sync. It does not invent problems
+  and modifies no file.
+context:
+  scaffold_script: place-files.sh

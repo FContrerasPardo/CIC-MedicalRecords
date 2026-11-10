@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: flags-gaps-and-unknown-keys
+expected_outcome: |
+  Audits the plugin in plugin/ (the audit script, run with --plugin plugin) and reports, per
+  language: de.json lacks DEMO.ACTIONS.CANCEL, has the extra key DEMO.STATUS.ARCHIVED and two
+  [TODO] values; es.json has no gaps. It also reports that the template src/app.component.html
+  (line 3) uses DEMO.ACTIONS.DELETE, which en.json does not define, and that DEMO.STATUS is
+  completed at runtime so it cannot be verified. The overall verdict is that the translations are
+  not in sync. No file is modified.
+context:
+  scaffold_script: place-files.sh

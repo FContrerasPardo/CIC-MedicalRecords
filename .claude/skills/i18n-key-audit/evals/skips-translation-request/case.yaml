@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: skips-translation-request
+expected_outcome: |
+  Gives Brazilian Portuguese wording for both strings directly (for example "Salvar alterações" and
+  "Descartar alterações não salvas"). It does not run the i18n audit script: nothing in the request asks
+  to compare translation files or check keys.

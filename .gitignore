@@ -1,7 +1,12 @@
-# Local agent/tool state
-.codex/
+# Local agent/tool state (version project agent definitions only)
+.codex/*
+!.codex/agents/
 .superpowers/
 
 # Generated diagnostics
 artifacts/logs/**/*.log
 artifacts/screenshots/**/*
+
+# Local migration progress and medical documents awaiting provenance review
+docs/backlog/.state.json
+/docs/Demo Documents/

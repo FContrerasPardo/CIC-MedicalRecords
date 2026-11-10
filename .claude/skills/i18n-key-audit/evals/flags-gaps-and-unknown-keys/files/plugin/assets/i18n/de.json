@@ -1,0 +1,13 @@
+{
+    "DEMO": {
+        "TITLE": "Demo",
+        "ACTIONS": {
+            "SAVE": "Speichern"
+        },
+        "STATUS": {
+            "OPEN": "[TODO] Open",
+            "CLOSED": "[TODO] Closed",
+            "ARCHIVED": "Archiviert"
+        }
+    }
+}

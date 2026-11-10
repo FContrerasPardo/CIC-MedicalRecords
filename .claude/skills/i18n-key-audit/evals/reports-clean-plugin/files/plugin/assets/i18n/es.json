@@ -1,0 +1,9 @@
+{
+    "SHOP": {
+        "CART": {
+            "TITLE": "Carrito",
+            "CHECKOUT": "Pagar"
+        },
+        "EMPTY": "Tu carrito esta vacio"
+    }
+}

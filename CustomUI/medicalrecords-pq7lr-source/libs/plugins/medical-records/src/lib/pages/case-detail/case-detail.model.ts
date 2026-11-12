@@ -57,6 +57,43 @@ export interface LinkedRequest {
     owner: string;
     /** `null` means the source did not provide an SLA. */
     sla: string | null;
+    /** i18n key of the treatment / procedure (demo text). */
+    treatmentKey: string;
+    /** `null` means not reported. */
+    requestingDoctor: string | null;
+    /** ISO date-time of creation. */
+    createdAt: string;
+    documentsCount: number;
+    submissionsCount: number;
+    protocol: string | null;
+    /** `null` means no decision recorded. */
+    decisionKey: string | null;
+    openPendings: number;
+}
+
+export type DocumentClassification = 'attached' | 'form' | 'missing' | 'transcribed';
+
+export interface CaseDocument {
+    /** i18n keys for category, classification label, origin and reference; names are literal synthetic data. */
+    categoryKey: string;
+    /** Literal file name, or an i18n key for a label (missing or transcribed items). */
+    name?: string;
+    nameKey?: string;
+    classification: DocumentClassification;
+    classificationKey: string;
+    /** ISO date or `null`. */
+    date: string | null;
+    originKey: string;
+    referenceKey: string;
+}
+
+export interface CaseEvent {
+    id: string;
+    date: string;
+    actionKey: string;
+    owner: string;
+    originKey: string;
+    changeKey: string;
 }
 
 export interface CaseDetail {
@@ -69,6 +106,10 @@ export interface CaseDetail {
     linkedRequests: LinkedRequest[];
     pendingComplements: number;
     openDivergences: number;
+    documents: CaseDocument[];
+    /** Empty in the demo. */
+    timelineEvents: CaseEvent[];
+    auditRecords: CaseEvent[];
     profile: ScoreProfile;
     criteria: ScoreCriterion[];
 }

@@ -1,12 +1,15 @@
 <section class="case-detail" aria-labelledby="case-detail-title">
-    <header class="case-detail__header">
-        <div class="case-detail__heading">
-            <h1 id="case-detail-title">{{ i18n + '.TITLE' | translate: { code: detail.code, patient: detail.patientName } }}</h1>
-            <p>
-                {{ detail.diagnosisKey | translate }} · {{ i18n + '.LINKED_REQUESTS' | translate: { count: detail.linkedRequests.length } }}
-            </p>
-        </div>
-        <div class="case-detail__actions">
+    <header class="case-bar">
+        <nav class="stepper" [attr.aria-label]="i18n + '.STEPPER_ARIA' | translate">
+            <ol>
+                @for (step of steps; track step.key) {
+                    <li [class.stepper__step--current]="step.current" [attr.aria-current]="step.current ? 'step' : null" class="stepper__step">
+                        <span class="material-icons" aria-hidden="true">{{ step.icon }}</span>{{ step.labelKey | translate }}
+                    </li>
+                }
+            </ol>
+        </nav>
+        <div class="case-bar__actions">
             <a class="btn" routerLink="/medical-records">
                 <span class="material-icons" aria-hidden="true">arrow_back</span>{{ i18n + '.ACTIONS.BACK' | translate }}
             </a>
@@ -25,30 +28,15 @@
         </div>
     </header>
 
-    <p class="case-detail__demo" role="note">
-        <span class="chip chip--demo">{{ i18n + '.DEMO_BADGE' | translate }}</span>
-        {{ i18n + '.DEMO_NOTICE' | translate }}
-    </p>
-
-    <nav class="stepper" [attr.aria-label]="i18n + '.STEPPER_ARIA' | translate">
-        <ol>
-            @for (step of steps; track step.key) {
-                <li [class.stepper__step--current]="step.current" [attr.aria-current]="step.current ? 'step' : null" class="stepper__step">
-                    <span class="material-icons" aria-hidden="true">{{ step.icon }}</span>{{ step.labelKey | translate }}
-                </li>
-            }
-        </ol>
-        <code class="stepper__code">{{ detail.code }}</code>
-    </nav>
-
-    <section class="summary-card" aria-labelledby="summary-card-title">
+    <section class="summary-card" aria-labelledby="case-detail-title">
         <div class="summary-card__top">
-            <div>
+            <div class="summary-card__id">
                 <span class="eyebrow">{{ i18n + '.CASE_LABEL' | translate }} <code>{{ detail.code }}</code></span>
-                <h2 id="summary-card-title">{{ detail.patientName }}</h2>
+                <h1 id="case-detail-title">{{ detail.patientName }}</h1>
                 <p>{{ detail.diagnosisKey | translate }}</p>
             </div>
             <div class="summary-card__chips">
+                <span class="chip chip--demo" [title]="i18n + '.DEMO_NOTICE' | translate">{{ i18n + '.DEMO_BADGE' | translate }}</span>
                 <span class="chip chip--warn">{{ detail.statusKey | translate }}</span>
                 <span class="chip">{{ i18n + '.LINKED_REQUEST' | translate: { count: detail.linkedRequests.length } }}</span>
             </div>
@@ -63,11 +51,12 @@
                     {{ i18n + '.OWNER' | translate }}: {{ request.owner }} ·
                     {{ request.sla ?? (i18n + '.SLA_NOT_PROVIDED' | translate) }}
                 </span>
-                <button type="button" class="btn btn--text" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                <button type="button" class="btn btn--text" (click)="selectTab('requests')">
                     <span class="material-icons" aria-hidden="true">sync</span>{{ i18n + '.CHANGE_REQUEST' | translate }}
                 </button>
             </div>
         }
+        <p class="summary-card__notice" role="note">{{ i18n + '.DEMO_NOTICE' | translate }}</p>
     </section>
 
     <div class="tabs" role="tablist" [attr.aria-label]="i18n + '.TABS_ARIA' | translate" (keydown)="onTabKeydown($event)">
@@ -96,111 +85,281 @@
             [hidden]="activeTab !== tab.id"
             tabindex="0"
         >
-            @if (tab.id === 'summary') {
-                <header class="panel__header">
-                    <h2>{{ detail.patientName }}</h2>
-                    <p>
+            @switch (tab.id) {
+                @case ('summary') {
+                    <p class="panel__lead">
                         {{ i18n + '.COMPLEMENTS' | translate: { count: detail.pendingComplements } }} ·
                         {{ i18n + '.DIVERGENCES' | translate: { count: detail.openDivergences } }} ·
                         {{ i18n + '.SCORE.CURRENT' | translate }}: {{ score.total }}/{{ score.ceiling }} ·
                         {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
                     </p>
-                </header>
 
-                <div class="subtabs" role="tablist" [attr.aria-label]="i18n + '.SUBTABS_ARIA' | translate" (keydown)="onSubTabKeydown($event)">
-                    @for (sub of subTabs; track sub.id) {
-                        <button
-                            type="button"
-                            role="tab"
-                            class="subtabs__tab"
-                            [id]="'case-subtab-' + sub.id"
-                            [attr.aria-selected]="activeSubTab === sub.id"
-                            [attr.aria-controls]="'case-subtabpanel-' + sub.id"
-                            [attr.tabindex]="activeSubTab === sub.id ? 0 : -1"
-                            (click)="selectSubTab(sub.id)"
-                        >
-                            {{ sub.labelKey | translate }}
-                        </button>
-                    }
-                </div>
-
-                @for (sub of subTabs; track sub.id) {
-                    <div
-                        class="subpanel"
-                        role="tabpanel"
-                        [id]="'case-subtabpanel-' + sub.id"
-                        [attr.aria-labelledby]="'case-subtab-' + sub.id"
-                        [hidden]="activeSubTab !== sub.id"
-                        tabindex="0"
-                    >
-                        @if (sub.id === 'score') {
-                            <article class="score" [attr.aria-label]="i18n + '.SCORE.CURRENT' | translate">
-                                <h3>
-                                    {{ i18n + '.SCORE.CURRENT' | translate }}
-                                    <small>
-                                        {{
-                                            i18n + '.SCORE.PROFILE'
-                                                | translate
-                                                    : {
-                                                          profile: detail.profile.profileId,
-                                                          engine: detail.profile.engineVersion,
-                                                          ceiling: score.ceiling,
-                                                          cutoff: score.cutoff
-                                                      }
-                                        }}
-                                    </small>
-                                </h3>
-                                <p class="score__result" [class.score__result--apt]="score.apt">
-                                    {{ score.total }}/{{ score.ceiling }} ·
-                                    {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
-                                </p>
-
-                                <ul class="criteria">
-                                    @for (criterion of score.criteria; track criterion.id) {
-                                        <li class="criterion">
-                                            <p class="criterion__title">
-                                                <strong>{{ criterion.id }} · {{ criterion.titleKey | translate }}
-                                                    @if (criterion.blocking) { ({{ i18n + '.SCORE.BLOCKING' | translate }}) }</strong>:
-                                                {{ criterion.points }}/{{ criterion.max }} —
-                                                <span class="status" [class.status--met]="criterion.met" [class.status--unmet]="!criterion.met">
-                                                    <span class="material-icons" aria-hidden="true">{{ criterion.met ? 'check_circle' : 'cancel' }}</span>
-                                                    {{ (criterion.met ? i18n + '.SCORE.MET' : i18n + '.SCORE.NOT_MET') | translate }}
-                                                </span>
-                                            </p>
-                                            <p class="criterion__text">{{ criterion.explanationKey | translate }}</p>
-                                            @if (criterion.subItems) {
-                                                <ul class="criterion__sub">
-                                                    @for (item of criterion.subItems; track item.labelKey) {
-                                                        <li>
-                                                            {{ item.labelKey | translate }}: {{ item.points }}/{{ item.max }}
-                                                            @if (item.noteKey) { — {{ item.noteKey | translate }} }
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            }
-                                        </li>
-                                    }
-                                </ul>
-
-                                <p class="score__total">
-                                    {{ i18n + '.SCORE.TOTAL' | translate: { total: score.total, ceiling: score.ceiling } }} ·
-                                    {{ i18n + '.SCORE.FITNESS' | translate }}:
-                                    {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
-                                </p>
-                                <p class="score__pending">
-                                    {{ i18n + '.SCORE.CRITICAL_PENDING' | translate }}:
-                                    @if (score.criticalPending.length) { {{ score.criticalPending.join(' · ') }} } @else { {{ i18n + '.SCORE.NONE' | translate }} }
-                                </p>
-                                <p class="score__disclaimer">{{ i18n + '.SCORE.DISCLAIMER' | translate }}</p>
-                            </article>
-                        } @else {
-                            <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+                    <div class="subtabs" role="tablist" [attr.aria-label]="i18n + '.SUBTABS_ARIA' | translate" (keydown)="onSubTabKeydown($event)">
+                        @for (sub of subTabs; track sub.id) {
+                            <button
+                                type="button"
+                                role="tab"
+                                class="subtabs__tab"
+                                [id]="'case-subtab-' + sub.id"
+                                [attr.aria-selected]="activeSubTab === sub.id"
+                                [attr.aria-controls]="'case-subtabpanel-' + sub.id"
+                                [attr.tabindex]="activeSubTab === sub.id ? 0 : -1"
+                                (click)="selectSubTab(sub.id)"
+                            >
+                                {{ sub.labelKey | translate }}
+                            </button>
                         }
                     </div>
+
+                    @for (sub of subTabs; track sub.id) {
+                        <div
+                            class="subpanel"
+                            role="tabpanel"
+                            [id]="'case-subtabpanel-' + sub.id"
+                            [attr.aria-labelledby]="'case-subtab-' + sub.id"
+                            [hidden]="activeSubTab !== sub.id"
+                            tabindex="0"
+                        >
+                            @switch (sub.id) {
+                                @case ('score') {
+                                    <ng-container *ngTemplateOutlet="scoreTpl"></ng-container>
+                                }
+                                @case ('documents') {
+                                    <ng-container *ngTemplateOutlet="documentsTpl"></ng-container>
+                                }
+                                @case ('audit') {
+                                    <ng-container *ngTemplateOutlet="auditTpl"></ng-container>
+                                }
+                                @default {
+                                    <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+                                }
+                            }
+                        </div>
+                    }
                 }
-            } @else {
-                <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+                @case ('requests') {
+                    <header class="panel__head">
+                        <div>
+                            <h2>{{ i18n + '.REQUESTS.TITLE' | translate }}</h2>
+                            <p>{{ i18n + '.REQUESTS.COUNT' | translate: { count: detail.linkedRequests.length } }}</p>
+                        </div>
+                        <button type="button" class="btn btn--primary" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                            <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.REQUESTS.NEW' | translate }}
+                        </button>
+                    </header>
+                    @for (req of detail.linkedRequests; track req.code) {
+                        <article class="request">
+                            <header class="request__head">
+                                <div>
+                                    <p class="request__title">
+                                        <code>{{ req.code }}</code> · {{ req.typeKey | translate }}
+                                        <span class="chip chip--neutral">{{ i18n + '.REQUESTS.VIEWING' | translate }}</span>
+                                    </p>
+                                    <p class="request__sub">
+                                        {{ i18n + '.REQUESTS.NOT_REPORTED' | translate }} ·
+                                        {{ i18n + '.REQUESTS.CREATED' | translate: { date: (req.createdAt | date: 'dd/MM/yyyy, HH:mm') } }}
+                                    </p>
+                                </div>
+                            </header>
+                            <dl class="facts">
+                                <div class="facts__wide"><dt>{{ i18n + '.REQUESTS.F_TREATMENT' | translate }}</dt><dd>{{ req.treatmentKey | translate }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_DOCTOR' | translate }}</dt><dd>{{ req.requestingDoctor ?? (i18n + '.REQUESTS.NOT_REPORTED' | translate) }}</dd></div>
+                                <div><dt>{{ i18n + '.OWNER' | translate }}</dt><dd>{{ req.owner }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_STATUS' | translate }}</dt><dd><span class="chip chip--neutral">{{ req.statusKey | translate }}</span></dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_SLA' | translate }}</dt><dd>{{ req.sla ?? (i18n + '.SLA_NOT_PROVIDED' | translate) }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_DOCS' | translate }}</dt><dd>{{ i18n + '.REQUESTS.DOCS_ATTACHED' | translate: { count: req.documentsCount } }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_SENDS' | translate }}</dt><dd>{{ req.submissionsCount }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_PROTOCOL' | translate }}</dt><dd>{{ req.protocol ?? '—' }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_DECISION' | translate }}</dt><dd>{{ (req.decisionKey ?? i18n + '.REQUESTS.NO_DECISION') | translate }}</dd></div>
+                                <div><dt>{{ i18n + '.REQUESTS.F_PENDING' | translate }}</dt><dd>{{ req.openPendings ? req.openPendings : (i18n + '.REQUESTS.NO_PENDING' | translate) }}</dd></div>
+                            </dl>
+                        </article>
+                    }
+                }
+                @case ('documents') {
+                    <ng-container *ngTemplateOutlet="documentsTpl"></ng-container>
+                }
+                @case ('returns') {
+                    <header class="panel__head">
+                        <div>
+                            <h2>{{ i18n + '.RETURNS.TITLE' | translate }}</h2>
+                            <p>{{ i18n + '.RETURNS.COUNT' | translate: { count: 0 } }}</p>
+                        </div>
+                        <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                            <span class="material-icons" aria-hidden="true">report</span>{{ i18n + '.ACTIONS.REGISTER_RETURN' | translate }}
+                        </button>
+                    </header>
+                    <p class="placeholder placeholder--center">{{ i18n + '.RETURNS.EMPTY' | translate }}</p>
+                }
+                @case ('guidelines') {
+                    <div class="linkout">
+                        <span class="material-icons linkout__icon" aria-hidden="true">compare_arrows</span>
+                        <h2>{{ i18n + '.GUIDELINES.TITLE' | translate }}</h2>
+                        <p>{{ i18n + '.GUIDELINES.TEXT' | translate }}</p>
+                        <button type="button" class="btn btn--primary" aria-disabled="true" [title]="i18n + '.LINKED_FEATURE' | translate">
+                            <span class="material-icons" aria-hidden="true">open_in_new</span>{{ i18n + '.GUIDELINES.OPEN' | translate }}
+                        </button>
+                    </div>
+                }
+                @case ('timeline') {
+                    <header class="panel__head">
+                        <div>
+                            <h2>{{ i18n + '.TIMELINE.TITLE' | translate }}</h2>
+                            <p>{{ i18n + '.TIMELINE.COUNT' | translate: { shown: detail.timelineEvents.length, total: detail.timelineEvents.length } }}</p>
+                        </div>
+                        <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                            <span class="material-icons" aria-hidden="true">report</span>{{ i18n + '.ACTIONS.REGISTER_RETURN' | translate }}
+                        </button>
+                    </header>
+                    <div class="filters" role="group" [attr.aria-label]="i18n + '.TIMELINE.FILTERS_ARIA' | translate">
+                        @for (filter of timelineFilters; track filter) {
+                            <button type="button" class="filters__chip" [attr.aria-pressed]="activeTimelineFilter === filter" (click)="activeTimelineFilter = filter">
+                                {{ i18n + '.TIMELINE.FILTER.' + filter | translate }}
+                            </button>
+                        }
+                    </div>
+                    <div class="searchbar">
+                        <input type="search" [attr.aria-label]="i18n + '.TIMELINE.SEARCH' | translate" [placeholder]="i18n + '.TIMELINE.SEARCH' | translate" />
+                        <select [attr.aria-label]="i18n + '.TIMELINE.SORT' | translate">
+                            <option>{{ i18n + '.TIMELINE.NEWEST' | translate }}</option>
+                            <option>{{ i18n + '.TIMELINE.OLDEST' | translate }}</option>
+                        </select>
+                    </div>
+                    @if (!detail.timelineEvents.length) {
+                        <p class="placeholder">{{ i18n + '.TIMELINE.EMPTY' | translate }}</p>
+                    }
+                }
+                @case ('audit') {
+                    <ng-container *ngTemplateOutlet="auditTpl"></ng-container>
+                }
+                @default {
+                    <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+                }
             }
         </section>
     }
 </section>
+
+<ng-template #scoreTpl>
+    <article class="score" [attr.aria-label]="i18n + '.SCORE.CURRENT' | translate">
+        <h2>
+            {{ i18n + '.SCORE.CURRENT' | translate }}
+            <small>
+                {{
+                    i18n + '.SCORE.PROFILE'
+                        | translate
+                            : { profile: detail.profile.profileId, engine: detail.profile.engineVersion, ceiling: score.ceiling, cutoff: score.cutoff }
+                }}
+            </small>
+        </h2>
+        <p class="score__result" [class.score__result--apt]="score.apt">
+            {{ score.total }}/{{ score.ceiling }} · {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
+        </p>
+
+        <ul class="criteria">
+            @for (criterion of score.criteria; track criterion.id) {
+                <li class="criterion">
+                    <p class="criterion__title">
+                        <strong>{{ criterion.id }} · {{ criterion.titleKey | translate }}
+                            @if (criterion.blocking) { ({{ i18n + '.SCORE.BLOCKING' | translate }}) }</strong>:
+                        {{ criterion.points }}/{{ criterion.max }} —
+                        <span class="status" [class.status--met]="criterion.met" [class.status--unmet]="!criterion.met">
+                            <span class="material-icons" aria-hidden="true">{{ criterion.met ? 'check_circle' : 'cancel' }}</span>
+                            {{ (criterion.met ? i18n + '.SCORE.MET' : i18n + '.SCORE.NOT_MET') | translate }}
+                        </span>
+                    </p>
+                    <p class="criterion__text">{{ criterion.explanationKey | translate }}</p>
+                    @if (criterion.subItems) {
+                        <ul class="criterion__sub">
+                            @for (item of criterion.subItems; track item.labelKey) {
+                                <li>
+                                    {{ item.labelKey | translate }}: {{ item.points }}/{{ item.max }}
+                                    @if (item.noteKey) { — {{ item.noteKey | translate }} }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </li>
+            }
+        </ul>
+
+        <p class="score__total">
+            {{ i18n + '.SCORE.TOTAL' | translate: { total: score.total, ceiling: score.ceiling } }} ·
+            {{ i18n + '.SCORE.FITNESS' | translate }}: {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
+            <br />
+            {{ i18n + '.SCORE.CRITICAL_PENDING' | translate }}:
+            @if (score.criticalPending.length) { {{ score.criticalPending.join(' · ') }} } @else { {{ i18n + '.SCORE.NONE' | translate }} }
+        </p>
+    </article>
+</ng-template>
+
+<ng-template #documentsTpl>
+    <p class="panel__lead">{{ i18n + '.DOCS.NOTICE' | translate }}</p>
+    <div class="table-wrap">
+        <table class="table">
+            <caption class="sr-only">{{ i18n + '.TABS.DOCUMENTS' | translate }}</caption>
+            <thead>
+                <tr>
+                    @for (col of documentColumns; track col) {
+                        <th scope="col">{{ i18n + '.DOCS.COL.' + col | translate }}</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (doc of detail.documents; track $index) {
+                    <tr>
+                        <td>{{ doc.categoryKey | translate }}</td>
+                        <td>{{ doc.name ?? (doc.nameKey ?? '' | translate) }}</td>
+                        <td>
+                            <span class="tag" [ngClass]="'tag--' + doc.classification">{{ doc.classificationKey | translate }}</span>
+                        </td>
+                        <td>{{ doc.date ? (doc.date | date: 'dd/MM/yyyy') : '—' }}</td>
+                        <td>{{ doc.originKey | translate }}</td>
+                        <td>{{ doc.referenceKey | translate }}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</ng-template>
+
+<ng-template #auditTpl>
+    <header class="panel__head">
+        <div>
+            <h2>{{ i18n + '.AUDIT.TITLE' | translate }}</h2>
+            <p>{{ i18n + '.AUDIT.COUNT' | translate: { shown: detail.auditRecords.length, total: detail.auditRecords.length } }}</p>
+        </div>
+        <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.LINKED_FEATURE' | translate">
+            <span class="material-icons" aria-hidden="true">open_in_new</span>{{ i18n + '.AUDIT.GLOBAL' | translate }}
+        </button>
+    </header>
+    <div class="searchbar searchbar--left">
+        <select [attr.aria-label]="i18n + '.AUDIT.REQUEST_FILTER' | translate">
+            <option>{{ request.code }}</option>
+        </select>
+        <input type="search" [attr.aria-label]="i18n + '.AUDIT.USER_FILTER' | translate" [placeholder]="i18n + '.AUDIT.USER_FILTER' | translate" />
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <caption class="sr-only">{{ i18n + '.AUDIT.TITLE' | translate }}</caption>
+            <thead>
+                <tr>
+                    @for (col of auditColumns; track col) {
+                        <th scope="col">{{ i18n + '.AUDIT.COL.' + col | translate }}</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (rec of detail.auditRecords; track rec.id) {
+                    <tr>
+                        <td>{{ rec.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+                        <td>{{ rec.actionKey | translate }}</td>
+                        <td>{{ rec.owner }}</td>
+                        <td>{{ rec.originKey | translate }}</td>
+                        <td>{{ rec.changeKey | translate }}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</ng-template>

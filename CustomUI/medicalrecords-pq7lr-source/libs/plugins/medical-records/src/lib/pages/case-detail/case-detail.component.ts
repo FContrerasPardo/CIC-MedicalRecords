@@ -62,6 +62,14 @@ export class CaseDetailComponent {
         { id: 'audit', icon: '', labelKey: `${I18N}.SUBTABS.AUDIT` },
     ];
 
+    readonly timelineFilters = [
+        'ALL', 'REQUESTS', 'TASKS', 'PENDING', 'DOCUMENTS', 'RECORD', 'ANALYSES', 'GUIDELINES', 'PAYER', 'SLA', 'CHANGES', 'SYSTEM',
+    ];
+    readonly auditColumns = ['DATE', 'ACTION', 'OWNER', 'ORIGIN', 'CHANGE'];
+    readonly documentColumns = ['CATEGORY', 'DOCUMENT', 'CLASSIFICATION', 'DATE', 'ORIGIN', 'REFERENCE'];
+
+    activeTimelineFilter = 'ALL';
+
     activeTab: MainTabId = 'summary';
     activeSubTab: SubTabId = 'score';
 

@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component, ElementRef, Input, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CASE_DETAIL_DATA } from './case-detail-data.provider';
+import { CaseDetail, CaseDocument, ScoreSummary } from './case-detail.model';
+import { CaseDocumentViewerComponent } from './case-document-viewer.component';
 import { summarizeCase } from './case-score';
 
 type MainTabId = 'summary' | 'requests' | 'tasks' | 'documents' | 'returns' | 'guidelines' | 'timeline' | 'audit';
@@ -23,16 +25,27 @@ const I18N = 'MEDICAL_RECORDS.CASE_DETAIL';
 @Component({
     selector: 'medical-records-case-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, TranslateModule],
+    imports: [CommonModule, RouterModule, TranslateModule, CaseDocumentViewerComponent],
     templateUrl: './case-detail.component.html',
     styleUrls: ['./case-detail.component.scss'],
 })
 export class CaseDetailComponent {
     private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    readonly detail = inject(CASE_DETAIL_DATA).getCase();
-    readonly score = summarizeCase(this.detail);
-    readonly request = this.detail.linkedRequests[0];
+    private readonly provider = inject(CASE_DETAIL_DATA);
+
+    detail: CaseDetail = this.provider.getCase();
+    score: ScoreSummary = summarizeCase(this.detail);
+    request: CaseDetail['linkedRequests'][number] | undefined = this.detail.linkedRequests[0];
+
+    /** Case data pushed by a host (e.g. the form widget). Falls back to the default provider. */
+    @Input() set data(value: CaseDetail | null | undefined) {
+        this.detail = value ?? this.provider.getCase();
+        this.score = summarizeCase(this.detail);
+        this.request = this.detail.linkedRequests[0];
+    }
+
+    viewingDocument: CaseDocument | null = null;
 
     readonly steps = [
         { key: 'OPERATIONS', icon: 'inbox' },
@@ -66,7 +79,7 @@ export class CaseDetailComponent {
         'ALL', 'REQUESTS', 'TASKS', 'PENDING', 'DOCUMENTS', 'RECORD', 'ANALYSES', 'GUIDELINES', 'PAYER', 'SLA', 'CHANGES', 'SYSTEM',
     ];
     readonly auditColumns = ['DATE', 'ACTION', 'OWNER', 'ORIGIN', 'CHANGE'];
-    readonly documentColumns = ['CATEGORY', 'DOCUMENT', 'CLASSIFICATION', 'DATE', 'ORIGIN', 'REFERENCE'];
+    readonly documentColumns = ['CATEGORY', 'DOCUMENT', 'CLASSIFICATION', 'DATE', 'ORIGIN', 'REFERENCE', 'ACTIONS'];
 
     activeTimelineFilter = 'ALL';
 
@@ -74,6 +87,16 @@ export class CaseDetailComponent {
     activeSubTab: SubTabId = 'score';
 
     readonly i18n = I18N;
+
+    openDocument(doc: CaseDocument): void {
+        if (doc.nodeId) {
+            this.viewingDocument = doc;
+        }
+    }
+
+    closeDocument(): void {
+        this.viewingDocument = null;
+    }
 
     selectTab(id: MainTabId): void {
         this.activeTab = id;

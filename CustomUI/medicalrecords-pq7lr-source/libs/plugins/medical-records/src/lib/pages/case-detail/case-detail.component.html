@@ -293,8 +293,14 @@
     </article>
 </ng-template>
 
+@if (viewingDocument) {
+    <medical-records-case-document-viewer [document]="viewingDocument" (closed)="closeDocument()"></medical-records-case-document-viewer>
+}
+
 <ng-template #documentsTpl>
-    <p class="panel__lead">{{ i18n + '.DOCS.NOTICE' | translate }}</p>
+    @if (detail.documentsNoticeKey) {
+        <p class="panel__lead">{{ detail.documentsNoticeKey | translate }}</p>
+    }
     <div class="table-wrap">
         <table class="table">
             <caption class="sr-only">{{ i18n + '.TABS.DOCUMENTS' | translate }}</caption>
@@ -316,11 +322,25 @@
                         <td>{{ doc.date ? (doc.date | date: 'dd/MM/yyyy') : '—' }}</td>
                         <td>{{ doc.originKey | translate }}</td>
                         <td>{{ doc.referenceKey | translate }}</td>
+                        <td>
+                            <button
+                                type="button"
+                                class="btn btn--small"
+                                [attr.aria-disabled]="doc.nodeId ? null : true"
+                                [title]="doc.nodeId ? '' : (i18n + '.DOCS.VIEW_UNAVAILABLE' | translate)"
+                                (click)="openDocument(doc)"
+                            >
+                                <span class="material-icons" aria-hidden="true">visibility</span>{{ i18n + '.DOCS.VIEW' | translate }}
+                            </button>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+    @if (!detail.documents.length) {
+        <p class="placeholder">{{ i18n + '.DOCS.EMPTY' | translate }}</p>
+    }
 </ng-template>
 
 <ng-template #auditTpl>
@@ -335,7 +355,7 @@
     </header>
     <div class="searchbar searchbar--left">
         <select [attr.aria-label]="i18n + '.AUDIT.REQUEST_FILTER' | translate">
-            <option>{{ request.code }}</option>
+            <option>{{ request?.code }}</option>
         </select>
         <input type="search" [attr.aria-label]="i18n + '.AUDIT.USER_FILTER' | translate" [placeholder]="i18n + '.AUDIT.USER_FILTER' | translate" />
     </div>

@@ -39,6 +39,7 @@ export class MockCaseDetailDataProvider implements CaseDetailDataProvider {
             ],
             pendingComplements: 8,
             openDivergences: 1,
+            documentsNoticeKey: k('DOCS_NOTICE'),
             documents: [
                 {
                     categoryKey: k('DOC1_CAT'),

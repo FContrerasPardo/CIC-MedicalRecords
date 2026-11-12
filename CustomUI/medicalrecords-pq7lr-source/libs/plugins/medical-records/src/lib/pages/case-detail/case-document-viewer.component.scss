@@ -1,0 +1,91 @@
+.viewer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(11, 28, 48, 0.55);
+}
+
+.viewer {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: min(1100px, 100%);
+    height: min(88vh, 900px);
+    border-radius: 16px;
+    background: var(--mr-surface, #fff);
+    color: var(--mr-on-surface, #0b1c30);
+    overflow: hidden;
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
+
+        h2 {
+            margin: 2px 0;
+            color: var(--mr-heading, #001b3d);
+            font-size: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        p {
+            margin: 0;
+            color: var(--mr-muted, #667085);
+            font-size: 12px;
+        }
+    }
+
+    &__eyebrow {
+        color: var(--mr-muted, #667085);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    &__close {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
+        border-radius: 8px;
+        background: var(--mr-surface, #fff);
+        color: inherit;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 3px solid var(--mr-primary-container, #005eb8);
+            outline-offset: 2px;
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    &__state {
+        margin: 0;
+        padding: 24px;
+        color: var(--mr-on-surface-variant, #424752);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    &__pdf,
+    &__generic {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+}

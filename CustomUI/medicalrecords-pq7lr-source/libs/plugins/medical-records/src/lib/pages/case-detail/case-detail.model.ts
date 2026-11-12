@@ -74,7 +74,7 @@ export interface LinkedRequest {
 export type DocumentClassification = 'attached' | 'form' | 'missing' | 'transcribed';
 
 export interface CaseDocument {
-    /** i18n keys for category, classification label, origin and reference; names are literal synthetic data. */
+    /** Text fields hold an i18n key (demo) or literal text (batchState); the translate pipe passes literals through. */
     categoryKey: string;
     /** Literal file name, or an i18n key for a label (missing or transcribed items). */
     name?: string;
@@ -85,6 +85,9 @@ export interface CaseDocument {
     date: string | null;
     originKey: string;
     referenceKey: string;
+    /** Repository node id from batchState content references; `null`/absent means it cannot be previewed. */
+    nodeId?: string | null;
+    mimeType?: string | null;
 }
 
 export interface CaseEvent {
@@ -107,6 +110,8 @@ export interface CaseDetail {
     pendingComplements: number;
     openDivergences: number;
     documents: CaseDocument[];
+    /** i18n key of a note shown above the documents table (demo data only). */
+    documentsNoticeKey?: string;
     /** Empty in the demo. */
     timelineEvents: CaseEvent[];
     auditRecords: CaseEvent[];

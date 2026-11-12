@@ -1,19 +1,30 @@
-<article class="patient-row" [class.patient-row--selected]="selected" [attr.data-tone]="item.tone" (click)="open()">
-    @if (selectable) {
-        <label class="patient-row__select" (click)="$event.stopPropagation()">
-            <input type="checkbox" [checked]="selected" (change)="toggle($event)" />
-        </label>
-    }
-
+<article class="patient-row" [attr.data-tone]="group.primary.tone" (click)="open()">
     <div class="patient-row__main">
         <button type="button" class="patient-row__open" (click)="open(undefined, $event)" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.OPEN_CASE' | translate: { name: patientName }">
             <strong>{{ patientName }}</strong>
         </button>
-        <span class="chip">{{ (item.taskStatus === 'ASSIGNED' ? 'MEDICAL_RECORDS.TASK_STATUS.ASSIGNED' : 'MEDICAL_RECORDS.TASK_STATUS.CREATED') | translate }}</span>
-        @if (reviewRequired) {
+                @if (reviewRequired) {
             <span class="chip chip--warn">{{ 'MEDICAL_RECORDS.TASK_STATUS.REVIEW' | translate }}</span>
         }
-        <p class="patient-row__line">{{ item.subtitle }}</p>
+        <p class="patient-row__line">{{ group.primary.subtitle }}</p>
+
+        <ul class="patient-row__tasks" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.TASKS_ARIA' | translate">
+            @for (task of group.items; track task.id) {
+                <li class="task">
+                    @if (selectable) {
+                        <input
+                            type="checkbox"
+                            [checked]="selectedIds.has(task.id)"
+                            [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.TASK_SELECT' | translate: { name: (taskTypeKey(task) | translate) }"
+                            (click)="toggleTask(task, $event)"
+                        />
+                    }
+                    <button type="button" class="task__open" (click)="openNativeTask(task, $event)">
+                        {{ taskTypeKey(task) | translate }} · {{ (task.taskStatus === 'ASSIGNED' ? 'MEDICAL_RECORDS.TASK_STATUS.ASSIGNED' : 'MEDICAL_RECORDS.TASK_STATUS.CREATED') | translate }}
+                    </button>
+                </li>
+            }
+        </ul>
 
         <ul class="patient-row__map" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.VALIDATIONS_ARIA' | translate">
             @for (step of steps; track step.key) {

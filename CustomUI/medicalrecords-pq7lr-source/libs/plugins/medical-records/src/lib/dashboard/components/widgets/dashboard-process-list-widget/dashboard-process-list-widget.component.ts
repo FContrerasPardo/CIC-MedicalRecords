@@ -24,6 +24,7 @@ import { resolveAttentionItemUrl } from '../../../utils/process-attention-naviga
 import { DashboardWidgetTextPipe } from '../../../pipes/dashboard-widget-text.pipe';
 import { PatientCaseRowComponent } from '../../../../pages/case-detail/patient-case-row/patient-case-row.component';
 import { CASE_ROUTE_COMMANDS, CaseTabTarget, buildCaseQueryParams } from '../../../../pages/case-detail/utils/case-navigation.util';
+import { ListEntry, buildListEntries } from '../../../../pages/case-detail/utils/case-grouping.util';
 import { isPatientCaseTask } from '../../../../pages/case-detail/utils/case-validation-map.util';
 
 @Component({
@@ -94,6 +95,15 @@ export class DashboardProcessListWidgetComponent implements OnInit {
     /** Patient tasks render as a patient row and open the case detail; other tasks keep the native link. */
     isPatientCase(item: ProcessAttentionItem): boolean {
         return isPatientCaseTask(item.taskType);
+    }
+
+    /** One entry per patient case (its tasks grouped); non-patient tasks stay individual. */
+    listEntries(items: ProcessAttentionItem[]): ListEntry[] {
+        return buildListEntries(this.trackVisibleItems(this.filterItems(items)));
+    }
+
+    trackEntry(_index: number, entry: ListEntry): string {
+        return entry.key;
     }
 
     openCase(item: ProcessAttentionItem, target?: CaseTabTarget): void {

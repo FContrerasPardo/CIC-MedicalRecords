@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { extractBatchContext } from '../../../dashboard/mappers/attention-batch-context';
 import { ProcessAttentionItem } from '../../../dashboard/definitions/process-attention.model';
+import { PatientCaseGroup } from '../utils/case-grouping.util';
 import { CaseTabTarget } from '../utils/case-navigation.util';
 import { countByState, deriveValidationMap, ValidationStep } from '../utils/case-validation-map.util';
 
@@ -27,28 +28,30 @@ const STEP_LABEL_KEYS: Record<ValidationStep['key'], string> = {
     styleUrls: ['./patient-case-row.component.scss'],
 })
 export class PatientCaseRowComponent {
-    @Input({ required: true }) set item(value: ProcessAttentionItem) {
-        this._item = value;
-        const context = extractBatchContext(value.processVariables['batchState']);
-        this.patientName = context.patientName ?? value.title;
-        this.reviewRequired = context.reviewRequired;
-        this.steps = deriveValidationMap({ taskType: value.taskType, variables: value.processVariables });
+    @Input({ required: true }) set group(value: PatientCaseGroup) {
+        this._group = value;
+        const primary = value.primary;
+        const context = extractBatchContext(primary.processVariables['batchState']);
+        this.patientName = context.patientName ?? primary.title;
+        this.reviewRequired = value.items.some((task) => extractBatchContext(task.processVariables['batchState']).reviewRequired);
+        this.steps = deriveValidationMap({ taskType: value.stage, variables: primary.processVariables });
         this.counts = countByState(this.steps);
     }
-    get item(): ProcessAttentionItem {
-        return this._item;
+    get group(): PatientCaseGroup {
+        return this._group;
     }
     @Input() selectable = false;
-    @Input() selected = false;
+    @Input() selectedIds: ReadonlySet<string> = new Set();
     @Output() openCase = new EventEmitter<CaseTabTarget | undefined>();
-    @Output() selectionToggle = new EventEmitter<Event>();
+    @Output() openTask = new EventEmitter<ProcessAttentionItem>();
+    @Output() taskToggle = new EventEmitter<{ item: ProcessAttentionItem; event: Event }>();
 
     patientName = '';
     reviewRequired = false;
     steps: ValidationStep[] = [];
     counts = { executed: 0, pending: 0, blocking: 0 };
 
-    private _item!: ProcessAttentionItem;
+    private _group!: PatientCaseGroup;
 
     stepLabelKey(step: ValidationStep): string {
         return STEP_LABEL_KEYS[step.key];
@@ -59,8 +62,22 @@ export class PatientCaseRowComponent {
         this.openCase.emit(target);
     }
 
-    toggle(event: Event): void {
+    toggleTask(item: ProcessAttentionItem, event: Event): void {
         event.stopPropagation();
-        this.selectionToggle.emit(event);
+        this.taskToggle.emit({ item, event });
+    }
+
+    openNativeTask(item: ProcessAttentionItem, event: Event): void {
+        event.stopPropagation();
+        this.openTask.emit(item);
+    }
+
+    taskTypeKey(item: ProcessAttentionItem): string {
+        const keys: Record<string, string> = {
+            intake: 'MEDICAL_RECORDS.TASK_TYPES.INTAKE',
+            validateRules: 'MEDICAL_RECORDS.TASK_TYPES.VALIDATE_RULES',
+            analysis: 'MEDICAL_RECORDS.TASK_TYPES.ANALYSIS',
+        };
+        return keys[item.taskType] ?? 'MEDICAL_RECORDS.TASK_TYPES.UNKNOWN';
     }
 }

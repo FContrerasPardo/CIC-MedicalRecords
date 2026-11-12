@@ -70,7 +70,7 @@
     >
         <section
             class="section-block dashboard-container"
-            *ngFor="let container of page.containers; trackBy: trackByContainerId"
+            *ngFor="let container of page.containers; trackBy: trackByContainerId; let isFirstContainer = first"
             cdkDrag
             [cdkDragDisabled]="!editMode"
             [cdkDragData]="container"
@@ -142,6 +142,13 @@
             [pageActive]="isPageActive(page.id)"
             (widgetSelect)="selectWidget($event)"
         ></medical-records-dashboard-kpi-strip>
+
+        <div
+            class="operations-after-kpi"
+            *ngIf="afterKpiTemplate && operationsMode && !editMode && isFirstContainer && container.layoutMode === 'kpi-strip' && !container.collapsed"
+        >
+            <ng-container *ngTemplateOutlet="afterKpiTemplate"></ng-container>
+        </div>
 
         <div
             *ngIf="container.layoutMode !== 'kpi-strip' && !container.collapsed"

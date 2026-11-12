@@ -7,7 +7,18 @@
             "EYEBROW": "Cuentas médicas",
             "TITLE": "Centro de Operaciones",
             "SUBTITLE": "Inicia una cuenta médica, sigue su procesamiento y continúa desde cada tarea activa.",
-            "INDICATORS": "Indicadores operativos"
+            "INDICATORS": "Indicadores operativos",
+            "DISTRIBUTION": {
+                "TITLE": "Distribución y supervisión",
+                "SUBTITLE": "Tareas abiertas por estado y tipo",
+                "OPEN": "Abiertas",
+                "UNASSIGNED": "Sin asignar",
+                "ASSIGNED": "Asignadas",
+                "CRITICAL": "Críticas",
+                "INTAKE": "Recepción",
+                "RULES": "Revisión de reglas",
+                "ANALYSIS": "Análisis"
+            }
         },
         "BRAND": "Tablero",
         "EXPERIENCE": {

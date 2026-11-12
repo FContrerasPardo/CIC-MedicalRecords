@@ -1,7 +1,6 @@
 <section class="operations-home" aria-labelledby="operations-home-title">
     <header class="operations-home__header">
         <div class="operations-home__intro">
-            <span class="operations-home__eyebrow">{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.EYEBROW' | translate }}</span>
             <h1 id="operations-home-title">{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.TITLE' | translate }}</h1>
             <p>{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.SUBTITLE' | translate }}</p>
         </div>
@@ -20,5 +19,9 @@
         </div>
     </header>
 
-    <medical-records-dashboard-overview [operationsMode]="true"></medical-records-dashboard-overview>
+    <ng-template #afterKpi>
+        <medical-records-operations-distribution-band></medical-records-operations-distribution-band>
+    </ng-template>
+
+    <medical-records-dashboard-overview [operationsMode]="true" [afterKpiTemplate]="afterKpi"></medical-records-dashboard-overview>
 </section>

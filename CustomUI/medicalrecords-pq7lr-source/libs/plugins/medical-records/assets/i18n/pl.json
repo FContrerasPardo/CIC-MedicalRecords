@@ -7,7 +7,18 @@
             "EYEBROW": "[TODO] Medical accounts",
             "TITLE": "[TODO] Operations Center",
             "SUBTITLE": "[TODO] Start a medical account, follow its processing and continue from each active task.",
-            "INDICATORS": "[TODO] Operational indicators"
+            "INDICATORS": "[TODO] Operational indicators",
+            "DISTRIBUTION": {
+                "TITLE": "[TODO] Distribution and oversight",
+                "SUBTITLE": "[TODO] Open tasks by status and type",
+                "OPEN": "[TODO] Open",
+                "UNASSIGNED": "[TODO] Unassigned",
+                "ASSIGNED": "[TODO] Assigned",
+                "CRITICAL": "[TODO] Critical",
+                "INTAKE": "[TODO] Intake",
+                "RULES": "[TODO] Rules review",
+                "ANALYSIS": "[TODO] Analysis"
+            }
         },
         "BRAND": "Hyland Konta Medyczne",
         "NAV": {

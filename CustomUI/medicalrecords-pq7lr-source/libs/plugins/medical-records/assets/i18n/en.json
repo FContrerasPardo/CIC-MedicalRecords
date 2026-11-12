@@ -7,7 +7,18 @@
             "EYEBROW": "Medical accounts",
             "TITLE": "Operations Center",
             "SUBTITLE": "Start a medical account, follow its processing and continue from each active task.",
-            "INDICATORS": "Operational indicators"
+            "INDICATORS": "Operational indicators",
+            "DISTRIBUTION": {
+                "TITLE": "Distribution and oversight",
+                "SUBTITLE": "Open tasks by status and type",
+                "OPEN": "Open",
+                "UNASSIGNED": "Unassigned",
+                "ASSIGNED": "Assigned",
+                "CRITICAL": "Critical",
+                "INTAKE": "Intake",
+                "RULES": "Rules review",
+                "ANALYSIS": "Analysis"
+            }
         },
         "BRAND": "Dashboard",
         "EXPERIENCE": {

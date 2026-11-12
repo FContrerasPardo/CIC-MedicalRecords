@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -80,6 +80,8 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     @Input({ required: true }) widgets: Record<DashboardWidgetId, DashboardWidgetConfig> = {};
     @Input() activePageId = '';
     @Input() operationsMode = false;
+    /** Rendered under the first KPI strip in operations mode (not in the editor). */
+    @Input() afterKpiTemplate: TemplateRef<unknown> | null = null;
     @Input() theme?: DashboardThemeConfig;
     @Input() layoutSourceDocumentId?: string | null;
     @Input() editMode = false;

@@ -7,7 +7,18 @@
             "EYEBROW": "Contas médicas",
             "TITLE": "Centro de Operações",
             "SUBTITLE": "Inicie uma conta médica, acompanhe seu processamento e continue a partir de cada tarefa ativa.",
-            "INDICATORS": "Indicadores operacionais"
+            "INDICATORS": "Indicadores operacionais",
+            "DISTRIBUTION": {
+                "TITLE": "Distribuição e supervisão",
+                "SUBTITLE": "Tarefas abertas por status e tipo",
+                "OPEN": "Abertas",
+                "UNASSIGNED": "Não atribuídas",
+                "ASSIGNED": "Atribuídas",
+                "CRITICAL": "Críticas",
+                "INTAKE": "Recepção",
+                "RULES": "Revisão de regras",
+                "ANALYSIS": "Análise"
+            }
         },
         "BRAND": "Hyland Contas Medicas",
         "NAV": {

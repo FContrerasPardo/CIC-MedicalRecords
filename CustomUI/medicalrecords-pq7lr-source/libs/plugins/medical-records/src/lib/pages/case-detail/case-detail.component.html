@@ -1,0 +1,206 @@
+<section class="case-detail" aria-labelledby="case-detail-title">
+    <header class="case-detail__header">
+        <div class="case-detail__heading">
+            <h1 id="case-detail-title">{{ i18n + '.TITLE' | translate: { code: detail.code, patient: detail.patientName } }}</h1>
+            <p>
+                {{ detail.diagnosisKey | translate }} · {{ i18n + '.LINKED_REQUESTS' | translate: { count: detail.linkedRequests.length } }}
+            </p>
+        </div>
+        <div class="case-detail__actions">
+            <a class="btn" routerLink="/medical-records">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>{{ i18n + '.ACTIONS.BACK' | translate }}
+            </a>
+            <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                <span class="material-icons" aria-hidden="true">report</span>{{ i18n + '.ACTIONS.REGISTER_RETURN' | translate }}
+            </button>
+            <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                <span class="material-icons" aria-hidden="true">description</span>{{ i18n + '.ACTIONS.MEDICAL_REPORT' | translate }}
+            </button>
+            <button type="button" class="btn" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                <span class="material-icons" aria-hidden="true">task_alt</span>{{ i18n + '.ACTIONS.CONSOLIDATION' | translate }}
+            </button>
+            <button type="button" class="btn btn--primary" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                {{ i18n + '.ACTIONS.NEXT' | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+            </button>
+        </div>
+    </header>
+
+    <p class="case-detail__demo" role="note">
+        <span class="chip chip--demo">{{ i18n + '.DEMO_BADGE' | translate }}</span>
+        {{ i18n + '.DEMO_NOTICE' | translate }}
+    </p>
+
+    <nav class="stepper" [attr.aria-label]="i18n + '.STEPPER_ARIA' | translate">
+        <ol>
+            @for (step of steps; track step.key) {
+                <li [class.stepper__step--current]="step.current" [attr.aria-current]="step.current ? 'step' : null" class="stepper__step">
+                    <span class="material-icons" aria-hidden="true">{{ step.icon }}</span>{{ step.labelKey | translate }}
+                </li>
+            }
+        </ol>
+        <code class="stepper__code">{{ detail.code }}</code>
+    </nav>
+
+    <section class="summary-card" aria-labelledby="summary-card-title">
+        <div class="summary-card__top">
+            <div>
+                <span class="eyebrow">{{ i18n + '.CASE_LABEL' | translate }} <code>{{ detail.code }}</code></span>
+                <h2 id="summary-card-title">{{ detail.patientName }}</h2>
+                <p>{{ detail.diagnosisKey | translate }}</p>
+            </div>
+            <div class="summary-card__chips">
+                <span class="chip chip--warn">{{ detail.statusKey | translate }}</span>
+                <span class="chip">{{ i18n + '.LINKED_REQUEST' | translate: { count: detail.linkedRequests.length } }}</span>
+            </div>
+        </div>
+        @if (request) {
+            <div class="viewing" role="group" [attr.aria-label]="i18n + '.VIEWING_REQUEST' | translate">
+                <span>{{ i18n + '.VIEWING_REQUEST' | translate }}:</span>
+                <code>{{ request.code }}</code>
+                <span>{{ request.typeKey | translate }}</span>
+                <span class="chip chip--neutral">{{ request.statusKey | translate }}</span>
+                <span class="viewing__meta">
+                    {{ i18n + '.OWNER' | translate }}: {{ request.owner }} ·
+                    {{ request.sla ?? (i18n + '.SLA_NOT_PROVIDED' | translate) }}
+                </span>
+                <button type="button" class="btn btn--text" aria-disabled="true" [title]="i18n + '.ACTIONS.READ_ONLY' | translate">
+                    <span class="material-icons" aria-hidden="true">sync</span>{{ i18n + '.CHANGE_REQUEST' | translate }}
+                </button>
+            </div>
+        }
+    </section>
+
+    <div class="tabs" role="tablist" [attr.aria-label]="i18n + '.TABS_ARIA' | translate" (keydown)="onTabKeydown($event)">
+        @for (tab of tabs; track tab.id) {
+            <button
+                type="button"
+                role="tab"
+                class="tabs__tab"
+                [id]="'case-tab-' + tab.id"
+                [attr.aria-selected]="activeTab === tab.id"
+                [attr.aria-controls]="'case-tabpanel-' + tab.id"
+                [attr.tabindex]="activeTab === tab.id ? 0 : -1"
+                (click)="selectTab(tab.id)"
+            >
+                <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>{{ tab.labelKey | translate }}
+            </button>
+        }
+    </div>
+
+    @for (tab of tabs; track tab.id) {
+        <section
+            class="panel"
+            role="tabpanel"
+            [id]="'case-tabpanel-' + tab.id"
+            [attr.aria-labelledby]="'case-tab-' + tab.id"
+            [hidden]="activeTab !== tab.id"
+            tabindex="0"
+        >
+            @if (tab.id === 'summary') {
+                <header class="panel__header">
+                    <h2>{{ detail.patientName }}</h2>
+                    <p>
+                        {{ i18n + '.COMPLEMENTS' | translate: { count: detail.pendingComplements } }} ·
+                        {{ i18n + '.DIVERGENCES' | translate: { count: detail.openDivergences } }} ·
+                        {{ i18n + '.SCORE.CURRENT' | translate }}: {{ score.total }}/{{ score.ceiling }} ·
+                        {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
+                    </p>
+                </header>
+
+                <div class="subtabs" role="tablist" [attr.aria-label]="i18n + '.SUBTABS_ARIA' | translate" (keydown)="onSubTabKeydown($event)">
+                    @for (sub of subTabs; track sub.id) {
+                        <button
+                            type="button"
+                            role="tab"
+                            class="subtabs__tab"
+                            [id]="'case-subtab-' + sub.id"
+                            [attr.aria-selected]="activeSubTab === sub.id"
+                            [attr.aria-controls]="'case-subtabpanel-' + sub.id"
+                            [attr.tabindex]="activeSubTab === sub.id ? 0 : -1"
+                            (click)="selectSubTab(sub.id)"
+                        >
+                            {{ sub.labelKey | translate }}
+                        </button>
+                    }
+                </div>
+
+                @for (sub of subTabs; track sub.id) {
+                    <div
+                        class="subpanel"
+                        role="tabpanel"
+                        [id]="'case-subtabpanel-' + sub.id"
+                        [attr.aria-labelledby]="'case-subtab-' + sub.id"
+                        [hidden]="activeSubTab !== sub.id"
+                        tabindex="0"
+                    >
+                        @if (sub.id === 'score') {
+                            <article class="score" [attr.aria-label]="i18n + '.SCORE.CURRENT' | translate">
+                                <h3>
+                                    {{ i18n + '.SCORE.CURRENT' | translate }}
+                                    <small>
+                                        {{
+                                            i18n + '.SCORE.PROFILE'
+                                                | translate
+                                                    : {
+                                                          profile: detail.profile.profileId,
+                                                          engine: detail.profile.engineVersion,
+                                                          ceiling: score.ceiling,
+                                                          cutoff: score.cutoff
+                                                      }
+                                        }}
+                                    </small>
+                                </h3>
+                                <p class="score__result" [class.score__result--apt]="score.apt">
+                                    {{ score.total }}/{{ score.ceiling }} ·
+                                    {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
+                                </p>
+
+                                <ul class="criteria">
+                                    @for (criterion of score.criteria; track criterion.id) {
+                                        <li class="criterion">
+                                            <p class="criterion__title">
+                                                <strong>{{ criterion.id }} · {{ criterion.titleKey | translate }}
+                                                    @if (criterion.blocking) { ({{ i18n + '.SCORE.BLOCKING' | translate }}) }</strong>:
+                                                {{ criterion.points }}/{{ criterion.max }} —
+                                                <span class="status" [class.status--met]="criterion.met" [class.status--unmet]="!criterion.met">
+                                                    <span class="material-icons" aria-hidden="true">{{ criterion.met ? 'check_circle' : 'cancel' }}</span>
+                                                    {{ (criterion.met ? i18n + '.SCORE.MET' : i18n + '.SCORE.NOT_MET') | translate }}
+                                                </span>
+                                            </p>
+                                            <p class="criterion__text">{{ criterion.explanationKey | translate }}</p>
+                                            @if (criterion.subItems) {
+                                                <ul class="criterion__sub">
+                                                    @for (item of criterion.subItems; track item.labelKey) {
+                                                        <li>
+                                                            {{ item.labelKey | translate }}: {{ item.points }}/{{ item.max }}
+                                                            @if (item.noteKey) { — {{ item.noteKey | translate }} }
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+
+                                <p class="score__total">
+                                    {{ i18n + '.SCORE.TOTAL' | translate: { total: score.total, ceiling: score.ceiling } }} ·
+                                    {{ i18n + '.SCORE.FITNESS' | translate }}:
+                                    {{ (score.apt ? i18n + '.SCORE.APT' : i18n + '.SCORE.NOT_APT') | translate }}
+                                </p>
+                                <p class="score__pending">
+                                    {{ i18n + '.SCORE.CRITICAL_PENDING' | translate }}:
+                                    @if (score.criticalPending.length) { {{ score.criticalPending.join(' · ') }} } @else { {{ i18n + '.SCORE.NONE' | translate }} }
+                                </p>
+                                <p class="score__disclaimer">{{ i18n + '.SCORE.DISCLAIMER' | translate }}</p>
+                            </article>
+                        } @else {
+                            <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+                        }
+                    </div>
+                }
+            } @else {
+                <p class="placeholder">{{ i18n + '.PLACEHOLDER' | translate }}</p>
+            }
+        </section>
+    }
+</section>

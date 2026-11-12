@@ -1,4 +1,4 @@
-<section class="dashboard-kpi-strip" aria-label="Key performance indicators">
+<section class="dashboard-kpi-strip" [class.dashboard-kpi-strip--fluid]="fluid" [attr.aria-label]="'MEDICAL_RECORDS.OPERATIONS_HOME.INDICATORS' | translate">
     <article
         class="dashboard-kpi-strip__item"
         *ngFor="let widgetId of widgetIds; trackBy: trackByWidgetId"

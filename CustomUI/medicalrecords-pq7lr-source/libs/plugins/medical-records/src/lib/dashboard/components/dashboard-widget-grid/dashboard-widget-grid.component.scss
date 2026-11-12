@@ -9,6 +9,75 @@
     font-family: Manrope, 'Segoe UI', sans-serif;
 }
 
+:host(.operations-mode-host) {
+    gap: 12px;
+
+    // Compact stat cards (reference: Centro de Operações). The widgets read
+    // these tokens, so no widget-level overrides are needed.
+    --kpi-stat-card-padding: 10px 14px;
+    --kpi-stat-card-radius: 10px;
+    --kpi-stat-value-size: 26px;
+    --kpi-stat-label-size: 10px;
+
+    .dashboard-tabs-bar {
+        margin-bottom: 0;
+    }
+
+    .operations-after-kpi {
+        margin-top: 12px;
+    }
+
+    .dashboard-container {
+        padding: clamp(12px, 1.2vw, 16px);
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .dashboard-container--kpi {
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .dashboard-containers-drop {
+        gap: 12px;
+    }
+
+    .section-heading {
+        margin-bottom: 8px;
+    }
+
+    .section-heading p {
+        margin: 2px 0 0;
+        font-size: 12px;
+    }
+
+    .container-grid {
+        gap: 12px;
+    }
+
+    .container-grid--12 {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+        align-items: start;
+    }
+
+    .container-grid--4 {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+        align-items: start;
+    }
+
+    .container-grid--list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .section-heading h2 {
+        font-size: 17px;
+        letter-spacing: -0.02em;
+    }
+}
+
 :host(.edit-mode-host) .container-grid--12 {
     grid-template-columns: repeat(12, minmax(0, 1fr));
 }

@@ -14,6 +14,28 @@
     min-width: 0;
 }
 
+.dashboard-kpi-strip.dashboard-kpi-strip--fluid {
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+}
+
+// Accent bar on the leading edge, as in the Centro de Operações reference.
+.dashboard-kpi-strip--fluid .dashboard-kpi-strip__item {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--dash-accent, var(--mr-primary, #00478d));
+        pointer-events: none;
+    }
+}
+
 .dashboard-kpi-strip__item.edit-mode {
     cursor: pointer;
 }

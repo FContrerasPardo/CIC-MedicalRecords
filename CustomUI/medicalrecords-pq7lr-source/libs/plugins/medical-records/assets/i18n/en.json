@@ -1,6 +1,25 @@
 {
     "PLUGIN_MESSAGE": "This is a plugin message",
     "MEDICAL_RECORDS": {
+        "OPERATIONS_HOME": {
+            "START_ACCOUNT": "New medical account",
+            "EMPTY_LAYOUT": "No sections are configured yet. Customize the dashboard to add indicators and tasks.",
+            "EYEBROW": "Medical accounts",
+            "TITLE": "Operations Center",
+            "SUBTITLE": "Start a medical account, follow its processing and continue from each active task.",
+            "INDICATORS": "Operational indicators",
+            "DISTRIBUTION": {
+                "TITLE": "Distribution and oversight",
+                "SUBTITLE": "Open tasks by status and type",
+                "OPEN": "Open",
+                "UNASSIGNED": "Unassigned",
+                "ASSIGNED": "Assigned",
+                "CRITICAL": "Critical",
+                "INTAKE": "Intake",
+                "RULES": "Rules review",
+                "ANALYSIS": "Analysis"
+            }
+        },
         "BRAND": "Dashboard",
         "EXPERIENCE": {
             "EYEBROW": "Medical Records",

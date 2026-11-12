@@ -4,6 +4,10 @@ This repo also has an `AGENTS.md` with token-saving rules — follow those too. 
 
 Shared role protocol and skill catalog: `docs/agents/README.md` and `docs/agents/skills.md`. Client profiles reference the shared documents; no Hyland plugin installation is implied. Project Codex adapters live in `.agents/skills/`; the existing Claude i18n skill keeps its script in `.claude/skills/i18n-key-audit/`.
 
+## Main orchestrator agent (harness rule)
+
+The main Claude session is the **orchestrator**: the user's single interlocutor, owner of the plan, decisions, integration and final report. It manages sub-sessions (`start_session`, for self-contained tasks with their own branch) and subagents (`.claude/agents/hyland-*`, for bounded work whose result returns this turn), and verifies their output before reporting. Delegation never widens permissions: build, commit, push, PR, merge, publishing, history rewrites and PII handling still need the user's authorization in the turn. Full protocol: `docs/agents/README.md` → "Agente principal orquestador".
+
 ## Verification workflow
 
 **During iteration (template / SCSS / logic tweaks): do NOT run the AOT build.** It's slow and competes with the user's running dev server.

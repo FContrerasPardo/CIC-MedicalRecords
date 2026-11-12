@@ -3,18 +3,21 @@ import { join } from 'path';
 
 describe('MedicalRecordsShellComponent template', () => {
     const template = readFileSync(join(__dirname, 'medical-records-shell.component.html'), 'utf8');
+    const homeTemplate = readFileSync(join(__dirname, '..', 'operations-home', 'operations-home.component.html'), 'utf8');
     const component = readFileSync(join(__dirname, 'medical-records-shell.component.ts'), 'utf8');
     const service = readFileSync(join(__dirname, '..', '..', 'services', 'medical-record.service.ts'), 'utf8');
 
     it('renders the dashboard shell with translation-aware navigation', () => {
-        expect(template).toContain('class="page-hero"');
-        expect(template).toContain("{{ 'MEDICAL_RECORDS.EXPERIENCE.PAGE_TITLE' | translate }}");
-        expect(template).toContain("routerLink=\"/medical-records/configure\"");
-        expect(template).toContain("routerLink=\"/medical-records/agreements\"");
+        // The overview hero (title and configure/edit/start actions) moved to the operations home page.
+        expect(homeTemplate).toContain("{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.TITLE' | translate }}");
+        expect(homeTemplate).toContain('routerLink="/medical-records/configure"');
+        expect(homeTemplate).toContain('routerLink="/medical-records/agreements"');
+        expect(homeTemplate).toContain("{{ 'MEDICAL_RECORDS.DASHBOARD.EDIT_DASHBOARD' | translate }}");
+        expect(homeTemplate).toContain("{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.START_ACCOUNT' | translate }}");
+        expect(template).toContain('routerLink="/medical-records/agreements"');
         expect(template).not.toContain("{{ 'MEDICAL_RECORDS.TOP_LINKS.REPORT_CONFIG' | translate }}");
-        expect(template).toContain("{{ 'MEDICAL_RECORDS.DASHBOARD.EDIT_DASHBOARD' | translate }}");
         expect(template).toContain("{{ 'MEDICAL_RECORDS.ACTIONS.NEW_INTAKE' | translate }}");
-        expect(template).toContain('<medical-records-dashboard-overview');
+        expect(template).toContain('<medical-records-operations-home');
         expect(template).not.toContain('notifications');
         expect(template).not.toContain('EXPORT_REPORT');
         expect(template).not.toContain('attentionItems');
@@ -53,7 +56,7 @@ describe('MedicalRecordsShellComponent template', () => {
         expect(template).toContain('(click)="openStartProcess()"');
         expect(template).toContain('(click)="openProcessDetails({ id:');
         expect(template).toContain('(click)="openDocument()"');
-        expect(template).toContain('<medical-records-dashboard-overview');
+        expect(template).toContain('<medical-records-operations-home');
         expect(template).not.toContain('(processSelected)="openProcessDetails($event)"');
     });
 

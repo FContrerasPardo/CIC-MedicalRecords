@@ -1,0 +1,20 @@
+<section class="distribution" *ngIf="state$ | async as state" [attr.aria-label]="'MEDICAL_RECORDS.OPERATIONS_HOME.DISTRIBUTION.TITLE' | translate">
+    <header class="distribution__header">
+        <h2>{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.DISTRIBUTION.TITLE' | translate }}</h2>
+        <p>{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.DISTRIBUTION.SUBTITLE' | translate }}</p>
+    </header>
+
+    <p class="distribution__error" *ngIf="state.error" role="alert">{{ state.error }}</p>
+
+    <div class="distribution__cells">
+        <div
+            class="distribution__cell"
+            *ngFor="let cell of cells(state.items); trackBy: trackByKey"
+            [class.distribution__cell--critical]="cell.tone === 'critical' && cell.value > 0"
+            [class.distribution__cell--loading]="state.loading"
+        >
+            <span class="distribution__label">{{ cell.labelKey | translate }}</span>
+            <strong class="distribution__value">{{ state.loading && !state.items.length ? '–' : cell.value }}</strong>
+        </div>
+    </div>
+</section>

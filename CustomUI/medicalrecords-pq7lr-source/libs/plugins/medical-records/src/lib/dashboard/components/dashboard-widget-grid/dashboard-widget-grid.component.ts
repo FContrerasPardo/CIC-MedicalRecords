@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -54,6 +54,7 @@ import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/das
     standalone: true,
     host: {
         '[class.edit-mode-host]': 'editMode',
+        '[class.operations-mode-host]': 'operationsMode && !editMode',
     },
     imports: [
         CommonModule,
@@ -78,6 +79,9 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     @Input({ required: true }) pages: DashboardPageConfig[] = [];
     @Input({ required: true }) widgets: Record<DashboardWidgetId, DashboardWidgetConfig> = {};
     @Input() activePageId = '';
+    @Input() operationsMode = false;
+    /** Rendered under the first KPI strip in operations mode (not in the editor). */
+    @Input() afterKpiTemplate: TemplateRef<unknown> | null = null;
     @Input() theme?: DashboardThemeConfig;
     @Input() layoutSourceDocumentId?: string | null;
     @Input() editMode = false;
@@ -306,7 +310,12 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     widgetSlotStyle(widgetId: DashboardWidgetId, container: DashboardContainerConfig): Record<string, string> {
         const config = this.widgets[widgetId];
         if (!config) {
-            return { gridColumn: 'span 4' };
+            return { gridColumn: this.operationsMode && !this.editMode ? '1 / -1' : 'span 4' };
+        }
+
+        if (this.operationsMode && !this.editMode) {
+            const fullWidth = container.layoutMode === 'list' || ['table', 'process-list', 'task-recent-list'].includes(config.type);
+            return { gridColumn: fullWidth ? '1 / -1' : 'auto' };
         }
 
         const style: Record<string, string> = {};
@@ -324,6 +333,9 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     }
 
     useCanvasLayout(container: DashboardContainerConfig): boolean {
+        if (this.operationsMode && !this.editMode) {
+            return false;
+        }
         if (!layoutModeSupportsCanvas(container.layoutMode)) {
             return false;
         }

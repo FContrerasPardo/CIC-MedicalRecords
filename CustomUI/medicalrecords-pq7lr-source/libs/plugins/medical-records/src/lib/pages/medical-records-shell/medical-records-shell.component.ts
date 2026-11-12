@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { DashboardOverviewComponent } from '../../dashboard/components/dashboard-overview/dashboard-overview.component';
+import { OperationsHomeComponent } from '../operations-home/operations-home.component';
 import { ProcessAttentionItem } from '../../dashboard/definitions/process-attention.model';
 import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
@@ -44,7 +44,7 @@ interface NativeNavigationItem {
 @Component({
   selector: 'medical-records-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, DashboardOverviewComponent, DashboardBuilderShellComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, OperationsHomeComponent, DashboardBuilderShellComponent],
   templateUrl: './medical-records-shell.component.html',
   styleUrls: ['./medical-records-shell.component.scss']
 })export class MedicalRecordsShellComponent implements OnInit, OnDestroy {

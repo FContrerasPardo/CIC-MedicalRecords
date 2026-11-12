@@ -10,8 +10,6 @@
             "INDICATORS": "Indicadores operacionais"
         },
         "CASE_DETAIL": {
-            "TITLE": "Caso {{code}} — {{patient}}",
-            "LINKED_REQUESTS": "{{count}} solicitação(ões) vinculada(s)",
             "LINKED_REQUEST": "{{count}} solicitação(ões) vinculada(s)",
             "DEMO_BADGE": "Demo",
             "DEMO_NOTICE": "Dados sintéticos e visão somente leitura. A IA não decide nem recomenda cobertura; a decisão é humana.",
@@ -70,8 +68,7 @@
                 "TOTAL": "Total: {{total}}/{{ceiling}} pontos brutos",
                 "FITNESS": "Aptidão documental",
                 "CRITICAL_PENDING": "Pendências críticas",
-                "NONE": "Nenhuma",
-                "DISCLAIMER": "Dados de demonstração. O score é informativo e não substitui a revisão humana nem a decisão da operadora."
+                "NONE": "Nenhuma"
             },
             "DEMO": {
                 "DIAGNOSIS": "Mieloma múltiplo · Não informado",
@@ -97,7 +94,107 @@
                 "C6_S1": "Protocolo preferencial",
                 "C6_S2": "Regra de faturamento",
                 "C6_S3": "Condição específica",
-                "C6_S3_NOTE": "Não identificada — confirmar regra institucional aplicável. Não significa condição clinicamente não atendida."
+                "C6_S3_NOTE": "Não identificada — confirmar regra institucional aplicável. Não significa condição clinicamente não atendida.",
+                "TREATMENT": "Teclistamabe + daratumumabe (Tec-Dara) — Ciclo 1 de 6",
+                "CLASS_ATTACHED": "Laudo anexado",
+                "CLASS_FORM": "Formulário/registro do booking",
+                "CLASS_MISSING": "Documento ausente",
+                "CLASS_TRANSCRIBED": "Informação transcrita",
+                "DOC_ORIGIN_NONE": "— · Anonimização em revisão",
+                "DOC1_CAT": "Relatório médico",
+                "DOC1_ORIGIN": "Arquivo fornecido pelo usuário · Rascunho não assinado — aguardando revisão médica",
+                "DOC1_REF": "PDF final fornecido · 2 páginas",
+                "DOC2_CAT": "Matriz de análise",
+                "DOC2_ORIGIN": "Arquivo fornecido pelo usuário · Anonimização em revisão",
+                "DOC2_REF": "Abas Resultados e Resumo",
+                "DOC3_CAT": "Identificação",
+                "DOC3_NAME": "Documento de identificação",
+                "DOC3_REF": "Resultados!D2",
+                "DOC4_NAME": "Carteira do convênio",
+                "DOC5_CAT": "Exames",
+                "DOC5_NAME": "Tomografia, ressonância magnética e laboratoriais",
+                "DOC5_ORIGIN": "Planilha · Anonimização em revisão",
+                "DOC5_REF": "Resultados!F2; PDF p. 2 · Exames identificados na análise; os arquivos dos laudos não foram anexados."
+            },
+            "LINKED_FEATURE": "Abre outra funcionalidade; apenas vinculado visualmente na demonstração",
+            "REQUESTS": {
+                "TITLE": "Solicitações vinculadas ao caso",
+                "COUNT": "{{count}} registro(s), da mais recente para a mais antiga.",
+                "NEW": "Nova solicitação",
+                "VIEWING": "Em visualização",
+                "NOT_REPORTED": "Não informado",
+                "CREATED": "criada em {{date}}",
+                "F_TREATMENT": "Tratamento / procedimento",
+                "F_DOCTOR": "Médico solicitante",
+                "F_STATUS": "Status",
+                "F_SLA": "Situação do SLA",
+                "F_DOCS": "Documentos",
+                "F_SENDS": "Envios",
+                "F_PROTOCOL": "Protocolo",
+                "F_DECISION": "Decisão / devolutiva",
+                "F_PENDING": "Pendências",
+                "DOCS_ATTACHED": "{{count}} anexado(s)",
+                "NO_DECISION": "Sem decisão registrada",
+                "NO_PENDING": "Nenhuma aberta"
+            },
+            "DOCS": {
+                "NOTICE": "Disponíveis: PDF do relatório fornecido e matriz de análise. Os laudos de exames não foram anexados nesta etapa; nenhum arquivo é criado.",
+                "COL": {
+                    "CATEGORY": "Categoria",
+                    "DOCUMENT": "Documento",
+                    "CLASSIFICATION": "Classificação",
+                    "DATE": "Data",
+                    "ORIGIN": "Origem / revisão",
+                    "REFERENCE": "Referência / ressalva"
+                }
+            },
+            "RETURNS": {
+                "TITLE": "Devolutivas da operadora",
+                "COUNT": "{{count}} devolutiva(s) registrada(s) manualmente",
+                "EMPTY": "Nenhuma devolutiva registrada."
+            },
+            "GUIDELINES": {
+                "TITLE": "Comparador de Diretrizes",
+                "TEXT": "Avalie o tratamento proposto contra as bases clínicas selecionadas.",
+                "OPEN": "Abrir comparador"
+            },
+            "TIMELINE": {
+                "TITLE": "Linha do Tempo do Caso",
+                "COUNT": "{{shown}} de {{total}} eventos · cronologia operacional única",
+                "FILTERS_ARIA": "Filtrar eventos por tipo",
+                "FILTER": {
+                    "ALL": "Todos",
+                    "REQUESTS": "Solicitações",
+                    "TASKS": "Tarefas",
+                    "PENDING": "Pendências",
+                    "DOCUMENTS": "Documentos",
+                    "RECORD": "Prontuário",
+                    "ANALYSES": "Análises",
+                    "GUIDELINES": "Diretrizes",
+                    "PAYER": "Operadora",
+                    "SLA": "SLA",
+                    "CHANGES": "Alterações",
+                    "SYSTEM": "Sistema"
+                },
+                "SEARCH": "Buscar evento, tarefa, protocolo ou documento",
+                "SORT": "Ordem",
+                "NEWEST": "Mais recentes primeiro",
+                "OLDEST": "Mais antigos primeiro",
+                "EMPTY": "Nenhum evento encontrado para os filtros selecionados."
+            },
+            "AUDIT": {
+                "TITLE": "Auditoria do caso",
+                "COUNT": "{{shown}} de {{total}} registro(s) auditável(is)",
+                "GLOBAL": "Auditoria global",
+                "USER_FILTER": "Filtrar por usuário",
+                "REQUEST_FILTER": "Filtrar por solicitação",
+                "COL": {
+                    "DATE": "Data",
+                    "ACTION": "Ação",
+                    "OWNER": "Responsável",
+                    "ORIGIN": "Origem",
+                    "CHANGE": "Alteração"
+                }
             }
         },
         "BRAND": "Hyland Contas Medicas",

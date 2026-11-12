@@ -10,8 +10,6 @@
             "INDICATORS": "[TODO] Operational indicators"
         },
         "CASE_DETAIL": {
-            "TITLE": "[TODO] Case {{code}} — {{patient}}",
-            "LINKED_REQUESTS": "[TODO] {{count}} linked request(s)",
             "LINKED_REQUEST": "[TODO] {{count}} linked request(s)",
             "DEMO_BADGE": "[TODO] Demo",
             "DEMO_NOTICE": "[TODO] Synthetic data and read-only view. The AI does not decide or recommend coverage; the decision is human.",
@@ -70,8 +68,7 @@
                 "TOTAL": "[TODO] Total: {{total}}/{{ceiling}} raw points",
                 "FITNESS": "[TODO] Documentary fitness",
                 "CRITICAL_PENDING": "[TODO] Critical pending items",
-                "NONE": "[TODO] None",
-                "DISCLAIMER": "[TODO] Demonstration data. The score is informational and does not replace human review or the payer decision."
+                "NONE": "[TODO] None"
             },
             "DEMO": {
                 "DIAGNOSIS": "[TODO] Multiple myeloma · Not reported",
@@ -97,7 +94,107 @@
                 "C6_S1": "[TODO] Preferred protocol",
                 "C6_S2": "[TODO] Billing rule",
                 "C6_S3": "[TODO] Specific condition",
-                "C6_S3_NOTE": "[TODO] Not identified — confirm the applicable institutional rule. It does not mean the clinical condition is unmet."
+                "C6_S3_NOTE": "[TODO] Not identified — confirm the applicable institutional rule. It does not mean the clinical condition is unmet.",
+                "TREATMENT": "[TODO] Teclistamab + daratumumab (Tec-Dara) — Cycle 1 of 6",
+                "CLASS_ATTACHED": "[TODO] Report attached",
+                "CLASS_FORM": "[TODO] Booking form/record",
+                "CLASS_MISSING": "[TODO] Document missing",
+                "CLASS_TRANSCRIBED": "[TODO] Transcribed information",
+                "DOC_ORIGIN_NONE": "[TODO] — · Anonymization under review",
+                "DOC1_CAT": "[TODO] Medical report",
+                "DOC1_ORIGIN": "[TODO] File supplied by the user · Unsigned draft — awaiting medical review",
+                "DOC1_REF": "[TODO] Final PDF supplied · 2 pages",
+                "DOC2_CAT": "[TODO] Analysis matrix",
+                "DOC2_ORIGIN": "[TODO] File supplied by the user · Anonymization under review",
+                "DOC2_REF": "[TODO] Results and Summary tabs",
+                "DOC3_CAT": "[TODO] Identification",
+                "DOC3_NAME": "[TODO] Identification document",
+                "DOC3_REF": "[TODO] Results!D2",
+                "DOC4_NAME": "[TODO] Insurance card",
+                "DOC5_CAT": "[TODO] Exams",
+                "DOC5_NAME": "[TODO] CT, MRI and laboratory exams",
+                "DOC5_ORIGIN": "[TODO] Spreadsheet · Anonymization under review",
+                "DOC5_REF": "[TODO] Results!F2; PDF p. 2 · Exams identified in the analysis; report files were not attached."
+            },
+            "LINKED_FEATURE": "[TODO] Opens another feature; only linked visually in the demo",
+            "REQUESTS": {
+                "TITLE": "[TODO] Requests linked to the case",
+                "COUNT": "[TODO] {{count}} record(s), newest first.",
+                "NEW": "[TODO] New request",
+                "VIEWING": "[TODO] Viewing",
+                "NOT_REPORTED": "[TODO] Not reported",
+                "CREATED": "[TODO] created on {{date}}",
+                "F_TREATMENT": "[TODO] Treatment / procedure",
+                "F_DOCTOR": "[TODO] Requesting physician",
+                "F_STATUS": "[TODO] Status",
+                "F_SLA": "[TODO] SLA status",
+                "F_DOCS": "[TODO] Documents",
+                "F_SENDS": "[TODO] Submissions",
+                "F_PROTOCOL": "[TODO] Protocol",
+                "F_DECISION": "[TODO] Decision / payer return",
+                "F_PENDING": "[TODO] Pending items",
+                "DOCS_ATTACHED": "[TODO] {{count}} attached",
+                "NO_DECISION": "[TODO] No decision recorded",
+                "NO_PENDING": "[TODO] None open"
+            },
+            "DOCS": {
+                "NOTICE": "[TODO] Available: PDF of the supplied report and analysis matrix. Exam reports were not attached at this stage; no file is created.",
+                "COL": {
+                    "CATEGORY": "[TODO] Category",
+                    "DOCUMENT": "[TODO] Document",
+                    "CLASSIFICATION": "[TODO] Classification",
+                    "DATE": "[TODO] Date",
+                    "ORIGIN": "[TODO] Origin / review",
+                    "REFERENCE": "[TODO] Reference / caveat"
+                }
+            },
+            "RETURNS": {
+                "TITLE": "[TODO] Payer returns",
+                "COUNT": "[TODO] {{count}} return(s) logged manually",
+                "EMPTY": "[TODO] No return logged."
+            },
+            "GUIDELINES": {
+                "TITLE": "[TODO] Guideline comparator",
+                "TEXT": "[TODO] Assess the proposed treatment against the selected clinical bases.",
+                "OPEN": "[TODO] Open comparator"
+            },
+            "TIMELINE": {
+                "TITLE": "[TODO] Case timeline",
+                "COUNT": "[TODO] {{shown}} of {{total}} events · single operational chronology",
+                "FILTERS_ARIA": "[TODO] Filter events by type",
+                "FILTER": {
+                    "ALL": "[TODO] All",
+                    "REQUESTS": "[TODO] Requests",
+                    "TASKS": "[TODO] Tasks",
+                    "PENDING": "[TODO] Pending items",
+                    "DOCUMENTS": "[TODO] Documents",
+                    "RECORD": "[TODO] Record",
+                    "ANALYSES": "[TODO] Analyses",
+                    "GUIDELINES": "[TODO] Guidelines",
+                    "PAYER": "[TODO] Payer",
+                    "SLA": "[TODO] SLA",
+                    "CHANGES": "[TODO] Changes",
+                    "SYSTEM": "[TODO] System"
+                },
+                "SEARCH": "[TODO] Search event, task, protocol or document",
+                "SORT": "[TODO] Sort order",
+                "NEWEST": "[TODO] Newest first",
+                "OLDEST": "[TODO] Oldest first",
+                "EMPTY": "[TODO] No events found for the selected filters."
+            },
+            "AUDIT": {
+                "TITLE": "[TODO] Case audit",
+                "COUNT": "[TODO] {{shown}} of {{total}} auditable record(s)",
+                "GLOBAL": "[TODO] Global audit",
+                "USER_FILTER": "[TODO] Filter by user",
+                "REQUEST_FILTER": "[TODO] Filter by request",
+                "COL": {
+                    "DATE": "[TODO] Date",
+                    "ACTION": "[TODO] Action",
+                    "OWNER": "[TODO] Responsible",
+                    "ORIGIN": "[TODO] Origin",
+                    "CHANGE": "[TODO] Change"
+                }
             }
         },
         "BRAND": "Hyland Medizinische Konten",

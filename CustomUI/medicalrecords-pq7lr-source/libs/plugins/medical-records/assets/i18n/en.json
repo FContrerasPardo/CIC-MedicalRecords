@@ -10,8 +10,6 @@
             "INDICATORS": "Operational indicators"
         },
         "CASE_DETAIL": {
-            "TITLE": "Case {{code}} — {{patient}}",
-            "LINKED_REQUESTS": "{{count}} linked request(s)",
             "LINKED_REQUEST": "{{count}} linked request(s)",
             "DEMO_BADGE": "Demo",
             "DEMO_NOTICE": "Synthetic data and read-only view. The AI does not decide or recommend coverage; the decision is human.",
@@ -70,8 +68,7 @@
                 "TOTAL": "Total: {{total}}/{{ceiling}} raw points",
                 "FITNESS": "Documentary fitness",
                 "CRITICAL_PENDING": "Critical pending items",
-                "NONE": "None",
-                "DISCLAIMER": "Demonstration data. The score is informational and does not replace human review or the payer decision."
+                "NONE": "None"
             },
             "DEMO": {
                 "DIAGNOSIS": "Multiple myeloma · Not reported",
@@ -97,7 +94,107 @@
                 "C6_S1": "Preferred protocol",
                 "C6_S2": "Billing rule",
                 "C6_S3": "Specific condition",
-                "C6_S3_NOTE": "Not identified — confirm the applicable institutional rule. It does not mean the clinical condition is unmet."
+                "C6_S3_NOTE": "Not identified — confirm the applicable institutional rule. It does not mean the clinical condition is unmet.",
+                "TREATMENT": "Teclistamab + daratumumab (Tec-Dara) — Cycle 1 of 6",
+                "CLASS_ATTACHED": "Report attached",
+                "CLASS_FORM": "Booking form/record",
+                "CLASS_MISSING": "Document missing",
+                "CLASS_TRANSCRIBED": "Transcribed information",
+                "DOC_ORIGIN_NONE": "— · Anonymization under review",
+                "DOC1_CAT": "Medical report",
+                "DOC1_ORIGIN": "File supplied by the user · Unsigned draft — awaiting medical review",
+                "DOC1_REF": "Final PDF supplied · 2 pages",
+                "DOC2_CAT": "Analysis matrix",
+                "DOC2_ORIGIN": "File supplied by the user · Anonymization under review",
+                "DOC2_REF": "Results and Summary tabs",
+                "DOC3_CAT": "Identification",
+                "DOC3_NAME": "Identification document",
+                "DOC3_REF": "Results!D2",
+                "DOC4_NAME": "Insurance card",
+                "DOC5_CAT": "Exams",
+                "DOC5_NAME": "CT, MRI and laboratory exams",
+                "DOC5_ORIGIN": "Spreadsheet · Anonymization under review",
+                "DOC5_REF": "Results!F2; PDF p. 2 · Exams identified in the analysis; report files were not attached."
+            },
+            "LINKED_FEATURE": "Opens another feature; only linked visually in the demo",
+            "REQUESTS": {
+                "TITLE": "Requests linked to the case",
+                "COUNT": "{{count}} record(s), newest first.",
+                "NEW": "New request",
+                "VIEWING": "Viewing",
+                "NOT_REPORTED": "Not reported",
+                "CREATED": "created on {{date}}",
+                "F_TREATMENT": "Treatment / procedure",
+                "F_DOCTOR": "Requesting physician",
+                "F_STATUS": "Status",
+                "F_SLA": "SLA status",
+                "F_DOCS": "Documents",
+                "F_SENDS": "Submissions",
+                "F_PROTOCOL": "Protocol",
+                "F_DECISION": "Decision / payer return",
+                "F_PENDING": "Pending items",
+                "DOCS_ATTACHED": "{{count}} attached",
+                "NO_DECISION": "No decision recorded",
+                "NO_PENDING": "None open"
+            },
+            "DOCS": {
+                "NOTICE": "Available: PDF of the supplied report and analysis matrix. Exam reports were not attached at this stage; no file is created.",
+                "COL": {
+                    "CATEGORY": "Category",
+                    "DOCUMENT": "Document",
+                    "CLASSIFICATION": "Classification",
+                    "DATE": "Date",
+                    "ORIGIN": "Origin / review",
+                    "REFERENCE": "Reference / caveat"
+                }
+            },
+            "RETURNS": {
+                "TITLE": "Payer returns",
+                "COUNT": "{{count}} return(s) logged manually",
+                "EMPTY": "No return logged."
+            },
+            "GUIDELINES": {
+                "TITLE": "Guideline comparator",
+                "TEXT": "Assess the proposed treatment against the selected clinical bases.",
+                "OPEN": "Open comparator"
+            },
+            "TIMELINE": {
+                "TITLE": "Case timeline",
+                "COUNT": "{{shown}} of {{total}} events · single operational chronology",
+                "FILTERS_ARIA": "Filter events by type",
+                "FILTER": {
+                    "ALL": "All",
+                    "REQUESTS": "Requests",
+                    "TASKS": "Tasks",
+                    "PENDING": "Pending items",
+                    "DOCUMENTS": "Documents",
+                    "RECORD": "Record",
+                    "ANALYSES": "Analyses",
+                    "GUIDELINES": "Guidelines",
+                    "PAYER": "Payer",
+                    "SLA": "SLA",
+                    "CHANGES": "Changes",
+                    "SYSTEM": "System"
+                },
+                "SEARCH": "Search event, task, protocol or document",
+                "SORT": "Sort order",
+                "NEWEST": "Newest first",
+                "OLDEST": "Oldest first",
+                "EMPTY": "No events found for the selected filters."
+            },
+            "AUDIT": {
+                "TITLE": "Case audit",
+                "COUNT": "{{shown}} of {{total}} auditable record(s)",
+                "GLOBAL": "Global audit",
+                "USER_FILTER": "Filter by user",
+                "REQUEST_FILTER": "Filter by request",
+                "COL": {
+                    "DATE": "Date",
+                    "ACTION": "Action",
+                    "OWNER": "Responsible",
+                    "ORIGIN": "Origin",
+                    "CHANGE": "Change"
+                }
             }
         },
         "BRAND": "Dashboard",

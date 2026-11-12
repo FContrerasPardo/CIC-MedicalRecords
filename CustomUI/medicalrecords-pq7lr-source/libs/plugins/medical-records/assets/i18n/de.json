@@ -114,7 +114,8 @@
                 "DOC5_CAT": "[TODO] Exams",
                 "DOC5_NAME": "[TODO] CT, MRI and laboratory exams",
                 "DOC5_ORIGIN": "[TODO] Spreadsheet · Anonymization under review",
-                "DOC5_REF": "[TODO] Results!F2; PDF p. 2 · Exams identified in the analysis; report files were not attached."
+                "DOC5_REF": "[TODO] Results!F2; PDF p. 2 · Exams identified in the analysis; report files were not attached.",
+                "DOCS_NOTICE": "[TODO] Available: PDF of the supplied report and analysis matrix. Exam reports were not attached at this stage; no file is created."
             },
             "LINKED_FEATURE": "[TODO] Opens another feature; only linked visually in the demo",
             "REQUESTS": {
@@ -138,15 +139,18 @@
                 "NO_PENDING": "[TODO] None open"
             },
             "DOCS": {
-                "NOTICE": "[TODO] Available: PDF of the supplied report and analysis matrix. Exam reports were not attached at this stage; no file is created.",
                 "COL": {
                     "CATEGORY": "[TODO] Category",
                     "DOCUMENT": "[TODO] Document",
                     "CLASSIFICATION": "[TODO] Classification",
                     "DATE": "[TODO] Date",
                     "ORIGIN": "[TODO] Origin / review",
-                    "REFERENCE": "[TODO] Reference / caveat"
-                }
+                    "REFERENCE": "[TODO] Reference / caveat",
+                    "ACTIONS": "[TODO] Actions"
+                },
+                "VIEW": "[TODO] View",
+                "VIEW_UNAVAILABLE": "[TODO] This document has no repository file reference",
+                "EMPTY": "[TODO] No documents in the batch."
             },
             "RETURNS": {
                 "TITLE": "[TODO] Payer returns",
@@ -195,6 +199,15 @@
                     "ORIGIN": "[TODO] Origin",
                     "CHANGE": "[TODO] Change"
                 }
+            },
+            "VIEWER": {
+                "TITLE": "[TODO] Document preview",
+                "CLOSE": "[TODO] Close",
+                "LOADING": "[TODO] Loading preview…",
+                "ERROR_NO_REF": "[TODO] This document does not expose a repository reference yet.",
+                "ERROR_EMPTY": "[TODO] The repository returned an empty file.",
+                "ERROR_LOAD": "[TODO] The repository file could not be loaded.",
+                "ERROR_PDF": "[TODO] The PDF preview could not be rendered inline."
             }
         },
         "BRAND": "Hyland Medizinische Konten",

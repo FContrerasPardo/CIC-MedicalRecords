@@ -114,7 +114,8 @@
                 "DOC5_CAT": "Exámenes",
                 "DOC5_NAME": "Tomografía, resonancia magnética y laboratorio",
                 "DOC5_ORIGIN": "Planilla · Anonimización en revisión",
-                "DOC5_REF": "Resultados!F2; PDF p. 2 · Exámenes identificados en el análisis; los archivos de los informes no se adjuntaron."
+                "DOC5_REF": "Resultados!F2; PDF p. 2 · Exámenes identificados en el análisis; los archivos de los informes no se adjuntaron.",
+                "DOCS_NOTICE": "Disponibles: PDF del informe proporcionado y matriz de análisis. Los informes de exámenes no se adjuntaron en esta etapa; no se crea ningún archivo."
             },
             "LINKED_FEATURE": "Abre otra funcionalidad; solo enlazado visualmente en la demo",
             "REQUESTS": {
@@ -138,15 +139,18 @@
                 "NO_PENDING": "Ninguna abierta"
             },
             "DOCS": {
-                "NOTICE": "Disponibles: PDF del informe proporcionado y matriz de análisis. Los informes de exámenes no se adjuntaron en esta etapa; no se crea ningún archivo.",
                 "COL": {
                     "CATEGORY": "Categoría",
                     "DOCUMENT": "Documento",
                     "CLASSIFICATION": "Clasificación",
                     "DATE": "Fecha",
                     "ORIGIN": "Origen / revisión",
-                    "REFERENCE": "Referencia / salvedad"
-                }
+                    "REFERENCE": "Referencia / salvedad",
+                    "ACTIONS": "Acciones"
+                },
+                "VIEW": "Ver",
+                "VIEW_UNAVAILABLE": "Este documento no tiene referencia a un archivo del repositorio",
+                "EMPTY": "No hay documentos en el lote."
             },
             "RETURNS": {
                 "TITLE": "Devolutivas de la operadora",
@@ -195,6 +199,15 @@
                     "ORIGIN": "Origen",
                     "CHANGE": "Cambio"
                 }
+            },
+            "VIEWER": {
+                "TITLE": "Vista previa del documento",
+                "CLOSE": "Cerrar",
+                "LOADING": "Cargando vista previa…",
+                "ERROR_NO_REF": "Este documento aún no expone una referencia al repositorio.",
+                "ERROR_EMPTY": "El repositorio devolvió un archivo vacío.",
+                "ERROR_LOAD": "No se pudo cargar el archivo del repositorio.",
+                "ERROR_PDF": "No se pudo mostrar la vista previa del PDF."
             }
         },
         "BRAND": "Tablero",

@@ -114,7 +114,8 @@
                 "DOC5_CAT": "Exames",
                 "DOC5_NAME": "Tomografia, ressonância magnética e laboratoriais",
                 "DOC5_ORIGIN": "Planilha · Anonimização em revisão",
-                "DOC5_REF": "Resultados!F2; PDF p. 2 · Exames identificados na análise; os arquivos dos laudos não foram anexados."
+                "DOC5_REF": "Resultados!F2; PDF p. 2 · Exames identificados na análise; os arquivos dos laudos não foram anexados.",
+                "DOCS_NOTICE": "Disponíveis: PDF do relatório fornecido e matriz de análise. Os laudos de exames não foram anexados nesta etapa; nenhum arquivo é criado."
             },
             "LINKED_FEATURE": "Abre outra funcionalidade; apenas vinculado visualmente na demonstração",
             "REQUESTS": {
@@ -138,15 +139,18 @@
                 "NO_PENDING": "Nenhuma aberta"
             },
             "DOCS": {
-                "NOTICE": "Disponíveis: PDF do relatório fornecido e matriz de análise. Os laudos de exames não foram anexados nesta etapa; nenhum arquivo é criado.",
                 "COL": {
                     "CATEGORY": "Categoria",
                     "DOCUMENT": "Documento",
                     "CLASSIFICATION": "Classificação",
                     "DATE": "Data",
                     "ORIGIN": "Origem / revisão",
-                    "REFERENCE": "Referência / ressalva"
-                }
+                    "REFERENCE": "Referência / ressalva",
+                    "ACTIONS": "Ações"
+                },
+                "VIEW": "Ver",
+                "VIEW_UNAVAILABLE": "Este documento não tem referência a um arquivo do repositório",
+                "EMPTY": "Não há documentos no lote."
             },
             "RETURNS": {
                 "TITLE": "Devolutivas da operadora",
@@ -195,6 +199,15 @@
                     "ORIGIN": "Origem",
                     "CHANGE": "Alteração"
                 }
+            },
+            "VIEWER": {
+                "TITLE": "Pré-visualização do documento",
+                "CLOSE": "Fechar",
+                "LOADING": "Carregando pré-visualização…",
+                "ERROR_NO_REF": "Este documento ainda não expõe uma referência ao repositório.",
+                "ERROR_EMPTY": "O repositório retornou um arquivo vazio.",
+                "ERROR_LOAD": "Não foi possível carregar o arquivo do repositório.",
+                "ERROR_PDF": "Não foi possível exibir a pré-visualização do PDF."
             }
         },
         "BRAND": "Hyland Contas Medicas",

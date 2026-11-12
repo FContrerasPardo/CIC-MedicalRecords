@@ -208,6 +208,21 @@
                 "ERROR_EMPTY": "O repositório retornou um arquivo vazio.",
                 "ERROR_LOAD": "Não foi possível carregar o arquivo do repositório.",
                 "ERROR_PDF": "Não foi possível exibir a pré-visualização do PDF."
+            },
+            "LOADING_CASE": "Carregando dados do caso…",
+            "ROW": {
+                "OPEN_CASE": "Abrir o caso de {{name}}",
+                "VALIDATIONS_ARIA": "Validações executadas neste caso",
+                "STATE_EXECUTED": "executada",
+                "STATE_PENDING": "pendente",
+                "STATE_BLOCKING": "bloqueante",
+                "SOURCE_REAL": "Dado real do processo",
+                "SOURCE_INFERRED": "Inferido a partir da etapa da tarefa",
+                "SOURCE_DEMO": "Marcador de demonstração — ainda sem fonte de dados",
+                "COMPLIANCE": "Conformidade",
+                "READINESS": "Prontidão",
+                "SCORE_PENDING": "Definição pendente de validação; ainda sem dados",
+                "PENDING_COUNT": "{{count}} pendência(s)"
             }
         },
         "BRAND": "Hyland Contas Medicas",

@@ -208,6 +208,21 @@
                 "ERROR_EMPTY": "[TODO] The repository returned an empty file.",
                 "ERROR_LOAD": "[TODO] The repository file could not be loaded.",
                 "ERROR_PDF": "[TODO] The PDF preview could not be rendered inline."
+            },
+            "LOADING_CASE": "[TODO] Loading case data…",
+            "ROW": {
+                "OPEN_CASE": "[TODO] Open case of {{name}}",
+                "VALIDATIONS_ARIA": "[TODO] Validations run on this case",
+                "STATE_EXECUTED": "[TODO] executed",
+                "STATE_PENDING": "[TODO] pending",
+                "STATE_BLOCKING": "[TODO] blocking",
+                "SOURCE_REAL": "[TODO] Real data from the process",
+                "SOURCE_INFERRED": "[TODO] Inferred from the task stage",
+                "SOURCE_DEMO": "[TODO] Demo placeholder — no data source yet",
+                "COMPLIANCE": "[TODO] Compliance",
+                "READINESS": "[TODO] Readiness",
+                "SCORE_PENDING": "[TODO] Definition pending validation; no data yet",
+                "PENDING_COUNT": "[TODO] {{count}} pending"
             }
         },
         "BRAND": "Hyland Konta Medyczne",

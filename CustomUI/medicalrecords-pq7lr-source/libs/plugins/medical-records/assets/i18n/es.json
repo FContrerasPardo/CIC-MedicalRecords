@@ -208,6 +208,21 @@
                 "ERROR_EMPTY": "El repositorio devolvió un archivo vacío.",
                 "ERROR_LOAD": "No se pudo cargar el archivo del repositorio.",
                 "ERROR_PDF": "No se pudo mostrar la vista previa del PDF."
+            },
+            "LOADING_CASE": "Cargando datos del caso…",
+            "ROW": {
+                "OPEN_CASE": "Abrir el caso de {{name}}",
+                "VALIDATIONS_ARIA": "Validaciones ejecutadas en este caso",
+                "STATE_EXECUTED": "ejecutada",
+                "STATE_PENDING": "pendiente",
+                "STATE_BLOCKING": "bloqueante",
+                "SOURCE_REAL": "Dato real del proceso",
+                "SOURCE_INFERRED": "Inferido a partir de la etapa de la tarea",
+                "SOURCE_DEMO": "Marcador de demostración — aún sin fuente de datos",
+                "COMPLIANCE": "Conformidad",
+                "READINESS": "Prontitud",
+                "SCORE_PENDING": "Definición pendiente de validar; aún sin datos",
+                "PENDING_COUNT": "{{count}} pendiente(s)"
             }
         },
         "BRAND": "Tablero",

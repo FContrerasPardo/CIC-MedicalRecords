@@ -208,6 +208,21 @@
                 "ERROR_EMPTY": "The repository returned an empty file.",
                 "ERROR_LOAD": "The repository file could not be loaded.",
                 "ERROR_PDF": "The PDF preview could not be rendered inline."
+            },
+            "LOADING_CASE": "Loading case data…",
+            "ROW": {
+                "OPEN_CASE": "Open case of {{name}}",
+                "VALIDATIONS_ARIA": "Validations run on this case",
+                "STATE_EXECUTED": "executed",
+                "STATE_PENDING": "pending",
+                "STATE_BLOCKING": "blocking",
+                "SOURCE_REAL": "Real data from the process",
+                "SOURCE_INFERRED": "Inferred from the task stage",
+                "SOURCE_DEMO": "Demo placeholder — no data source yet",
+                "COMPLIANCE": "Compliance",
+                "READINESS": "Readiness",
+                "SCORE_PENDING": "Definition pending validation; no data yet",
+                "PENDING_COUNT": "{{count}} pending"
             }
         },
         "BRAND": "Dashboard",

@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Input, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, ElementRef, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CASE_DETAIL_DATA } from './case-detail-data.provider';
 import { CaseDetail, CaseDocument, ScoreSummary } from './case-detail.model';
 import { CaseDocumentViewerComponent } from './case-document-viewer.component';
+import { Subscription, of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { ProcessVariablesService } from '../../dashboard/services/process-variables.service';
+import { BatchStateCaseDetailProvider, parseBatchState } from './batch-state-case-detail.provider';
 import { summarizeCase } from './case-score';
+import { CaseTabTarget, pickKnown, readCaseRouteContext } from './utils/case-navigation.util';
 
 type MainTabId = 'summary' | 'requests' | 'tasks' | 'documents' | 'returns' | 'guidelines' | 'timeline' | 'audit';
 type SubTabId = 'clinical' | 'documents' | 'score' | 'audit';
@@ -29,10 +34,15 @@ const I18N = 'MEDICAL_RECORDS.CASE_DETAIL';
     templateUrl: './case-detail.component.html',
     styleUrls: ['./case-detail.component.scss'],
 })
-export class CaseDetailComponent {
+export class CaseDetailComponent implements OnInit, OnDestroy {
     private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
     private readonly provider = inject(CASE_DETAIL_DATA);
+    private readonly route = inject(ActivatedRoute, { optional: true });
+    private readonly processVariables = inject(ProcessVariablesService);
+    private routeSubscription?: Subscription;
+
+    loadingCase = false;
 
     detail: CaseDetail = this.provider.getCase();
     score: ScoreSummary = summarizeCase(this.detail);
@@ -87,6 +97,47 @@ export class CaseDetailComponent {
     activeSubTab: SubTabId = 'score';
 
     readonly i18n = I18N;
+
+    /**
+     * Opened from a task (query params from the patient row): load the process variables and
+     * show real documents from batchState; land on the requested tab. Without params it
+     * stays on the demo data.
+     */
+    ngOnInit(): void {
+        this.routeSubscription = this.route?.queryParamMap
+            .pipe(
+                map((params) => readCaseRouteContext((key) => params.get(key))),
+                tap((context) => this.applyTarget(context.target)),
+                switchMap((context) => {
+                    if (!context.processInstanceId) {
+                        return of(null);
+                    }
+                    this.loadingCase = true;
+                    return this.processVariables.fetchVariables(context.processInstanceId);
+                })
+            )
+            .subscribe((variables) => {
+                this.loadingCase = false;
+                if (variables) {
+                    this.data = new BatchStateCaseDetailProvider(parseBatchState(variables[batchState])).getCase();
+                }
+            });
+    }
+
+    ngOnDestroy(): void {
+        this.routeSubscription?.unsubscribe();
+    }
+
+    private applyTarget(target: CaseTabTarget | null): void {
+        const tab = pickKnown(target?.tab, this.tabs.map((item) => item.id));
+        if (tab) {
+            this.activeTab = tab;
+        }
+        const sub = pickKnown(target?.subTab, this.subTabs.map((item) => item.id));
+        if (sub) {
+            this.activeSubTab = sub;
+        }
+    }
 
     openDocument(doc: CaseDocument): void {
         if (doc.nodeId) {

@@ -248,11 +248,20 @@
 
 
 
-        <article
+        <ng-container *ngFor="let item of trackVisibleItems(filterItems(state.items))">
+<medical-records-patient-case-row
+    *ngIf="isPatientCase(item)"
+    [item]="item"
+    [selectable]="options.showBulkActions"
+    [selected]="isSelected(item)"
+    (openCase)="openCase(item, $event)"
+    (selectionToggle)="toggleSelection(item, $event)"
+></medical-records-patient-case-row>
+<article
 
             class="attention-item native-link-row"
 
-            *ngFor="let item of trackVisibleItems(filterItems(state.items))"
+            *ngIf="!isPatientCase(item)"
 
             [ngClass]="['tone-' + item.tone, isSelected(item) ? 'is-selected' : '']"
 
@@ -323,6 +332,7 @@
             <span class="material-icons attention-chevron">chevron_right</span>
 
         </article>
+</ng-container>
 
     </div>
 

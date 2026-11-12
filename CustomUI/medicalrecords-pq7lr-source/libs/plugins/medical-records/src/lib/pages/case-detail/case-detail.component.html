@@ -28,6 +28,10 @@
         </div>
     </header>
 
+    @if (loadingCase) {
+        <p class="panel__lead" role="status">{{ i18n + '.LOADING_CASE' | translate }}</p>
+    }
+
     <section class="summary-card" aria-labelledby="case-detail-title">
         <div class="summary-card__top">
             <div class="summary-card__id">

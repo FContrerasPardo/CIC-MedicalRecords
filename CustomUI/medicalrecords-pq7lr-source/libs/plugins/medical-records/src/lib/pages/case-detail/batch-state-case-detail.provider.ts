@@ -27,6 +27,21 @@ export function toCaseDocument(item: IntakeAccountDocumentItemViewModel): CaseDo
     };
 }
 
+/** Accepts the object or the JSON string Automate may deliver. */
+export function parseBatchState(value: unknown): BatchStateSource | null {
+    if (!value) {
+        return null;
+    }
+    if (typeof value === 'string') {
+        try {
+            return JSON.parse(value) as BatchStateSource;
+        } catch {
+            return null;
+        }
+    }
+    return typeof value === 'object' ? (value as BatchStateSource) : null;
+}
+
 export function mapBatchStateToCaseDocuments(batchState: BatchStateSource): CaseDocument[] {
     return mapBatchStateToIntakeAccountViewModel(batchState, null).documents.map(toCaseDocument);
 }

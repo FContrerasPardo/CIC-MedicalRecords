@@ -1,0 +1,62 @@
+<article class="patient-row" [attr.data-tone]="group.primary.tone" (click)="open()">
+    <div class="patient-row__main">
+        <button type="button" class="patient-row__open" (click)="open(undefined, $event)" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.OPEN_CASE' | translate: { name: patientName }">
+            <strong>{{ patientName }}</strong>
+        </button>
+                @if (reviewRequired) {
+            <span class="chip chip--warn">{{ 'MEDICAL_RECORDS.TASK_STATUS.REVIEW' | translate }}</span>
+        }
+        <p class="patient-row__line">{{ group.primary.subtitle }}</p>
+
+        <ul class="patient-row__tasks" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.TASKS_ARIA' | translate">
+            @for (task of group.items; track task.id) {
+                <li class="task">
+                    @if (selectable) {
+                        <input
+                            type="checkbox"
+                            [checked]="selectedIds.has(task.id)"
+                            [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.TASK_SELECT' | translate: { name: (taskTypeKey(task) | translate) }"
+                            (click)="toggleTask(task, $event)"
+                        />
+                    }
+                    <button type="button" class="task__open" (click)="openNativeTask(task, $event)">
+                        {{ taskTypeKey(task) | translate }} · {{ (task.taskStatus === 'ASSIGNED' ? 'MEDICAL_RECORDS.TASK_STATUS.ASSIGNED' : 'MEDICAL_RECORDS.TASK_STATUS.CREATED') | translate }}
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <ul class="patient-row__map" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.VALIDATIONS_ARIA' | translate">
+            @for (step of steps; track step.key) {
+                <li>
+                    <button
+                        type="button"
+                        class="step"
+                        [ngClass]="'step--' + step.state"
+                        [title]="('MEDICAL_RECORDS.CASE_DETAIL.ROW.SOURCE_' + step.source.toUpperCase()) | translate"
+                        (click)="open(step.target, $event)"
+                    >
+                        <span class="material-icons" aria-hidden="true">{{ step.state === 'executed' ? 'check_circle' : step.state === 'blocking' ? 'block' : 'schedule' }}</span>
+                        {{ stepLabelKey(step) | translate }}
+                        <span class="sr-only">— {{ ('MEDICAL_RECORDS.CASE_DETAIL.ROW.STATE_' + step.state.toUpperCase()) | translate }}</span>
+                        @if (step.source !== 'real') {
+                            <span class="step__source" aria-hidden="true">{{ step.source === 'demo' ? 'D' : '~' }}</span>
+                        }
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="patient-row__side">
+        <div class="score" [title]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.SCORE_PENDING' | translate">
+            <span>{{ 'MEDICAL_RECORDS.CASE_DETAIL.ROW.COMPLIANCE' | translate }}</span><strong>—</strong>
+        </div>
+        <div class="score" [title]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.SCORE_PENDING' | translate">
+            <span>{{ 'MEDICAL_RECORDS.CASE_DETAIL.ROW.READINESS' | translate }}</span><strong>—</strong>
+        </div>
+        <div class="patient-row__counts">
+            {{ 'MEDICAL_RECORDS.CASE_DETAIL.ROW.PENDING_COUNT' | translate: { count: counts.pending + counts.blocking } }}
+        </div>
+    </div>
+</article>

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { OperationsHomeComponent } from '../operations-home/operations-home.component';
+import { CaseDetailComponent } from '../case-detail/case-detail.component';
 import { ProcessAttentionItem } from '../../dashboard/definitions/process-attention.model';
 import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
@@ -44,7 +45,7 @@ interface NativeNavigationItem {
 @Component({
   selector: 'medical-records-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, OperationsHomeComponent, DashboardBuilderShellComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, OperationsHomeComponent, CaseDetailComponent, DashboardBuilderShellComponent],
   templateUrl: './medical-records-shell.component.html',
   styleUrls: ['./medical-records-shell.component.scss']
 })export class MedicalRecordsShellComponent implements OnInit, OnDestroy {
@@ -270,6 +271,7 @@ interface NativeNavigationItem {
     activeDetail = this.phaseDetails.overview;
     isConfigureView = false;
     isAgreementsView = false;
+    isCaseView = false;
 
     constructor(
         private readonly route: ActivatedRoute,
@@ -285,7 +287,8 @@ interface NativeNavigationItem {
     private syncRouteState(): void {
         this.isConfigureView = this.router.url.includes('/medical-records/configure');
         this.isAgreementsView = this.router.url.includes('/medical-records/agreements');
-        if (this.isConfigureView || this.isAgreementsView) {
+        this.isCaseView = /\/medical-records\/case(?:[/?#]|$)/.test(this.router.url);
+        if (this.isConfigureView || this.isAgreementsView || this.isCaseView) {
             return;
         }
 

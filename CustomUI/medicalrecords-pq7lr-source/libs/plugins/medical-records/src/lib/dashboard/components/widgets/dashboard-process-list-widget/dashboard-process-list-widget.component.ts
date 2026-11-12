@@ -22,11 +22,15 @@ import { MedicalRecordsTaskQueryService } from '../../../services/medical-record
 import { MedicalRecordService } from '../../../../services/medical-record.service';
 import { resolveAttentionItemUrl } from '../../../utils/process-attention-navigation.util';
 import { DashboardWidgetTextPipe } from '../../../pipes/dashboard-widget-text.pipe';
+import { PatientCaseRowComponent } from '../../../../pages/case-detail/patient-case-row/patient-case-row.component';
+import { CASE_ROUTE_COMMANDS, CaseTabTarget, buildCaseQueryParams } from '../../../../pages/case-detail/utils/case-navigation.util';
+import { ListEntry, buildListEntries } from '../../../../pages/case-detail/utils/case-grouping.util';
+import { isPatientCaseTask } from '../../../../pages/case-detail/utils/case-validation-map.util';
 
 @Component({
     selector: 'medical-records-dashboard-process-list-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, TranslateModule, DashboardWidgetTextPipe],
+    imports: [CommonModule, FormsModule, TranslateModule, DashboardWidgetTextPipe, PatientCaseRowComponent],
     templateUrl: './dashboard-process-list-widget.component.html',
     styleUrls: ['./dashboard-process-list-widget.component.scss'],
 })
@@ -85,6 +89,25 @@ export class DashboardProcessListWidgetComponent implements OnInit {
     selectItem(item: ProcessAttentionItem): void {
         const url = resolveAttentionItemUrl(item, this.options.openTarget, this.medicalRecordService);
         void this.router.navigateByUrl(url);
+        this.itemSelected.emit(item);
+    }
+
+    /** Patient tasks render as a patient row and open the case detail; other tasks keep the native link. */
+    isPatientCase(item: ProcessAttentionItem): boolean {
+        return isPatientCaseTask(item.taskType);
+    }
+
+    /** One entry per patient case (its tasks grouped); non-patient tasks stay individual. */
+    listEntries(items: ProcessAttentionItem[]): ListEntry[] {
+        return buildListEntries(this.trackVisibleItems(this.filterItems(items)));
+    }
+
+    trackEntry(_index: number, entry: ListEntry): string {
+        return entry.key;
+    }
+
+    openCase(item: ProcessAttentionItem, target?: CaseTabTarget): void {
+        void this.router.navigate([...CASE_ROUTE_COMMANDS], { queryParams: buildCaseQueryParams(item.nativeReference ?? {}, target) });
         this.itemSelected.emit(item);
     }
 

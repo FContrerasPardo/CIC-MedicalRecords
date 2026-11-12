@@ -5,11 +5,11 @@
 }
 
 .attention-section {
-    padding: 24px;
-    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
-    border-radius: 28px;
-    background: var(--mr-surface, #ffffff);
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.05);
+    /* The dashboard container already provides the card and the title. */
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .section-lead {

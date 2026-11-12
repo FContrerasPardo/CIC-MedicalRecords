@@ -1,20 +1,10 @@
-<section class="attention-section" *ngIf="state$ | async as state">
+<section class="attention-section" *ngIf="state$ | async as state" [attr.aria-label]="config.title | dashboardWidgetText: config.titleKey">
 
     <header class="attention-header">
 
         <div class="attention-title">
 
-            <div>
-
-                <h2>{{ config.title | dashboardWidgetText: config.titleKey }}</h2>
-
-                <p class="section-lead" *ngIf="options.showSubtitle">
-
-                    {{ config.helper | dashboardWidgetText: 'MEDICAL_RECORDS.SECTIONS.OPEN_TASKS_SUBTITLE' }}
-
-                </p>
-
-            </div>
+            
 
             <span
 
@@ -248,11 +238,21 @@
 
 
 
-        <article
+        <ng-container *ngFor="let entry of listEntries(state.items); trackBy: trackEntry">
+<medical-records-patient-case-row
+    *ngIf="entry.kind === 'case'"
+    [group]="entry.group"
+    [selectable]="options.showBulkActions"
+    [selectedIds]="selectedIds"
+    (openCase)="openCase(entry.group.primary, $event)"
+    (openTask)="selectItem($event)"
+    (taskToggle)="toggleSelection($event.item, $event.event)"
+></medical-records-patient-case-row>
+<ng-container *ngIf="entry.kind === 'task'">
+<ng-container *ngIf="entry.item as item">
+<article
 
-            class="attention-item native-link-row"
-
-            *ngFor="let item of trackVisibleItems(filterItems(state.items))"
+            class="attention-item native-link-row"
 
             [ngClass]="['tone-' + item.tone, isSelected(item) ? 'is-selected' : '']"
 
@@ -323,6 +323,9 @@
             <span class="material-icons attention-chevron">chevron_right</span>
 
         </article>
+</ng-container>
+</ng-container>
+</ng-container>
 
     </div>
 

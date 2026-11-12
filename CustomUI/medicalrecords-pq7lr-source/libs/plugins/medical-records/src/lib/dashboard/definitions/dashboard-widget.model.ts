@@ -212,6 +212,18 @@ export interface DashboardWidgetCanvasRect {
     rowSpan: number;
 }
 
+/** Options for metric widgets rendered as configurable KPI cards (operations view + builder preview). */
+export interface DashboardKpiCardOptions {
+    /** Show the real-origin chip (live / demo / error). Default: true. */
+    showOrigin?: boolean;
+    /** Optional thresholds that drive the accent color of the card. */
+    thresholds?: {
+        warnAt?: number;
+        dangerAt?: number;
+        direction?: 'higher-is-worse' | 'lower-is-worse';
+    };
+}
+
 export interface DashboardWidgetConfig {
     id: DashboardWidgetId;
     type: DashboardWidgetType;
@@ -277,6 +289,8 @@ export interface DashboardWidgetConfig {
     /** Compact KPI strip variant (header row under page hero). */
     headerKpi?: boolean;
     linkCardOptions?: DashboardLinkCardOptions;
+    /** KPI card presentation for metric widgets; absent = legacy metric look. */
+    kpiCard?: DashboardKpiCardOptions;
     taskWidgetOptions?: DashboardTaskWidgetOptions;
 }
 

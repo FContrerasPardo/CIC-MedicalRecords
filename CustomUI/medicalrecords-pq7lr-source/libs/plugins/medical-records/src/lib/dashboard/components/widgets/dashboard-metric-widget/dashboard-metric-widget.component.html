@@ -10,6 +10,12 @@
 
     [class.dashboard-metric-widget--loading]="data.loading"
 
+    [class.dashboard-metric-widget--kpi-card]="isKpiCard"
+
+    [attr.data-origin]="isKpiCard ? origin : null"
+
+    [attr.data-accent]="isKpiCard ? accent : null"
+
     [class.recovery-card]="config.id === 'recovery-rate' && !headerKpi"
 
     [class.completion-card]="config.id === 'completion-rate' && !headerKpi"
@@ -34,11 +40,14 @@
 
     <ng-container *ngIf="compact || headerKpi">
 
-        <span class="dashboard-metric-widget__label">{{ config.title | dashboardWidgetText: config.titleKey }}</span>
+        <span class="dashboard-metric-widget__label">
+            <span class="material-icons dashboard-metric-widget__icon" *ngIf="isKpiCard && config.icon" aria-hidden="true">{{ config.icon }}</span>
+            {{ config.title | dashboardWidgetText: config.titleKey }}
+        </span>
 
         <strong>{{ data.value }}</strong>
 
-
+        <span class="dashboard-metric-widget__origin" *ngIf="showOrigin" [ngClass]="'origin-' + origin" [attr.title]="data.error || null">{{ originLabelKey | translate }}</span>
 
         <p *ngIf="showTrend" class="dashboard-metric-widget__trend" [ngClass]="trendClass">
 

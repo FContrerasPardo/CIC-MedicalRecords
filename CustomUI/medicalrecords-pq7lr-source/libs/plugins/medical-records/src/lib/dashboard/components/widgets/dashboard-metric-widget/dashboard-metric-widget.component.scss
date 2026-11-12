@@ -108,3 +108,49 @@
     font-size: 18px;
     cursor: help;
 }
+
+// KPI card (configurable): leading accent bar driven by origin and thresholds, plus origin chip.
+.dashboard-metric-widget--kpi-card {
+    --kpi-card-accent: var(--dash-accent, var(--mr-primary, #00478d));
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--kpi-card-accent);
+    }
+
+    &[data-accent='ok'] { --kpi-card-accent: var(--kpi-stat-positive); }
+    &[data-accent='warn'] { --kpi-card-accent: #e8a317; }
+    &[data-accent='danger'] { --kpi-card-accent: var(--kpi-stat-negative); }
+    &[data-origin='demo'] { --kpi-card-accent: var(--kpi-stat-flat); }
+    &[data-origin='error'] { --kpi-card-accent: var(--kpi-stat-negative); }
+}
+
+.dashboard-metric-widget__icon {
+    margin-right: 4px;
+    font-size: 14px;
+    vertical-align: -3px;
+}
+
+.dashboard-metric-widget__origin {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 1px 7px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &.origin-live { color: var(--kpi-stat-positive); }
+    &.origin-demo { color: var(--kpi-stat-flat); border-style: dashed; }
+    &.origin-error { color: var(--kpi-stat-negative); }
+}

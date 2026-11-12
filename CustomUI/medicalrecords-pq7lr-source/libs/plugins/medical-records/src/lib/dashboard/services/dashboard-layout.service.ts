@@ -370,6 +370,29 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         canvasRect: { col: 1, row: 7, colSpan: 4, rowSpan: 5 },
     },
 
+    'kpi-in-progress': {
+        id: 'kpi-in-progress',
+        type: 'metric',
+        section: 'metrics',
+        dataSource: 'process',
+        title: 'Em andamento',
+        helper: 'Process instances RUNNING in the selected period.',
+        helperTooltip: 'Live count from Automate (status RUNNING).',
+        trendLabel: 'MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK',
+        comparisonPeriod: 'previous_week',
+        icon: 'play_circle',
+        // demoValue is only shown when the process query fails; the origin chip then reads "error".
+        demoValue: '0',
+        processQuery: {
+            processDefinitionKey: 'medical-records',
+            includeSubprocesses: false,
+            metricScope: 'root',
+            status: ['RUNNING'],
+        },
+        kpiCard: { showOrigin: true },
+        span: 'metric',
+    },
+
     'metric-total-processes': {
 
         id: 'metric-total-processes',
@@ -1144,6 +1167,22 @@ export class DashboardLayoutService {
         return this.normalizeWidget(
             {
                 ...template,
+                id: createId('widget'),
+                containerId,
+                section: legacySectionForLayoutMode(layoutMode),
+            },
+            layoutMode
+        );
+    }
+
+    createKpiCardWidget(
+        preset: 'kpi-in-progress',
+        containerId: string,
+        layoutMode: DashboardContainerLayoutMode = 'grid-4'
+    ): DashboardWidgetConfig {
+        return this.normalizeWidget(
+            {
+                ...DEFAULT_WIDGETS[preset],
                 id: createId('widget'),
                 containerId,
                 section: legacySectionForLayoutMode(layoutMode),

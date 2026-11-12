@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DashboardMetricWidgetData, DashboardWidgetConfig } from '../../../definitions/dashboard-widget.model';
 import { DashboardWidgetTextPipe } from '../../../pipes/dashboard-widget-text.pipe';
+import { KpiAccent, KpiOriginState, parseKpiNumber, resolveKpiAccent, resolveKpiOrigin } from '../../../utils/dashboard-kpi-card.util';
 import { buildFieldsDiscoveryFingerprint } from '../../../utils/dashboard-data-source.util';
 import { DashboardPeriodService } from '../../../services/dashboard-period.service';
 import { DashboardWidgetRegistryService } from '../../../services/dashboard-widget-registry.service';
@@ -45,6 +46,26 @@ export class DashboardMetricWidgetComponent implements OnChanges, OnInit, OnDest
             default:
                 return 'MEDICAL_RECORDS.DASHBOARD.SOURCE_DEMO';
         }
+    }
+
+    get isKpiCard(): boolean {
+        return this.headerKpi && !!this.config.kpiCard;
+    }
+
+    get showOrigin(): boolean {
+        return this.isKpiCard && this.config.kpiCard?.showOrigin !== false && !this.data.loading;
+    }
+
+    get origin(): KpiOriginState {
+        return resolveKpiOrigin(this.data.source, this.data.error);
+    }
+
+    get originLabelKey(): string {
+        return `MEDICAL_RECORDS.DASHBOARD.KPI_ORIGIN_${this.origin.toUpperCase()}`;
+    }
+
+    get accent(): KpiAccent {
+        return resolveKpiAccent(parseKpiNumber(this.data.value), this.config.kpiCard?.thresholds);
     }
 
     get showTrend(): boolean {

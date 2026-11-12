@@ -143,7 +143,10 @@
             "TREND_VS_PREV_MONTH": "vs mes anterior",
             "COMPARISON_NONE": "Sin comparacion",
             "COMPARISON_PREVIOUS_WEEK": "Semana anterior",
-            "COMPARISON_PREVIOUS_MONTH": "Mes anterior"
+            "COMPARISON_PREVIOUS_MONTH": "Mes anterior",
+            "KPI_ORIGIN_LIVE": "En vivo",
+            "KPI_ORIGIN_DEMO": "Demo",
+            "KPI_ORIGIN_ERROR": "Error"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "Configuracion",
@@ -300,7 +303,8 @@
                 "PREFERRED_ID": "ID preferido (este navegador)",
                 "RELOAD_DONE": "Layout recargado desde el documento seleccionado.",
                 "RELOAD_ERROR": "No se pudo recargar el documento de layout seleccionado."
-            }
+            },
+            "WIDGET_KPI_IN_PROGRESS": "Tarjeta KPI: En curso"
         },
         "CHART": {
             "EDITOR_TITLE": "Ejes del histograma",

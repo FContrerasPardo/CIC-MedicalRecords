@@ -30,13 +30,14 @@ Work in TOKEN SAVING MODE unless I explicitly say otherwise.
 ## Harness, roles and skill first
 - Shared protocol: `docs/agents/README.md`; project sources and parameters: `docs/agents/proyecto.md`. Load only the relevant profile in `docs/agents/hyland-*.md`.
 - Consult `docs/agents/skills.md` before a repeatable task. Project Codex skills live in `.agents/skills/`; client role definitions live in `.codex/agents/` and `.claude/agents/`.
-- Work in the main chat by default. Use subagents only when explicitly requested or authorized by applicable instructions; provide bounded scope and avoid overlapping writes. A role can be assumed directly without spawning an agent.
+- **Main orchestrator agent (standing rule, user decision 2026-11-12):** the main session orchestrates and is the user's only interlocutor. It owns plan, decisions, integration and the final report, and manages sub-sessions and subagents per "Agente principal orquestador" in `docs/agents/README.md`. This is the user's standing authorization to delegate bounded work; it does not widen permissions (build, commit, push, PR, merge, external writes, repo visibility, history rewrites, PII handling stay user-authorized per turn).
+- Small tasks stay in the main chat. Delegate with bounded scope, no recursive delegation and no overlapping writes; verify delegated results before reporting. A role can be assumed directly without spawning an agent.
 - Reuse CIC-Learn selectively; see `docs/agents/cic-learn.md`. Skill/plugin instructions do not authorize builds, installs, migrations, external writes or history rewrites beyond the user's request.
 - Distinguish source inspected, code integrated, commands executed and runtime confirmed. Never claim a plugin is installed or a client discovered profiles without evidence.
 
 ## Continuity and shared checkouts
 - Preserve existing work. Stage explicit paths only; do not use blanket staging, reset, stash or branch switching over another session's changes.
-- Use `codex/` for new branches unless the user requests another convention. Existing branches keep their names. Create chats only when the user asks.
+- Use `codex/` for new branches unless the user requests another convention. Existing branches keep their names. The main orchestrator may open sub-sessions for self-contained tasks (one task, one branch, declared areas); the user can always open, redirect or stop them.
 - Read current issues before relying on migration snapshots in `docs/backlog/`; do not recreate or change issues just by running migration scripts.
 - Before an authorized commit affecting the Angular plugin, explain the final AOT command in `CLAUDE.md` and obtain command authorization if missing. A commit request alone does not waive the no-build rule. Documentation-only commits do not need an app build.
 - End with changed files, evidence, pending checks and next action. Push, PR, merge and publishing require applicable user authorization; permissions from CIC-Fin are not inherited.

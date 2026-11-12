@@ -28,10 +28,35 @@ Los perfiles no amplían permisos ni sustituyen los contratos del export.
 
 ## Sesiones y encargos
 
-El principal puede asumir un perfil directamente. Un cambio pequeño se resuelve
-en el chat principal. Crear otros chats solo por solicitud del usuario.
-Delegar cuando lo permitan el usuario o las instrucciones aplicables; no delegar
-recursivamente. Un rol no autoriza procesos paralelos ni comandos de proyecto.
+### Agente principal orquestador
+
+Regla fija del harness (decisión del usuario, 2026-11-12): la sesión principal
+es el **agente principal orquestador**. Es el único interlocutor del usuario y
+gestiona sub-sesiones y subagentes.
+
+- **Posee** el plan, las decisiones, la integración y el informe final. Descompone
+  el trabajo, elige el perfil `hyland-*` pertinente y decide si lo asume él mismo,
+  lo delega a un subagente o lo abre como sub-sesión.
+- **Resuelve en el chat principal** lo pequeño (unas pocas herramientas). Delega lo
+  que tenga entidad propia: tareas independientes, lecturas amplias, revisiones
+  sin sesgo, o trabajo que termina en una rama o PR propia.
+- **Subagente:** el resultado vuelve al principal dentro del mismo turno. **Sub-sesión:**
+  tarea con rama y áreas declaradas que el usuario puede abrir, dirigir o detener.
+- **Cada encargo** lleva objetivo, issue, archivos, fuentes, criterio de aceptación,
+  permisos y límites (ver abajo). Sin delegación recursiva; dos escritores no
+  tocan los mismos archivos.
+- **Verifica antes de informar:** un informe de subagente o sub-sesión no es
+  evidencia; el principal revisa el diff o resultado y distingue inspeccionado,
+  integrado, ejecutado y confirmado en runtime.
+- **Delegar no amplía permisos.** Siguen reservados al usuario, con autorización
+  explícita en el turno: build/tests/instalaciones, commit, push, PR, merge,
+  publicación, escrituras externas, cambio de visibilidad del repo y reescritura
+  de historial. Los datos con PII o sensibles no se envían a subagentes ni
+  servicios externos sin aprobación.
+- **Sin respuesta de un subagente** o con un bloqueo de permisos o política, el
+  principal informa y no lo rodea.
+
+Un rol no autoriza procesos paralelos ni comandos de proyecto por sí mismo.
 
 Una sesión cubre una feature o tarea delimitada, con rama y áreas declaradas.
 Dos sesiones no escriben los mismos archivos. UI: una a la vez en el checkout

@@ -137,6 +137,7 @@
             [widgetIds]="container.widgetIds"
             [widgets]="widgets"
             [editMode]="editMode"
+            [fluid]="operationsMode && !editMode"
             [selectedWidgetId]="selectedWidgetId"
             [pageActive]="isPageActive(page.id)"
             (widgetSelect)="selectWidget($event)"

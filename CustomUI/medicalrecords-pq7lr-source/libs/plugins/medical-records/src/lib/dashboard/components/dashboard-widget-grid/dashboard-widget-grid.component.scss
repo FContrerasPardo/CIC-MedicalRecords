@@ -9,6 +9,45 @@
     font-family: Manrope, 'Segoe UI', sans-serif;
 }
 
+:host(.operations-mode-host) {
+    gap: 20px;
+
+    .dashboard-container {
+        padding: clamp(16px, 1.6vw, 24px);
+    }
+
+    .dashboard-container--kpi {
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .dashboard-containers-drop {
+        gap: 24px;
+    }
+
+    .container-grid--12 {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+        align-items: start;
+    }
+
+    .container-grid--4 {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+        align-items: start;
+    }
+
+    .container-grid--list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .section-heading h2 {
+        font-size: 17px;
+        letter-spacing: -0.02em;
+    }
+}
+
 :host(.edit-mode-host) .container-grid--12 {
     grid-template-columns: repeat(12, minmax(0, 1fr));
 }

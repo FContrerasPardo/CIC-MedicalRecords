@@ -1,6 +1,14 @@
 {
     "PLUGIN_MESSAGE": "To jest komunikat wtyczki",
     "MEDICAL_RECORDS": {
+        "OPERATIONS_HOME": {
+            "START_ACCOUNT": "[TODO] New medical account",
+            "EMPTY_LAYOUT": "[TODO] No sections are configured yet. Customize the dashboard to add indicators and tasks.",
+            "EYEBROW": "[TODO] Medical accounts",
+            "TITLE": "[TODO] Operations Center",
+            "SUBTITLE": "[TODO] Start a medical account, follow its processing and continue from each active task.",
+            "INDICATORS": "[TODO] Operational indicators"
+        },
         "BRAND": "Hyland Konta Medyczne",
         "NAV": {
             "MENU_ITEM": "Konta Medyczne",

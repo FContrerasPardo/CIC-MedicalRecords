@@ -1,6 +1,14 @@
 {
     "PLUGIN_MESSAGE": "Esta e uma mensagem do plugin",
     "MEDICAL_RECORDS": {
+        "OPERATIONS_HOME": {
+            "START_ACCOUNT": "Nova conta médica",
+            "EMPTY_LAYOUT": "Ainda não há seções configuradas. Personalize o painel para adicionar indicadores e tarefas.",
+            "EYEBROW": "Contas médicas",
+            "TITLE": "Centro de Operações",
+            "SUBTITLE": "Inicie uma conta médica, acompanhe seu processamento e continue a partir de cada tarefa ativa.",
+            "INDICATORS": "Indicadores operacionais"
+        },
         "BRAND": "Hyland Contas Medicas",
         "NAV": {
             "MENU_ITEM": "Contas Medicas",

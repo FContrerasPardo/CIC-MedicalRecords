@@ -1,6 +1,14 @@
 {
     "PLUGIN_MESSAGE": "Este es un mensaje de complemento",
     "MEDICAL_RECORDS": {
+        "OPERATIONS_HOME": {
+            "START_ACCOUNT": "Nueva cuenta médica",
+            "EMPTY_LAYOUT": "Aún no hay secciones configuradas. Personaliza el tablero para agregar indicadores y tareas.",
+            "EYEBROW": "Cuentas médicas",
+            "TITLE": "Centro de Operaciones",
+            "SUBTITLE": "Inicia una cuenta médica, sigue su procesamiento y continúa desde cada tarea activa.",
+            "INDICATORS": "Indicadores operativos"
+        },
         "BRAND": "Tablero",
         "EXPERIENCE": {
             "EYEBROW": "Cuentas Medicas",

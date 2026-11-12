@@ -39,6 +39,11 @@
     padding: 28px 32px 36px;
 }
 
+.dashboard-shell.dashboard-shell--operations {
+    max-width: none;
+    padding: clamp(18px, 2vw, 32px);
+}
+
 .experience-header,
 .brand-cluster,
 .top-links,

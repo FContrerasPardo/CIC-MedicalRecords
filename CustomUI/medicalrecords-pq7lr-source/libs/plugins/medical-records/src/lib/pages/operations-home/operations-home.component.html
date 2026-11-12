@@ -1,0 +1,24 @@
+<section class="operations-home" aria-labelledby="operations-home-title">
+    <header class="operations-home__header">
+        <div class="operations-home__intro">
+            <span class="operations-home__eyebrow">{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.EYEBROW' | translate }}</span>
+            <h1 id="operations-home-title">{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.TITLE' | translate }}</h1>
+            <p>{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.SUBTITLE' | translate }}</p>
+        </div>
+        <div class="operations-home__actions">
+            <a routerLink="/medical-records/agreements" class="operations-home__configure">
+                {{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}
+            </a>
+            <a routerLink="/medical-records/configure" class="operations-home__configure">
+                <span class="material-icons" aria-hidden="true">tune</span>
+                {{ 'MEDICAL_RECORDS.DASHBOARD.EDIT_DASHBOARD' | translate }}
+            </a>
+            <button type="button" class="operations-home__start" (click)="startAccount.emit()">
+                <span class="material-icons" aria-hidden="true">add</span>
+                {{ 'MEDICAL_RECORDS.OPERATIONS_HOME.START_ACCOUNT' | translate }}
+            </button>
+        </div>
+    </header>
+
+    <medical-records-dashboard-overview [operationsMode]="true"></medical-records-dashboard-overview>
+</section>

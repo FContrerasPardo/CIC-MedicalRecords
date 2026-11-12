@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -33,6 +33,8 @@ import { resolveActivePageId } from '../../utils/dashboard-layout-structure.util
 })
 
 export class DashboardOverviewComponent implements OnInit {
+
+    @Input() operationsMode = false;
 
     @Output() processSelected = new EventEmitter<ProcessAttentionItem>();
 
@@ -112,11 +114,29 @@ export class DashboardOverviewComponent implements OnInit {
 
     private applyLayout(layout: ReturnType<DashboardLayoutService['getLayout']>): void {
 
-        this.pages = layout.pages;
+        // Present the same saved widgets as an operational home without persisting
+        // a different layout or changing the builder's canvas geometry.
+        const priority = (container: DashboardLayoutState['pages'][number]['containers'][number]): number => {
+            if (container.layoutMode === 'kpi-strip') {
+                return 0;
+            }
+            return container.widgetIds.some((id) => layout.widgets[id]?.type === 'process-list') ? 1 : 2;
+        };
+        this.pages = this.operationsMode
+            ? layout.pages.map((page) => ({
+                  ...page,
+                  containers: [...page.containers].sort((left, right) => priority(left) - priority(right)),
+              }))
+            : layout.pages;
 
         this.widgets = layout.widgets;
 
-        this.activePageId = resolveActivePageId(layout.pages, layout.activePageId);
+        const operationsPage = this.operationsMode
+            ? this.pages.find((page) => page.containers.some((container) =>
+                  container.widgetIds.some((id) => layout.widgets[id]?.type === 'process-list')
+              ))
+            : undefined;
+        this.activePageId = operationsPage?.id ?? resolveActivePageId(layout.pages, layout.activePageId);
 
         this.theme = layout.theme;
 

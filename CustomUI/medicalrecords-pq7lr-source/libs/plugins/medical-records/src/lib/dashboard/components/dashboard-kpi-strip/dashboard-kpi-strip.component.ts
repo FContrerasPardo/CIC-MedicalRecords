@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
@@ -16,7 +17,7 @@ import { DashboardMetricWidgetComponent } from '../widgets/dashboard-metric-widg
 
     standalone: true,
 
-    imports: [CommonModule, DashboardMetricWidgetComponent, DashboardGaugeWidgetComponent],
+    imports: [CommonModule, TranslateModule, DashboardMetricWidgetComponent, DashboardGaugeWidgetComponent],
 
     templateUrl: './dashboard-kpi-strip.component.html',
 
@@ -31,6 +32,8 @@ export class DashboardKpiStripComponent {
     @Input({ required: true }) widgets: Record<DashboardWidgetId, DashboardWidgetConfig> = {};
 
     @Input() editMode = false;
+
+    @Input() fluid = false;
 
     @Input() selectedWidgetId: DashboardWidgetId | null = null;
     @Input() pageActive = true;

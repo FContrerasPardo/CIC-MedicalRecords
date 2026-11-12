@@ -222,7 +222,9 @@
                 "COMPLIANCE": "Conformidade",
                 "READINESS": "Prontidão",
                 "SCORE_PENDING": "Definição pendente de validação; ainda sem dados",
-                "PENDING_COUNT": "{{count}} pendência(s)"
+                "PENDING_COUNT": "{{count}} pendência(s)",
+                "TASKS_ARIA": "Tarefas abertas deste caso",
+                "TASK_SELECT": "Selecionar a tarefa {{name}}"
             }
         },
         "BRAND": "Hyland Contas Medicas",

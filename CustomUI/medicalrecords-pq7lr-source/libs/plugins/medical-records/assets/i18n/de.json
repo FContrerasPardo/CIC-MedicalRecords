@@ -222,7 +222,9 @@
                 "COMPLIANCE": "[TODO] Compliance",
                 "READINESS": "[TODO] Readiness",
                 "SCORE_PENDING": "[TODO] Definition pending validation; no data yet",
-                "PENDING_COUNT": "[TODO] {{count}} pending"
+                "PENDING_COUNT": "[TODO] {{count}} pending",
+                "TASKS_ARIA": "[TODO] Open tasks of this case",
+                "TASK_SELECT": "[TODO] Select task {{name}}"
             }
         },
         "BRAND": "Hyland Medizinische Konten",

@@ -222,7 +222,9 @@
                 "COMPLIANCE": "Compliance",
                 "READINESS": "Readiness",
                 "SCORE_PENDING": "Definition pending validation; no data yet",
-                "PENDING_COUNT": "{{count}} pending"
+                "PENDING_COUNT": "{{count}} pending",
+                "TASKS_ARIA": "Open tasks of this case",
+                "TASK_SELECT": "Select task {{name}}"
             }
         },
         "BRAND": "Dashboard",

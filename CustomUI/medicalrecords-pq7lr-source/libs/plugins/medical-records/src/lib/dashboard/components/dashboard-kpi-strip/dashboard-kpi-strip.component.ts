@@ -3,9 +3,11 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { DashboardWidgetConfig, DashboardWidgetId } from '../../definitions/dashboard-widget.model';
+import { DashboardProviderSelection, DashboardWidgetConfig, DashboardWidgetId } from '../../definitions/dashboard-widget.model';
 
 import { DashboardGaugeWidgetComponent } from '../widgets/dashboard-gauge-widget/dashboard-gauge-widget.component';
+
+import { DashboardProviderCardsWidgetComponent } from '../widgets/dashboard-provider-cards-widget/dashboard-provider-cards-widget.component';
 
 import { DashboardMetricWidgetComponent } from '../widgets/dashboard-metric-widget/dashboard-metric-widget.component';
 
@@ -17,7 +19,7 @@ import { DashboardMetricWidgetComponent } from '../widgets/dashboard-metric-widg
 
     standalone: true,
 
-    imports: [CommonModule, TranslateModule, DashboardMetricWidgetComponent, DashboardGaugeWidgetComponent],
+    imports: [CommonModule, TranslateModule, DashboardMetricWidgetComponent, DashboardGaugeWidgetComponent, DashboardProviderCardsWidgetComponent],
 
     templateUrl: './dashboard-kpi-strip.component.html',
 
@@ -41,6 +43,8 @@ export class DashboardKpiStripComponent {
 
 
     @Output() widgetSelect = new EventEmitter<DashboardWidgetId>();
+
+    @Output() providerSelected = new EventEmitter<DashboardProviderSelection>();
 
 
 

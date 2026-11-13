@@ -370,6 +370,15 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         canvasRect: { col: 1, row: 7, colSpan: 4, rowSpan: 5 },
     },
 
+    'provider-cards': {
+        id: 'provider-cards',
+        type: 'provider-cards',
+        section: 'metrics',
+        title: 'Providers',
+        providerCardsOptions: { kpis: ['running', 'completed', 'cancelled', 'total'] },
+        span: 'full',
+    },
+
     'kpi-in-progress': {
         id: 'kpi-in-progress',
         type: 'metric',

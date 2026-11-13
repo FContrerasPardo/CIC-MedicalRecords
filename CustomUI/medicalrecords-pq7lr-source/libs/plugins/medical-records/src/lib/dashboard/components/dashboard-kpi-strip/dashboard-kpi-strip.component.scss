@@ -36,6 +36,10 @@
     }
 }
 
+.dashboard-kpi-strip__item--wide {
+    grid-column: 1 / -1;
+}
+
 .dashboard-kpi-strip__item.edit-mode {
     cursor: pointer;
 }

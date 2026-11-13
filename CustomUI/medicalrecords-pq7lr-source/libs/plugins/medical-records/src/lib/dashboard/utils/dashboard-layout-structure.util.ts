@@ -238,7 +238,7 @@ export function buildDefaultDemoPages(): DashboardPageConfig[] {
                     title: 'Executive KPIs',
                     subtitle: 'Key signals for the selected period.',
                     layoutMode: 'kpi-strip',
-                    widgetIds: [...DEFAULT_HEADER_KPI_WIDGET_IDS],
+                    widgetIds: ['provider-cards', ...DEFAULT_HEADER_KPI_WIDGET_IDS],
                 },
                 {
                     id: 'container-trends',

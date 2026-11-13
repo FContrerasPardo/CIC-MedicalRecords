@@ -157,3 +157,8 @@ export function groupInstancesByProvider(rows: ProviderInstanceInput[]): Provide
         return b.total - a.total || String(a.name).localeCompare(String(b.name));
     });
 }
+
+/** Only the first `enrichLimit` instances get their process variables, so a larger set has partial provider data. */
+export function isProviderDataPartial(instanceCount: number, enrichLimit: number): boolean {
+    return instanceCount > enrichLimit;
+}

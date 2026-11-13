@@ -87,4 +87,11 @@ describe('dashboard-provider-group.util', () => {
             expect(groupInstancesByProvider([])).toEqual([]);
         });
     });
+
+    describe('isProviderDataPartial', () => {
+        it('flags partial data above the enrich limit', () => {
+            expect(isProviderDataPartial(100, 100)).toBe(false);
+            expect(isProviderDataPartial(101, 100)).toBe(true);
+        });
+    });
 });

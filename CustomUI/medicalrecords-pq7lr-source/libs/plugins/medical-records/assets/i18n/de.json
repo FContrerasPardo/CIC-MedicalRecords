@@ -367,7 +367,20 @@
             "SOURCE_PROCESS": "[TODO] Process",
             "KPI_ORIGIN_LIVE": "[TODO] Live",
             "KPI_ORIGIN_DEMO": "[TODO] Demo",
-            "KPI_ORIGIN_ERROR": "[TODO] Error"
+            "KPI_ORIGIN_ERROR": "[TODO] Error",
+            "PROVIDER_CARDS": {
+                "ARIA": "[TODO] Provider cards",
+                "LOADING": "[TODO] Loading providers...",
+                "ERROR": "[TODO] Could not load provider data.",
+                "EMPTY": "[TODO] No medical accounts in the selected period.",
+                "UNIDENTIFIED": "[TODO] Unidentified provider",
+                "PARTIAL": "[TODO] Partial data: only the first {{limit}} accounts were read to identify providers.",
+                "KPI_RUNNING": "[TODO] In progress",
+                "KPI_COMPLETED": "[TODO] Completed",
+                "KPI_CANCELLED": "[TODO] Cancelled",
+                "KPI_TOTAL": "[TODO] Total accounts",
+                "KPI_REVIEW_REQUIRED": "[TODO] Review required"
+            }
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "[TODO] Configuration",
@@ -440,7 +453,13 @@
             "WIDGET_LINK_CARD": "[TODO] Link card",
             "WIDGET_TASK_STATUS": "[TODO] Task status summary",
             "WIDGET_TASK_RECENT": "[TODO] Recent tasks",
-            "WIDGET_KPI_IN_PROGRESS": "[TODO] KPI card: In progress"
+            "WIDGET_KPI_IN_PROGRESS": "[TODO] KPI card: In progress",
+            "WIDGET_PROVIDER_CARDS": "[TODO] Provider cards",
+            "PROVIDER_CARDS_OPTIONS": {
+                "INTRO": "[TODO] KPIs shown on each provider card",
+                "MOVE_UP": "[TODO] Move up",
+                "MOVE_DOWN": "[TODO] Move down"
+            }
         },
         "CHART": {
             "EDITOR_TITLE": "[TODO] Chart axes",

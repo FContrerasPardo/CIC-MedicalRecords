@@ -1358,6 +1358,18 @@ export class DashboardLayoutService {
 
         }
 
+        if (type === 'provider-cards') {
+            return this.normalizeWidget(
+                {
+                    ...base,
+                    title: 'Providers',
+                    gridColumnSpan: layoutMode === 'grid-4' ? 4 : 12,
+                    providerCardsOptions: { kpis: ['running', 'completed', 'cancelled', 'total'] },
+                },
+                layoutMode
+            );
+        }
+
         if (type === 'task-status-summary') {
 
             return this.normalizeWidget({

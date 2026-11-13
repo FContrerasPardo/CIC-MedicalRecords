@@ -42,6 +42,7 @@
                     <medical-records-dashboard-link-card-widget *ngIf="widget.type === 'link-card'" [config]="widget"></medical-records-dashboard-link-card-widget>
                     <medical-records-dashboard-task-status-summary-widget *ngIf="widget.type === 'task-status-summary'" [config]="widget"></medical-records-dashboard-task-status-summary-widget>
                     <medical-records-dashboard-task-recent-list-widget *ngIf="widget.type === 'task-recent-list'" [config]="widget"></medical-records-dashboard-task-recent-list-widget>
+                    <medical-records-dashboard-provider-cards-widget *ngIf="widget.type === 'provider-cards'" [config]="widget"></medical-records-dashboard-provider-cards-widget>
                     <p *ngIf="widget.type === 'process-list'" class="widget-editor-modal__preview-note">
                         {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PROCESS_LIST_PREVIEW' | translate }}
                     </p>
@@ -59,7 +60,7 @@
             <aside
                 class="widget-editor-modal__column widget-editor-modal__column--config"
                 [class.widget-editor-modal__column--table]="widget.type === 'table'"
-                *ngIf="isDataWidget || isProcessListWidget || isGaugeWidget"
+                *ngIf="isDataWidget || isProcessListWidget || isGaugeWidget || isProviderCardsWidget"
             >
                 <section class="gauge-options" *ngIf="isGaugeWidget">
                     <h3>{{ 'MEDICAL_RECORDS.GAUGE.CONFIG_INTRO' | translate }}</h3>
@@ -83,6 +84,24 @@
                         <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_DEMO_VALUE' | translate }}</span>
                         <input class="dashboard-form-control" type="text" [ngModel]="widget.demoValue || ''" (ngModelChange)="patchWidget({ demoValue: $event })" />
                     </label>
+                </section>
+
+                <section class="provider-cards-options" *ngIf="isProviderCardsWidget">
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.INTRO' | translate }}</h3>
+                    <div class="checkbox-row" *ngFor="let key of providerKpiKeys">
+                        <label>
+                            <input type="checkbox" [checked]="isProviderKpiSelected(key)" (change)="toggleProviderKpi(key)" />
+                            <span>{{ providerKpiLabelKey(key) | translate }}</span>
+                        </label>
+                        <span class="provider-cards-options__order" *ngIf="isProviderKpiSelected(key)">
+                            <button type="button" class="ghost-action-sm" (click)="moveProviderKpi(key, -1)" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.MOVE_UP' | translate">
+                                <span class="material-icons" aria-hidden="true">arrow_upward</span>
+                            </button>
+                            <button type="button" class="ghost-action-sm" (click)="moveProviderKpi(key, 1)" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.MOVE_DOWN' | translate">
+                                <span class="material-icons" aria-hidden="true">arrow_downward</span>
+                            </button>
+                        </span>
+                    </div>
                 </section>
 
                 <section class="open-tasks-options" *ngIf="isProcessListWidget">

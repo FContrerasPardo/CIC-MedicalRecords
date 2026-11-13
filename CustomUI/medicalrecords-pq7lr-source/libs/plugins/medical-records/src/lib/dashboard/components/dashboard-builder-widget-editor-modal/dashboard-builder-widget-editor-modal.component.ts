@@ -9,6 +9,8 @@ import { DashboardGaugeWidgetComponent } from '../widgets/dashboard-gauge-widget
 import { DashboardChartWidgetComponent } from '../widgets/dashboard-chart-widget/dashboard-chart-widget.component';
 import { DashboardLinkCardWidgetComponent } from '../widgets/dashboard-link-card-widget/dashboard-link-card-widget.component';
 import { DashboardMetricWidgetComponent } from '../widgets/dashboard-metric-widget/dashboard-metric-widget.component';
+import { DashboardProviderCardsWidgetComponent } from '../widgets/dashboard-provider-cards-widget/dashboard-provider-cards-widget.component';
+import { PROVIDER_KPI_KEYS, ProviderKpiKey, moveProviderKpi, resolveProviderKpiKeys, toggleProviderKpi } from '../../utils/dashboard-provider-group.util';
 import { DashboardTableWidgetComponent } from '../widgets/dashboard-table-widget/dashboard-table-widget.component';
 import { DashboardTaskRecentListWidgetComponent } from '../widgets/dashboard-task-recent-list-widget/dashboard-task-recent-list-widget.component';
 import { DashboardTaskStatusSummaryWidgetComponent } from '../widgets/dashboard-task-status-summary-widget/dashboard-task-status-summary-widget.component';
@@ -29,6 +31,7 @@ import { DashboardTaskStatusSummaryWidgetComponent } from '../widgets/dashboard-
         DashboardLinkCardWidgetComponent,
         DashboardTaskStatusSummaryWidgetComponent,
         DashboardTaskRecentListWidgetComponent,
+        DashboardProviderCardsWidgetComponent,
     ],
     templateUrl: './dashboard-builder-widget-editor-modal.component.html',
     styleUrls: ['./dashboard-builder-widget-editor-modal.component.scss'],
@@ -51,6 +54,30 @@ export class DashboardBuilderWidgetEditorModalComponent {
 
     get isProcessListWidget(): boolean {
         return this.widget.type === 'process-list';
+    }
+
+    readonly providerKpiKeys = PROVIDER_KPI_KEYS;
+
+    get isProviderCardsWidget(): boolean {
+        return this.widget.type === 'provider-cards';
+    }
+
+    providerKpiLabelKey(key: ProviderKpiKey): string {
+        return `MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.KPI_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    }
+
+    isProviderKpiSelected(key: ProviderKpiKey): boolean {
+        return resolveProviderKpiKeys(this.widget.providerCardsOptions?.kpis).includes(key);
+    }
+
+    toggleProviderKpi(key: ProviderKpiKey): void {
+        const current = resolveProviderKpiKeys(this.widget.providerCardsOptions?.kpis);
+        this.patchWidget({ providerCardsOptions: { ...this.widget.providerCardsOptions, kpis: toggleProviderKpi(current, key) } });
+    }
+
+    moveProviderKpi(key: ProviderKpiKey, delta: -1 | 1): void {
+        const current = resolveProviderKpiKeys(this.widget.providerCardsOptions?.kpis);
+        this.patchWidget({ providerCardsOptions: { ...this.widget.providerCardsOptions, kpis: moveProviderKpi(current, key, delta) } });
     }
 
     patchWidget(patch: Partial<DashboardWidgetConfig>): void {

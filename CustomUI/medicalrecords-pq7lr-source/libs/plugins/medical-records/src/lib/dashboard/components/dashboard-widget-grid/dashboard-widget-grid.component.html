@@ -289,4 +289,11 @@
         *ngIf="widgets[widgetId]?.type === 'task-recent-list'"
         [config]="widgets[widgetId]"
     ></medical-records-dashboard-task-recent-list-widget>
+
+    <medical-records-dashboard-provider-cards-widget
+        *ngIf="widgets[widgetId]?.type === 'provider-cards'"
+        [config]="widgets[widgetId]"
+        [pageActive]="pageActive"
+        (providerSelected)="providerSelected.emit($event)"
+    ></medical-records-dashboard-provider-cards-widget>
 </ng-template>

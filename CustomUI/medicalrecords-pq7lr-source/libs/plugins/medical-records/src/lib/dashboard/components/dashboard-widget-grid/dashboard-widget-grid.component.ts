@@ -8,6 +8,7 @@ import {
     DashboardContainerLayoutMode,
     DashboardLayoutState,
     DashboardPageConfig,
+    DashboardProviderSelection,
     DashboardThemeConfig,
     DashboardWidgetCanvasRect,
     DashboardWidgetConfig,
@@ -46,6 +47,7 @@ import { DashboardProcessListWidgetComponent } from '../widgets/dashboard-proces
 import { DashboardTableWidgetComponent } from '../widgets/dashboard-table-widget/dashboard-table-widget.component';
 import { DashboardTaskRecentListWidgetComponent } from '../widgets/dashboard-task-recent-list-widget/dashboard-task-recent-list-widget.component';
 import { DashboardTaskStatusSummaryWidgetComponent } from '../widgets/dashboard-task-status-summary-widget/dashboard-task-status-summary-widget.component';
+import { DashboardProviderCardsWidgetComponent } from '../widgets/dashboard-provider-cards-widget/dashboard-provider-cards-widget.component';
 import { DashboardKpiStripComponent } from '../dashboard-kpi-strip/dashboard-kpi-strip.component';
 import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/dashboard-period-pills.component';
 
@@ -69,6 +71,7 @@ import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/das
         DashboardLinkCardWidgetComponent,
         DashboardTaskStatusSummaryWidgetComponent,
         DashboardTaskRecentListWidgetComponent,
+        DashboardProviderCardsWidgetComponent,
         DashboardKpiStripComponent,
         DashboardDateRangeFilterComponent,
     ],
@@ -91,6 +94,7 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     @Input() selectedPageId: string | null = null;
 
     @Output() processSelected = new EventEmitter<ProcessAttentionItem>();
+    @Output() providerSelected = new EventEmitter<DashboardProviderSelection>();
     @Output() layoutChange = new EventEmitter<DashboardLayoutState>();
     @Output() widgetSelect = new EventEmitter<DashboardWidgetId>();
     @Output() widgetRemove = new EventEmitter<DashboardWidgetId>();

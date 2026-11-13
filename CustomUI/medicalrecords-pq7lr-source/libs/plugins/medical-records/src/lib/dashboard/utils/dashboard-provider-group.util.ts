@@ -157,3 +157,44 @@ export function groupInstancesByProvider(rows: ProviderInstanceInput[]): Provide
         return b.total - a.total || String(a.name).localeCompare(String(b.name));
     });
 }
+
+export type ProviderKpiKey = 'running' | 'completed' | 'cancelled' | 'total' | 'reviewRequired';
+
+export const PROVIDER_KPI_KEYS: readonly ProviderKpiKey[] = ['running', 'completed', 'cancelled', 'total', 'reviewRequired'];
+
+export const DEFAULT_PROVIDER_KPI_KEYS: readonly ProviderKpiKey[] = ['running', 'completed', 'cancelled', 'total'];
+
+/** Keeps the configured order, drops unknown/duplicate keys; empty or missing config falls back to the defaults. */
+export function resolveProviderKpiKeys(selected?: readonly string[] | null): ProviderKpiKey[] {
+    const valid = (selected ?? []).filter(
+        (key, index, all): key is ProviderKpiKey =>
+            (PROVIDER_KPI_KEYS as readonly string[]).includes(key) && all.indexOf(key) === index
+    );
+    return valid.length ? valid : [...DEFAULT_PROVIDER_KPI_KEYS];
+}
+
+/** Adds or removes a KPI; the last remaining KPI cannot be removed. */
+export function toggleProviderKpi(current: readonly ProviderKpiKey[], key: ProviderKpiKey): ProviderKpiKey[] {
+    if (current.includes(key)) {
+        return current.length > 1 ? current.filter((entry) => entry !== key) : [...current];
+    }
+    return [...current, key];
+}
+
+/** Moves a KPI one position (delta -1 up, +1 down) inside the configured order. */
+export function moveProviderKpi(current: readonly ProviderKpiKey[], key: ProviderKpiKey, delta: -1 | 1): ProviderKpiKey[] {
+    const from = current.indexOf(key);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= current.length) {
+        return [...current];
+    }
+    const next = [...current];
+    next.splice(from, 1);
+    next.splice(to, 0, key);
+    return next;
+}
+
+/** Only the first `enrichLimit` instances get their process variables, so a larger set has partial provider data. */
+export function isProviderDataPartial(instanceCount: number, enrichLimit: number): boolean {
+    return instanceCount > enrichLimit;
+}

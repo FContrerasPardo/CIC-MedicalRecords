@@ -6,7 +6,8 @@ export type DashboardWidgetType =
     | 'gauge'
     | 'link-card'
     | 'task-status-summary'
-    | 'task-recent-list';
+    | 'task-recent-list'
+    | 'provider-cards';
 
 export type DashboardLinkTargetType = 'route' | 'external';
 
@@ -224,6 +225,19 @@ export interface DashboardKpiCardOptions {
     };
 }
 
+/** Options of the provider-cards widget (one KPI card per provider found in the process batchState). */
+export interface DashboardProviderCardsOptions {
+    /** Ordered KPI keys shown on each card; empty = defaults (running, completed, cancelled, total). */
+    kpis?: Array<'running' | 'completed' | 'cancelled' | 'total' | 'reviewRequired'>;
+}
+
+/** Emitted when the user picks a provider card. */
+export interface DashboardProviderSelection {
+    key: string;
+    /** Display name; null for the unidentified group. */
+    name: string | null;
+}
+
 export interface DashboardWidgetConfig {
     id: DashboardWidgetId;
     type: DashboardWidgetType;
@@ -291,6 +305,8 @@ export interface DashboardWidgetConfig {
     linkCardOptions?: DashboardLinkCardOptions;
     /** KPI card presentation for metric widgets; absent = legacy metric look. */
     kpiCard?: DashboardKpiCardOptions;
+    /** Provider cards configuration (type provider-cards). */
+    providerCardsOptions?: DashboardProviderCardsOptions;
     taskWidgetOptions?: DashboardTaskWidgetOptions;
 }
 

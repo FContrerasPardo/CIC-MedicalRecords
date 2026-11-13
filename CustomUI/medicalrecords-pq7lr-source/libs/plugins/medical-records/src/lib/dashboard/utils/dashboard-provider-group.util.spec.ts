@@ -1,7 +1,12 @@
 import {
+    DEFAULT_PROVIDER_KPI_KEYS,
     extractBatchBillingIdentity,
     groupInstancesByProvider,
+    isProviderDataPartial,
+    moveProviderKpi,
     providerGroupKey,
+    resolveProviderKpiKeys,
+    toggleProviderKpi,
     UNIDENTIFIED_PROVIDER_KEY,
 } from './dashboard-provider-group.util';
 
@@ -85,6 +90,33 @@ describe('dashboard-provider-group.util', () => {
 
         it('returns an empty list for no rows', () => {
             expect(groupInstancesByProvider([])).toEqual([]);
+        });
+    });
+
+    describe('provider KPI configuration', () => {
+        it('falls back to defaults for empty or invalid config', () => {
+            expect(resolveProviderKpiKeys(undefined)).toEqual([...DEFAULT_PROVIDER_KPI_KEYS]);
+            expect(resolveProviderKpiKeys(['bogus'])).toEqual([...DEFAULT_PROVIDER_KPI_KEYS]);
+        });
+
+        it('keeps order and drops duplicates', () => {
+            expect(resolveProviderKpiKeys(['total', 'running', 'total'])).toEqual(['total', 'running']);
+        });
+
+        it('toggles but never removes the last KPI', () => {
+            expect(toggleProviderKpi(['running'], 'running')).toEqual(['running']);
+            expect(toggleProviderKpi(['running'], 'total')).toEqual(['running', 'total']);
+            expect(toggleProviderKpi(['running', 'total'], 'running')).toEqual(['total']);
+        });
+
+        it('moves a KPI within bounds', () => {
+            expect(moveProviderKpi(['running', 'total'], 'total', -1)).toEqual(['total', 'running']);
+            expect(moveProviderKpi(['running', 'total'], 'running', -1)).toEqual(['running', 'total']);
+        });
+
+        it('flags partial data above the enrich limit', () => {
+            expect(isProviderDataPartial(100, 100)).toBe(false);
+            expect(isProviderDataPartial(101, 100)).toBe(true);
         });
     });
 });

@@ -23,6 +23,13 @@ import {
     IntakeServiceStatus
 } from './intake-account-view.model';
 
+import {
+    BILLING_FIELDS,
+    normalizeIdentifier,
+    normalizeKey,
+    PLACEHOLDER_FIELD_TOKENS,
+} from './batch-state-billing-fields';
+
 type DocumentKind = IntakeDocumentKind;
 
 const INTAKE_SUPPORT_HEURISTICS = intakeSupportHeuristics as IntakeSupportHeuristicsConfig;
@@ -91,21 +98,6 @@ const EMPTY_MESSAGE = 'No fue posible leer batchState. Verifica que el formulari
 const STAGES = ['Intake', 'Analysis', 'Approval', 'Execution', 'Review', 'Completed'];
 const LOW_CONFIDENCE_THRESHOLD = 0.9;
 const DEFAULT_FILTER: IntakeServiceFilterKey = 'all';
-
-const BILLING_FIELDS = {
-    patientName: ['Nombre del Paciente', 'Paciente'],
-    patientId: ['Cedula', 'No. Carnet', 'Numero de Carnet', 'Document Number'],
-    mrn: ['Record', 'MRN', 'Historia Clinica'],
-    dob: ['Fecha Nacimiento', 'Fecha de Nacimiento'],
-    ageLabel: ['Edad'],
-    provider: ['Prestador', 'IPS', 'Institucion', 'Hospital', 'Centro Medico'],
-    invoiceNumber: ['Numero de Factura', 'Factura', 'No. Factura'],
-    admissionDate: ['Fecha Admision', 'Fecha de Admision', 'Fecha Ingreso'],
-    dischargeDate: ['Fecha De Alta', 'Fecha de Alta', 'Fecha Egreso'],
-    insurancePlan: ['Plan', 'Contratante', 'ARS', 'Aseguradora'],
-} as const;
-
-const PLACEHOLDER_FIELD_TOKENS = new Set(['NULL', 'NA', 'NONE', 'NIL', 'UNKNOWN', 'UNDEFINED']);
 
 export const INTAKE_PATIENT_FIELD_ALIASES = {
     patientName: BILLING_FIELDS.patientName,
@@ -1425,24 +1417,6 @@ function formatDate(value: Date): string {
     const month = `${value.getUTCMonth() + 1}`.padStart(2, '0');
     const day = `${value.getUTCDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
-
-function normalizeKey(value: unknown): string {
-    return String(value ?? '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, ' ')
-        .trim()
-        .toUpperCase();
-}
-
-function normalizeIdentifier(value: unknown): string {
-    return String(value ?? '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, '')
-        .trim()
-        .toUpperCase();
 }
 
 function createInitials(name: string | null): string {

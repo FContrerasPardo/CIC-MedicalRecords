@@ -8,16 +8,18 @@
             "TITLE": "[TODO] Operations Center",
             "SUBTITLE": "[TODO] Start a medical account, follow its processing and continue from each active task.",
             "INDICATORS": "[TODO] Operational indicators",
-            "DISTRIBUTION": {
-                "TITLE": "[TODO] Distribution and oversight",
-                "SUBTITLE": "[TODO] Open tasks by status and type",
-                "OPEN": "[TODO] Open",
-                "UNASSIGNED": "[TODO] Unassigned",
-                "ASSIGNED": "[TODO] Assigned",
-                "CRITICAL": "[TODO] Critical",
-                "INTAKE": "[TODO] Intake",
-                "RULES": "[TODO] Rules review",
-                "ANALYSIS": "[TODO] Analysis"
+            "PROVIDERS": {
+                "TITLE": "[TODO] Providers",
+                "LOADING": "[TODO] Loading providers...",
+                "ERROR": "[TODO] Could not load provider data.",
+                "EMPTY": "[TODO] No medical accounts in the selected period.",
+                "UNIDENTIFIED": "[TODO] Unidentified provider",
+                "PARTIAL": "[TODO] Partial data: only the first {{limit}} accounts were read to identify providers.",
+                "KPI_RUNNING": "[TODO] In progress",
+                "KPI_COMPLETED": "[TODO] Completed",
+                "KPI_CANCELLED": "[TODO] Cancelled",
+                "KPI_TOTAL": "[TODO] Total accounts",
+                "KPI_REVIEW_REQUIRED": "[TODO] Review required"
             }
         },
         "CASE_DETAIL": {

@@ -19,9 +19,7 @@
         </div>
     </header>
 
-    <ng-template #afterKpi>
-        <medical-records-operations-distribution-band></medical-records-operations-distribution-band>
-    </ng-template>
+    <medical-records-operations-provider-cards (providerSelected)="providerSelected.emit($event)"></medical-records-operations-provider-cards>
 
-    <medical-records-dashboard-overview [operationsMode]="true" [afterKpiTemplate]="afterKpi"></medical-records-dashboard-overview>
+    <medical-records-dashboard-overview [operationsMode]="true"></medical-records-dashboard-overview>
 </section>

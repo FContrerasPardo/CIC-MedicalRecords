@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, TemplateRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -36,7 +36,6 @@ export class DashboardOverviewComponent implements OnInit {
 
     @Input() operationsMode = false;
 
-    @Input() afterKpiTemplate: TemplateRef<unknown> | null = null;
 
     @Output() processSelected = new EventEmitter<ProcessAttentionItem>();
 

@@ -1,0 +1,46 @@
+<section class="provider-cards" [attr.aria-label]="'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.TITLE' | translate">
+    <header class="provider-cards__header">
+        <h2>{{ 'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.TITLE' | translate }}</h2>
+        <span
+            class="provider-cards__origin"
+            *ngIf="originKey"
+            [ngClass]="state === 'ready' ? 'origin-live' : 'origin-error'"
+            >{{ originKey | translate }}</span
+        >
+    </header>
+
+    <p class="provider-cards__notice" role="status" *ngIf="state === 'ready' && partial">
+        <span class="material-icons" aria-hidden="true">warning_amber</span>
+        {{ 'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.PARTIAL' | translate: { limit: enrichLimit } }}
+    </p>
+
+    <p class="provider-cards__state" role="status" *ngIf="state === 'loading'">
+        {{ 'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.LOADING' | translate }}
+    </p>
+    <p class="provider-cards__state provider-cards__state--error" role="alert" *ngIf="state === 'error'">
+        {{ 'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.ERROR' | translate }}
+    </p>
+    <p class="provider-cards__state" *ngIf="state === 'ready' && !groups.length">
+        {{ 'MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.EMPTY' | translate }}
+    </p>
+
+    <div class="provider-cards__grid" *ngIf="state === 'ready' && groups.length">
+        <button
+            type="button"
+            class="provider-card"
+            *ngFor="let group of groups; trackBy: trackByGroup"
+            [class.provider-card--unidentified]="isUnidentified(group)"
+            (click)="select(group)"
+        >
+            <span class="provider-card__name">
+                {{ group.name || ('MEDICAL_RECORDS.OPERATIONS_HOME.PROVIDERS.UNIDENTIFIED' | translate) }}
+            </span>
+            <dl class="provider-card__kpis">
+                <div class="provider-card__kpi" *ngFor="let kpi of kpis">
+                    <dt>{{ kpi.labelKey | translate }}</dt>
+                    <dd>{{ group[kpi.key] }}</dd>
+                </div>
+            </dl>
+        </button>
+    </div>
+</section>

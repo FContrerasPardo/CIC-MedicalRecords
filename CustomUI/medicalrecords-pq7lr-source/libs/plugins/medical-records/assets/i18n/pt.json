@@ -8,16 +8,18 @@
             "TITLE": "Centro de Operações",
             "SUBTITLE": "Inicie uma conta médica, acompanhe seu processamento e continue a partir de cada tarefa ativa.",
             "INDICATORS": "Indicadores operacionais",
-            "DISTRIBUTION": {
-                "TITLE": "Distribuição e supervisão",
-                "SUBTITLE": "Tarefas abertas por status e tipo",
-                "OPEN": "Abertas",
-                "UNASSIGNED": "Não atribuídas",
-                "ASSIGNED": "Atribuídas",
-                "CRITICAL": "Críticas",
-                "INTAKE": "Recepção",
-                "RULES": "Revisão de regras",
-                "ANALYSIS": "Análise"
+            "PROVIDERS": {
+                "TITLE": "Prestadores",
+                "LOADING": "Carregando prestadores...",
+                "ERROR": "Não foi possível carregar os dados dos prestadores.",
+                "EMPTY": "Não há contas médicas no período selecionado.",
+                "UNIDENTIFIED": "Prestador não identificado",
+                "PARTIAL": "Dados parciais: apenas as primeiras {{limit}} contas foram lidas para identificar prestadores.",
+                "KPI_RUNNING": "Em andamento",
+                "KPI_COMPLETED": "Concluídas",
+                "KPI_CANCELLED": "Canceladas",
+                "KPI_TOTAL": "Total de contas",
+                "KPI_REVIEW_REQUIRED": "Com revisão necessária"
             }
         },
         "CASE_DETAIL": {

@@ -364,7 +364,10 @@
             "EDIT_DASHBOARD": "[TODO] Configure reports",
             "SOURCE_DEMO": "[TODO] Demo",
             "SOURCE_CONTENT": "[TODO] Content",
-            "SOURCE_PROCESS": "[TODO] Process"
+            "SOURCE_PROCESS": "[TODO] Process",
+            "KPI_ORIGIN_LIVE": "[TODO] Live",
+            "KPI_ORIGIN_DEMO": "[TODO] Demo",
+            "KPI_ORIGIN_ERROR": "[TODO] Error"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "[TODO] Configuration",
@@ -436,7 +439,8 @@
             "APPEARANCE_TITLE": "[TODO] Appearance",
             "WIDGET_LINK_CARD": "[TODO] Link card",
             "WIDGET_TASK_STATUS": "[TODO] Task status summary",
-            "WIDGET_TASK_RECENT": "[TODO] Recent tasks"
+            "WIDGET_TASK_RECENT": "[TODO] Recent tasks",
+            "WIDGET_KPI_IN_PROGRESS": "[TODO] KPI card: In progress"
         },
         "CHART": {
             "EDITOR_TITLE": "[TODO] Chart axes",

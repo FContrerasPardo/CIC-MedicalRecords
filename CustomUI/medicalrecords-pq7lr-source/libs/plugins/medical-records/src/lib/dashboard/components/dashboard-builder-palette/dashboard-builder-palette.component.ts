@@ -83,11 +83,6 @@ export class DashboardBuilderPaletteComponent {
             icon: 'history',
         },
         {
-            type: 'provider-cards',
-            labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_PROVIDER_CARDS',
-            icon: 'domain',
-        },
-        {
             type: 'process-list',
             labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_PROCESS_LIST',
             icon: 'checklist',

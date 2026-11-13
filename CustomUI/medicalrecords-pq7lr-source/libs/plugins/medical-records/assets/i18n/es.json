@@ -353,20 +353,7 @@
             "COMPARISON_PREVIOUS_MONTH": "Mes anterior",
             "KPI_ORIGIN_LIVE": "En vivo",
             "KPI_ORIGIN_DEMO": "Demo",
-            "KPI_ORIGIN_ERROR": "Error",
-            "PROVIDER_CARDS": {
-                "ARIA": "Tarjetas de prestador",
-                "LOADING": "Cargando prestadores...",
-                "ERROR": "No se pudieron cargar los datos de prestadores.",
-                "EMPTY": "No hay cuentas médicas en el período seleccionado.",
-                "UNIDENTIFIED": "Prestador sin identificar",
-                "PARTIAL": "Datos parciales: solo se leyeron las primeras {{limit}} cuentas para identificar prestadores.",
-                "KPI_RUNNING": "En curso",
-                "KPI_COMPLETED": "Completadas",
-                "KPI_CANCELLED": "Canceladas",
-                "KPI_TOTAL": "Total de cuentas",
-                "KPI_REVIEW_REQUIRED": "Con revisión requerida"
-            }
+            "KPI_ORIGIN_ERROR": "Error"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "Configuracion",
@@ -524,13 +511,7 @@
                 "RELOAD_DONE": "Layout recargado desde el documento seleccionado.",
                 "RELOAD_ERROR": "No se pudo recargar el documento de layout seleccionado."
             },
-            "WIDGET_KPI_IN_PROGRESS": "Tarjeta KPI: En curso",
-            "WIDGET_PROVIDER_CARDS": "Tarjetas de prestador",
-            "PROVIDER_CARDS_OPTIONS": {
-                "INTRO": "KPI que se muestran en cada tarjeta de prestador",
-                "MOVE_UP": "Subir",
-                "MOVE_DOWN": "Bajar"
-            }
+            "WIDGET_KPI_IN_PROGRESS": "Tarjeta KPI: En curso"
         },
         "CHART": {
             "EDITOR_TITLE": "Ejes del histograma",

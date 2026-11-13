@@ -353,20 +353,7 @@
             "COMPARISON_PREVIOUS_MONTH": "Previous month",
             "KPI_ORIGIN_LIVE": "Live",
             "KPI_ORIGIN_DEMO": "Demo",
-            "KPI_ORIGIN_ERROR": "Error",
-            "PROVIDER_CARDS": {
-                "ARIA": "Provider cards",
-                "LOADING": "Loading providers...",
-                "ERROR": "Could not load provider data.",
-                "EMPTY": "No medical accounts in the selected period.",
-                "UNIDENTIFIED": "Unidentified provider",
-                "PARTIAL": "Partial data: only the first {{limit}} accounts were read to identify providers.",
-                "KPI_RUNNING": "In progress",
-                "KPI_COMPLETED": "Completed",
-                "KPI_CANCELLED": "Cancelled",
-                "KPI_TOTAL": "Total accounts",
-                "KPI_REVIEW_REQUIRED": "Review required"
-            }
+            "KPI_ORIGIN_ERROR": "Error"
         },
         "DASHBOARD_BUILDER": {
             "EYEBROW": "Configuration",
@@ -524,13 +511,7 @@
                 "RELOAD_DONE": "Layout reloaded from the selected repository document.",
                 "RELOAD_ERROR": "Could not reload the selected layout document."
             },
-            "WIDGET_KPI_IN_PROGRESS": "KPI card: In progress",
-            "WIDGET_PROVIDER_CARDS": "Provider cards",
-            "PROVIDER_CARDS_OPTIONS": {
-                "INTRO": "KPIs shown on each provider card",
-                "MOVE_UP": "Move up",
-                "MOVE_DOWN": "Move down"
-            }
+            "WIDGET_KPI_IN_PROGRESS": "KPI card: In progress"
         },
         "CHART": {
             "EDITOR_TITLE": "Chart axes",

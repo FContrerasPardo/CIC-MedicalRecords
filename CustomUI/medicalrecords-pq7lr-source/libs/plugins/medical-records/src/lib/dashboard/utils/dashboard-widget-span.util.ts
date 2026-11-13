@@ -75,7 +75,7 @@ export function defaultGridColumnSpan(section: DashboardWidgetSection | undefine
     if (section === 'tasks') {
         return 1;
     }
-    if (type === 'chart' || type === 'table' || type === 'provider-cards') {
+    if (type === 'chart' || type === 'table') {
         return 12;
     }
     if (type === 'link-card') {

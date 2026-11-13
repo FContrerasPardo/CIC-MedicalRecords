@@ -3,7 +3,6 @@
         class="dashboard-kpi-strip__item"
         *ngFor="let widgetId of widgetIds; trackBy: trackByWidgetId"
         [class.is-selected]="isSelected(widgetId)"
-        [class.dashboard-kpi-strip__item--wide]="widgets[widgetId]?.type === 'provider-cards'"
         [class.edit-mode]="editMode"
         (click)="onSelect(widgetId, $event)"
     >
@@ -22,12 +21,6 @@
                 [headerKpi]="true"
                 [pageActive]="pageActive"
             ></medical-records-dashboard-gauge-widget>
-            <medical-records-dashboard-provider-cards-widget
-                *ngIf="widgetConfig.type === 'provider-cards'"
-                [config]="widgetConfig"
-                [pageActive]="pageActive"
-                (providerSelected)="providerSelected.emit($event)"
-            ></medical-records-dashboard-provider-cards-widget>
         </ng-container>
     </article>
 </section>

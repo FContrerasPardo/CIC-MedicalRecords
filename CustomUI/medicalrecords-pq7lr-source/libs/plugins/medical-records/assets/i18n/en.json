@@ -7,7 +7,20 @@
             "EYEBROW": "Medical accounts",
             "TITLE": "Operations Center",
             "SUBTITLE": "Start a medical account, follow its processing and continue from each active task.",
-            "INDICATORS": "Operational indicators"
+            "INDICATORS": "Operational indicators",
+            "PROVIDERS": {
+                "TITLE": "Providers",
+                "LOADING": "Loading providers...",
+                "ERROR": "Could not load provider data.",
+                "EMPTY": "No medical accounts in the selected period.",
+                "UNIDENTIFIED": "Unidentified provider",
+                "PARTIAL": "Partial data: only the first {{limit}} accounts were read to identify providers.",
+                "KPI_RUNNING": "In progress",
+                "KPI_COMPLETED": "Completed",
+                "KPI_CANCELLED": "Cancelled",
+                "KPI_TOTAL": "Total accounts",
+                "KPI_REVIEW_REQUIRED": "Review required"
+            }
         },
         "CASE_DETAIL": {
             "LINKED_REQUEST": "{{count}} linked request(s)",

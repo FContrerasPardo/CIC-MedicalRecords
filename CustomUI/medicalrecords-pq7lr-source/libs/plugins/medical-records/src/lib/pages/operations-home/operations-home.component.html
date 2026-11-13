@@ -19,5 +19,7 @@
         </div>
     </header>
 
+    <medical-records-operations-provider-cards (providerSelected)="providerSelected.emit($event)"></medical-records-operations-provider-cards>
+
     <medical-records-dashboard-overview [operationsMode]="true"></medical-records-dashboard-overview>
 </section>

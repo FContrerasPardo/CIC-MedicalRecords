@@ -7,7 +7,20 @@
             "EYEBROW": "Cuentas médicas",
             "TITLE": "Centro de Operaciones",
             "SUBTITLE": "Inicia una cuenta médica, sigue su procesamiento y continúa desde cada tarea activa.",
-            "INDICATORS": "Indicadores operativos"
+            "INDICATORS": "Indicadores operativos",
+            "PROVIDERS": {
+                "TITLE": "Prestadores",
+                "LOADING": "Cargando prestadores...",
+                "ERROR": "No se pudieron cargar los datos de prestadores.",
+                "EMPTY": "No hay cuentas médicas en el período seleccionado.",
+                "UNIDENTIFIED": "Prestador sin identificar",
+                "PARTIAL": "Datos parciales: solo se leyeron las primeras {{limit}} cuentas para identificar prestadores.",
+                "KPI_RUNNING": "En curso",
+                "KPI_COMPLETED": "Completadas",
+                "KPI_CANCELLED": "Canceladas",
+                "KPI_TOTAL": "Total de cuentas",
+                "KPI_REVIEW_REQUIRED": "Con revisión requerida"
+            }
         },
         "CASE_DETAIL": {
             "LINKED_REQUEST": "{{count}} solicitud(es) vinculada(s)",

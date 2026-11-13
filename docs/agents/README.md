@@ -58,6 +58,12 @@ gestiona sub-sesiones y subagentes.
 
 Un rol no autoriza procesos paralelos ni comandos de proyecto por sí mismo.
 
+### Contexto persistente
+
+El contexto duradero vive en las issues y el volátil en `.claude/session-state.md`;
+los hooks lo reinyectan al arrancar o compactar. Protocolo: [contexto.md](contexto.md),
+skill `context-checkpoint`. Cada encargo a sub-sesión o subagente cita issue y estado.
+
 Una sesión cubre una feature o tarea delimitada, con rama y áreas declaradas.
 Dos sesiones no escriben los mismos archivos. UI: una a la vez en el checkout
 que sirve al usuario; documentación o servicios pueden usar un worktree corto

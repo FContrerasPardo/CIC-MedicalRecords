@@ -10,3 +10,6 @@ artifacts/screenshots/**/*
 # Local migration progress and medical documents awaiting provenance review
 docs/backlog/.state.json
 /docs/Demo Documents/
+
+# Local session state (context harness, see docs/agents/contexto.md)
+.claude/session-state.md

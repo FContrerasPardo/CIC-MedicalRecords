@@ -40,6 +40,13 @@ La disponibilidad de CLI, autenticación, MCP o plugins no se infiere de los arc
 - El bundle indica que sus repositorios internos no se redistribuyen fuera de
   Hyland sin autorización. Esta integración no incorpora sus manuales completos.
 
+## Incorporación posterior (2026-11-13)
+
+A petición del usuario se adoptó el patrón `SessionStart` de superpowers
+(`skills/superpowers-main/hooks/`): reinyectar contexto al arrancar, limpiar o
+compactar. Implementación propia en `.claude/hooks/session-context.cjs` con
+estado local e issues; no se instala el plugin ni su skill. Ver [contexto.md](contexto.md).
+
 ## Evidencia y pendientes
 
 Se inspeccionaron fuentes y se integraron instrucciones locales.

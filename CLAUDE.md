@@ -8,6 +8,9 @@ Shared role protocol and skill catalog: `docs/agents/README.md` and `docs/agents
 
 The main Claude session is the **orchestrator**: the user's single interlocutor, owner of the plan, decisions, integration and final report. It manages sub-sessions (`start_session`, for self-contained tasks with their own branch) and subagents (`.claude/agents/hyland-*`, for bounded work whose result returns this turn), and verifies their output before reporting. Delegation never widens permissions: build, commit, push, PR, merge, publishing, history rewrites and PII handling still need the user's authorization in the turn. Full protocol: `docs/agents/README.md` → "Agente principal orquestador".
 
+## Persistent context (harness)
+Hooks in `.claude/settings.json` re-inject `.claude/session-state.md` on start/resume/compact, snapshot it before compaction and ask for a checkpoint when the conversation grows. Durable context goes to issues. Protocol: `docs/agents/contexto.md`; skill: `context-checkpoint`.
+
 ## Verification workflow
 
 **During iteration (template / SCSS / logic tweaks): do NOT run the AOT build.** It's slow and competes with the user's running dev server.

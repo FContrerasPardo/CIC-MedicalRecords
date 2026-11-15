@@ -8,7 +8,7 @@ export const BILLING_FIELDS = {
     mrn: ['Record', 'MRN', 'Historia Clinica'],
     dob: ['Fecha Nacimiento', 'Fecha de Nacimiento'],
     ageLabel: ['Edad'],
-    provider: ['Prestador', 'IPS', 'Institucion', 'Hospital', 'Centro Medico'],
+    provider: ['Nombre del Prestador', 'Prestador', 'IPS', 'Institucion', 'Hospital', 'Centro Medico'],
     invoiceNumber: ['Numero de Factura', 'Factura', 'No. Factura'],
     admissionDate: ['Fecha Admision', 'Fecha de Admision', 'Fecha Ingreso'],
     dischargeDate: ['Fecha De Alta', 'Fecha de Alta', 'Fecha Egreso'],

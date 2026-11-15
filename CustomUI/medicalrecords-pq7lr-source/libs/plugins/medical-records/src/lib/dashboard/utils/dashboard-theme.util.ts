@@ -141,6 +141,8 @@ export function resolveTheme(theme?: DashboardThemeConfig | null): DashboardThem
         defaultSeriesStyle: mergeSeriesStyle(DEFAULT_DASHBOARD_THEME.defaultSeriesStyle, migrated.defaultSeriesStyle),
         seriesPalette: migrated.seriesPalette?.length ? [...migrated.seriesPalette] : [...DEFAULT_SERIES_PALETTE],
         statusColors: { ...DEFAULT_STATUS_COLORS, ...migrated.statusColors },
+        widgetChrome: migrated.widgetChrome === 'accent-line' ? 'accent-line' : 'card',
+        density: migrated.density === 'compact' ? 'compact' : 'comfortable',
     };
 }
 

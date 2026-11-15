@@ -71,6 +71,18 @@
                     </option>
                 </select>
             </label>
+            <label class="dashboard-form-field" *ngIf="section.layoutMode === 'kpi-strip'">
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_COLUMNS' | translate }}</span>
+                <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    class="dashboard-form-control"
+                    [ngModel]="section.columns ?? null"
+                    (ngModelChange)="onColumnsChange($event)"
+                />
+                <small>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONTAINER_COLUMNS_HINT' | translate }}</small>
+            </label>
             <p class="structure-editor-modal__summary">
                 {{
                     'MEDICAL_RECORDS.DASHBOARD_BUILDER.STRUCTURE_MODAL.CONTAINER_SUMMARY'

@@ -46,6 +46,14 @@ export class DashboardBuilderThemePanelComponent {
         this.themeChange.emit({ primaryAccent: color });
     }
 
+    selectWidgetChrome(chrome: 'card' | 'accent-line'): void {
+        this.themeChange.emit({ widgetChrome: chrome });
+    }
+
+    selectDensity(density: 'comfortable' | 'compact'): void {
+        this.themeChange.emit({ density });
+    }
+
     selectPreset(presetId: DashboardSeriesPresetId): void {
         if (presetId === 'custom') {
             this.themeChange.emit({

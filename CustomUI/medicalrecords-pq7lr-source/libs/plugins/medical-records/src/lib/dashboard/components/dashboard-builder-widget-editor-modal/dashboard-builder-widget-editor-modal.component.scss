@@ -224,3 +224,34 @@
         border-radius: 0;
     }
 }
+
+.provider-metric {
+    display: grid;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mr-border-subtle, #e4e7ef);
+}
+
+.provider-metric__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+
+    > .dashboard-form-control {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+}
+
+.provider-cards-options__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.cross-filter-options {
+    display: grid;
+    gap: 8px;
+}

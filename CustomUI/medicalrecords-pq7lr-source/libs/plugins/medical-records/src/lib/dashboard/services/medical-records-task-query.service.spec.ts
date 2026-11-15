@@ -24,11 +24,11 @@ describe('MedicalRecordsTaskQueryService', () => {
     });
 
     it('loads process variables from rootProcessInstanceId when present', () => {
-        expect(source).toContain('AdfHttpClient');
+        // Variables come from the shared (cached) ProcessVariablesService, so each instance downloads once.
+        expect(source).toContain('ProcessVariablesService');
+        expect(source).toContain('fetchVariables');
         expect(source).toContain('AppConfigService');
         expect(source).toContain('rootProcessInstanceId');
-        expect(source).toContain('/process-instances/');
-        expect(source).toContain('/variables');
         expect(source).toContain('mapTaskToAttentionItem');
         expect(source).toContain('matchesMedicalRecordsTask');
     });

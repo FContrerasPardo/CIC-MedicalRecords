@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, throwError } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { DashboardDateRange, DashboardWidgetConfig } from '../dashboard/definitions/dashboard-widget.model';
 import { flattenTableRow } from '../dashboard/mappers/dashboard-table.mapper';
 import { ProcessQueryDataProvider } from '../dashboard/providers/process-query-data.provider';

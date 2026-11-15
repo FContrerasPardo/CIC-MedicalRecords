@@ -1358,6 +1358,18 @@ export class DashboardLayoutService {
 
         }
 
+        if (type === 'provider-cards') {
+            return this.normalizeWidget(
+                {
+                    ...base,
+                    title: 'Providers',
+                    gridColumnSpan: layoutMode === 'grid-4' ? 4 : 12,
+                    providerCardsOptions: { kpis: ['running', 'completed', 'cancelled', 'total'] },
+                },
+                layoutMode
+            );
+        }
+
         if (type === 'task-status-summary') {
 
             return this.normalizeWidget({
@@ -1461,7 +1473,12 @@ export class DashboardLayoutService {
             }
         }
 
-        pages = this.mergePagesWithDefaults(pages, defaults.pages, widgets);
+        // A layout saved with the current schema is authoritative: what it removed stays removed.
+        // Default containers/widgets are only merged into legacy or empty layouts.
+        const isCurrentSchema = (stored.version ?? 0) >= LAYOUT_SCHEMA_VERSION && pages.length > 0;
+        if (!isCurrentSchema) {
+            pages = this.mergePagesWithDefaults(pages, defaults.pages, widgets);
+        }
 
         const widgetsWithContainers = assignContainerIdsToWidgets(pages, widgets);
 

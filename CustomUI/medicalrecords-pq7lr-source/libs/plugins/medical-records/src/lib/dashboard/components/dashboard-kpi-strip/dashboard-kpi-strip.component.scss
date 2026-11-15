@@ -56,3 +56,29 @@
         grid-template-columns: 1fr;
     }
 }
+
+// Column count set on the section (`container.columns`); each card spans `gridColumnSpan` columns.
+.dashboard-kpi-strip.dashboard-kpi-strip--columns {
+    grid-template-columns: repeat(var(--kpi-columns, 4), minmax(0, 1fr));
+    gap: 10px;
+
+    .dashboard-kpi-strip__item {
+        grid-column: span var(--kpi-span, 1);
+    }
+}
+
+@media (max-width: 1180px) {
+    .dashboard-kpi-strip.dashboard-kpi-strip--columns {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+
+        .dashboard-kpi-strip__item {
+            grid-column: auto;
+        }
+    }
+}
+
+@media (max-width: 560px) {
+    .dashboard-kpi-strip.dashboard-kpi-strip--columns {
+        grid-template-columns: 1fr;
+    }
+}

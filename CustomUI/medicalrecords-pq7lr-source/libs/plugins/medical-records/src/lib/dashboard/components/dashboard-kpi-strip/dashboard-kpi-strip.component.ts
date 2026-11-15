@@ -35,6 +35,9 @@ export class DashboardKpiStripComponent {
 
     @Input() fluid = false;
 
+    /** Column count from the container; unset keeps the responsive default of 4. */
+    @Input() columns?: number;
+
     @Input() selectedWidgetId: DashboardWidgetId | null = null;
     @Input() pageActive = true;
 
@@ -67,6 +70,20 @@ export class DashboardKpiStripComponent {
     }
 
 
+
+    get columnCount(): number | null {
+        const value = Math.round(Number(this.columns));
+        return Number.isFinite(value) && value > 0 ? Math.min(value, 12) : null;
+    }
+
+    itemSpan(widgetId: DashboardWidgetId): number | null {
+        const columns = this.columnCount;
+        if (!columns) {
+            return null;
+        }
+        const span = Math.round(Number(this.widgets[widgetId]?.gridColumnSpan ?? 1));
+        return Number.isFinite(span) && span > 0 ? Math.min(span, columns) : 1;
+    }
 
     isSelected(widgetId: DashboardWidgetId): boolean {
 

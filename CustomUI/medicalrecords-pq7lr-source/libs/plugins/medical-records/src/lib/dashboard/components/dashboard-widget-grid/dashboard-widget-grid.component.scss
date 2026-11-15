@@ -9,68 +9,80 @@
     font-family: Manrope, 'Segoe UI', sans-serif;
 }
 
-:host(.operations-mode-host) {
-    gap: 12px;
+// Sections are plain groupings (heading + widgets), not cards: the widgets carry their own
+// card styling. View and builder share these rules so both render the layout identically.
+:host {
+    --kpi-stat-card-padding: 12px 16px;
+    --kpi-stat-card-radius: 12px;
+}
 
-    // Compact stat cards (reference: Centro de Operações). The widgets read
-    // these tokens, so no widget-level overrides are needed.
-    --kpi-stat-card-padding: 10px 14px;
-    --kpi-stat-card-radius: 10px;
-    --kpi-stat-value-size: 26px;
-    --kpi-stat-label-size: 10px;
+.dashboard-containers-drop {
+    gap: 28px;
+}
 
-    .dashboard-tabs-bar {
-        margin-bottom: 0;
+.section-heading {
+    margin-bottom: 12px;
+}
+
+.section-heading h2 {
+    font-size: 17px;
+    letter-spacing: -0.02em;
+}
+
+.section-heading p {
+    margin: 2px 0 0;
+    font-size: 12px;
+}
+
+// Theme option `widgetChrome: 'accent-line'`: widgets drop their card box (border, background,
+// shadow, decorative blob) and get a thin accent line on the left, like the KPI strip. Applies
+// to the view and the builder alike. ::ng-deep is needed because each widget owns its card styles.
+:host(.widget-chrome-accent) {
+    .widget-slot,
+    ::ng-deep .dashboard-kpi-strip__item {
+        position: relative;
+        padding-left: 14px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 3px;
+            border-radius: 3px;
+            background: var(--dash-accent, var(--mr-accent, #6e33ff));
+            pointer-events: none;
+        }
     }
 
-    .dashboard-container {
-        padding: clamp(12px, 1.2vw, 16px);
-        border-radius: 12px;
-        box-shadow: none;
-    }
+    ::ng-deep {
+        .spotlight-card,
+        .metric-card,
+        .dashboard-metric-widget--header-kpi,
+        .dashboard-gauge-widget,
+        .dashboard-table-widget,
+        .attention-section,
+        .task-recent-widget,
+        .task-status-widget,
+        .link-card-widget,
+        .provider-cards {
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
 
-    .dashboard-container--kpi {
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        box-shadow: none;
-    }
+        .spotlight-card::after {
+            display: none !important;
+        }
 
-    .dashboard-containers-drop {
-        gap: 12px;
-    }
-
-    .section-heading {
-        margin-bottom: 8px;
-    }
-
-    .section-heading p {
-        margin: 2px 0 0;
-        font-size: 12px;
-    }
-
-    .container-grid {
-        gap: 12px;
-    }
-
-    .container-grid--12 {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-        align-items: start;
-    }
-
-    .container-grid--4 {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-        align-items: start;
-    }
-
-    .container-grid--list {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .section-heading h2 {
-        font-size: 17px;
-        letter-spacing: -0.02em;
+        .spotlight-card,
+        .metric-card,
+        .dashboard-metric-widget--header-kpi {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
     }
 }
 
@@ -203,19 +215,27 @@
 }
 
 .dashboard-container {
-    padding: 24px;
-    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
-    border-radius: var(--mr-card-radius, 18px);
-    background: var(--mr-surface, #ffffff);
-    box-shadow: var(--mr-card-shadow, 0 8px 24px rgba(11, 28, 48, 0.04));
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    box-shadow: none;
 }
 
-.dashboard-container--kpi {
-    border-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 14%, transparent);
-    background: var(--mr-surface, #ffffff);
+// Builder only: a faint outline appears on hover/selection so sections can still be grabbed and configured.
+:host(.edit-mode-host) .dashboard-container {
+    margin: -8px;
+    padding: 8px;
+    outline: 1px dashed transparent;
+    transition: outline-color 120ms ease;
 }
 
-.dashboard-container--selected {
+:host(.edit-mode-host) .dashboard-container:hover {
+    outline-color: color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 30%, transparent);
+}
+
+.dashboard-container--selected,
+:host(.edit-mode-host) .dashboard-container--selected {
     outline: 2px solid color-mix(in srgb, var(--dash-accent, var(--mr-accent, #6e33ff)) 35%, transparent);
 }
 
@@ -551,7 +571,8 @@
 .widget-slot__canvas > medical-records-dashboard-link-card-widget,
 .widget-slot__canvas > medical-records-dashboard-process-list-widget,
 .widget-slot__canvas > medical-records-dashboard-task-status-summary-widget,
-.widget-slot__canvas > medical-records-dashboard-task-recent-list-widget {
+.widget-slot__canvas > medical-records-dashboard-task-recent-list-widget,
+.widget-slot__canvas > medical-records-dashboard-provider-cards-widget {
     flex: 1 1 auto;
     width: 100%;
     min-width: 0;
@@ -621,4 +642,97 @@
     border-radius: 0 0 6px 0;
     background: transparent;
     cursor: nwse-resize;
+}
+
+// Theme option `density: 'compact'`: smaller type and spacing so the whole operation fits one
+// screen. Shared by view and builder; tune per widget here as each one is validated.
+:host(.density-compact) {
+    gap: 14px;
+
+    --kpi-stat-card-padding: 8px 12px;
+    --kpi-stat-value-size: 20px;
+    --kpi-stat-label-size: 10px;
+
+    .dashboard-containers-drop {
+        gap: 16px;
+    }
+
+    .dashboard-tabs-bar {
+        margin-bottom: 8px;
+    }
+
+    .dashboard-tab {
+        padding: 5px 12px;
+        font-size: 12px;
+    }
+
+    .dashboard-date-range-bar {
+        padding: 4px 8px;
+    }
+
+    .section-heading {
+        margin-bottom: 6px;
+    }
+
+    .section-heading h2 {
+        font-size: 13px;
+    }
+
+    .section-heading p {
+        font-size: 11px;
+    }
+
+    ::ng-deep {
+        .spotlight-card {
+            padding: 14px 16px;
+        }
+
+        .card-title-row h3,
+        .dashboard-table-widget__header h3 {
+            font-size: 13px;
+        }
+
+        .card-title-row p,
+        .spotlight-card p {
+            font-size: 11px;
+        }
+
+        .spotlight-card strong {
+            font-size: 30px;
+        }
+
+        .dashboard-metric-widget--header-kpi strong {
+            margin-top: 2px;
+        }
+
+        .dashboard-table-widget {
+            padding: 12px;
+        }
+
+        .dashboard-gauge-widget__value strong {
+            font-size: 18px;
+        }
+
+        .dashboard-gauge-widget__state {
+            padding: 12px 8px;
+        }
+
+        .attention-state {
+            padding: 14px 12px;
+        }
+
+        .patient-row {
+            gap: 8px;
+            padding: 8px 12px 8px 16px;
+        }
+    }
+}
+
+// Provider cards already draw bordered cards: no accent line or indent around them.
+:host(.widget-chrome-accent) .widget-slot:has(medical-records-dashboard-provider-cards-widget) {
+    padding-left: 0;
+
+    &::before {
+        display: none;
+    }
 }

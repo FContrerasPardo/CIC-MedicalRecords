@@ -2,12 +2,7 @@
     <medical-records-dashboard-builder-shell *ngIf="isConfigureView; else shellContent"></medical-records-dashboard-builder-shell>
 
     <ng-template #shellContent>
-    <section class="agreements-placeholder" *ngIf="isAgreementsView; else caseOrDashboard">
-        <span class="material-icons">handshake</span>
-        <h1>{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</h1>
-        <p>{{ 'MEDICAL_RECORDS.AGREEMENTS.PLACEHOLDER' | translate }}</p>
-        <a routerLink="/medical-records" class="ghost-action">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}</a>
-    </section>
+    <medical-records-agreements-page *ngIf="isAgreementsView; else caseOrDashboard"></medical-records-agreements-page>
 
     <ng-template #caseOrDashboard>
         <medical-records-case-detail *ngIf="isCaseView; else dashboardExperience"></medical-records-case-detail>

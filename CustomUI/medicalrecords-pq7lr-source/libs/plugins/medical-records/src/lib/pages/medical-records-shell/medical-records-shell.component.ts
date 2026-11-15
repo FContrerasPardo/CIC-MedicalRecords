@@ -9,6 +9,7 @@ import { ProcessAttentionItem } from '../../dashboard/definitions/process-attent
 import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
 import { DashboardBuilderShellComponent } from '../dashboard-builder/dashboard-builder-shell.component';
+import { AgreementsPageComponent } from '../agreements/agreements-page.component';
 type MedicalRecordsPhaseKey = 'overview' | 'intake' | 'analysis' | 'approval' | 'execution' | 'review' | 'completed';
 
 interface PhaseNavigationItem {
@@ -45,7 +46,15 @@ interface NativeNavigationItem {
 @Component({
   selector: 'medical-records-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, OperationsHomeComponent, CaseDetailComponent, DashboardBuilderShellComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TranslateModule,
+    OperationsHomeComponent,
+    CaseDetailComponent,
+    DashboardBuilderShellComponent,
+    AgreementsPageComponent,
+  ],
   templateUrl: './medical-records-shell.component.html',
   styleUrls: ['./medical-records-shell.component.scss']
 })export class MedicalRecordsShellComponent implements OnInit, OnDestroy {

@@ -1,0 +1,289 @@
+<section class="agreements" aria-labelledby="agreements-title">
+    <header class="agreements__bar">
+        <div>
+            <span class="eyebrow">{{ i18n + '.EYEBROW' | translate }}</span>
+            <h1 id="agreements-title">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</h1>
+        </div>
+        <a class="btn" routerLink="/medical-records">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}
+        </a>
+    </header>
+
+    <section class="panel" aria-labelledby="checklist-title">
+        <div class="panel__head">
+            <div>
+                <h2 id="checklist-title">
+                    <span class="material-icons" aria-hidden="true">fact_check</span>{{ i18n + '.CHECKLIST.TITLE' | translate }}
+                </h2>
+                <p class="panel__lead">{{ i18n + '.CHECKLIST.LEAD' | translate }}</p>
+            </div>
+            <div class="panel__actions">
+                @if (editing) {
+                    <button type="button" class="btn" (click)="cancelEdit()" [disabled]="publishing">
+                        <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
+                    </button>
+                    <button type="button" class="btn btn--primary" (click)="saveDraft()" [disabled]="publishing">
+                        <span class="material-icons" aria-hidden="true">save</span>
+                        {{ (publishing ? i18n + '.CHECKLIST.PUBLISHING' : i18n + '.EDITOR.SAVE') | translate }}
+                    </button>
+                } @else {
+                <button type="button" class="btn" (click)="startEdit()" [disabled]="loading || !checklist">
+                    <span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.EDITOR.EDIT' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="load()" [disabled]="loading">
+                    <span class="material-icons" aria-hidden="true">refresh</span>{{ i18n + '.CHECKLIST.RELOAD' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="downloadChecklist()" [disabled]="!checklist">
+                    <span class="material-icons" aria-hidden="true">download</span>{{ i18n + '.CHECKLIST.DOWNLOAD' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="downloadAgentRules()" [disabled]="!checklist" [title]="i18n + '.CHECKLIST.DOWNLOAD_AGENT_HINT' | translate">
+                    <span class="material-icons" aria-hidden="true">smart_toy</span>{{ i18n + '.CHECKLIST.DOWNLOAD_AGENT' | translate }}
+                </button>
+                @if (result && result.source !== 'appdata') {
+                    <button type="button" class="btn btn--primary" (click)="publish()" [disabled]="!canPublish">
+                        <span class="material-icons" aria-hidden="true">cloud_upload</span>
+                        {{ (publishing ? i18n + '.CHECKLIST.PUBLISHING' : i18n + '.CHECKLIST.PUBLISH') | translate }}
+                    </button>
+                }
+                }
+            </div>
+        </div>
+
+        @if (loading) {
+            <p class="panel__lead" role="status">{{ i18n + '.CHECKLIST.LOADING' | translate }}</p>
+        } @else if (result && checklist) {
+            <div class="source source--{{ result.source }}" role="note">
+                <span class="material-icons" aria-hidden="true">{{ result.source === 'appdata' ? 'cloud_done' : result.source === 'invalid' ? 'error' : 'info' }}</span>
+                <span>{{ i18n + '.CHECKLIST.SOURCE_' + (result.source | uppercase) | translate }}</span>
+                <code>{{ filePath }}</code>
+                @if (result.modifiedAt) {
+                    <span class="source__meta">{{ i18n + '.CHECKLIST.MODIFIED' | translate }} {{ result.modifiedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                }
+            </div>
+            @if (publishError) {
+                <p class="source source--invalid" role="alert">{{ i18n + '.CHECKLIST.PUBLISH_ERROR' | translate }}</p>
+            }
+
+            @if (draft) {
+                <ng-container *ngTemplateOutlet="editorTpl; context: { $implicit: draft }"></ng-container>
+            } @else {
+            <dl class="facts">
+                <div><dt>{{ i18n + '.CHECKLIST.RULESET' | translate }}</dt><dd><code>{{ checklist.rulesetId }}</code></dd></div>
+                <div><dt>{{ i18n + '.CHECKLIST.PAYER' | translate }}</dt><dd>{{ checklist.payer ?? '—' }}</dd></div>
+                <div>
+                    <dt>{{ i18n + '.CHECKLIST.VALIDITY' | translate }}</dt>
+                    <dd>{{ checklist.effectiveFrom ?? '—' }} → {{ checklist.effectiveTo ?? '—' }}</dd>
+                </div>
+                <div><dt>{{ i18n + '.CHECKLIST.RULES' | translate }}</dt><dd>{{ checklist.rules.length }}</dd></div>
+                <div><dt>{{ i18n + '.CHECKLIST.FOR_VALIDATION' | translate }}</dt><dd>{{ consumerCount('validation') }}</dd></div>
+                <div><dt>{{ i18n + '.CHECKLIST.FOR_AGENT' | translate }}</dt><dd>{{ consumerCount('agent') }}</dd></div>
+            </dl>
+
+            <div class="layout">
+                <div class="rules">
+                    <div class="toolbar">
+                        <label class="search">
+                            <span class="material-icons" aria-hidden="true">search</span>
+                            <span class="sr-only">{{ i18n + '.CHECKLIST.SEARCH' | translate }}</span>
+                            <input type="search" [value]="search" (input)="onSearch($any($event.target).value)" [placeholder]="i18n + '.CHECKLIST.SEARCH' | translate" />
+                        </label>
+                        <div class="filters" role="group" [attr.aria-label]="i18n + '.CHECKLIST.RISK' | translate">
+                            @for (filter of riskFilters; track filter) {
+                                <button type="button" class="filter" [class.filter--active]="riskFilter === filter" [attr.aria-pressed]="riskFilter === filter" (click)="setRiskFilter(filter)">
+                                    {{ i18n + '.CHECKLIST.RISK_' + filter | translate }} <span>{{ riskCount(filter) }}</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!visibleRules.length) {
+                        <p class="panel__lead">{{ i18n + '.CHECKLIST.EMPTY' | translate }}</p>
+                    }
+                    <ul class="rule-list">
+                        @for (rule of visibleRules; track rule.ruleId) {
+                            <li class="rule" [class.rule--disabled]="!rule.enabled">
+                                <div class="rule__head">
+                                    <code class="rule__id">{{ rule.ruleId }}</code>
+                                    <span class="risk risk--{{ rule.riskLevelIfMissing | lowercase }}">{{ i18n + '.CHECKLIST.RISK_' + rule.riskLevelIfMissing | translate }}</span>
+                                    @if (!rule.enabled) {
+                                        <span class="tag">{{ i18n + '.CHECKLIST.DISABLED' | translate }}</span>
+                                    }
+                                    <span class="rule__consumers">
+                                        @for (consumer of rule.consumers; track consumer) {
+                                            <span class="tag tag--consumer">
+                                                <span class="material-icons" aria-hidden="true">{{ consumer === 'agent' ? 'smart_toy' : 'fact_check' }}</span>
+                                                {{ i18n + '.CHECKLIST.CONSUMER_' + (consumer | uppercase) | translate }}
+                                            </span>
+                                        }
+                                    </span>
+                                </div>
+                                <p class="rule__description">{{ rule.description }}</p>
+                                <p class="rule__scope">
+                                    <span>{{ i18n + '.CHECKLIST.APPLIES_TO' | translate }}:</span>
+                                    @for (code of rule.appliesTo.procedureCodes; track code) {
+                                        <span class="tag">{{ i18n + '.CHECKLIST.PROCEDURE' | translate }} <code>{{ code }}</code></span>
+                                    }
+                                    @for (category of rule.appliesTo.serviceCategories; track category) {
+                                        <span class="tag">{{ i18n + '.CHECKLIST.CATEGORY' | translate }} {{ category }}</span>
+                                    }
+                                    @if (!rule.appliesTo.procedureCodes.length && !rule.appliesTo.serviceCategories.length) {
+                                        <span class="tag">{{ i18n + '.CHECKLIST.ALL_ACCOUNTS' | translate }}</span>
+                                    }
+                                </p>
+                                <ul class="documents" [attr.aria-label]="i18n + '.CHECKLIST.REQUIRED_DOCUMENTS' | translate">
+                                    @for (doc of rule.requiredDocuments; track doc) {
+                                        <li><span class="material-icons" aria-hidden="true">description</span>{{ doc }}</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <aside class="catalogue" aria-labelledby="catalogue-title">
+                    <h3 id="catalogue-title">{{ i18n + '.CHECKLIST.CATALOGUE' | translate }}</h3>
+                    <p class="panel__lead">{{ i18n + '.CHECKLIST.CATALOGUE_LEAD' | translate }}</p>
+                    <ul>
+                        @for (item of catalogue; track item.name) {
+                            <li>
+                                <span>{{ item.name }}</span>
+                                <span class="catalogue__count">{{ i18n + '.CHECKLIST.IN_RULES' | translate: { count: item.rules } }}</span>
+                            </li>
+                        }
+                    </ul>
+                </aside>
+            </div>
+            }
+        }
+    </section>
+</section>
+
+<ng-template #editorTpl let-draft>
+    <div class="editor">
+        @if (saveAttempted && issues.length) {
+            <p class="source source--invalid" role="alert">{{ i18n + '.EDITOR.HAS_ISSUES' | translate: { count: issues.length } }}</p>
+        }
+        <fieldset class="editor__header">
+            <legend>{{ i18n + '.EDITOR.GENERAL' | translate }}</legend>
+            <label>
+                <span>{{ i18n + '.EDITOR.NAME' | translate }}</span>
+                <input type="text" [(ngModel)]="draft.name" />
+            </label>
+            <label [class.field--invalid]="issuesFor(null).length">
+                <span>{{ i18n + '.CHECKLIST.RULESET' | translate }} *</span>
+                <input type="text" [(ngModel)]="draft.rulesetId" (ngModelChange)="validate()" required />
+            </label>
+            <label>
+                <span>{{ i18n + '.CHECKLIST.PAYER' | translate }}</span>
+                <input type="text" [(ngModel)]="draft.payer" />
+            </label>
+            <label>
+                <span>{{ i18n + '.EDITOR.EFFECTIVE_FROM' | translate }}</span>
+                <input type="date" [(ngModel)]="draft.effectiveFrom" />
+            </label>
+            <label>
+                <span>{{ i18n + '.EDITOR.EFFECTIVE_TO' | translate }}</span>
+                <input type="date" [(ngModel)]="draft.effectiveTo" />
+            </label>
+        </fieldset>
+
+        <ol class="editor__rules">
+            @for (rule of draft.rules; track $index; let i = $index; let first = $first; let last = $last) {
+                <li class="edit-rule" [class.edit-rule--invalid]="saveAttempted && issuesFor(i).length" [class.edit-rule--disabled]="!rule.enabled">
+                    <div class="edit-rule__head">
+                        <label class="edit-rule__id">
+                            <span class="sr-only">{{ i18n + '.EDITOR.RULE_ID' | translate }}</span>
+                            <input type="text" [(ngModel)]="rule.ruleId" (ngModelChange)="validate()" [attr.aria-label]="i18n + '.EDITOR.RULE_ID' | translate" />
+                        </label>
+                        <label class="edit-rule__inline">
+                            <span>{{ i18n + '.CHECKLIST.RISK' | translate }}</span>
+                            <select [(ngModel)]="rule.riskLevelIfMissing">
+                                @for (risk of risks; track risk) {
+                                    <option [ngValue]="risk">{{ i18n + '.CHECKLIST.RISK_' + risk | translate }}</option>
+                                }
+                            </select>
+                        </label>
+                        <label class="edit-rule__inline">
+                            <input type="checkbox" [(ngModel)]="rule.enabled" />
+                            <span>{{ i18n + '.EDITOR.ENABLED' | translate }}</span>
+                        </label>
+                        @for (consumer of consumerOptions; track consumer) {
+                            <label class="edit-rule__inline">
+                                <input type="checkbox" [checked]="rule.consumers.includes(consumer)" (change)="toggleConsumer(rule, consumer)" />
+                                <span>{{ i18n + '.CHECKLIST.CONSUMER_' + (consumer | uppercase) | translate }}</span>
+                            </label>
+                        }
+                        <span class="edit-rule__tools">
+                            <button type="button" class="icon-btn" (click)="moveRule(i, -1)" [disabled]="first" [attr.aria-label]="i18n + '.EDITOR.MOVE_UP' | translate">
+                                <span class="material-icons" aria-hidden="true">arrow_upward</span>
+                            </button>
+                            <button type="button" class="icon-btn" (click)="moveRule(i, 1)" [disabled]="last" [attr.aria-label]="i18n + '.EDITOR.MOVE_DOWN' | translate">
+                                <span class="material-icons" aria-hidden="true">arrow_downward</span>
+                            </button>
+                            <button type="button" class="icon-btn" (click)="duplicateRule(i)" [attr.aria-label]="i18n + '.EDITOR.DUPLICATE' | translate">
+                                <span class="material-icons" aria-hidden="true">content_copy</span>
+                            </button>
+                            <button type="button" class="icon-btn icon-btn--danger" (click)="removeRule(i)" [attr.aria-label]="i18n + '.EDITOR.REMOVE' | translate">
+                                <span class="material-icons" aria-hidden="true">delete</span>
+                            </button>
+                        </span>
+                    </div>
+                    <label class="edit-rule__block">
+                        <span>{{ i18n + '.EDITOR.DESCRIPTION' | translate }}</span>
+                        <textarea rows="2" [(ngModel)]="rule.description"></textarea>
+                    </label>
+                    <div class="edit-rule__lists">
+                        <ng-container *ngTemplateOutlet="listEditorTpl; context: { rule: rule, key: 'requiredDocuments', label: i18n + '.CHECKLIST.REQUIRED_DOCUMENTS', suggestions: true }"></ng-container>
+                        <ng-container *ngTemplateOutlet="listEditorTpl; context: { rule: rule, key: 'procedureCodes', label: i18n + '.EDITOR.PROCEDURE_CODES', suggestions: false }"></ng-container>
+                        <ng-container *ngTemplateOutlet="listEditorTpl; context: { rule: rule, key: 'serviceCategories', label: i18n + '.EDITOR.SERVICE_CATEGORIES', suggestions: false }"></ng-container>
+                    </div>
+                    @if (saveAttempted && issuesFor(i).length) {
+                        <ul class="edit-rule__issues" role="alert">
+                            @for (issue of issuesFor(i); track issue.code) {
+                                <li>{{ i18n + '.EDITOR.ISSUE_' + issue.code | translate }}</li>
+                            }
+                        </ul>
+                    }
+                </li>
+            }
+        </ol>
+        <button type="button" class="btn" (click)="addRule()">
+            <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.EDITOR.ADD_RULE' | translate }}
+        </button>
+        <p class="panel__lead">{{ i18n + '.EDITOR.SCOPE_HINT' | translate }}</p>
+        <datalist id="checklist-documents">
+            @for (item of catalogue; track item.name) {
+                <option [value]="item.name"></option>
+            }
+        </datalist>
+    </div>
+</ng-template>
+
+<ng-template #listEditorTpl let-rule="rule" let-key="key" let-label="label" let-suggestions="suggestions">
+    <div class="list-editor">
+        <span class="list-editor__label">{{ label | translate }}</span>
+        <ul class="list-editor__chips">
+            @for (value of listOf(rule, key); track value; let index = $index) {
+                <li>
+                    {{ value }}
+                    <button type="button" (click)="removeValue(rule, key, index)" [attr.aria-label]="(i18n + '.EDITOR.REMOVE_VALUE' | translate) + ' ' + value">
+                        <span class="material-icons" aria-hidden="true">close</span>
+                    </button>
+                </li>
+            }
+        </ul>
+        <span class="list-editor__add">
+            <input
+                #valueInput
+                type="text"
+                [attr.list]="suggestions ? 'checklist-documents' : null"
+                [attr.aria-label]="label | translate"
+                [placeholder]="i18n + '.EDITOR.ADD_VALUE' | translate"
+                (keydown.enter)="addValue(rule, key, valueInput, $event)"
+            />
+            <button type="button" class="icon-btn" (click)="addValue(rule, key, valueInput)" [attr.aria-label]="i18n + '.EDITOR.ADD_VALUE' | translate">
+                <span class="material-icons" aria-hidden="true">add</span>
+            </button>
+        </span>
+    </div>
+</ng-template>

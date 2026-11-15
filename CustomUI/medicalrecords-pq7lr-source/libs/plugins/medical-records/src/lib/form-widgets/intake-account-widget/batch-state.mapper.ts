@@ -576,6 +576,16 @@ function toServiceCard(cluster: AccountCluster, service: ServiceSeedRow): Intake
     };
 }
 
+/**
+ * Document rows for an explicit set of documents (e.g. one customer invoice and its supporting
+ * documents as grouped by the IDP account mapping), without the patient clustering.
+ */
+export function buildDocumentItemsFor(batchState: BatchStateSource, documentIds: readonly string[]): IntakeAccountDocumentItemViewModel[] {
+    const ids = new Set(documentIds);
+    const documents = (Array.isArray(batchState.documents) ? batchState.documents : []).filter((document) => !!document && ids.has(document.id));
+    return buildDocumentItems({ documents } as AccountCluster, batchState);
+}
+
 function buildDocumentItems(cluster: AccountCluster, batchState: BatchStateSource): IntakeAccountDocumentItemViewModel[] {
     return cluster.documents
         .map((document) => {

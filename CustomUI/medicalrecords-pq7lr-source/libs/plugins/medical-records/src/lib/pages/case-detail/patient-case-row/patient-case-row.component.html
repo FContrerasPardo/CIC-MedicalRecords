@@ -1,7 +1,145 @@
+@if (layout === 'table') {
+<div class="case-table-row" role="row" [attr.data-tone]="group.primary.tone" [class.is-selected]="caseSelected" (click)="open()">
+    <div class="case-table-row__cell case-table-row__select" role="cell" (click)="$event.stopPropagation()">
+        @if (selectable) {
+            <input
+                type="checkbox"
+                class="mr-checkbox"
+                [checked]="caseSelected"
+                [indeterminate]="casePartiallySelected"
+                [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.TABLE.SELECT_CASE' | translate: { name: patientName }"
+                (change)="toggleCase($event)"
+            />
+        }
+    </div>
+
+    <div class="case-table-row__cell case-table-row__account" role="cell">
+        <button type="button" class="case-table-row__name" (click)="open(undefined, $event)" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.OPEN_CASE' | translate: { name: accountRef.value }">
+            <span class="account-ref__label">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.REF_' + (accountRef.kind | uppercase) | translate }}</span>
+            <code class="account-ref__value">{{ accountRef.value }}</code>
+        </button>
+        <span class="case-table-row__sub">
+            <span class="material-icons" aria-hidden="true">apartment</span>{{ provider ?? group.primary.subtitle }}
+        </span>
+        <span class="case-table-row__meta">
+            <button
+                type="button"
+                class="stage-chip"
+                [ngClass]="'stage-chip--' + group.stage"
+                [title]="'MEDICAL_RECORDS.CASE_DETAIL.TABLE.OPEN_TASK' | translate"
+                (click)="openNativeTask(group.primary, $event)"
+            >
+                {{ stageKey | translate }}
+            </button>
+            @if (invoiceCount > 1) {
+                <span class="invoice-badge">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.INVOICE_BADGE' | translate: { count: invoiceCount } }}</span>
+            }
+        </span>
+        <div class="case-table-row__steps account-steps">
+            @for (step of accountSteps; track step.key) {
+                <button
+                    type="button"
+                    class="step-icon"
+                    [ngClass]="'step-icon--' + step.state"
+                    [class.is-open]="openStepKey === step.key"
+                    [attr.aria-expanded]="openStepKey === step.key"
+                    [title]="(stepLabelKey(step) | translate) + ' — ' + (stateKey(step.state) | translate)"
+                    [attr.aria-label]="(stepLabelKey(step) | translate) + ' — ' + (stateKey(step.state) | translate)"
+                    (click)="toggleStep(step, $event)"
+                >
+                    <span class="material-icons" aria-hidden="true">{{ stepIcon(step) }}</span>
+                    <span class="step-icon__badge" aria-hidden="true">
+                        <span class="material-icons">{{ stateIcon(step.state) }}</span>
+                    </span>
+                    @if (step.total > 1) {
+                        <span class="step-icon__count">{{ step.done }}/{{ step.total }}</span>
+                    }
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="case-table-row__cell case-table-row__patients" role="cell">
+        @if (patientRows.length) {
+            <ul class="patient-subcards" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.PATIENTS' | translate" (click)="$event.stopPropagation()">
+                @for (row of visiblePatientRows; track row.key) {
+                    <li class="patient-subcard" [class.patient-subcard--match]="isMatch(row)">
+                        <button type="button" class="patient-subcard__open" (click)="openInvoice(row.key, undefined, $event)">
+                            <span class="patient-subcard__name">{{ row.patientName ?? ('MEDICAL_RECORDS.CASE_DETAIL.INVOICES.UNNAMED_PATIENT' | translate) }}</span>
+                            @if (row.invoiceNumber) {
+                                <code>{{ row.invoiceNumber }}</code>
+                            }
+                        </button>
+                        <span class="patient-subcard__steps">
+                            @for (step of row.steps; track step.key) {
+                                <button
+                                    type="button"
+                                    class="mini-step"
+                                    [ngClass]="'mini-step--' + step.state"
+                                    [title]="(stepLabelKey(step) | translate) + ' — ' + (stateKey(step.state) | translate)"
+                                    [attr.aria-label]="(stepLabelKey(step) | translate) + ' — ' + (stateKey(step.state) | translate)"
+                                    (click)="openInvoice(row.key, step, $event)"
+                                >
+                                    <span class="material-icons" aria-hidden="true">{{ stepIcon(step) }}</span>
+                                </button>
+                            }
+                        </span>
+                    </li>
+                }
+                @if (hiddenPatientCount > 0 || showAllPatients) {
+                    <li>
+                        <button type="button" class="btn-link patient-subcards__more" (click)="toggleAllPatients($event)">
+                            {{
+                                showAllPatients
+                                    ? ('MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.SHOW_MATCHES' | translate)
+                                    : ('MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.SHOW_ALL_PATIENTS' | translate: { count: hiddenPatientCount })
+                            }}
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+    <div class="case-table-row__cell case-table-row__open" role="cell">
+        <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </div>
+
+    @if (openStep; as step) {
+        <div class="step-status" role="region" [attr.aria-label]="stepLabelKey(step) | translate" (click)="$event.stopPropagation()">
+            <header>
+                <span class="material-icons" aria-hidden="true">{{ stepIcon(step) }}</span>
+                <strong>{{ stepLabelKey(step) | translate }}</strong>
+                <span class="step-status__state" [ngClass]="'step-status__state--' + step.state">{{ stateKey(step.state) | translate }}</span>
+                <span class="step-status__progress">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.STEP_PROGRESS' | translate: { done: step.done, total: step.total } }}</span>
+                <span class="step-status__source">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ROW.SOURCE_' + (step.source | uppercase) | translate }}</span>
+                <button type="button" class="step-status__close" (click)="toggleStep(step, $event)" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.CLOSE' | translate">
+                    <span class="material-icons" aria-hidden="true">close</span>
+                </button>
+            </header>
+            <ul>
+                @for (patient of step.patients; track patient.key) {
+                    <li>
+                        <span class="step-status__dot" [ngClass]="'step-status__dot--' + patient.state" aria-hidden="true"></span>
+                        <span class="step-status__patient">{{ patient.patientName ?? patient.invoiceNumber ?? '—' }}</span>
+                        <code>{{ patient.invoiceNumber ?? '' }}</code>
+                        <span>{{ stateKey(patient.state) | translate }}</span>
+                        <button type="button" class="btn-link" (click)="openInvoice(patient.key, step, $event)">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.OPEN_SECTION' | translate }}</button>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+</div>
+} @else {
 <article class="patient-row" [attr.data-tone]="group.primary.tone" (click)="open()">
     <div class="patient-row__main">
         <button type="button" class="patient-row__open" (click)="open(undefined, $event)" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.ROW.OPEN_CASE' | translate: { name: patientName }">
             <strong>{{ patientName }}</strong>
+            @if (invoiceCount > 1) {
+                <span class="invoice-badge">{{ 'MEDICAL_RECORDS.CASE_DETAIL.ACCOUNT.INVOICE_BADGE' | translate: { count: invoiceCount } }}</span>
+            }
         </button>
                 @if (reviewRequired) {
             <span class="chip chip--warn">{{ 'MEDICAL_RECORDS.TASK_STATUS.REVIEW' | translate }}</span>
@@ -60,3 +198,4 @@
         </div>
     </div>
 </article>
+}

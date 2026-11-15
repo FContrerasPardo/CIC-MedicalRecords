@@ -219,3 +219,717 @@
         }
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Table layout: one compact line per case; columns shared with the list header through
+// --case-table-columns (set by the open-tasks list).
+// ---------------------------------------------------------------------------------------------
+.case-table-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(
+        --case-table-columns,
+        minmax(180px, 2fr) minmax(170px, 1.6fr) minmax(150px, 1.1fr) minmax(130px, 1fr) 28px
+    );
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 6px 10px 6px 14px;
+    border-bottom: 1px solid var(--mr-border-subtle, #e6e9f0);
+    cursor: pointer;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        width: 3px;
+        border-radius: 3px;
+        background: var(--mr-muted, #98a2b3);
+    }
+
+    &[data-tone='red']::before {
+        background: var(--mr-error, #ba1a1a);
+    }
+
+    &[data-tone='orange']::before,
+    &[data-tone='amber']::before {
+        background: #e8a317;
+    }
+
+    &[data-tone='green']::before {
+        background: #12b886;
+    }
+
+    &[data-tone='blue']::before {
+        background: var(--dash-accent, #6e33ff);
+    }
+
+    &:hover {
+        background: color-mix(in srgb, var(--dash-accent, #6e33ff) 4%, transparent);
+    }
+}
+
+.case-table-row__cell {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    min-width: 0;
+}
+
+.case-table-row__patient {
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 0;
+}
+
+.case-table-row__name {
+    max-width: 100%;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--mr-heading, #001b3d);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--dash-accent, #6e33ff);
+        outline-offset: 2px;
+    }
+}
+
+.case-table-row__sub {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--mr-muted, #667085);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.case-table-row__task {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    input {
+        margin: 0;
+    }
+
+    .task__open {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 6px;
+        border: 1px solid var(--mr-border, #dfe3ec);
+        border-radius: 6px;
+        background: var(--mr-surface, #fff);
+        color: var(--mr-on-surface, #0b1c30);
+        font: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+}
+
+.case-table-row__task-status {
+    color: var(--mr-muted, #667085);
+    font-weight: 600;
+
+    &.is-assigned {
+        color: var(--dash-accent, #6e33ff);
+    }
+}
+
+.step-icon {
+    position: relative;
+    display: inline-grid;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--mr-border, #dfe3ec);
+    border-radius: 7px;
+    background: var(--mr-surface, #fff);
+    color: var(--mr-muted, #98a2b3);
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 16px;
+    }
+
+    &--executed {
+        border-color: color-mix(in srgb, #12b886 45%, transparent);
+        background: color-mix(in srgb, #12b886 10%, transparent);
+        color: #0b8a63;
+    }
+
+    &--blocking {
+        border-color: color-mix(in srgb, #ba1a1a 45%, transparent);
+        background: color-mix(in srgb, #ba1a1a 8%, transparent);
+        color: #ba1a1a;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--dash-accent, #6e33ff);
+        outline-offset: 2px;
+    }
+}
+
+.step-icon__source {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    padding: 0 3px;
+    border-radius: 4px;
+    background: #eef0f5;
+    color: #5b6478;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 12px;
+}
+
+.case-table-row__status {
+    .chip {
+        font-size: 10.5px;
+    }
+}
+
+.case-table-row__pending {
+    color: var(--mr-muted, #667085);
+    font-size: 11px;
+}
+
+.case-table-row__open {
+    justify-content: flex-end;
+    color: var(--mr-muted, #98a2b3);
+}
+
+@media (max-width: 900px) {
+    .case-table-row {
+        grid-template-columns: 1fr auto;
+
+        .case-table-row__tasks,
+        .case-table-row__steps,
+        .case-table-row__status {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+// ---- Table layout v4: selector | account (reference, provider, stage, validations) | patients | open ----
+.case-table-row {
+    grid-template-columns: var(--case-table-columns, 28px minmax(440px, 1.1fr) minmax(0, 1.9fr) 24px);
+    align-items: start;
+    min-height: 52px;
+
+    &.is-selected {
+        background: color-mix(in srgb, var(--dash-accent, #6e33ff) 6%, transparent);
+    }
+}
+
+.case-table-row__select {
+    justify-content: center;
+}
+
+// Shared checkbox look (also used by the list header "select all").
+:host ::ng-deep .mr-checkbox,
+.mr-checkbox {
+    appearance: none;
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    place-content: center;
+    border: 1.5px solid var(--mr-border-strong, #b6bdcc);
+    border-radius: 5px;
+    background: var(--mr-surface, #fff);
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+
+    &::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        transform: scale(0);
+        transition: transform 120ms ease;
+        background: #fff;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    &:checked,
+    &:indeterminate {
+        border-color: var(--dash-accent, #6e33ff);
+        background: var(--dash-accent, #6e33ff);
+    }
+
+    &:checked::before {
+        transform: scale(1);
+    }
+
+    &:indeterminate::before {
+        height: 2px;
+        transform: scale(1);
+        clip-path: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--dash-accent, #6e33ff) 50%, transparent);
+        outline-offset: 2px;
+    }
+}
+
+.stage-chip {
+    padding: 3px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #eef0f6;
+    color: #344054;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &--intake {
+        background: #e8f1ff;
+        color: #1d4ed8;
+    }
+
+    &--validateRules {
+        background: #f1ebff;
+        color: #5b21b6;
+    }
+
+    &--analysis {
+        background: #e6f8f2;
+        color: #047857;
+    }
+
+    &:hover {
+        border-color: currentColor;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--dash-accent, #6e33ff);
+        outline-offset: 2px;
+    }
+}
+
+.case-table-row__steps {
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    transition: transform 100ms ease, box-shadow 100ms ease;
+
+    > .material-icons {
+        font-size: 18px;
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    }
+}
+
+.step-icon__badge {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    display: grid;
+    width: 14px;
+    height: 14px;
+    place-items: center;
+    border: 1.5px solid var(--mr-surface, #fff);
+    border-radius: 50%;
+    background: #98a2b3;
+    color: #fff;
+
+    .material-icons {
+        font-size: 10px;
+        line-height: 1;
+    }
+
+    .step-icon--executed & {
+        background: #12b886;
+    }
+
+    .step-icon--blocking & {
+        background: #ba1a1a;
+    }
+}
+
+/* Account with several customer invoices (one per patient). */
+.invoice-badge {
+    display: inline-flex;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--mr-surface-hover, #eff4ff);
+    color: var(--mr-primary, #00478d);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+// ---- Account row: reference, provider, stage, aggregated validations and patient sub-cards ----
+.case-table-row__account {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.account-ref__label {
+    margin-right: 6px;
+    color: var(--mr-muted, #667085);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.account-ref__value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+}
+
+.case-table-row__sub .material-icons {
+    margin-right: 4px;
+    font-size: 14px;
+    vertical-align: -2px;
+}
+
+.case-table-row__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.step-icon {
+    position: relative;
+
+    &.is-open {
+        outline: 2px solid var(--mr-primary, #00478d);
+        outline-offset: 1px;
+    }
+}
+
+.step-icon__count {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--mr-surface, #fff);
+    box-shadow: 0 0 0 1px var(--mr-border, rgba(194, 198, 212, 0.55));
+    color: var(--mr-on-surface-variant, #424752);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 14px;
+    white-space: nowrap;
+}
+
+.step-status {
+    grid-column: 2 / -1;
+}
+
+.step-status {
+    padding: 8px 12px;
+    border: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
+    border-radius: 10px;
+    background: var(--mr-surface-muted, #f8f9fb);
+    cursor: default;
+
+    header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        font-size: 13px;
+
+        .material-icons {
+            color: var(--mr-primary, #00478d);
+            font-size: 18px;
+        }
+    }
+
+    ul {
+        display: grid;
+        gap: 4px;
+        margin: 8px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    li {
+        display: grid;
+        grid-template-columns: 10px minmax(0, 1fr) auto auto auto;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+    }
+
+    &__state {
+        padding: 1px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+
+        &--executed {
+            background: #ecfdf3;
+            color: #067647;
+        }
+
+        &--pending {
+            background: var(--mr-surface-hover, #eff4ff);
+            color: var(--mr-on-surface-variant, #424752);
+        }
+
+        &--blocking {
+            background: #fef3f2;
+            color: #b42318;
+        }
+    }
+
+    &__progress,
+    &__source {
+        color: var(--mr-muted, #667085);
+        font-size: 12px;
+    }
+
+    &__close {
+        display: inline-flex;
+        margin-left: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--mr-muted, #667085);
+        cursor: pointer;
+    }
+
+    &__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #98a2b3;
+
+        &--executed {
+            background: #12b76a;
+        }
+
+        &--blocking {
+            background: #d92d20;
+        }
+    }
+
+    &__patient {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.btn-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--mr-primary, #00478d);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.patient-subcards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 4px;
+    padding: 0;
+    list-style: none;
+    cursor: default;
+}
+
+.patient-subcard {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 4px 6px 4px 10px;
+    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.55));
+    border-left: 3px solid var(--mr-primary, #00478d);
+    border-radius: 8px;
+    background: var(--mr-surface, #fff);
+
+    &__open {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--mr-on-surface, #0b1c30);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover .patient-subcard__name {
+            text-decoration: underline;
+        }
+
+        code {
+            color: var(--mr-muted, #667085);
+            font-size: 11px;
+        }
+    }
+
+    &__name {
+        max-width: 220px;
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__steps {
+        display: inline-flex;
+        gap: 2px;
+    }
+}
+
+.mini-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--mr-surface-hover, #eff4ff);
+    color: var(--mr-on-surface-variant, #424752);
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 14px;
+    }
+
+    &--executed {
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    &--blocking {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--mr-primary, #00478d);
+    }
+}
+
+/* Patient matching the list search. */
+.patient-subcard--match {
+    border-color: var(--mr-primary, #00478d);
+    background: var(--mr-surface-hover, #eff4ff);
+}
+
+.patient-subcards__more {
+    padding: 6px 4px;
+}
+
+/* v4 layout: account validations under the account data; patients fill the right column with
+   sub-cards of the same width (long names are truncated, not pushing the rest). */
+.account-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.case-table-row__select,
+.case-table-row__open {
+    align-self: center;
+}
+
+.case-table-row__patients {
+    display: block;
+    min-width: 0;
+}
+
+.patient-subcards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 6px;
+    margin: 0;
+}
+
+.patient-subcard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+
+    &__open {
+        display: grid;
+        gap: 1px;
+        min-width: 0;
+    }
+
+    &__name {
+        max-width: none;
+    }
+}
+
+.patient-subcards__more {
+    justify-self: start;
+}
+
+/* Account validations beside the account data (reference, provider, stage) to save height. */
+.case-table-row__account {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 16px;
+
+    > * {
+        grid-column: 1;
+    }
+
+    > .account-steps {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+        flex-wrap: nowrap;
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 1100px) {
+    .case-table-row__account > .account-steps {
+        grid-column: 1;
+        grid-row: auto;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+}

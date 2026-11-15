@@ -191,3 +191,74 @@
         display: none;
     }
 }
+
+// Table display: shared column template for the header and the compact case rows.
+.attention-list--table {
+    --case-table-columns: minmax(180px, 2fr) minmax(170px, 1.6fr) minmax(150px, 1.1fr) minmax(130px, 1fr) 28px;
+    gap: 0 !important;
+}
+
+.case-table-header {
+    display: grid;
+    grid-template-columns: var(--case-table-columns);
+    gap: 12px;
+    padding: 6px 10px 6px 14px;
+    border-bottom: 1px solid var(--mr-border, #dfe3ec);
+    color: var(--mr-muted, #667085);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+    .case-table-header {
+        display: none;
+    }
+}
+
+// Table v2 columns: selector | patient | stage | validations | status | open
+.attention-list--table {
+    --case-table-columns: 28px minmax(440px, 1.1fr) minmax(0, 1.9fr) 24px;
+}
+
+.case-table-header__select {
+    display: flex;
+    justify-content: center;
+}
+
+.case-table-header .mr-checkbox {
+    appearance: none;
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    place-content: center;
+    border: 1.5px solid var(--mr-border-strong, #b6bdcc);
+    border-radius: 5px;
+    background: var(--mr-surface, #fff);
+    cursor: pointer;
+
+    &::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        transform: scale(0);
+        background: #fff;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    &:checked {
+        border-color: var(--dash-accent, #6e33ff);
+        background: var(--dash-accent, #6e33ff);
+    }
+
+    &:checked::before {
+        transform: scale(1);
+    }
+
+    &:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--dash-accent, #6e33ff) 50%, transparent);
+        outline-offset: 2px;
+    }
+}

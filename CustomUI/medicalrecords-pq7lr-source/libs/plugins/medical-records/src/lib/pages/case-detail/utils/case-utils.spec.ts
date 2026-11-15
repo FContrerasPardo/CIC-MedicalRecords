@@ -26,41 +26,48 @@ describe('case navigation', () => {
 });
 
 describe('validation map', () => {
-    it('keeps the process order', () => {
+    it('follows the Automate flow order', () => {
         const keys = deriveValidationMap({ taskType: 'intake', variables: {} }).map((step) => step.key);
         expect(keys).toEqual([...VALIDATION_STEP_ORDER]);
+        expect(keys[0]).toBe('documents');
     });
 
-    it('marks agent steps executed only when their variable has content', () => {
+    it('opens the documents section from the documentary checklist', () => {
+        const documents = deriveValidationMap({ taskType: 'intake', variables: {} })[0];
+        expect(documents.target).toEqual({ tab: 'documents' });
+        expect(documents.state).toBe('pending');
+    });
+
+    it('infers checklist and rules from the stage of the open task', () => {
+        const state = (taskType: 'intake' | 'validateRules' | 'analysis', key: string) =>
+            deriveValidationMap({ taskType, variables: {} }).find((step) => step.key === key)?.state;
+        expect(state('validateRules', 'documents')).toBe('executed');
+        expect(state('validateRules', 'rules')).toBe('pending');
+        expect(state('analysis', 'rules')).toBe('executed');
+    });
+
+    it('blocks the checklist while documents need review or were rejected', () => {
+        const rejected = deriveValidationMap({ taskType: 'analysis', variables: { batchState: '{"hasRejectedDocuments":true}' } })[0];
+        expect(rejected.state).toBe('blocking');
+        expect(rejected.source).toBe('real');
+        const review = deriveValidationMap({
+            taskType: 'intake',
+            variables: { batchState: { documents: [{ extractionReviewStatus: 'ReviewRequired' }] } },
+        })[0];
+        expect(review.state).toBe('blocking');
+    });
+
+    it('marks agent steps executed only when their result has content', () => {
         const steps = deriveValidationMap({
-            taskType: 'validateRules',
+            taskType: 'analysis',
             variables: { complianceAlertResult: '{"a":1}', codingIntegrityResult: '{}', financialVarianceResult: null },
         });
         const state = (key: string) => steps.find((step) => step.key === key)?.state;
         expect(state('compliance')).toBe('executed');
-        expect(state('medicalReport')).toBe('pending');
-        expect(state('consolidation')).toBe('pending');
-    });
-
-    it('infers eligibility from the task stage and flags it as inferred', () => {
-        const analysis = deriveValidationMap({ taskType: 'analysis', variables: {} }).find((step) => step.key === 'eligibility');
-        expect(analysis).toEqual(expect.objectContaining({ state: 'executed', source: 'inferred' }));
-        const intake = deriveValidationMap({ taskType: 'intake', variables: {} }).find((step) => step.key === 'eligibility');
-        expect(intake?.state).toBe('pending');
-    });
-
-    it('blocks readiness on rejected documents (real) and otherwise stays a demo placeholder', () => {
-        const blocked = deriveValidationMap({ taskType: 'intake', variables: { batchState: '{"hasRejectedDocuments":true}' } }).find((s) => s.key === 'readiness');
-        expect(blocked).toEqual(expect.objectContaining({ state: 'blocking', source: 'real' }));
-        const none = deriveValidationMap({ taskType: 'intake', variables: { batchState: 'not json' } }).find((s) => s.key === 'readiness');
-        expect(none).toEqual(expect.objectContaining({ state: 'pending', source: 'demo' }));
-    });
-
-    it('counts states and detects patient tasks', () => {
-        const steps = deriveValidationMap({ taskType: 'analysis', variables: { complianceAlertResult: { x: 1 } } });
-        expect(countByState(steps)).toEqual({ executed: 2, pending: 3, blocking: 0 });
+        expect(state('coding')).toBe('pending');
+        expect(state('financial')).toBe('pending');
+        expect(countByState(steps)).toEqual({ executed: 3, pending: 2, blocking: 0 });
         expect(isPatientCaseTask('unknown')).toBe(false);
-        expect(isPatientCaseTask('intake')).toBe(true);
         expect(hasValue('  ')).toBe(false);
     });
 });

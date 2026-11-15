@@ -7,6 +7,8 @@ export const CASE_ROUTE_COMMANDS = ['/medical-records', 'case'] as const;
 export interface CaseTabTarget {
     tab: string;
     subTab?: string;
+    /** Customer invoice (patient) of the account to open directly. */
+    invoice?: string;
 }
 
 export interface CaseRouteContext {
@@ -14,6 +16,8 @@ export interface CaseRouteContext {
     processInstanceId: string | null;
     taskId: string | null;
     taskProcessName: string | null;
+    /** Customer invoice (patient cluster) chosen in a multi-invoice account. */
+    invoiceKey: string | null;
     target: CaseTabTarget | null;
 }
 
@@ -35,6 +39,9 @@ export function buildCaseQueryParams(reference: NativeAutomationReference, targe
             params['sub'] = target.subTab;
         }
     }
+    if (target?.invoice) {
+        params['invoice'] = target.invoice;
+    }
     return params;
 }
 
@@ -45,6 +52,7 @@ export function readCaseRouteContext(get: (key: string) => string | null): CaseR
         processInstanceId: get('processInstanceId'),
         taskId: get('taskId'),
         taskProcessName: get('taskProcessName'),
+        invoiceKey: get('invoice'),
         target: tab ? { tab, ...(subTab ? { subTab } : {}) } : null,
     };
 }

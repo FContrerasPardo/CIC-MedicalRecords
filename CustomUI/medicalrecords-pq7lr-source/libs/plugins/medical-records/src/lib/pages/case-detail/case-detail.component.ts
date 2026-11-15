@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { CASE_DETAIL_DATA } from './case-detail-data.provider';
 import { CaseDetail, CaseDocument, ScoreSummary } from './case-detail.model';
@@ -11,9 +11,14 @@ import { ProcessVariablesService } from '../../dashboard/services/process-variab
 import { BatchStateCaseDetailProvider, parseBatchState } from './batch-state-case-detail.provider';
 import { summarizeCase } from './case-score';
 import { CaseTabTarget, pickKnown, readCaseRouteContext } from './utils/case-navigation.util';
+import { buildCaseAccountView, CaseAccountSummary, CaseInvoiceMode, CaseInvoiceOption, resolveInvoiceSelection } from './utils/case-invoice.util';
+import { PatientKey } from '../../idp/idp-account-mapping.util';
 
 type MainTabId = 'summary' | 'requests' | 'tasks' | 'documents' | 'returns' | 'guidelines' | 'timeline' | 'audit';
 type SubTabId = 'clinical' | 'documents' | 'score' | 'audit';
+
+/** Patient data shown under the invoice, in this order (from the IDP account mapping). */
+const PATIENT_FACTS: PatientKey[] = ['identification', 'medicalRecord', 'dateOfBirth', 'age', 'sex', 'affiliateNumber', 'admissionDate', 'dischargeDate', 'diagnosis'];
 
 interface TabItem<T extends string> {
     id: T;
@@ -39,10 +44,21 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
 
     private readonly provider = inject(CASE_DETAIL_DATA);
     private readonly route = inject(ActivatedRoute, { optional: true });
+    private readonly router = inject(Router, { optional: true });
     private readonly processVariables = inject(ProcessVariablesService);
     private routeSubscription?: Subscription;
 
     loadingCase = false;
+
+    /** Opened from a process: the account identifier replaces the demo data, even while loading. */
+    accountMode = false;
+    processInstanceId: string | null = null;
+    account: CaseAccountSummary | null = null;
+
+    /** Customer invoices of the account (one per patient); `select` waits for the user's choice. */
+    invoices: CaseInvoiceOption[] = [];
+    invoiceMode: CaseInvoiceMode = 'none';
+    selectedInvoice: CaseInvoiceOption | null = null;
 
     detail: CaseDetail = this.provider.getCase();
     score: ScoreSummary = summarizeCase(this.detail);
@@ -100,32 +116,78 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
 
     /**
      * Opened from a task (query params from the patient row): load the process variables and
-     * show real documents from batchState; land on the requested tab. Without params it
-     * stays on the demo data.
+     * show real documents from batchState; land on the requested tab. An account with a single
+     * customer invoice opens it directly; with several, the invoice selector comes first and the
+     * choice travels in the `invoice` query param. Without params it stays on the demo data.
      */
     ngOnInit(): void {
         this.routeSubscription = this.route?.queryParamMap
             .pipe(
                 map((params) => readCaseRouteContext((key) => params.get(key))),
-                tap((context) => this.applyTarget(context.target)),
+                tap((context) => {
+                    this.applyTarget(context.target);
+                    this.accountMode = !!context.processInstanceId;
+                    this.processInstanceId = context.processInstanceId;
+                }),
                 switchMap((context) => {
                     if (!context.processInstanceId) {
                         return of(null);
                     }
                     this.loadingCase = true;
-                    return this.processVariables.fetchVariables(context.processInstanceId);
+                    return this.processVariables
+                        .fetchVariables(context.processInstanceId)
+                        .pipe(map((variables) => ({ variables, invoiceKey: context.invoiceKey })));
                 })
             )
-            .subscribe((variables) => {
+            .subscribe((result) => {
                 this.loadingCase = false;
-                if (variables) {
-                    this.data = new BatchStateCaseDetailProvider(parseBatchState(variables[batchState])).getCase();
+                if (!result?.variables) {
+                    return;
                 }
+                const batchState = parseBatchState(result.variables['batchState']);
+                const view = buildCaseAccountView(batchState);
+                this.account = view.account;
+                const selection = resolveInvoiceSelection(view.invoices, result.invoiceKey);
+                this.invoices = selection.options;
+                this.invoiceMode = selection.mode;
+                this.selectedInvoice = selection.selected;
+                this.data = new BatchStateCaseDetailProvider(batchState, selection.selected).getCase();
             });
     }
 
     ngOnDestroy(): void {
         this.routeSubscription?.unsubscribe();
+    }
+
+    /** Short process id used as the account reference until Automate provides a business key. */
+    get accountReference(): string | null {
+        return this.processInstanceId ? this.processInstanceId.slice(0, 8) : null;
+    }
+
+    /** Demographics of the selected invoice's patient that have a value. */
+    get patientFacts(): Array<{ labelKey: string; value: string }> {
+        const patient = this.selectedInvoice?.patient;
+        if (!patient) {
+            return [];
+        }
+        return PATIENT_FACTS.filter((key) => !!patient[key]).map((key) => ({
+            labelKey: `${I18N}.PATIENT_FACTS.${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`,
+            value: patient[key] as string,
+        }));
+    }
+
+    /** Several invoices and none chosen yet: show the selector instead of the case. */
+    get awaitingInvoice(): boolean {
+        return this.invoiceMode === 'select' && !this.selectedInvoice;
+    }
+
+    /** Navigates so the browser back button returns to the selector. */
+    selectInvoice(key: string | null): void {
+        this.router?.navigate([], { relativeTo: this.route ?? undefined, queryParams: { invoice: key }, queryParamsHandling: 'merge' });
+    }
+
+    onInvoiceChange(event: Event): void {
+        this.selectInvoice((event.target as HTMLSelectElement).value || null);
     }
 
     private applyTarget(target: CaseTabTarget | null): void {

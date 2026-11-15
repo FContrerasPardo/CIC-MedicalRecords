@@ -17,8 +17,15 @@
             </select>
         </label>
 
+        <label class="mr-appearance__field mr-appearance__field--inline">
+            <input type="checkbox" [checked]="diagnostics.enabled()" (change)="onDiagnosticsChange($event)" />
+            <span>{{ 'MEDICAL_RECORDS.APPEARANCE.TECHNICAL_VIEW' | translate }}</span>
+        </label>
+
         <button type="button" (click)="reset()">
             {{ 'MEDICAL_RECORDS.APPEARANCE.RESET' | translate }}
         </button>
     </div>
 </details>
+
+<medical-records-dashboard-diagnostics-panel *ngIf="diagnostics.enabled()"></medical-records-dashboard-diagnostics-panel>

@@ -1,8 +1,10 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { WORKSPACE_NAV_OPTIONS, parseWorkspaceNav } from './appearance.model';
 import { AppearanceService } from './appearance.service';
+import { DashboardDiagnosticsPanelComponent } from '../dashboard/components/dashboard-diagnostics-panel/dashboard-diagnostics-panel.component';
+import { DashboardDiagnosticsService } from '../dashboard/services/dashboard-diagnostics.service';
 
 /**
  * Floating "Appearance" panel, mounted once on <body> by `provideAppearanceManager()`.
@@ -11,7 +13,7 @@ import { AppearanceService } from './appearance.service';
 @Component({
     selector: 'medical-records-appearance-manager',
     standalone: true,
-    imports: [NgFor, TranslateModule],
+    imports: [NgFor, NgIf, TranslateModule, DashboardDiagnosticsPanelComponent],
     templateUrl: './appearance-manager.component.html',
     styleUrls: ['./appearance-manager.component.scss'],
     encapsulation: ViewEncapsulation.None,
@@ -24,10 +26,16 @@ export class AppearanceManagerComponent {
     @ViewChild('panel', { static: true }) private panel!: ElementRef<HTMLDetailsElement>;
 
     readonly preferences = this.appearance.preferences;
+    /** Technical view (CIC-Fin style): masked trace of the dashboard queries. */
+    readonly diagnostics = inject(DashboardDiagnosticsService);
     readonly workspaceNavOptions = WORKSPACE_NAV_OPTIONS;
 
     onWorkspaceNavChange(event: Event): void {
         this.appearance.setWorkspaceNav(parseWorkspaceNav((event.target as HTMLSelectElement).value));
+    }
+
+    onDiagnosticsChange(event: Event): void {
+        this.diagnostics.setEnabled((event.target as HTMLInputElement).checked);
     }
 
     reset(): void {

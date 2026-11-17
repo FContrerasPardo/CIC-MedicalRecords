@@ -3,282 +3,302 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ChecklistLoadResult, DocumentationChecklistRepositoryService } from './checklist/documentation-checklist-repository.service';
+import { AgreementRulesFileEditorComponent } from './agent-rules/agreement-rules-file-editor.component';
+import { AgreementChecklistEditorComponent } from './checklist/agreement-checklist-editor.component';
+import { checklistDocumentCatalogue, parseDocumentationChecklist } from './checklist/documentation-checklist.util';
+import { AgreementGeneralPanelComponent } from './general/agreement-general-panel.component';
+import { PreanalysisPolicyEditorComponent } from './policy/preanalysis-policy-editor.component';
+import { AgreementFiles, AgreementRepositoryService, AgreementsIndexLoadResult } from './store/agreement-repository.service';
 import {
-    addUniqueValue,
-    ChecklistConsumer,
-    ChecklistIssue,
-    ChecklistRisk,
-    ChecklistRule,
-    checklistDocumentCatalogue,
-    createChecklistRule,
-    DocumentationChecklist,
-    duplicateChecklistRule,
-    serializeDocumentationChecklist,
-    toDocumentationRules,
-    validateChecklist,
-} from './checklist/documentation-checklist.util';
+    AGENT_RULES_LIST,
+    AGREEMENT_FILE_CONSUMERS,
+    AGREEMENT_FILE_KINDS,
+    AgreementFileKind,
+    AgreementIndexEntry,
+    agreementFileVersion,
+    isValidAgreementId,
+    slugAgreementId,
+} from './store/agreement-store.util';
+import { hasAgreementTemplate } from './store/agreement-templates';
 
-type RiskFilter = 'ALL' | ChecklistRisk;
-type RuleListKey = 'requiredDocuments' | 'procedureCodes' | 'serviceCategories';
+type AgreementTab = 'general' | 'checklist' | 'policy' | 'agentRules' | 'documents';
+type AgentRulesTab = 'financial' | 'compliance' | 'coding';
 
 const I18N = 'MEDICAL_RECORDS.AGREEMENTS';
 
+/** Sub-tabs of «Agent rules»: each Agent Mesh agent and the files it reads. */
+const AGENT_RULES_TABS: Array<{ key: AgentRulesTab; icon: string; kinds: AgreementFileKind[] }> = [
+    { key: 'financial', icon: 'payments', kinds: ['tariffAgreement'] },
+    { key: 'compliance', icon: 'gpp_maybe', kinds: ['payerCompliancePolicy'] },
+    { key: 'coding', icon: 'code_blocks', kinds: ['payerCodingPolicy', 'codingRules'] },
+];
+
 /**
- * Agreements (convenios) in the unified UI. First section: the documentary checklist, read from
- * Appdata instead of the `documentationRules` process variable, with a viewer and an editor.
- * The file is only written when the user publishes or saves.
+ * Agreements (convenios) manager: a sidebar with the agreements of the Appdata index and, for the
+ * selected one, its rule documents (`/MedRec/Appdata/Agreements/<agreementId>/*.json`) in tabs:
+ * General, documentary checklist, pre-analysis policy, agent rules and documents. Each file shows
+ * its origin and is saved on its own.
  */
 @Component({
     selector: 'medical-records-agreements-page',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, TranslateModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        TranslateModule,
+        AgreementGeneralPanelComponent,
+        AgreementChecklistEditorComponent,
+        PreanalysisPolicyEditorComponent,
+        AgreementRulesFileEditorComponent,
+    ],
     templateUrl: './agreements-page.component.html',
     styleUrls: ['./agreements-page.component.scss'],
 })
 export class AgreementsPageComponent implements OnInit {
-    private readonly repository = inject(DocumentationChecklistRepositoryService);
+    private readonly repository = inject(AgreementRepositoryService);
 
     readonly i18n = I18N;
-    readonly riskFilters: RiskFilter[] = ['ALL', 'HIGH', 'MEDIUM', 'LOW'];
-    readonly risks: ChecklistRisk[] = ['HIGH', 'MEDIUM', 'LOW'];
-    readonly consumerOptions: ChecklistConsumer[] = ['validation', 'agent'];
+    readonly tabs: Array<{ key: AgreementTab; icon: string }> = [
+        { key: 'general', icon: 'handshake' },
+        { key: 'checklist', icon: 'fact_check' },
+        { key: 'policy', icon: 'policy' },
+        { key: 'agentRules', icon: 'smart_toy' },
+        { key: 'documents', icon: 'folder_open' },
+    ];
+    readonly agentTabs = AGENT_RULES_TABS;
+    readonly fileKinds = AGREEMENT_FILE_KINDS;
+    readonly consumers = AGREEMENT_FILE_CONSUMERS;
 
-    loading = true;
-    publishing = false;
-    publishError = false;
-    result: ChecklistLoadResult | null = null;
+    loadingIndex = true;
+    indexResult: AgreementsIndexLoadResult | null = null;
     search = '';
-    riskFilter: RiskFilter = 'ALL';
+    visibleEntries: AgreementIndexEntry[] = [];
 
-    visibleRules: ChecklistRule[] = [];
-    catalogue: Array<{ name: string; rules: number }> = [];
+    selectedId = '';
+    loadingFiles = false;
+    files: AgreementFiles | null = null;
+    tab: AgreementTab = 'general';
+    agentTab: AgentRulesTab = 'financial';
 
-    /** Editor: a copy of the checklist; nothing is written until it is saved. */
-    draft: DocumentationChecklist | null = null;
-    issues: ChecklistIssue[] = [];
-    saveAttempted = false;
+    working = false;
+    actionError: string | null = null;
+    actionDone: string | null = null;
 
-    get checklist(): DocumentationChecklist | null {
-        return this.result?.checklist ?? null;
+    duplicateOpen = false;
+    duplicateName = '';
+    duplicateId = '';
+    duplicateIdTouched = false;
+
+    /** Derived from the selected agreement's files. */
+    checklistRuleIds: string[] | null = null;
+    catalogueNames: string[] = [];
+    profileKeys: string[] = [];
+    summary: Array<{ labelKey: string; value: number }> = [];
+
+    get selected(): AgreementIndexEntry | null {
+        return this.indexResult?.index.agreements.find((entry) => entry.agreementId === this.selectedId) ?? null;
     }
 
-    get editing(): boolean {
-        return !!this.draft;
+    get pendingFiles(): AgreementFileKind[] {
+        return this.files ? AGREEMENT_FILE_KINDS.filter((kind) => this.files?.[kind].source !== 'appdata') : [];
     }
 
-    get filePath(): string {
-        return this.repository.filePath;
+    get general(): Record<string, unknown> {
+        return (this.files?.agreement.content['general'] as Record<string, unknown>) ?? {};
     }
 
-    get canPublish(): boolean {
-        return !!this.result && this.result.source !== 'appdata' && !this.publishing;
+    get hasTemplate(): boolean {
+        return hasAgreementTemplate(this.selectedId);
     }
 
-    ngOnInit(): void {
-        void this.load();
-    }
-
-    async load(): Promise<void> {
-        this.loading = true;
-        this.result = await this.repository.load();
-        this.loading = false;
-        this.rebuild();
-    }
-
-    /** Writes the checklist shown (seed or repaired file) to Appdata so it becomes the editable source. */
-    async publish(): Promise<void> {
-        if (this.result && this.canPublish) {
-            await this.write(this.result.checklist);
-        }
-    }
-
-    startEdit(): void {
-        if (!this.checklist) {
-            return;
-        }
-        this.draft = structuredClone(this.checklist);
-        this.saveAttempted = false;
-        this.publishError = false;
-        this.validate();
-    }
-
-    cancelEdit(): void {
-        this.draft = null;
-        this.issues = [];
-    }
-
-    async saveDraft(): Promise<void> {
-        if (!this.draft) {
-            return;
-        }
-        this.saveAttempted = true;
-        this.validate();
-        if (this.issues.length) {
-            return;
-        }
-        if (await this.write(this.draft)) {
-            this.draft = null;
-        }
-    }
-
-    validate(): void {
-        this.issues = this.draft ? validateChecklist(this.draft) : [];
-    }
-
-    issuesFor(ruleIndex: number | null): ChecklistIssue[] {
-        return this.issues.filter((issue) => issue.ruleIndex === ruleIndex);
-    }
-
-    addRule(): void {
-        if (this.draft) {
-            this.draft.rules = [...this.draft.rules, createChecklistRule(this.draft.rules)];
-            this.validate();
-        }
-    }
-
-    duplicateRule(index: number): void {
-        if (this.draft) {
-            const copy = duplicateChecklistRule(this.draft.rules[index], this.draft.rules);
-            this.draft.rules = [...this.draft.rules.slice(0, index + 1), copy, ...this.draft.rules.slice(index + 1)];
-            this.validate();
-        }
-    }
-
-    removeRule(index: number): void {
-        if (this.draft) {
-            this.draft.rules = this.draft.rules.filter((_rule, position) => position !== index);
-            this.validate();
-        }
-    }
-
-    moveRule(index: number, offset: -1 | 1): void {
-        const target = index + offset;
-        if (!this.draft || target < 0 || target >= this.draft.rules.length) {
-            return;
-        }
-        const rules = [...this.draft.rules];
-        [rules[index], rules[target]] = [rules[target], rules[index]];
-        this.draft.rules = rules;
-        this.validate();
-    }
-
-    listOf(rule: ChecklistRule, key: RuleListKey): string[] {
-        return key === 'requiredDocuments' ? rule.requiredDocuments : rule.appliesTo[key];
-    }
-
-    /** Enter or the add button: adds the typed value to the rule's list and clears the input. */
-    addValue(rule: ChecklistRule, key: RuleListKey, input: HTMLInputElement, event?: Event): void {
-        event?.preventDefault();
-        const next = addUniqueValue(this.listOf(rule, key), input.value);
-        this.setList(rule, key, next);
-        input.value = '';
-    }
-
-    removeValue(rule: ChecklistRule, key: RuleListKey, index: number): void {
-        this.setList(
-            rule,
-            key,
-            this.listOf(rule, key).filter((_value, position) => position !== index)
+    get duplicateValid(): boolean {
+        const id = this.duplicateId.trim();
+        return (
+            !!this.duplicateName.trim() &&
+            isValidAgreementId(id) &&
+            !(this.indexResult?.index.agreements ?? []).some((entry) => entry.agreementId.toLowerCase() === id.toLowerCase())
         );
     }
 
-    toggleConsumer(rule: ChecklistRule, consumer: ChecklistConsumer): void {
-        rule.consumers = rule.consumers.includes(consumer)
-            ? rule.consumers.filter((entry) => entry !== consumer)
-            : this.consumerOptions.filter((entry) => entry === consumer || rule.consumers.includes(entry));
-        this.validate();
+    ngOnInit(): void {
+        void this.loadIndex();
+    }
+
+    async loadIndex(selectId?: string): Promise<void> {
+        this.loadingIndex = true;
+        try {
+            this.indexResult = await this.repository.loadIndex();
+        } catch {
+            this.indexResult = null;
+        }
+        this.loadingIndex = false;
+        this.filter();
+        const entries = this.indexResult?.index.agreements ?? [];
+        const next = selectId ?? (entries.some((entry) => entry.agreementId === this.selectedId) ? this.selectedId : entries[0]?.agreementId);
+        if (next) {
+            await this.select(next, true);
+        }
+    }
+
+    async select(agreementId: string, force = false): Promise<void> {
+        if (agreementId === this.selectedId && !force && this.files) {
+            return;
+        }
+        this.selectedId = agreementId;
+        this.actionError = null;
+        this.actionDone = null;
+        this.duplicateOpen = false;
+        await this.loadFiles();
+    }
+
+    async loadFiles(): Promise<void> {
+        if (!this.selectedId) {
+            return;
+        }
+        this.loadingFiles = true;
+        try {
+            this.files = await this.repository.loadAgreement(this.selectedId);
+        } catch {
+            this.files = null;
+        }
+        this.loadingFiles = false;
+        this.derive();
+    }
+
+    /** One file was saved by its editor: reload it (and the index, for the general data). */
+    async onSaved(kind: AgreementFileKind): Promise<void> {
+        if (!this.files) {
+            return;
+        }
+        const agreementId = this.selectedId;
+        const file = await this.repository.loadFile(agreementId, kind);
+        if (agreementId !== this.selectedId || !this.files) {
+            return;
+        }
+        this.files = { ...this.files, [kind]: file };
+        this.derive();
+        if (kind === 'agreement' && this.indexResult) {
+            try {
+                await this.repository.syncIndexEntry(agreementId, file.content, this.indexResult);
+                this.indexResult = await this.repository.loadIndex();
+                this.filter();
+            } catch {
+                this.actionError = 'INDEX_ERROR';
+            }
+        }
+    }
+
+    /** Writes every file of the selected agreement that is not yet in Appdata, from the bundled template, and registers it in the index. */
+    async createFromTemplate(): Promise<void> {
+        if (!this.files || !this.indexResult || this.working) {
+            return;
+        }
+        await this.run('CREATED', async () => {
+            if (this.files && this.indexResult) {
+                await this.repository.createFromTemplate(this.selectedId, this.files, this.indexResult);
+            }
+            await this.loadIndex(this.selectedId);
+        });
+    }
+
+    openDuplicate(): void {
+        this.duplicateOpen = !this.duplicateOpen;
+        this.duplicateName = '';
+        this.duplicateId = '';
+        this.duplicateIdTouched = false;
+    }
+
+    onDuplicateName(value: string): void {
+        this.duplicateName = value;
+        if (!this.duplicateIdTouched) {
+            this.duplicateId = slugAgreementId(value);
+        }
+    }
+
+    onDuplicateId(value: string): void {
+        this.duplicateId = value;
+        this.duplicateIdTouched = true;
+    }
+
+    /** New agreement with the rules of the selected one (as shown), as a draft. */
+    async duplicate(): Promise<void> {
+        if (!this.files || !this.indexResult || !this.duplicateValid || this.working) {
+            return;
+        }
+        const target = { agreementId: this.duplicateId.trim(), providerName: this.duplicateName.trim() };
+        await this.run('DUPLICATED', async () => {
+            if (this.files && this.indexResult) {
+                await this.repository.duplicate(this.files, target, this.indexResult);
+            }
+            this.duplicateOpen = false;
+            this.tab = 'general';
+            await this.loadIndex(target.agreementId);
+        });
     }
 
     onSearch(value: string): void {
         this.search = value;
-        this.rebuild();
+        this.filter();
     }
 
-    setRiskFilter(filter: RiskFilter): void {
-        this.riskFilter = filter;
-        this.rebuild();
+    fileVersion(kind: AgreementFileKind): string {
+        return this.files ? agreementFileVersion(kind, this.files[kind].content) : '';
     }
 
-    riskCount(filter: RiskFilter): number {
-        const rules = this.checklist?.rules ?? [];
-        return filter === 'ALL' ? rules.length : rules.filter((rule) => rule.riskLevelIfMissing === filter).length;
-    }
-
-    consumerCount(consumer: ChecklistConsumer): number {
-        return (this.checklist?.rules ?? []).filter((rule) => rule.enabled && rule.consumers.includes(consumer)).length;
-    }
-
-    downloadChecklist(): void {
-        if (this.checklist) {
-            this.save('documentation-checklist', serializeDocumentationChecklist(this.checklist));
+    fileRows(kind: AgreementFileKind): number | null {
+        const file = this.files?.[kind];
+        if (!file) {
+            return null;
         }
-    }
-
-    /** The payload the documentation agent reads today (`documentationRules`). */
-    downloadAgentRules(): void {
-        if (this.checklist) {
-            this.save('documentation-rules-agent', JSON.stringify(toDocumentationRules(this.checklist), null, 2));
+        if (kind === 'documentationChecklist') {
+            return parseDocumentationChecklist(file.content)?.rules.length ?? 0;
         }
-    }
-
-    private setList(rule: ChecklistRule, key: RuleListKey, values: string[]): void {
-        if (key === 'requiredDocuments') {
-            rule.requiredDocuments = values;
-        } else {
-            rule.appliesTo = { ...rule.appliesTo, [key]: values };
+        if (kind === 'preanalysisPolicy') {
+            return Object.keys((file.content['profiles'] as Record<string, unknown>) ?? {}).length;
         }
-        this.validate();
+        const config = AGENT_RULES_LIST[kind];
+        const list = config ? file.content[config.listKey] : null;
+        return Array.isArray(list) ? list.length : null;
     }
 
-    private async write(checklist: DocumentationChecklist): Promise<boolean> {
-        this.publishing = true;
-        this.publishError = false;
+    agentTabPending(kinds: AgreementFileKind[]): boolean {
+        return kinds.some((kind) => this.files?.[kind].source !== 'appdata');
+    }
+
+    private async run(done: string, action: () => Promise<void>): Promise<void> {
+        this.working = true;
+        this.actionError = null;
+        this.actionDone = null;
         try {
-            await this.repository.publish(checklist, this.result?.documentId ?? null);
-            await this.load();
-            return true;
+            await action();
+            this.actionDone = done;
         } catch {
-            this.publishError = true;
-            return false;
+            this.actionError = 'WRITE_ERROR';
         } finally {
-            this.publishing = false;
+            this.working = false;
         }
     }
 
-    private rebuild(): void {
-        const checklist = this.checklist;
-        if (!checklist) {
-            this.visibleRules = [];
-            this.catalogue = [];
-            return;
-        }
+    private filter(): void {
         const term = this.search.trim().toLowerCase();
-        this.visibleRules = checklist.rules.filter((rule) => {
-            if (this.riskFilter !== 'ALL' && rule.riskLevelIfMissing !== this.riskFilter) {
-                return false;
-            }
-            if (!term) {
-                return true;
-            }
-            return [rule.ruleId, rule.description, ...rule.requiredDocuments, ...rule.appliesTo.procedureCodes, ...rule.appliesTo.serviceCategories]
-                .join(' ')
-                .toLowerCase()
-                .includes(term);
-        });
-        this.catalogue = checklistDocumentCatalogue(checklist).map((name) => ({
-            name,
-            rules: checklist.rules.filter((rule) => rule.requiredDocuments.includes(name)).length,
-        }));
+        const entries = this.indexResult?.index.agreements ?? [];
+        this.visibleEntries = term
+            ? entries.filter((entry) => [entry.providerName, entry.payer, entry.agreementId].join(' ').toLowerCase().includes(term))
+            : entries;
     }
 
-    private save(name: string, content: string): void {
-        const blob = new Blob([content], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${name}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
+    private derive(): void {
+        const checklist = this.files ? parseDocumentationChecklist(this.files.documentationChecklist.content) : null;
+        this.checklistRuleIds = checklist ? checklist.rules.map((rule) => rule.ruleId) : null;
+        this.catalogueNames = checklist ? checklistDocumentCatalogue(checklist) : [];
+        this.profileKeys = Object.keys((this.files?.preanalysisPolicy.content['profiles'] as Record<string, unknown>) ?? {});
+        this.summary = [
+            { labelKey: 'SUMMARY.CHECKLIST_RULES', value: this.fileRows('documentationChecklist') ?? 0 },
+            { labelKey: 'SUMMARY.POLICY_PROFILES', value: this.fileRows('preanalysisPolicy') ?? 0 },
+            { labelKey: 'SUMMARY.TARIFFS', value: this.fileRows('tariffAgreement') ?? 0 },
+            { labelKey: 'SUMMARY.COMPLIANCE_RULES', value: this.fileRows('payerCompliancePolicy') ?? 0 },
+            { labelKey: 'SUMMARY.CODING_RULES', value: (this.fileRows('payerCodingPolicy') ?? 0) + (this.fileRows('codingRules') ?? 0) },
+        ];
     }
 }

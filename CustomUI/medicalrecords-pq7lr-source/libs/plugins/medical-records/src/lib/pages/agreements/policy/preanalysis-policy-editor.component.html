@@ -1,0 +1,261 @@
+<section class="panel" aria-labelledby="policy-title">
+    <div class="panel__head">
+        <div>
+            <h2 id="policy-title">
+                <span class="material-icons" aria-hidden="true">policy</span>{{ i18n + '.POLICY.TITLE' | translate }}
+            </h2>
+            <p class="panel__lead">{{ i18n + '.POLICY.LEAD' | translate }}</p>
+        </div>
+        <div class="panel__actions">
+            @if (draft) {
+                <button type="button" class="btn" (click)="cancelEdit()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
+                </button>
+                <button type="button" class="btn btn--primary" (click)="saveDraft()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">save</span>
+                    {{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.EDITOR.SAVE') | translate }}
+                </button>
+            } @else {
+                <button type="button" class="btn" (click)="startEdit()" [disabled]="!view">
+                    <span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.EDITOR.EDIT' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="download()" [disabled]="!file">
+                    <span class="material-icons" aria-hidden="true">download</span>{{ i18n + '.CHECKLIST.DOWNLOAD' | translate }}
+                </button>
+                @if (canCreate) {
+                    <button type="button" class="btn btn--primary" (click)="createFromTemplate()">
+                        <span class="material-icons" aria-hidden="true">cloud_upload</span>
+                        {{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.FILE.CREATE') | translate }}
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    @if (missingRuleIds.length && !draft) {
+        <div class="source source--invalid" role="alert">
+            <span class="material-icons" aria-hidden="true">link_off</span>
+            <span>{{ i18n + '.POLICY.MISSING_IN_CHECKLIST' | translate }}</span>
+            @for (item of missingRuleIds; track item) {
+                <code>{{ item }}</code>
+            }
+        </div>
+    }
+
+    @if (shown) {
+        @if (saveError) {
+            <p class="source source--invalid" role="alert">{{ i18n + '.POLICY.SAVE_ERROR' | translate }}</p>
+        }
+        @if (savedVersion) {
+            <p class="source source--appdata" role="status">{{ i18n + '.POLICY.SAVED' | translate: { version: savedVersion } }}</p>
+        }
+        @if (draft && saveAttempted && issues.length) {
+            <p class="source source--invalid" role="alert">{{ i18n + '.EDITOR.HAS_ISSUES' | translate: { count: issues.length } }}</p>
+        }
+
+        <dl class="facts">
+            <div><dt>{{ i18n + '.POLICY.POLICY_ID' | translate }}</dt><dd><code>{{ policy?.policyId || '—' }}</code></dd></div>
+            <div><dt>{{ i18n + '.POLICY.VERSION' | translate }}</dt><dd><code>{{ policy?.version || '—' }}</code></dd></div>
+            <div><dt>{{ i18n + '.POLICY.PROFILES' | translate }}</dt><dd>{{ shown.profiles.length }}</dd></div>
+        </dl>
+
+        <div class="filters" role="group" [attr.aria-label]="i18n + '.POLICY.PROFILE' | translate">
+            @for (item of shown.profiles; track item.key) {
+                <button type="button" class="filter" [class.filter--active]="profile?.key === item.key" [attr.aria-pressed]="profile?.key === item.key" (click)="selectedProfile = item.key">
+                    <code>{{ item.key }}</code>
+                    @if (draft && saveAttempted && profileIssueCount(item.key)) {
+                        <span class="policy__issue-count">{{ profileIssueCount(item.key) }}</span>
+                    }
+                </button>
+            }
+        </div>
+
+        @if (profile; as current) {
+            @if (draft; as editDraft) {
+                <div class="editor">
+                    <label class="edit-rule__block">
+                        <span>{{ i18n + '.POLICY.LABEL' | translate }}</span>
+                        <input type="text" [(ngModel)]="current.label" />
+                    </label>
+
+                    @for (section of requirementSections; track section) {
+                        <fieldset class="editor__header policy__section">
+                            <legend>{{ i18n + (section === 'alwaysRequired' ? '.POLICY.ALWAYS_REQUIRED' : '.POLICY.CONDITIONALLY_REQUIRED') | translate }}</legend>
+                            @for (item of current[section]; track $index; let i = $index) {
+                                <div class="policy__row" [class.policy__row--invalid]="saveAttempted && issuesFor(section, i).length">
+                                    <label>
+                                        <span>{{ i18n + '.POLICY.CLASS_NAME' | translate }} *</span>
+                                        <input type="text" list="policy-classes" [(ngModel)]="item.className" (ngModelChange)="changed()" />
+                                    </label>
+                                    <label>
+                                        <span>{{ i18n + '.POLICY.RULE_ID' | translate }} *</span>
+                                        <input type="text" class="policy__id" [(ngModel)]="item.ruleId" (ngModelChange)="validate()" />
+                                    </label>
+                                    <label>
+                                        <span>{{ i18n + '.CHECKLIST.RISK' | translate }}</span>
+                                        <select [(ngModel)]="item.risk" (ngModelChange)="validate()">
+                                            @for (risk of risks; track risk) {
+                                                <option [ngValue]="risk">{{ i18n + '.CHECKLIST.RISK_' + risk | translate }}</option>
+                                            }
+                                        </select>
+                                    </label>
+                                    @if (section === 'conditionallyRequired') {
+                                        <label class="policy__wide">
+                                            <span>{{ i18n + '.POLICY.CONDITION' | translate }}</span>
+                                            <input type="text" [(ngModel)]="item.condition" />
+                                        </label>
+                                    }
+                                    <button type="button" class="icon-btn icon-btn--danger" (click)="removeRequirement(section, i)" [attr.aria-label]="i18n + '.POLICY.REMOVE_ROW' | translate">
+                                        <span class="material-icons" aria-hidden="true">delete</span>
+                                    </button>
+                                    @if (saveAttempted && issuesFor(section, i).length) {
+                                        <ul class="edit-rule__issues policy__wide" role="alert">
+                                            @for (issue of issuesFor(section, i); track issue.code) {
+                                                <li>{{ i18n + '.POLICY.ISSUE_' + issue.code | translate }}</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            } @empty {
+                                <p class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</p>
+                            }
+                            <button type="button" class="btn policy__add" (click)="addRequirement(section)">
+                                <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.POLICY.ADD_REQUIREMENT' | translate }}
+                            </button>
+                        </fieldset>
+                    }
+
+                    <div class="list-editor">
+                        <span class="list-editor__label">{{ i18n + '.POLICY.OPTIONAL' | translate }}</span>
+                        <ul class="list-editor__chips">
+                            @for (name of current.optional; track name; let index = $index) {
+                                <li>
+                                    {{ name }}
+                                    <button type="button" (click)="removeOptional(index)" [attr.aria-label]="(i18n + '.EDITOR.REMOVE_VALUE' | translate) + ' ' + name">
+                                        <span class="material-icons" aria-hidden="true">close</span>
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                        <span class="list-editor__add">
+                            <input
+                                #optionalInput
+                                type="text"
+                                list="policy-classes"
+                                [attr.aria-label]="i18n + '.POLICY.OPTIONAL' | translate"
+                                [placeholder]="i18n + '.EDITOR.ADD_VALUE' | translate"
+                                (keydown.enter)="addOptional(optionalInput, $event)"
+                            />
+                            <button type="button" class="icon-btn" (click)="addOptional(optionalInput)" [attr.aria-label]="i18n + '.EDITOR.ADD_VALUE' | translate">
+                                <span class="material-icons" aria-hidden="true">add</span>
+                            </button>
+                        </span>
+                    </div>
+
+                    <fieldset class="editor__header policy__section">
+                        <legend>{{ i18n + '.POLICY.CROSS_CHECKS' | translate }}</legend>
+                        @for (check of current.crossChecks; track $index; let i = $index) {
+                            <div class="policy__row" [class.policy__row--invalid]="saveAttempted && issuesFor('crossChecks', i).length">
+                                <label>
+                                    <span>{{ i18n + '.POLICY.CHECK_ID' | translate }} *</span>
+                                    <input type="text" class="policy__id" [(ngModel)]="check.checkId" (ngModelChange)="validate()" />
+                                </label>
+                                <label>
+                                    <span>{{ i18n + '.POLICY.LABEL' | translate }}</span>
+                                    <input type="text" [(ngModel)]="check.label" />
+                                </label>
+                                <label class="policy__wide">
+                                    <span>{{ i18n + '.POLICY.CHECK_RULE' | translate }}</span>
+                                    <textarea rows="2" [(ngModel)]="check.rule"></textarea>
+                                </label>
+                                <button type="button" class="icon-btn icon-btn--danger" (click)="removeCrossCheck(i)" [attr.aria-label]="i18n + '.POLICY.REMOVE_ROW' | translate">
+                                    <span class="material-icons" aria-hidden="true">delete</span>
+                                </button>
+                                @if (saveAttempted && issuesFor('crossChecks', i).length) {
+                                    <ul class="edit-rule__issues policy__wide" role="alert">
+                                        @for (issue of issuesFor('crossChecks', i); track issue.code) {
+                                            <li>{{ i18n + '.POLICY.ISSUE_' + issue.code | translate }}</li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        } @empty {
+                            <p class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</p>
+                        }
+                        <button type="button" class="btn policy__add" (click)="addCrossCheck()">
+                            <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.POLICY.ADD_CHECK' | translate }}
+                        </button>
+                    </fieldset>
+
+                    <details class="policy__advanced" [open]="saveAttempted && hasAdvancedIssues">
+                        <summary>{{ i18n + '.POLICY.ADVANCED' | translate }}</summary>
+                        <p class="panel__lead">{{ i18n + '.POLICY.ADVANCED_LEAD' | translate }}</p>
+                        @for (field of advancedFields; track field) {
+                            <label class="edit-rule__block">
+                                <code>{{ field }}</code>
+                                <textarea rows="8" class="policy__json" spellcheck="false" [(ngModel)]="editDraft.advanced[field]" (ngModelChange)="validate()"></textarea>
+                            </label>
+                            @if (saveAttempted && issuesFor(field, null).length) {
+                                <p class="edit-rule__issues" role="alert">{{ i18n + '.POLICY.ISSUE_ADVANCED_INVALID' | translate }}</p>
+                            }
+                        }
+                    </details>
+
+                    <datalist id="policy-classes">
+                        @for (name of suggestions; track name) {
+                            <option [value]="name"></option>
+                        }
+                    </datalist>
+                </div>
+            } @else {
+                <div class="policy__view">
+                    <h3>{{ current.label || current.key }}</h3>
+                    @for (section of requirementSections; track section) {
+                        <h4>{{ i18n + (section === 'alwaysRequired' ? '.POLICY.ALWAYS_REQUIRED' : '.POLICY.CONDITIONALLY_REQUIRED') | translate }}</h4>
+                        <ul class="rule-list">
+                            @for (item of current[section]; track $index) {
+                                <li class="rule">
+                                    <div class="rule__head">
+                                        <code class="rule__id">{{ item.ruleId }}</code>
+                                        <span class="risk risk--{{ item.risk | lowercase }}">{{ i18n + '.CHECKLIST.RISK_' + item.risk | translate }}</span>
+                                        <span>{{ item.className }}</span>
+                                    </div>
+                                    @if (item.condition) {
+                                        <p class="rule__description">{{ item.condition }}</p>
+                                    }
+                                </li>
+                            } @empty {
+                                <li class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</li>
+                            }
+                        </ul>
+                    }
+                    <h4>{{ i18n + '.POLICY.OPTIONAL' | translate }}</h4>
+                    <p class="rule__scope">
+                        @for (name of current.optional; track name) {
+                            <span class="tag">{{ name }}</span>
+                        } @empty {
+                            <span class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</span>
+                        }
+                    </p>
+                    <h4>{{ i18n + '.POLICY.CROSS_CHECKS' | translate }}</h4>
+                    <ul class="rule-list">
+                        @for (check of current.crossChecks; track $index) {
+                            <li class="rule">
+                                <div class="rule__head">
+                                    <code class="rule__id">{{ check.checkId }}</code>
+                                    <span>{{ check.label }}</span>
+                                </div>
+                                <p class="rule__description">{{ check.rule }}</p>
+                            </li>
+                        } @empty {
+                            <li class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    } @else {
+        <p class="source source--invalid" role="alert">{{ i18n + '.POLICY.LOAD_ERROR' | translate }}</p>
+    }
+</section>

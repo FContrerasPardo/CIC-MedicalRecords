@@ -1,0 +1,700 @@
+// CIC-Fin's loan-application stylesheet, vendored as-is (layout, cards, upload, processing stages,
+// IDP animations, review table, confirmation). Its --ab-* tokens map to the plugin's --mr-* tokens.
+@use 'cic-fin-loan-application';
+
+:host {
+    --ab-page: var(--mr-background, #f7f9fb);
+    --ab-ink: var(--mr-heading, #001b3d);
+    --ab-muted: var(--mr-muted, #475467);
+    --ab-line: var(--mr-border, #d0d5dd);
+    --ab-tint: var(--mr-surface-muted, #f2f4f7);
+    --ab-paper: var(--mr-surface, #ffffff);
+    --ab-accent-text: var(--mr-primary, #00478d);
+    --ab-brand: var(--mr-primary, #00478d);
+    --ab-brand-secondary: var(--mr-accent, #6e33ff);
+    --ab-ok-text: var(--mr-success-text, #12b76a);
+    --ab-warn-text: var(--mr-warning, #b54708);
+    --ab-error-text: var(--mr-error-text, #b42318);
+    --ab-soft-green: color-mix(in srgb, var(--ab-ok-text) 12%, var(--ab-paper));
+    --ab-soft-warn: var(--mr-warning-surface, #fffaeb);
+    --ab-soft-error: color-mix(in srgb, var(--ab-error-text) 10%, var(--ab-paper));
+    --ab-glass: color-mix(in srgb, var(--ab-paper) 72%, transparent);
+    --ab-brand-glow-soft: color-mix(in srgb, var(--ab-brand) 8%, transparent);
+    --ab-brand-glow: color-mix(in srgb, var(--ab-brand) 18%, transparent);
+    --ab-brand-glow-strong: color-mix(in srgb, var(--ab-brand) 36%, transparent);
+    --ab-loan-viewport-chrome: 148px;
+}
+
+// CIC-Fin's no-overflow rule (its selector list also named a CIC-Fin child component).
+.processing-layout,
+.processing-card,
+.stage-list,
+.stage,
+.stage-body,
+.stage-details,
+.stage-details-inner,
+.stage-substates,
+.stage-substates li {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.back-link {
+    text-decoration: none;
+    width: fit-content;
+}
+
+// ── Stepper (four steps of the pre-radication) ───────────────────────────────
+.flow-stepper {
+    max-width: 1180px;
+    width: 100%;
+    margin: 0 auto 22px;
+
+    ol {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: none;
+    }
+}
+
+.flow-stepper__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--ab-line);
+    border-radius: 999px;
+    background: var(--ab-paper);
+    color: var(--ab-muted);
+    font-size: 12px;
+    font-weight: 600;
+    transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
+.flow-stepper__marker {
+    display: grid;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ab-tint);
+    color: var(--ab-accent-text);
+    font-size: 12px;
+
+    mat-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+    }
+}
+
+.flow-stepper__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flow-stepper__item--active {
+    border-color: var(--ab-brand);
+    color: var(--ab-ink);
+    box-shadow: 0 0 0 4px var(--ab-brand-glow-soft);
+
+    .flow-stepper__marker {
+        background: var(--ab-brand);
+        color: #fff;
+    }
+}
+
+.flow-stepper__item--done {
+    color: var(--ab-ok-text);
+
+    .flow-stepper__marker {
+        background: var(--ab-ok-text);
+        color: #fff;
+    }
+}
+
+@media (max-width: 520px) {
+    .flow-stepper ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+// ── Load ────────────────────────────────────────────────────────────────────
+input[readonly] {
+    background: var(--ab-tint);
+    color: var(--ab-muted);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+.drop-zone:focus-visible,
+.back-link:focus-visible {
+    outline: 2px solid var(--ab-brand);
+    outline-offset: 2px;
+}
+
+.field-error {
+    color: var(--ab-error-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.upload-row em {
+    margin-left: 6px;
+    color: var(--ab-muted);
+    font-size: 12px;
+    font-style: normal;
+}
+
+.notice {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px solid var(--ab-line);
+    border-radius: 10px;
+    color: var(--ab-ink);
+    font-size: 13px;
+    line-height: 1.45;
+
+    > mat-icon {
+        flex: 0 0 20px;
+    }
+
+    ul {
+        margin: 6px 0 0;
+        padding-left: 18px;
+    }
+
+    p {
+        margin: 6px 0 0;
+    }
+
+    code {
+        overflow-wrap: anywhere;
+    }
+}
+
+.notice--warn {
+    background: var(--ab-soft-warn);
+
+    > mat-icon {
+        color: var(--ab-warn-text);
+    }
+}
+
+.notice--error {
+    background: var(--ab-soft-error);
+
+    > mat-icon {
+        color: var(--ab-error-text);
+    }
+}
+
+// ── Process ─────────────────────────────────────────────────────────────────
+.stage-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.stage-count {
+    color: var(--ab-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stage--error .stage-marker {
+    background: var(--ab-error-text);
+    color: #fff;
+    animation: none;
+
+    mat-icon {
+        animation: none;
+    }
+}
+
+// ── Pre-analysis and comments ───────────────────────────────────────────────
+.preanalysis-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--ab-soft-warn);
+    color: var(--ab-warn-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.decision-note {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--ab-muted);
+    font-size: 13px;
+}
+
+.link-button {
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ab-accent-text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+// ── Compact density (CIC-Fin commit 97eb5d9) ────────────────────────────────
+// Upload: no side assistant; form, drop zone and upload list on the left, accepted documents on the
+// right (vendored rules), with the page's own messages kept in the left column above the actions.
+.flow-layout:not(.review-page-layout) > .assistant-card,
+.processing-layout > .processing-assistant {
+    display: none;
+}
+
+.flow-layout:not(.review-page-layout) > .flow-card > .upload-messages {
+    grid-column: 1;
+    grid-row: 8;
+    min-width: 0;
+}
+
+.flow-layout:not(.review-page-layout) > .flow-card > .upload-actions {
+    grid-column: 1 / -1;
+    grid-row: 9;
+}
+
+@container (max-width: 760px) {
+    .flow-layout:not(.review-page-layout) > .flow-card > .upload-messages,
+    .flow-layout:not(.review-page-layout) > .flow-card > .upload-actions {
+        grid-column: 1;
+        grid-row: auto;
+    }
+}
+
+// ── Processing: IDP sub-steps from the runtime service tasks ────────────────
+.stage-substates li.idp-step--pending {
+    opacity: 0.45;
+
+    .idp-agent,
+    .idp-agent-halo,
+    .idp-doc,
+    .idp-data-line {
+        animation: none !important;
+    }
+}
+
+.stage-substates li.idp-step--error .idp-step-caption {
+    color: var(--ab-error-text);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+// ── Review: invoices, findings with comments and documents ──────────────────
+.review-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+
+    h1 {
+        margin: 0;
+    }
+}
+
+.review-title-meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.review-invoices {
+    margin: 12px 0 4px;
+}
+
+// One invoice: a single compact strip (number · patient · documents · total).
+.review-invoice-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--ab-line);
+    border-radius: 10px;
+    background: var(--ab-tint);
+    color: var(--ab-muted);
+    font-size: 13px;
+
+    mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        color: var(--ab-accent-text);
+    }
+
+    strong {
+        color: var(--ab-ink);
+    }
+
+    strong + span::before,
+    span + span::before {
+        content: '·';
+        margin-right: 14px;
+        color: var(--ab-line);
+    }
+}
+
+// Several invoices: compact cards in a wrapping row.
+.review-invoice-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    article {
+        display: grid;
+        gap: 2px;
+        flex: 1 1 180px;
+        max-width: 260px;
+        padding: 8px 12px;
+        border: 1px solid var(--ab-line);
+        border-radius: 10px;
+        background: var(--ab-tint);
+    }
+
+    small {
+        color: var(--ab-muted);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    strong {
+        color: var(--ab-ink);
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    span {
+        color: var(--ab-muted);
+        font-size: 11px;
+    }
+}
+
+.review-findings .review-cell-description {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.review-finding-invoice {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ab-ink);
+    font-weight: 600;
+
+    mat-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+        color: var(--ab-accent-text);
+    }
+}
+
+.review-findings .review-user-action {
+    margin-top: 6px;
+    gap: 6px;
+
+    button {
+        justify-self: start;
+    }
+}
+
+.review-findings .review-cell-action {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.preanalysis-badge[data-source='agent'] {
+    background: var(--ab-brand-glow-soft);
+    color: var(--ab-accent-text);
+}
+
+.review-findings .review-table-row[data-status='missing'] .review-document-name mat-icon {
+    color: var(--ab-error-text);
+}
+
+.review-findings .review-table-row[data-status='pass'] {
+    .review-document-name mat-icon,
+    .review-status {
+        color: var(--ab-ok-text);
+    }
+}
+
+.review-findings .review-full-comment {
+    font-size: 12px;
+}
+
+.review-no-document {
+    color: var(--ab-muted);
+    font-size: 11px;
+    text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flow-stepper__item {
+        transition: none;
+    }
+}
+
+// Pre-analysis / Intake tracks (CIC-Fin validation-track art): the signature doc shows "Rules".
+.idp-signatures-doc[data-label]::before {
+    content: attr(data-label);
+}
+.stage-substates--agentic-validation {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 240px));
+}
+
+// Review rows: collapsed by default (summary line), details on demand; assistant summary.
+.review-table-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin: 4px 0;
+}
+
+.review-row-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    margin-right: 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(110, 51, 255, 0.08);
+    }
+}
+
+.review-summary--clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 4px 0 0;
+}
+
+.review-table-row[data-status='pass'] .review-status {
+    color: #0f7b5f;
+}
+
+.assistant-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+
+    span {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #f3f4f8;
+        font-size: 12px;
+    }
+
+    [data-status='missing'] strong { color: #b42318; }
+    [data-status='attention'] strong { color: #b54708; }
+    [data-status='pass'] strong { color: #0f7b5f; }
+}
+
+.assistant-subtitle {
+    margin: 8px 0 4px;
+    font-size: 13px;
+}
+
+.assistant-alerts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    button {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        width: 100%;
+        padding: 6px 4px;
+        border: 0;
+        border-bottom: 1px solid #eceef4;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: rgba(110, 51, 255, 0.06);
+        }
+    }
+
+    span {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        font-size: 12px;
+    }
+
+    small {
+        color: #5c6070;
+    }
+
+    li[data-status='missing'] > button > mat-icon { color: #b42318; }
+    li[data-status='attention'] > button > mat-icon { color: #b54708; }
+
+    .assistant-alert-done {
+        color: #0f7b5f;
+    }
+}
+
+.assistant-alerts__empty {
+    font-size: 12px;
+    color: #5c6070;
+}
+
+// Pre-analysis policy (right column, under the assistant), as CIC-Fin showed its policy.
+.review-policy {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #eceef4;
+
+    .assistant-subtitle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        mat-icon {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+            color: var(--ab-accent-text);
+        }
+    }
+}
+
+.review-policy__profile {
+    display: grid;
+    gap: 2px;
+    margin: 0 0 6px;
+    font-size: 12px;
+
+    small {
+        color: #5c6070;
+    }
+}
+
+.review-policy__section {
+    margin-top: 4px;
+
+    summary {
+        padding: 4px 0;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 0;
+        border-bottom: 1px solid #eceef4;
+        font-size: 12px;
+
+        span {
+            flex: 1;
+            min-width: 0;
+        }
+
+        small {
+            color: #5c6070;
+            white-space: nowrap;
+        }
+
+        mat-icon {
+            flex: 0 0 auto;
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
+            color: #5c6070;
+        }
+    }
+
+    li[data-status='found'] mat-icon { color: #0f7b5f; }
+    li[data-status='attention'] mat-icon { color: #b54708; }
+    li[data-status='missing'] mat-icon { color: #b42318; }
+}
+
+// Collapsed row: what was verified up front, then what is pending (CIC-Fin review summary).
+.review-findings .review-summary--verified,
+.review-findings .review-summary--pending {
+    margin: 0 0 2px;
+    -webkit-line-clamp: 2;
+
+    strong {
+        font-weight: 600;
+        margin-right: 4px;
+    }
+}
+
+.review-findings .review-summary--verified strong {
+    color: var(--ab-green, #1f7a4d);
+}
+
+.review-findings .review-summary--pending strong {
+    color: var(--ab-amber, #a15c00);
+}
+
+// Inline "Add documents" block of the review (CIC-Fin review upload).
+.review-upload-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}

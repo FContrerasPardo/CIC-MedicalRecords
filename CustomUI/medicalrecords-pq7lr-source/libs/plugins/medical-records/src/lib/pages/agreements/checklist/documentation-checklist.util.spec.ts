@@ -33,8 +33,41 @@ describe('documentation checklist (Appdata)', () => {
         expect(checklist.rules[1].enabled).toBe(true);
     });
 
-    it('seeds the demo checklist from the Automate default', () => {
-        expect(DEFAULT_DOCUMENTATION_CHECKLIST.rules.map((rule) => rule.ruleId)).toEqual(['DOC-001', 'DOC-002', 'DOC-003']);
+    it('seeds the demo checklist with the policy rule ids and IDP classes', () => {
+        expect(DEFAULT_DOCUMENTATION_CHECKLIST.rules.map((rule) => rule.ruleId)).toEqual([
+            'SIF-001',
+            'SIF-002',
+            'SIF-003',
+            'SIF-004',
+            'SIF-010',
+            'SIF-011',
+            'SIF-012',
+            'SIF-013',
+            'SIF-014',
+            'MIO-001',
+        ]);
+        expect(DEFAULT_DOCUMENTATION_CHECKLIST.rules[0].requiredDocuments).toEqual(['Factura y Desglose']);
+        expect(DEFAULT_DOCUMENTATION_CHECKLIST.rules[9].profiles).toEqual(['MULTI_INVOICE_INVOICE_ONLY']);
+        expect(validateChecklist(DEFAULT_DOCUMENTATION_CHECKLIST)).toEqual([]);
+    });
+
+    it('limits rules to the account profile and leaves unscoped conditional rules to the agent', () => {
+        const facts = { procedureCodes: [], serviceCategories: [], documentClasses: ['Factura y Desglose'] };
+        const single = evaluateChecklist(DEFAULT_DOCUMENTATION_CHECKLIST, { ...facts, profile: 'SINGLE_INVOICE_FULL' });
+        expect(single.map((entry) => entry.ruleId)).toEqual(['SIF-001', 'SIF-002', 'SIF-003', 'SIF-004']);
+        const multi = evaluateChecklist(DEFAULT_DOCUMENTATION_CHECKLIST, { ...facts, profile: 'MULTI_INVOICE_INVOICE_ONLY' });
+        expect(multi.map((entry) => `${entry.ruleId}:${entry.status}`)).toEqual(['MIO-001:ok']);
+    });
+
+    it('keeps profiles, condition and version through the agent payload and a saved file', () => {
+        const checklist = fromDocumentationRules({ agreementId: 'demo', version: '2026-11-17-r1', rules: [{ ruleId: 'SIF-010', profiles: ['P1'], condition: 'Lab billed', requiredDocuments: ['Laboratorios'] }] });
+        const payload = toDocumentationRules(checklist) as { rules: Array<Record<string, unknown>> };
+        expect(payload.rules[0]['profiles']).toEqual(['P1']);
+        expect(payload.rules[0]['condition']).toBe('Lab billed');
+        const parsed = parseDocumentationChecklist(serializeDocumentationChecklist(checklist));
+        expect(parsed?.agreementId).toBe('demo');
+        expect(parsed?.version).toBe('2026-11-17-r1');
+        expect(parsed?.rules[0].condition).toBe('Lab billed');
     });
 
     it('rejects files without rules and round-trips a saved file', () => {

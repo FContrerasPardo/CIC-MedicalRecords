@@ -22,6 +22,16 @@ export interface ChecklistRule {
     riskLevelIfMissing: ChecklistRisk;
     consumers: ChecklistConsumer[];
     enabled: boolean;
+    /**
+     * Pre-analysis policy profiles where the rule applies (`SINGLE_INVOICE_FULL`, ...); empty for
+     * every profile. The policy's `documentRequirements` reference these rule ids.
+     */
+    profiles: string[];
+    /**
+     * When the document is required, in words, for conditional rules the agent decides from the
+     * service lines (laboratory billed, surgery, ...). Empty for unconditional rules.
+     */
+    condition: string;
 }
 
 export interface DocumentationChecklist {
@@ -29,6 +39,10 @@ export interface DocumentationChecklist {
     schemaVersion: number;
     rulesetId: string;
     name: string;
+    /** Agreement of the checklist (`/MedRec/Appdata/Agreements/<agreementId>/`); null for the legacy global file. */
+    agreementId: string | null;
+    /** `YYYY-MM-DD-rN`, bumped on every save. */
+    version: string | null;
     payer: string | null;
     effectiveFrom: string | null;
     effectiveTo: string | null;
@@ -39,29 +53,67 @@ export interface DocumentationChecklist {
 const RISKS: ChecklistRisk[] = ['HIGH', 'MEDIUM', 'LOW'];
 const ALL_CONSUMERS: ChecklistConsumer[] = ['validation', 'agent'];
 
-/** Demo seed, identical to the default `documentationRules` of the Automate agent mesh process. */
+const SINGLE = ['SINGLE_INVOICE_FULL'];
+
+/**
+ * Demo seed and the catalogue of rule ids shared with the pre-analysis policy
+ * (`default-preanalysis-policy.json`): same ids (`SIF-*`, `MIO-*`) and IDP class names, so each
+ * `documentRequirements` row of a policy profile references a rule of this checklist.
+ */
 export const DEFAULT_DOCUMENTATION_CHECKLIST: DocumentationChecklist = fromDocumentationRules({
-    rulesetId: 'DOC-RULES-DEMO-2024',
+    rulesetId: 'DOC-RULES-DEMO',
+    name: 'Checklist documental de demostración',
+    payer: 'ARS Primera',
     rules: [
+        { ruleId: 'SIF-001', profiles: SINGLE, description: 'Invoice with its service breakdown.', requiredDocuments: ['Factura y Desglose'], riskLevelIfMissing: 'HIGH' },
+        { ruleId: 'SIF-002', profiles: SINGLE, description: 'Admission sheet of the stay.', requiredDocuments: ['Planilla de Admisión'], riskLevelIfMissing: 'HIGH' },
+        { ruleId: 'SIF-003', profiles: SINGLE, description: 'Payer claim form.', requiredDocuments: ['Formulario de Reclamación (ARS Primera)'], riskLevelIfMissing: 'MEDIUM' },
+        { ruleId: 'SIF-004', profiles: SINGLE, description: 'Affiliation card of the patient.', requiredDocuments: ['Carnet de Afiliación'], riskLevelIfMissing: 'MEDIUM' },
         {
-            ruleId: 'DOC-001',
-            appliesToProcedureCode: '903895',
-            description: 'Radiology procedure requires imaging report, medical order, and prior authorization when required by payer.',
-            requiredDocuments: ['Radiology Report', 'Medical Order', 'Prior Authorization'],
-            riskLevelIfMissing: 'HIGH',
-        },
-        {
-            ruleId: 'DOC-002',
-            appliesToProcedureCode: '890201',
-            description: 'Laboratory panel requires laboratory result and medical order.',
-            requiredDocuments: ['Laboratory Result', 'Medical Order'],
+            ruleId: 'SIF-010',
+            profiles: SINGLE,
+            condition: 'Laboratory services billed on the invoice',
+            description: 'Laboratory results for the billed laboratory services.',
+            requiredDocuments: ['Laboratorios'],
             riskLevelIfMissing: 'MEDIUM',
         },
         {
-            ruleId: 'DOC-003',
-            appliesToServiceCategory: 'surgery',
-            description: 'Surgical services require surgical report, anesthesia record, authorization, and clinical notes.',
-            requiredDocuments: ['Surgical Report', 'Anesthesia Record', 'Prior Authorization', 'Clinical Notes'],
+            ruleId: 'SIF-011',
+            profiles: SINGLE,
+            condition: 'Pathology services billed on the invoice',
+            description: 'Pathology report for the billed pathology services.',
+            requiredDocuments: ['Reporte de Patología'],
+            riskLevelIfMissing: 'MEDIUM',
+        },
+        {
+            ruleId: 'SIF-012',
+            profiles: SINGLE,
+            condition: 'Surgical services billed (operating room, surgeons, assistants, surgical procedure)',
+            description: 'Surgical report for the billed surgical services.',
+            requiredDocuments: ['Informe quirúrgico'],
+            riskLevelIfMissing: 'HIGH',
+        },
+        {
+            ruleId: 'SIF-013',
+            profiles: SINGLE,
+            condition: 'Procedure or hospitalization that needs payer authorization, unless the authorization number is on the invoice and the claim form',
+            description: 'Procedure order or payer authorization.',
+            requiredDocuments: ['Orden o autorización de procedimiento'],
+            riskLevelIfMissing: 'HIGH',
+        },
+        {
+            ruleId: 'SIF-014',
+            profiles: SINGLE,
+            condition: 'Outpatient medication billed',
+            description: 'Prescription for the billed outpatient medication.',
+            requiredDocuments: ['Receta Médica'],
+            riskLevelIfMissing: 'LOW',
+        },
+        {
+            ruleId: 'MIO-001',
+            profiles: ['MULTI_INVOICE_INVOICE_ONLY'],
+            description: 'Each invoice with its service breakdown.',
+            requiredDocuments: ['Factura y Desglose'],
             riskLevelIfMissing: 'HIGH',
         },
     ],
@@ -123,6 +175,8 @@ function normalizeRule(raw: Record<string, unknown>, index: number): ChecklistRu
         riskLevelIfMissing: risk(raw['riskLevelIfMissing']),
         consumers: consumers(raw['consumers']),
         enabled: raw['enabled'] !== false,
+        profiles: textList(raw['profiles']),
+        condition: text(raw['condition']),
     };
 }
 
@@ -142,6 +196,8 @@ export function fromDocumentationRules(value: unknown): DocumentationChecklist {
         schemaVersion: DOCUMENTATION_CHECKLIST_SCHEMA_VERSION,
         rulesetId: text(record['rulesetId']) || 'DOC-RULES',
         name: text(record['name']) || 'Documentary checklist',
+        agreementId: textOrNull(record['agreementId']),
+        version: textOrNull(record['version']),
         payer: textOrNull(record['payer']),
         effectiveFrom: textOrNull(record['effectiveFrom']),
         effectiveTo: textOrNull(record['effectiveTo']),
@@ -179,6 +235,8 @@ export function toDocumentationRules(checklist: DocumentationChecklist): Record<
                 ...(rule.appliesTo.procedureCodes.length > 1 ? { appliesToProcedureCodes: rule.appliesTo.procedureCodes } : {}),
                 ...(rule.appliesTo.serviceCategories.length === 1 ? { appliesToServiceCategory: rule.appliesTo.serviceCategories[0] } : {}),
                 ...(rule.appliesTo.serviceCategories.length > 1 ? { appliesToServiceCategories: rule.appliesTo.serviceCategories } : {}),
+                ...(rule.profiles.length ? { profiles: rule.profiles } : {}),
+                ...(rule.condition ? { condition: rule.condition } : {}),
                 description: rule.description,
                 requiredDocuments: rule.requiredDocuments,
                 riskLevelIfMissing: rule.riskLevelIfMissing,
@@ -191,6 +249,8 @@ export interface ChecklistAccountFacts {
     serviceCategories: string[];
     /** Document classes found in the account (IDP class names). */
     documentClasses: string[];
+    /** Policy profile of the account; rules limited to other profiles are skipped. Absent: every profile. */
+    profile?: string | null;
 }
 
 export interface ChecklistRuleEvaluation {
@@ -202,9 +262,14 @@ export interface ChecklistRuleEvaluation {
 }
 
 function ruleApplies(rule: ChecklistRule, facts: ChecklistAccountFacts): boolean {
+    const profile = normalizeKey(facts.profile ?? '');
+    if (profile && rule.profiles.length && !rule.profiles.some((entry) => normalizeKey(entry) === profile)) {
+        return false;
+    }
     const { procedureCodes, serviceCategories } = rule.appliesTo;
     if (!procedureCodes.length && !serviceCategories.length) {
-        return true;
+        // A conditional rule without a deterministic scope is left to the agent, which reads the service lines.
+        return !rule.condition;
     }
     const codes = new Set(facts.procedureCodes.map(normalizeKey));
     const categories = new Set(facts.serviceCategories.map(normalizeKey));
@@ -279,6 +344,8 @@ export function createChecklistRule(existing: readonly ChecklistRule[]): Checkli
         riskLevelIfMissing: 'MEDIUM',
         consumers: [...ALL_CONSUMERS],
         enabled: true,
+        profiles: [],
+        condition: '',
     };
 }
 
@@ -290,6 +357,7 @@ export function duplicateChecklistRule(rule: ChecklistRule, existing: readonly C
         appliesTo: { procedureCodes: [...rule.appliesTo.procedureCodes], serviceCategories: [...rule.appliesTo.serviceCategories] },
         requiredDocuments: [...rule.requiredDocuments],
         consumers: [...rule.consumers],
+        profiles: [...rule.profiles],
     };
 }
 

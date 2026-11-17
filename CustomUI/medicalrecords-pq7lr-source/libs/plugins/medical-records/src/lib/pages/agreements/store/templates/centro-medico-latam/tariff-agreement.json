@@ -1,0 +1,94 @@
+{
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "contractId": "CONV-DEMO-ARSP-CML-2026",
+  "payer": "ARS Primera",
+  "provider": "Centro Medico LATAM",
+  "currency": "DOP",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "defaultAllowedVariancePercentage": 10,
+  "tariffRules": [
+    {
+      "serviceCode": "890201",
+      "procedureCode": "890201",
+      "description": "Consulta de medicina general",
+      "expectedAmount": 2500,
+      "minAmount": 2250,
+      "maxAmount": 2750,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ]
+    },
+    {
+      "serviceCode": "903895",
+      "procedureCode": "903895",
+      "description": "Examen radiológico simple",
+      "expectedAmount": 10800,
+      "minAmount": 9720,
+      "maxAmount": 11880,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento",
+        "Factura y Desglose"
+      ]
+    },
+    {
+      "serviceCode": "907106",
+      "procedureCode": "907106",
+      "description": "Hemograma completo",
+      "expectedAmount": 950,
+      "minAmount": 855,
+      "maxAmount": 1045,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Laboratorios"
+      ]
+    },
+    {
+      "serviceCode": "898101",
+      "procedureCode": "898101",
+      "description": "Estudio de patología quirúrgica",
+      "expectedAmount": 6400,
+      "minAmount": 5760,
+      "maxAmount": 7040,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Reporte de Patología"
+      ]
+    },
+    {
+      "serviceCode": "SRG-4921",
+      "procedureCode": "SRG-4921",
+      "description": "Paquete quirúrgico ambulatorio (demo)",
+      "expectedAmount": 85000,
+      "minAmount": 76500,
+      "maxAmount": 93500,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Informe quirúrgico",
+        "Orden o autorización de procedimiento"
+      ]
+    },
+    {
+      "serviceCode": "HOSP-001",
+      "procedureCode": "HOSP-001",
+      "description": "Día de hospitalización en habitación compartida",
+      "expectedAmount": 9500,
+      "minAmount": 8550,
+      "maxAmount": 10450,
+      "allowedVariancePercentage": 10,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Planilla de Admisión"
+      ]
+    }
+  ]
+}

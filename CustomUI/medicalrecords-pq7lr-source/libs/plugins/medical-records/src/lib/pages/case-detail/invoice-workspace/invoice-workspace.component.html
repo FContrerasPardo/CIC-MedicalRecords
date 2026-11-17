@@ -1,0 +1,561 @@
+<section class="ws" aria-labelledby="ws-title">
+    <header class="ws-head">
+        <div class="ws-head__id">
+            <span class="ws-eyebrow">{{ i18n + '.TITLE' | translate }}</span>
+            <h2 id="ws-title">
+                <span class="material-icons" aria-hidden="true">receipt_long</span>
+                <span>{{ invoice?.invoiceNumber ?? '—' }}</span>
+                <span class="ws-head__patient">{{ invoice?.patientName ?? (i18n + '.NO_PATIENT' | translate) }}</span>
+            </h2>
+        </div>
+        <dl class="ws-head__facts">
+            <div>
+                <dt>{{ i18n + '.HEADER.AMOUNT' | translate }}</dt>
+                <dd>
+                    {{ invoice?.totalBilled !== null && invoice?.totalBilled !== undefined ? (invoice?.totalBilled | number: '1.2-2') : '—' }}
+                    <small>{{ invoice?.currency }}</small>
+                </dd>
+            </div>
+            <div>
+                <dt>{{ i18n + '.HEADER.DOCUMENTS' | translate }}</dt>
+                <dd>{{ invoice?.documentCount ?? 0 }}</dd>
+            </div>
+            <div>
+                <dt>{{ i18n + '.HEADER.STAGE' | translate }}</dt>
+                <dd>{{ i18n + '.STAGE.' + activePhase | translate }}</dd>
+            </div>
+        </dl>
+        <button type="button" class="ws-counter" (click)="goTo('audit')" [attr.aria-label]="i18n + '.COUNTER_ARIA' | translate: { count: activeCount }">
+            <span class="material-icons" aria-hidden="true">flag</span>
+            <strong>{{ activeCount }}</strong>
+            <span>{{ i18n + '.COUNTER' | translate }}</span>
+        </button>
+        @if (patientFacts.length) {
+            <dl class="ws-patient" [attr.aria-label]="'MEDICAL_RECORDS.CASE_DETAIL.PATIENT_FACTS.TITLE' | translate">
+                @for (fact of patientFacts; track fact.labelKey) {
+                    <div>
+                        <dt>{{ fact.labelKey | translate }}</dt>
+                        <dd>{{ fact.value }}</dd>
+                    </div>
+                }
+            </dl>
+        }
+    </header>
+
+    <div class="ws-tabs" role="tablist" [attr.aria-label]="i18n + '.TABS_ARIA' | translate" (keydown)="onTabKeydown($event)">
+        @for (tab of tabs; track tab.id; let index = $index) {
+            @if (startsPhase(index)) {
+                <span class="ws-tabs__phase" aria-hidden="true">{{ i18n + '.PHASE.' + tab.phase | translate }}</span>
+            }
+            <button
+                type="button"
+                role="tab"
+                class="ws-tabs__tab"
+                [id]="'ws-tab-' + tab.id"
+                [attr.aria-selected]="activeTab === tab.id"
+                [attr.aria-controls]="'ws-panel-' + tab.id"
+                [attr.tabindex]="activeTab === tab.id ? 0 : -1"
+                (click)="selectTab(tab.id)"
+            >
+                <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>{{ tab.label ?? (tab.labelKey ?? '' | translate) }}
+                @if (tab.id === 'audit' && activeCount) {
+                    <span class="ws-badge">{{ activeCount }}</span>
+                }
+            </button>
+        }
+    </div>
+
+    <!-- Intake: the intake widget embedded for this invoice -->
+    <section class="ws-panel ws-panel--flush" role="tabpanel" id="ws-panel-intake" aria-labelledby="ws-tab-intake" [hidden]="activeTab !== 'intake'" tabindex="0">
+        @if (intakeField) {
+            <medical-records-intake-account-widget
+                [field]="intakeField"
+                [embedded]="true"
+                [documentIds]="invoice?.documentIds ?? null"
+                (documentRequested)="onDocumentRequested($event)"
+            ></medical-records-intake-account-widget>
+        }
+
+        <section class="ws-block" aria-labelledby="ws-intake-audit-title">
+            <header class="ws-panel__head">
+                <div>
+                    <h3 id="ws-intake-audit-title">{{ i18n + '.INTAKE.TO_AUDIT_TITLE' | translate }}</h3>
+                    <p>{{ i18n + '.INTAKE.TO_AUDIT_LEAD' | translate }}</p>
+                </div>
+                @if (requestedDocuments.size) {
+                    <span class="ws-pill ws-pill--warn" role="status" [title]="i18n + '.SIMULATED' | translate">
+                        {{ i18n + '.INTAKE.REQUESTED_COUNT' | translate: { count: requestedDocuments.size } }}
+                    </span>
+                }
+            </header>
+            @if (!pendingIntake.length) {
+                <p class="ws-empty">{{ i18n + '.INTAKE.ALL_COMPLETE' | translate }}</p>
+            } @else {
+                <ul class="ws-intake-list">
+                    @for (service of pendingIntake; track service.id) {
+                        <li>
+                            <div class="ws-intake-list__main">
+                                <strong>{{ service.description ?? service.cup ?? service.serviceCode ?? '—' }}</strong>
+                                <span class="ws-sub">
+                                    {{ service.cup ?? service.serviceCode ?? '' }}
+                                    @if (service.missingDocuments.length) {
+                                        · {{ i18n + '.INTAKE.MISSING' | translate }}: {{ service.missingDocuments.join(', ') }}
+                                    }
+                                </span>
+                            </div>
+                            <span class="ws-tone" [ngClass]="'ws-tone--' + service.tone">{{ service.supportStatus }}</span>
+                            @if (statusOf(fromIntake(service)); as status) {
+                                <span class="ws-status" [ngClass]="'ws-status--' + status">{{ i18n + '.STATUS.' + status.toUpperCase() | translate }}</span>
+                            } @else {
+                                <button type="button" class="ws-btn ws-btn--small" (click)="registerIntake(service)">
+                                    <span class="material-icons" aria-hidden="true">flag</span>{{ i18n + '.ACTIONS.REGISTER' | translate }}
+                                </button>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            <p class="ws-note">{{ i18n + '.INTAKE.NOTE' | translate }}</p>
+        </section>
+        <div class="ws-panel__foot">
+            <button type="button" class="ws-btn ws-btn--primary" (click)="goTo('analysis')">
+                {{ i18n + '.ACTIONS.CONTINUE' | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Analysis: consolidated widget (score + the three agents); per-agent tabs hold the detail -->
+    <section class="ws-panel ws-panel--flush" role="tabpanel" id="ws-panel-analysis" aria-labelledby="ws-tab-analysis" [hidden]="activeTab !== 'analysis'" tabindex="0">
+        @if (invoiceCount > 1) {
+            <p class="ws-note ws-note--info" role="note">{{ i18n + '.AGENT.ACCOUNT_SCOPE' | translate: { count: invoiceCount } }}</p>
+        }
+        <ul class="ws-agent-links" [attr.aria-label]="i18n + '.ANALYSIS.AGENTS_ARIA' | translate">
+            @for (agent of agents; track agent.tab.id) {
+                <li>
+                    <button type="button" class="ws-agent-link" (click)="goTo(agent.tab.id)">
+                        <span class="material-icons ws-agent__icon" [ngClass]="'ws-agent__icon--' + agent.tab.id" aria-hidden="true">{{ agent.tab.icon }}</span>
+                        <span class="ws-agent-link__body">
+                            <strong>{{ agent.tab.agentName }}</strong>
+                            <span>
+                                @if (agent.parseError) {
+                                    {{ i18n + '.AGENT.PARSE_ERROR' | translate }}
+                                } @else if (!agent.result) {
+                                    {{ i18n + '.AGENT.PENDING' | translate }}
+                                } @else {
+                                    {{ i18n + '.AGENT.OBSERVATIONS' | translate: { count: agent.findings.length } }}
+                                }
+                            </span>
+                        </span>
+                        @if (agent.result?.overallRiskLevel) {
+                            <span class="ws-sev" [ngClass]="'ws-sev--' + (agent.result?.overallRiskLevel ?? '').toLowerCase()">{{ agent.result?.overallRiskLevel }}</span>
+                        }
+                        <span class="material-icons" aria-hidden="true">chevron_right</span>
+                    </button>
+                </li>
+            }
+        </ul>
+        <p class="ws-note">{{ i18n + '.ANALYSIS.NOTE' | translate }}</p>
+        @if (analysisField) {
+            <medical-records-analysis-task-widget [field]="analysisField" [embedded]="true"></medical-records-analysis-task-widget>
+        }
+    </section>
+
+    <!-- One tab per real agent -->
+    @for (agent of agents; track agent.tab.id) {
+        <section
+            class="ws-panel"
+            role="tabpanel"
+            [id]="'ws-panel-' + agent.tab.id"
+            [attr.aria-labelledby]="'ws-tab-' + agent.tab.id"
+            [hidden]="activeTab !== agent.tab.id"
+            tabindex="0"
+        >
+            <header class="ws-agent">
+                <span class="material-icons ws-agent__icon" [ngClass]="'ws-agent__icon--' + agent.tab.id" aria-hidden="true">{{ agent.tab.icon }}</span>
+                <div>
+                    <h3>{{ agent.tab.agentName }}</h3>
+                    <p>{{ agent.tab.purposeKey | translate }}</p>
+                </div>
+                @if (agent.result?.overallRiskLevel) {
+                    <span class="ws-sev" [ngClass]="'ws-sev--' + (agent.result?.overallRiskLevel ?? '').toLowerCase()">
+                        {{ i18n + '.AGENT.OVERALL' | translate }}: {{ agent.result?.overallRiskLevel }}
+                    </span>
+                }
+            </header>
+
+            @if (invoiceCount > 1) {
+                <p class="ws-note ws-note--info" role="note">{{ i18n + '.AGENT.ACCOUNT_SCOPE' | translate: { count: invoiceCount } }}</p>
+            }
+
+            @if (agent.parseError) {
+                <p class="ws-empty ws-empty--error">{{ i18n + '.AGENT.PARSE_ERROR' | translate }}</p>
+            } @else if (!agent.result) {
+                <p class="ws-empty">{{ i18n + '.AGENT.PENDING' | translate }}</p>
+            } @else {
+                <div class="ws-conclusion">
+                    <h4>{{ i18n + '.AGENT.CONCLUSION' | translate }}</h4>
+                    <p>{{ agent.result.summary || (i18n + '.AGENT.NO_SUMMARY' | translate) }}</p>
+                    @if (agent.severities.length) {
+                        <ul class="ws-dist" [attr.aria-label]="i18n + '.AGENT.DISTRIBUTION' | translate">
+                            @for (bucket of agent.severities; track bucket.level) {
+                                <li class="ws-sev" [ngClass]="'ws-sev--' + bucket.level">{{ i18n + '.SEVERITY.' + bucket.level.toUpperCase() | translate }} · {{ bucket.count }}</li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+                <h4 class="ws-section-title">{{ i18n + '.AGENT.OBSERVATIONS' | translate: { count: agent.findings.length } }}</h4>
+                @if (!agent.findings.length) {
+                    <p class="ws-empty">{{ i18n + '.AGENT.NO_FINDINGS' | translate }}</p>
+                }
+                <ul class="ws-cards">
+                    @for (candidate of agent.findings; track candidate.id) {
+                        <li class="ws-card">
+                            <div class="ws-card__main">
+                                <p class="ws-card__title">
+                                    @if (candidate.severity) {
+                                        <span class="ws-sev" [ngClass]="'ws-sev--' + candidate.severity">{{ i18n + '.SEVERITY.' + candidate.severity.toUpperCase() | translate }}</span>
+                                    }
+                                    {{ candidate.description }}
+                                </p>
+                                <p class="ws-card__meta">
+                                    @if (candidate.serviceCode) { <span>{{ i18n + '.COL.SERVICE' | translate }}: <code>{{ candidate.serviceCode }}</code></span> }
+                                    @if (candidate.document) { <span>{{ i18n + '.COL.DOCUMENT' | translate }}: {{ candidate.document }}</span> }
+                                    @if (candidate.amount !== null) { <span>{{ i18n + '.COL.AMOUNT' | translate }}: {{ candidate.amount | number: '1.2-2' }}</span> }
+                                </p>
+                                @if (candidate.evidence) {
+                                    <p class="ws-card__evidence"><span class="material-icons" aria-hidden="true">attach_file</span>{{ candidate.evidence }}</p>
+                                }
+                            </div>
+                            <div class="ws-card__actions">
+                                @if (statusOf(candidate); as status) {
+                                    <span class="ws-status" [ngClass]="'ws-status--' + status">{{ i18n + '.STATUS.' + status.toUpperCase() | translate }}</span>
+                                } @else {
+                                    <button type="button" class="ws-btn ws-btn--small ws-btn--primary" (click)="addToAudit(candidate)">
+                                        <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.ACTIONS.ADD_TO_AUDIT' | translate }}
+                                    </button>
+                                    <button type="button" class="ws-btn ws-btn--small" (click)="requestReview(candidate)">
+                                        <span class="material-icons" aria-hidden="true">rate_review</span>{{ i18n + '.ACTIONS.REQUEST_REVIEW' | translate }}
+                                    </button>
+                                    <button type="button" class="ws-btn ws-btn--small ws-btn--ghost" (click)="startDismiss(candidate, candidate.id)">
+                                        {{ i18n + '.ACTIONS.DISMISS' | translate }}
+                                    </button>
+                                }
+                            </div>
+                            @if (dismissing?.findingId === candidate.id) {
+                                <ng-container *ngTemplateOutlet="dismissTpl"></ng-container>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            <div class="ws-panel__foot">
+                <button type="button" class="ws-btn ws-btn--primary" (click)="goTo('audit')">
+                    {{ i18n + '.ACTIONS.CONTINUE_AUDIT' | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+                </button>
+            </div>
+        </section>
+    }
+
+    <!-- Audit and glosas: ARS audit plus communication with the provider -->
+    <section class="ws-panel" role="tabpanel" id="ws-panel-audit" aria-labelledby="ws-tab-audit" [hidden]="activeTab !== 'audit'" tabindex="0">
+        <header class="ws-panel__head">
+            <div>
+                <h3>{{ i18n + '.AUDIT.TITLE' | translate }}</h3>
+                <p>{{ i18n + '.AUDIT.LEAD' | translate }}</p>
+            </div>
+            <span class="ws-persist" [class.ws-persist--sim]="persistence === 'simulated'" role="status">
+                <span class="material-icons" aria-hidden="true">{{ saving ? 'sync' : persistence === 'process' ? 'cloud_done' : 'science' }}</span>
+                {{ i18n + (persistence === 'process' ? '.PERSISTENCE.PROCESS' : '.PERSISTENCE.SIMULATED') | translate }}
+            </span>
+        </header>
+
+        <dl class="ws-kpis">
+            <div><dt>{{ i18n + '.FIN.BILLED' | translate }}</dt><dd>{{ summary.billed !== null ? (summary.billed | number: '1.2-2') : '—' }}</dd></div>
+            <div><dt>{{ i18n + '.FIN.OBSERVED' | translate }}</dt><dd>{{ summary.observed | number: '1.2-2' }}</dd></div>
+            <div class="ws-kpis--accent"><dt>{{ i18n + '.FIN.GLOSADO' | translate }}</dt><dd>{{ summary.glosado | number: '1.2-2' }}</dd></div>
+            <div><dt>{{ i18n + '.FIN.NOT_OBJECTED' | translate }}</dt><dd>{{ summary.notObjected !== null ? (summary.notObjected | number: '1.2-2') : '—' }}</dd></div>
+        </dl>
+        <p class="ws-note">{{ i18n + '.FIN.NOTE' | translate: { currency: invoice?.currency ?? '' } }}</p>
+
+        <div class="ws-audit">
+            <!-- Findings queue (left) -->
+            <section class="ws-queue" aria-labelledby="ws-queue-title">
+                <header class="ws-queue__head">
+                    <h4 id="ws-queue-title" class="ws-section-title">
+                        {{ i18n + '.AUDIT.QUEUE' | translate: { count: filteredFindings.length } }}
+                    </h4>
+                    @if (pendingDecisionCount) {
+                        <span class="ws-pill ws-pill--warn">{{ i18n + '.AUDIT.PENDING_DECISIONS' | translate: { count: pendingDecisionCount } }}</span>
+                    }
+                </header>
+                <div class="ws-filters" role="group" [attr.aria-label]="i18n + '.AUDIT.FILTER_ARIA' | translate">
+                    @for (origin of originFilters; track origin) {
+                        <button type="button" class="ws-chip" [attr.aria-pressed]="originFilter === origin" (click)="originFilter = origin">{{ originLabelKey(origin) | translate }}</button>
+                    }
+                </div>
+                @if (!filteredFindings.length) {
+                    <p class="ws-empty">{{ i18n + '.AUDIT.EMPTY' | translate }}</p>
+                }
+                <ul class="ws-queue__list">
+                    @for (finding of filteredFindings; track finding.id) {
+                        <li>
+                            <button
+                                type="button"
+                                class="ws-queue__item"
+                                [class.ws-queue__item--muted]="finding.status === 'dismissed'"
+                                [attr.aria-current]="selectedFinding?.id === finding.id ? 'true' : null"
+                                (click)="selectFinding(finding)"
+                            >
+                                <span class="ws-queue__top">
+                                    <code>{{ finding.serviceCode ?? finding.document ?? (i18n + '.AUDIT.ACCOUNT_LEVEL' | translate) }}</code>
+                                    <span class="ws-status" [ngClass]="'ws-status--' + finding.status">{{ i18n + '.STATUS.' + finding.status.toUpperCase() | translate }}</span>
+                                </span>
+                                <span class="ws-queue__desc">{{ finding.description }}</span>
+                                <span class="ws-queue__meta">
+                                    <span class="ws-origin" [ngClass]="'ws-origin--' + finding.origin">{{ originLabelKey(finding.origin) | translate }}</span>
+                                    @if (finding.severity) {
+                                        <span class="ws-sev" [ngClass]="'ws-sev--' + finding.severity">{{ i18n + '.SEVERITY.' + finding.severity.toUpperCase() | translate }}</span>
+                                    }
+                                    @if (finding.amount !== null) {
+                                        <span class="ws-queue__amount">{{ finding.amount | number: '1.2-2' }}</span>
+                                    }
+                                </span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </section>
+
+            <!-- Selected finding: ARS observation, provider response and decision (center) -->
+            <section class="ws-detail" aria-labelledby="ws-detail-title">
+                @if (selectedFinding; as finding) {
+                    <article class="ws-reason" [class.ws-reason--muted]="finding.status === 'dismissed'">
+                        <span class="material-icons ws-reason__icon" aria-hidden="true">report</span>
+                        <div class="ws-reason__body">
+                            <p class="ws-card__origin">
+                                <span class="ws-origin" [ngClass]="'ws-origin--' + finding.origin">{{ originLabelKey(finding.origin) | translate }}</span>
+                                @for (other of finding.alsoReportedBy; track other) {
+                                    <span class="ws-origin ws-origin--also" [ngClass]="'ws-origin--' + other">+ {{ originLabelKey(other) | translate }}</span>
+                                }
+                                @if (finding.severity) {
+                                    <span class="ws-sev" [ngClass]="'ws-sev--' + finding.severity">{{ i18n + '.SEVERITY.' + finding.severity.toUpperCase() | translate }}</span>
+                                }
+                                <span class="ws-status" [ngClass]="'ws-status--' + finding.status">{{ i18n + '.STATUS.' + finding.status.toUpperCase() | translate }}</span>
+                            </p>
+                            <h4 id="ws-detail-title">{{ finding.description }}</h4>
+                            <p class="ws-card__meta">
+                                <span>{{ i18n + '.COL.INVOICE' | translate }}: <code>{{ invoice?.invoiceNumber ?? finding.invoiceKey }}</code></span>
+                                @if (finding.serviceCode) { <span>{{ i18n + '.COL.SERVICE' | translate }}: <code>{{ finding.serviceCode }}</code></span> }
+                                @if (finding.document) { <span>{{ i18n + '.COL.DOCUMENT' | translate }}: {{ finding.document }}</span> }
+                                @if (finding.amount !== null) { <span>{{ i18n + '.COL.AMOUNT' | translate }}: {{ finding.amount | number: '1.2-2' }}</span> }
+                            </p>
+                            @if (finding.evidence) {
+                                <p class="ws-card__evidence"><span class="material-icons" aria-hidden="true">attach_file</span>{{ finding.evidence }}</p>
+                            }
+                            @if (finding.comment) {
+                                <p class="ws-card__comment"><span class="material-icons" aria-hidden="true">chat_bubble_outline</span>{{ finding.comment }}</p>
+                            }
+                            @if (glosaFor(finding.id); as glosa) {
+                                <p class="ws-glosa-line">
+                                    <span class="material-icons" aria-hidden="true">gavel</span>
+                                    {{ i18n + '.GLOSA.LINE' | translate: { reason: glosa.reason, amount: (glosa.objectedAmount | number: '1.2-2') } }}
+                                </p>
+                            }
+                        </div>
+                    </article>
+
+                    <section class="ws-thread" aria-labelledby="ws-thread-title">
+                        <h5 id="ws-thread-title" class="ws-subtitle">
+                            <span class="material-icons" aria-hidden="true">forum</span>{{ i18n + '.AUDIT.PROVIDER_RESPONSE' | translate }}
+                        </h5>
+                        @if (!selectedResponses.length) {
+                            <p class="ws-empty">{{ i18n + '.AUDIT.NO_RESPONSE' | translate }}</p>
+                        }
+                        <ul class="ws-comments">
+                            @for (comment of selectedResponses; track comment.id) {
+                                <li>
+                                    <p>{{ comment.text }}</p>
+                                    <p class="ws-card__meta">
+                                        @if (comment.serviceCode) { <span>{{ i18n + '.COL.SERVICE' | translate }}: <code>{{ comment.serviceCode }}</code></span> }
+                                        @if (comment.author) { <span>{{ comment.author }}</span> }
+                                        @if (comment.date) { <span>{{ comment.date }}</span> }
+                                    </p>
+                                </li>
+                            }
+                        </ul>
+                    </section>
+
+                    <section class="ws-decision" aria-labelledby="ws-decision-title">
+                        <h5 id="ws-decision-title" class="ws-subtitle">
+                            <span class="material-icons" aria-hidden="true">how_to_reg</span>{{ i18n + '.AUDIT.DECISION' | translate }}
+                        </h5>
+                        <div class="ws-card__actions ws-card__actions--row">
+                            @if (finding.status !== 'accepted' && finding.status !== 'glosa') {
+                                <button type="button" class="ws-btn ws-btn--small" (click)="setStatus(finding, 'accepted')">{{ i18n + '.ACTIONS.ACCEPT' | translate }}</button>
+                            }
+                            @if (finding.status !== 'dismissed') {
+                                <button type="button" class="ws-btn ws-btn--small ws-btn--primary" (click)="startGlosa(finding)">
+                                    <span class="material-icons" aria-hidden="true">gavel</span>{{ (finding.status === 'glosa' ? i18n + '.ACTIONS.EDIT_GLOSA' : i18n + '.ACTIONS.TO_GLOSA') | translate }}
+                                </button>
+                            }
+                            @if (finding.status !== 'review' && finding.status !== 'dismissed') {
+                                <button type="button" class="ws-btn ws-btn--small" (click)="setStatus(finding, 'review')">{{ i18n + '.ACTIONS.REQUEST_REVIEW' | translate }}</button>
+                            }
+                            @if (finding.status === 'dismissed') {
+                                <button type="button" class="ws-btn ws-btn--small" (click)="setStatus(finding, 'open')">{{ i18n + '.ACTIONS.REOPEN' | translate }}</button>
+                            } @else {
+                                <button type="button" class="ws-btn ws-btn--small ws-btn--ghost" (click)="startDismiss(null, finding.id)">{{ i18n + '.ACTIONS.DISMISS' | translate }}</button>
+                            }
+                        </div>
+                        @if (dismissing?.findingId === finding.id) {
+                            <ng-container *ngTemplateOutlet="dismissTpl"></ng-container>
+                        }
+                        @if (glosaDraft?.findingId === finding.id && glosaDraft; as draft) {
+                            <form class="ws-form" (ngSubmit)="saveGlosa()" [attr.aria-label]="i18n + '.GLOSA.FORM' | translate">
+                                <label>
+                                    <span>{{ i18n + '.GLOSA.REASON' | translate }}</span>
+                                    <input type="text" name="reason" required [(ngModel)]="draft.reason" [placeholder]="i18n + '.GLOSA.REASON_HINT' | translate" />
+                                </label>
+                                <label>
+                                    <span>{{ i18n + '.GLOSA.AMOUNT' | translate }}</span>
+                                    <input type="number" name="amount" min="0" step="0.01" required [(ngModel)]="draft.amount" aria-describedby="ws-glosa-available" />
+                                    <small id="ws-glosa-available">
+                                        @if (draft.available !== null) {
+                                            {{ i18n + '.GLOSA.AVAILABLE' | translate: { amount: (draft.available | number: '1.2-2') } }}
+                                        }
+                                    </small>
+                                </label>
+                                <label class="ws-form__wide">
+                                    <span>{{ i18n + '.GLOSA.COMMENT' | translate }}</span>
+                                    <textarea name="comment" rows="2" [(ngModel)]="draft.comment"></textarea>
+                                </label>
+                                @if (draft.error) {
+                                    <p class="ws-form__error ws-form__wide" role="alert">{{ i18n + '.GLOSA.ERROR.' + draft.error | translate }}</p>
+                                }
+                                <div class="ws-form__actions ws-form__wide">
+                                    <button type="button" class="ws-btn ws-btn--small ws-btn--ghost" (click)="glosaDraft = null">{{ i18n + '.ACTIONS.CANCEL' | translate }}</button>
+                                    <button type="submit" class="ws-btn ws-btn--small ws-btn--primary">{{ i18n + '.GLOSA.SAVE' | translate }}</button>
+                                </div>
+                            </form>
+                        }
+                    </section>
+                } @else {
+                    <div class="ws-detail__empty">
+                        <span class="material-icons" aria-hidden="true">fact_check</span>
+                        <p id="ws-detail-title">{{ i18n + '.AUDIT.SELECT_HINT' | translate }}</p>
+                    </div>
+                }
+            </section>
+
+            <!-- Provider comments and assistant (right) -->
+            <aside class="ws-side" [attr.aria-label]="i18n + '.AUDIT.SIDE_ARIA' | translate">
+                <section class="ws-block" aria-labelledby="ws-provider-title">
+                    <h4 id="ws-provider-title" class="ws-section-title">
+                        <span class="material-icons" aria-hidden="true">forum</span>{{ i18n + '.PROVIDER.TITLE' | translate }}
+                    </h4>
+                    @if (!providerComments.length) {
+                        <p class="ws-empty">{{ i18n + '.PROVIDER.EMPTY' | translate }}</p>
+                    }
+                    <ul class="ws-comments">
+                        @for (comment of providerComments; track comment.id) {
+                            <li>
+                                <p>{{ comment.text }}</p>
+                                <p class="ws-card__meta">
+                                    @if (comment.serviceCode) { <span>{{ i18n + '.COL.SERVICE' | translate }}: <code>{{ comment.serviceCode }}</code></span> }
+                                    @if (comment.author) { <span>{{ comment.author }}</span> }
+                                    @if (comment.date) { <span>{{ comment.date }}</span> }
+                                </p>
+                                @if (providerCommentAdded(comment)) {
+                                    <span class="ws-status ws-status--accepted">{{ i18n + '.PROVIDER.ADDED' | translate }}</span>
+                                } @else {
+                                    <button type="button" class="ws-btn ws-btn--small" (click)="addProviderComment(comment)">
+                                        <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.ACTIONS.ADD_TO_AUDIT' | translate }}
+                                    </button>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </section>
+
+                <!-- KD assistant (#148), with the finding under review and the provider responses as context. -->
+                <div class="ws-assistant">
+                    <medical-records-audit-assistant
+                        [radicationId]="accountReference"
+                        [invoiceNumber]="invoice?.invoiceNumber ?? null"
+                        [patientRef]="patientRef"
+                        [providerName]="provider"
+                        [findings]="assistantContext.findings"
+                        [providerComments]="assistantContext.comments"
+                        [autoFocus]="false"
+                    ></medical-records-audit-assistant>
+                </div>
+            </aside>
+        </div>
+
+        <section class="ws-block ws-comm" aria-labelledby="ws-comm-title">
+            <header class="ws-comm__head">
+                <h4 id="ws-comm-title" class="ws-section-title">
+                    <span class="material-icons" aria-hidden="true">outgoing_mail</span>{{ i18n + '.COMM.TITLE' | translate }}
+                </h4>
+                <span class="ws-sim-badge">{{ i18n + '.SIMULATED' | translate }}</span>
+            </header>
+            <ol class="ws-steps" [attr.aria-label]="i18n + '.COMM.STATUS_ARIA' | translate">
+                @for (step of communicationSteps; track step; let index = $index) {
+                    <li [class.ws-steps--done]="index < communicationIndex()" [class.ws-steps--current]="index === communicationIndex()" [attr.aria-current]="index === communicationIndex() ? 'step' : null">
+                        {{ i18n + '.COMM.' + step.toUpperCase() | translate }}
+                    </li>
+                }
+            </ol>
+            <article class="ws-letter" [attr.aria-label]="i18n + '.COMM.PREVIEW' | translate">
+                <p>{{ i18n + '.COMM.GREETING' | translate: { provider: provider ?? '—' } }}</p>
+                <p>{{ i18n + '.COMM.BODY' | translate: { invoice: invoice?.invoiceNumber ?? '—', filing: accountReference ?? '—', count: record.glosas.length } }}</p>
+                @if (record.glosas.length) {
+                    <ul>
+                        @for (glosa of record.glosas; track glosa.findingId) {
+                            <li>
+                                <strong>{{ glosa.reason }}</strong>
+                                @if (glosa.serviceCode) { · <code>{{ glosa.serviceCode }}</code> }
+                                · {{ glosa.objectedAmount | number: '1.2-2' }} {{ invoice?.currency }}
+                                @if (glosa.comment) { — {{ glosa.comment }} }
+                                @if (findingById(glosa.findingId); as source) { <span class="ws-sub">{{ originLabelKey(source.origin) | translate }}</span> }
+                            </li>
+                        }
+                    </ul>
+                    <p>{{ i18n + '.COMM.TOTAL' | translate: { amount: (summary.glosado | number: '1.2-2'), currency: invoice?.currency ?? '' } }}</p>
+                } @else {
+                    <p class="ws-empty">{{ i18n + '.COMM.NO_GLOSAS' | translate }}</p>
+                }
+                <p class="ws-note">{{ i18n + '.COMM.HUMAN' | translate }}</p>
+            </article>
+            @if (record.communication !== 'notified') {
+                <button
+                    type="button"
+                    class="ws-btn ws-btn--primary"
+                    [disabled]="record.communication === 'reviewed' && !record.glosas.length"
+                    (click)="advanceCommunication()"
+                >
+                    <span class="material-icons" aria-hidden="true">{{ record.communication === 'draft' ? 'task_alt' : 'send' }}</span>
+                    {{ i18n + (record.communication === 'draft' ? '.COMM.MARK_REVIEWED' : '.COMM.NOTIFY') | translate }}
+                </button>
+            } @else {
+                <p class="ws-status ws-status--accepted" role="status">{{ i18n + '.COMM.NOTIFIED_NOTE' | translate }}</p>
+            }
+        </section>
+    </section>
+</section>
+
+<ng-template #dismissTpl>
+    @if (dismissing) {
+        <form class="ws-form ws-form--inline" (ngSubmit)="confirmDismiss()" [attr.aria-label]="i18n + '.DISMISS.FORM' | translate">
+            <label class="ws-form__wide">
+                <span>{{ i18n + '.DISMISS.JUSTIFICATION' | translate }}</span>
+                <textarea name="justification" rows="2" required [(ngModel)]="dismissing.text"></textarea>
+            </label>
+            <div class="ws-form__actions ws-form__wide">
+                <button type="button" class="ws-btn ws-btn--small ws-btn--ghost" (click)="dismissing = null">{{ i18n + '.ACTIONS.CANCEL' | translate }}</button>
+                <button type="submit" class="ws-btn ws-btn--small ws-btn--primary" [disabled]="!dismissing.text.trim()">{{ i18n + '.DISMISS.CONFIRM' | translate }}</button>
+            </div>
+        </form>
+    }
+</ng-template>

@@ -374,7 +374,7 @@
               <span class="analysis-task-widget__eyebrow">{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.EYEBROW' | translate }}</span>
               <h3>{{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.TITLE' | translate }}</h3>
             </div>
-            <button type="button" class="analysis-task-widget__ghost-button" (click)="triggerDocumentUpload()">
+            <button type="button" class="analysis-task-widget__ghost-button" *ngIf="!embedded" (click)="triggerDocumentUpload()">
               <span class="material-icons">upload_file</span>
               {{ 'MEDICAL_RECORDS.ANALYSIS_WIDGET.DOCUMENTS.UPLOAD' | translate }}
             </button>

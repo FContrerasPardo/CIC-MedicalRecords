@@ -1,6 +1,6 @@
-<section class="intake-account-widget" [attr.data-form-field-id]="formFieldId">
+<section class="intake-account-widget" [class.intake-account-widget--embedded]="embedded" [attr.data-form-field-id]="formFieldId">
   <ng-container *ngIf="!viewModel.meta.parseError; else parseErrorState">
-    <section class="alias-banner" *ngIf="showAliasBannerExpanded">
+    <section class="alias-banner" *ngIf="!embedded && showAliasBannerExpanded">
       <span class="material-icons">merge_type</span>
       <div class="alias-banner__body">
         <strong>{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.ALIAS.TITLE' | translate }}</strong>
@@ -32,7 +32,7 @@
       </div>
     </section>
 
-    <section class="patient-selector-card" *ngIf="viewModel.patientSelector.visible">
+    <section class="patient-selector-card" *ngIf="!embedded && viewModel.patientSelector.visible">
       <div class="card-header">
         <div>
           <span class="eyebrow">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.PATIENT_SELECTOR.EYEBROW' | translate }}</span>
@@ -72,7 +72,7 @@
       </div>
     </section>
 
-    <header class="patient-header-card">
+    <header class="patient-header-card" *ngIf="!embedded">
       <div class="patient-identity">
         <div class="avatar-chip">{{ currentDisplayInitials }}</div>
 
@@ -278,10 +278,22 @@
                 </section>
 
                 <div class="future-actions">
-                  <button type="button" class="ghost-action small" disabled [attr.aria-disabled]="true">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.ACQUIRE_DOCUMENT' | translate }}</button>
+                  <button type="button" class="ghost-action small" *ngIf="!embedded" disabled [attr.aria-disabled]="true">{{ 'MEDICAL_RECORDS.INTAKE_WIDGET.SERVICES.ACQUIRE_DOCUMENT' | translate }}</button>
+                  <ng-container *ngIf="embedded && service.missingDocuments.length">
+                    <span class="requested-pill" *ngIf="isRequestedFromProvider(service.missingDocuments); else requestServiceDocs" role="status">
+                      <span class="material-icons" aria-hidden="true">mark_email_read</span>
+                      {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.EMBEDDED.REQUESTED' | translate }}
+                    </span>
+                    <ng-template #requestServiceDocs>
+                      <button type="button" class="ghost-action small" (click)="requestFromProvider(service.missingDocuments, $event)">
+                        {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.EMBEDDED.REQUEST_FROM_PROVIDER' | translate }}
+                      </button>
+                    </ng-template>
+                  </ng-container>
                   <button
                     type="button"
                     class="ghost-action small"
+                    *ngIf="!embedded"
                     [disabled]="isReadOnly"
                     [attr.aria-disabled]="isReadOnly"
                     (click)="triggerNativeUpload($event)"
@@ -358,9 +370,21 @@
               >
                 {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.DOCUMENTS.CLEAR_FILTER' | translate }}: {{ activePendingUploadFilterLabel }}
               </button>
+              <ng-container *ngIf="embedded && pendingUploadCount">
+                <span class="requested-pill" *ngIf="isRequestedFromProvider(pendingUploadRequestLabels); else requestPendingDocs" role="status">
+                  <span class="material-icons" aria-hidden="true">mark_email_read</span>
+                  {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.EMBEDDED.REQUESTED' | translate }}
+                </span>
+                <ng-template #requestPendingDocs>
+                  <button type="button" class="primary-action small capture-module-action" (click)="requestFromProvider(pendingUploadRequestLabels, $event)">
+                    {{ 'MEDICAL_RECORDS.INTAKE_WIDGET.EMBEDDED.REQUEST_FROM_PROVIDER' | translate }}
+                  </button>
+                </ng-template>
+              </ng-container>
               <button
                 type="button"
                 class="primary-action small capture-module-action"
+                *ngIf="!embedded"
                 [class.blocked]="isReadOnly"
                 [disabled]="isReadOnly"
                 [attr.aria-disabled]="isReadOnly"

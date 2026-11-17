@@ -3,7 +3,7 @@ import {
     IntakeDocumentClassificationRule,
     IntakeSupportHeuristicsConfig,
 } from './intake-heuristics.types';
-import intakeSupportHeuristics from './intake-support-heuristics.json';
+import * as intakeSupportHeuristicsModule from './intake-support-heuristics.json';
 import {
     BatchStateDocument,
     BatchStateField,
@@ -32,7 +32,8 @@ import {
 
 type DocumentKind = IntakeDocumentKind;
 
-const INTAKE_SUPPORT_HEURISTICS = intakeSupportHeuristics as IntakeSupportHeuristicsConfig;
+// Jest runs without esModuleInterop: the JSON module may arrive as the namespace or as its `default`.
+const INTAKE_SUPPORT_HEURISTICS = ((intakeSupportHeuristicsModule as { default?: unknown }).default ?? intakeSupportHeuristicsModule) as IntakeSupportHeuristicsConfig;
 
 interface DocumentProfile {
     sourceKind: DocumentKind;
@@ -202,6 +203,33 @@ export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSour
         return createEmptyIntakeAccountViewModel('No fue posible asociar documentos a una cuenta medica.');
     }
 
+    return buildIntakeViewModel(batchState, clusters, selectedCluster);
+}
+
+/**
+ * Intake view of an explicit set of documents (one customer invoice and its supporting documents,
+ * as grouped by the IDP account mapping). Every document joins a single cluster: the patient is
+ * already identified upstream, so there is no patient selector and nothing to merge.
+ */
+export function mapBatchStateToIntakeForDocuments(batchState: BatchStateSource, documentIds: readonly string[]): IntakeAccountViewModel {
+    const ids = new Set(documentIds);
+    const documents = (Array.isArray(batchState.documents) ? batchState.documents : []).filter((document) => !!document && ids.has(document.id));
+
+    if (!documents.length) {
+        return createEmptyIntakeAccountViewModel('No se encontraron documentos en batchState.');
+    }
+
+    const [first, ...rest] = documents.reduce<AccountSeed[]>((collection, document) => {
+        collection.push(...buildSeedsFromDocument(document));
+        return collection;
+    }, []);
+    const cluster = finalizeCluster({ ...first, assistedMerged: false });
+    rest.forEach((seed) => mergeSeedIntoCluster(cluster, seed, false));
+
+    return buildIntakeViewModel(batchState, [cluster], cluster);
+}
+
+function buildIntakeViewModel(batchState: BatchStateSource, clusters: AccountCluster[], selectedCluster: AccountCluster): IntakeAccountViewModel {
     const services = buildServiceItems(selectedCluster);
     const documentsView = buildDocumentItems(selectedCluster, batchState);
     const alerts = buildAlerts(batchState, selectedCluster, services, documentsView);
@@ -1013,7 +1041,7 @@ function toServiceSeedRow(
     }
 
     const serviceCode = trimOrNull(rowMap.get('SERVICIO') ?? null);
-    const cup = trimOrNull(rowMap.get('CUP') ?? rowMap.get('CUPS') ?? null);
+    const cup = trimOrNull(rowMap.get('CUP') ?? rowMap.get('CUPS') ?? rowMap.get('CUP CUM') ?? rowMap.get('CODIGO') ?? null);
     const description = trimOrNull(rowMap.get('DESCRIPCION') ?? null);
     const quantity = trimOrNull(rowMap.get('CANTIDAD') ?? null);
     const price = trimOrNull(rowMap.get('PRECIO') ?? null);

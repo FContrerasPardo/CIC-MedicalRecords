@@ -30,13 +30,13 @@ export interface CaseSignals {
 /** Process order of the map. */
 export const VALIDATION_STEP_ORDER: readonly ValidationStepKey[] = ['documents', 'rules', 'coding', 'compliance', 'financial'];
 
-/** Section of the patient view each step opens. */
+/** Tab of the invoice workspace each step opens (WORKSPACE_TAB_IDS in case-navigation.util). */
 const TARGETS: Record<ValidationStepKey, CaseTabTarget> = {
-    documents: { tab: 'documents' },
-    rules: { tab: 'guidelines' },
-    coding: { tab: 'summary', subTab: 'score' },
-    compliance: { tab: 'summary', subTab: 'score' },
-    financial: { tab: 'summary', subTab: 'score' },
+    documents: { tab: 'intake' },
+    rules: { tab: 'analysis' },
+    coding: { tab: 'codingIntegrity' },
+    compliance: { tab: 'complianceAlert' },
+    financial: { tab: 'financialVariance' },
 };
 
 const STAGE_RANK: Record<CaseTaskType, number> = { intake: 0, validateRules: 1, analysis: 2, unknown: -1 };

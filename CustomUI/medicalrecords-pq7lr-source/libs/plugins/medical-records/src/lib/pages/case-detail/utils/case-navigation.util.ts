@@ -61,3 +61,28 @@ export function readCaseRouteContext(get: (key: string) => string | null): CaseR
 export function pickKnown<T extends string>(value: string | undefined | null, known: readonly T[]): T | null {
     return known.find((candidate) => candidate === value) ?? null;
 }
+
+/** Tabs of the invoice workspace, by phase: Intake, Analysis (overview + one per agent), Audit and glosas. */
+export type WorkspaceTabId = 'intake' | 'analysis' | 'codingIntegrity' | 'complianceAlert' | 'financialVariance' | 'audit';
+
+export const WORKSPACE_TAB_IDS: readonly WorkspaceTabId[] = ['intake', 'analysis', 'codingIntegrity', 'complianceAlert', 'financialVariance', 'audit'];
+
+/** Section ids of the former oncology case view, kept so old links still land on a phase. */
+const LEGACY_TABS: Record<string, WorkspaceTabId> = {
+    summary: 'intake',
+    documents: 'intake',
+    tasks: 'intake',
+    requests: 'intake',
+    guidelines: 'analysis',
+    timeline: 'audit',
+    returns: 'audit',
+};
+
+/** Workspace tab for a route target: a workspace id, or a former section id; null when unknown. */
+export function resolveWorkspaceTab(target: CaseTabTarget | null | undefined): WorkspaceTabId | null {
+    const tab = target?.tab;
+    if (!tab) {
+        return null;
+    }
+    return pickKnown(tab, WORKSPACE_TAB_IDS) ?? LEGACY_TABS[tab] ?? null;
+}

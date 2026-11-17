@@ -93,13 +93,19 @@ export function aggregateAccountValidations(accountSteps: readonly ValidationSte
     });
 }
 
-/** Identifier shown for the account: radicación/account variable, the single invoice, else the process. */
+/**
+ * Variables that carry the account identifier, by priority. `MedRecNum` is the radication number
+ * the provider sends in the start form; the others are older or alternative names.
+ */
+export const ACCOUNT_REFERENCE_VARIABLES = ['MedRecNum', 'accountId', 'medicalAccountId', 'radicationId'] as const;
+
+/** Identifier shown for the account: radication number/account variable, the single invoice, else the process. */
 export function resolveAccountReference(
     variables: Record<string, unknown>,
     invoices: readonly CaseInvoiceOption[],
     processInstanceId: string | null | undefined
 ): { value: string; kind: 'account' | 'invoice' | 'process' } {
-    for (const name of ['accountId', 'medicalAccountId', 'radicationId']) {
+    for (const name of ACCOUNT_REFERENCE_VARIABLES) {
         const value = variables[name];
         if (value !== null && value !== undefined && String(value).trim()) {
             return { value: String(value).trim(), kind: 'account' };

@@ -57,6 +57,14 @@ describe('account validations (per patient and per account)', () => {
         expect(resolveAccountReference({}, [invoice('a'), invoice('b')], 'p-123456789')).toEqual({ value: 'p-123456', kind: 'process' });
     });
 
+    it('prefers the radication number sent in MedRecNum over other account variables', () => {
+        expect(resolveAccountReference({ MedRecNum: ' RAD-CSN-20261115-7K3QA5 ', accountId: 'ACC-1' }, [invoice('a')], 'p-1')).toEqual({
+            value: 'RAD-CSN-20261115-7K3QA5',
+            kind: 'account',
+        });
+        expect(resolveAccountReference({ MedRecNum: '  ', radicationId: 'RAD-2' }, [], 'p-1')).toEqual({ value: 'RAD-2', kind: 'account' });
+    });
+
     it('lets the search match any patient of the account', () => {
         const text = accountSearchText(['RAD-1', 'Synthetic Hospital'], [invoice('a'), invoice('b')]);
         expect(text).toContain('synthetic b');

@@ -1,4 +1,4 @@
-import { buildCaseQueryParams, pickKnown, readCaseRouteContext } from './case-navigation.util';
+import { buildCaseQueryParams, pickKnown, readCaseRouteContext, resolveWorkspaceTab } from './case-navigation.util';
 import { countByState, deriveValidationMap, hasValue, isPatientCaseTask, VALIDATION_STEP_ORDER } from './case-validation-map.util';
 
 describe('case navigation', () => {
@@ -23,6 +23,14 @@ describe('case navigation', () => {
         expect(pickKnown('documents', ['summary', 'documents'] as const)).toBe('documents');
         expect(pickKnown('nope', ['summary', 'documents'] as const)).toBeNull();
     });
+
+    it('lands workspace and former section ids on a workspace tab', () => {
+        expect(resolveWorkspaceTab({ tab: 'complianceAlert' })).toBe('complianceAlert');
+        expect(resolveWorkspaceTab({ tab: 'summary', subTab: 'score' })).toBe('intake');
+        expect(resolveWorkspaceTab({ tab: 'guidelines' })).toBe('analysis');
+        expect(resolveWorkspaceTab({ tab: 'nope' })).toBeNull();
+        expect(resolveWorkspaceTab(null)).toBeNull();
+    });
 });
 
 describe('validation map', () => {
@@ -34,7 +42,7 @@ describe('validation map', () => {
 
     it('opens the documents section from the documentary checklist', () => {
         const documents = deriveValidationMap({ taskType: 'intake', variables: {} })[0];
-        expect(documents.target).toEqual({ tab: 'documents' });
+        expect(documents.target).toEqual({ tab: 'intake' });
         expect(documents.state).toBe('pending');
     });
 

@@ -10,6 +10,7 @@ import { NativeAutomationReference } from '../../models/medical-record.model';
 import { MedicalRecordService } from '../../services/medical-record.service';
 import { DashboardBuilderShellComponent } from '../dashboard-builder/dashboard-builder-shell.component';
 import { AgreementsPageComponent } from '../agreements/agreements-page.component';
+import { RadicationPageComponent } from '../radication/radication-page.component';
 type MedicalRecordsPhaseKey = 'overview' | 'intake' | 'analysis' | 'approval' | 'execution' | 'review' | 'completed';
 
 interface PhaseNavigationItem {
@@ -54,6 +55,7 @@ interface NativeNavigationItem {
     CaseDetailComponent,
     DashboardBuilderShellComponent,
     AgreementsPageComponent,
+    RadicationPageComponent,
   ],
   templateUrl: './medical-records-shell.component.html',
   styleUrls: ['./medical-records-shell.component.scss']
@@ -280,6 +282,7 @@ interface NativeNavigationItem {
     activeDetail = this.phaseDetails.overview;
     isConfigureView = false;
     isAgreementsView = false;
+    isRadicationView = false;
     isCaseView = false;
 
     constructor(
@@ -296,8 +299,9 @@ interface NativeNavigationItem {
     private syncRouteState(): void {
         this.isConfigureView = this.router.url.includes('/medical-records/configure');
         this.isAgreementsView = this.router.url.includes('/medical-records/agreements');
+        this.isRadicationView = /\/medical-records\/radication(?:[/?#]|$)/.test(this.router.url);
         this.isCaseView = /\/medical-records\/case(?:[/?#]|$)/.test(this.router.url);
-        if (this.isConfigureView || this.isAgreementsView || this.isCaseView) {
+        if (this.isConfigureView || this.isAgreementsView || this.isRadicationView || this.isCaseView) {
             return;
         }
 
@@ -323,7 +327,16 @@ interface NativeNavigationItem {
         return index;
     }
 
-    openStartProcess(item?: NativeNavigationItem): void {
+    /**
+     * New medical account = radication: the provider's own page replaces Automate's native start
+     * form, collects the documents and data, and starts the same native process.
+     */
+    openStartProcess(): void {
+        void this.router.navigate(['/medical-records', 'radication']);
+    }
+
+    /** Automate's native start form, kept as a fallback outside the demo flow. */
+    openNativeStartForm(item?: NativeNavigationItem): void {
         const reference = this.resolveNativeReference(item);
         void this.router.navigateByUrl(this.medicalRecordService.getStartProcessUrl(reference));
     }

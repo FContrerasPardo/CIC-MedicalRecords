@@ -159,7 +159,7 @@ export class PatientCaseRowComponent {
     openInvoice(invoiceKey: string, step?: ValidationStep, event?: Event): void {
         event?.stopPropagation();
         this.openStepKey = null;
-        this.openCase.emit({ ...(step?.target ?? { tab: 'summary' }), invoice: invoiceKey });
+        this.openCase.emit({ ...(step?.target ?? { tab: 'intake' }), invoice: invoiceKey });
     }
 
     trackRow(_index: number, row: PatientValidationRow): string {

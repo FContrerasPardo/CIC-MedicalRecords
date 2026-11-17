@@ -5,6 +5,10 @@
     <medical-records-agreements-page *ngIf="isAgreementsView; else caseOrDashboard"></medical-records-agreements-page>
 
     <ng-template #caseOrDashboard>
+        <medical-records-radication-page *ngIf="isRadicationView; else caseOrDashboardInner"></medical-records-radication-page>
+    </ng-template>
+
+    <ng-template #caseOrDashboardInner>
         <medical-records-case-detail *ngIf="isCaseView; else dashboardExperience"></medical-records-case-detail>
     </ng-template>
 

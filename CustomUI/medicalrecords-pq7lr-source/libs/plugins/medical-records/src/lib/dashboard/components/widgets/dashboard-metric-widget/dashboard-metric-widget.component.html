@@ -45,7 +45,8 @@
             {{ config.title | dashboardWidgetText: config.titleKey }}
         </span>
 
-        <strong>{{ data.value }}</strong>
+        <strong><span class="dashboard-metric-widget__prefix" *ngIf="prefix">{{ prefix }}</span>{{ data.value }}<span class="dashboard-metric-widget__unit" *ngIf="unit">{{ unit }}</span></strong>
+        <ng-container *ngTemplateOutlet="sparkTpl"></ng-container>
 
         <span class="dashboard-metric-widget__origin" *ngIf="showOrigin" [ngClass]="'origin-' + origin" [attr.title]="data.error || null">{{ originLabelKey | translate }}</span>
 
@@ -83,7 +84,7 @@
 
     <ng-container *ngIf="!compact && !headerKpi">
 
-        <strong>{{ data.value }}</strong>
+        <strong><span class="dashboard-metric-widget__prefix" *ngIf="prefix">{{ prefix }}</span>{{ data.value }}<span class="dashboard-metric-widget__unit" *ngIf="unit">{{ unit }}</span></strong>
 
 
 
@@ -123,8 +124,17 @@
 
         </div>
 
+        <ng-container *ngTemplateOutlet="sparkTpl"></ng-container>
     </ng-container>
 
 </article>
+
+<ng-template #sparkTpl>
+    <svg *ngIf="sparkline as spark" class="dashboard-metric-widget__spark" [attr.viewBox]="sparkViewBox" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="dashboard-metric-widget__spark-area" [attr.d]="spark.area"></path>
+        <path class="dashboard-metric-widget__spark-line" [attr.d]="spark.line"></path>
+        <circle class="dashboard-metric-widget__spark-dot" [attr.cx]="spark.last.x" [attr.cy]="spark.last.y" r="3"></circle>
+    </svg>
+</ng-template>
 
 

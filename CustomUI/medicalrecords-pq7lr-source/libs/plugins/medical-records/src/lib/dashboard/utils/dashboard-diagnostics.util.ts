@@ -15,12 +15,32 @@ export interface DiagnosticFieldSummary {
     samples?: string[];
 }
 
-export type DiagnosticProbeKind = 'process-list' | 'process-variables' | 'open-tasks' | 'data-plan';
+export type DiagnosticProbeKind = 'process-list' | 'process-variables' | 'open-tasks' | 'data-plan' | 'radication';
+
+/**
+ * Structured detail of a probe, shown as a table when the probe is expanded (as CIC-Fin's
+ * "Processing task query diagnostic"). Only technical cells: ids, names, statuses and dates.
+ */
+export interface DiagnosticTable {
+    title: string;
+    /** Request that produced the rows (method and path). */
+    request?: string;
+    /** Why the rows could not be read. */
+    error?: string;
+    /** Informational note, e.g. why the request was not sent. */
+    note?: string;
+    columns: string[];
+    /** One cell per column in every row. */
+    rows: string[][];
+}
 
 export interface DiagnosticProbe {
     id: number;
     at: string;
     kind: DiagnosticProbeKind;
+    /** Probes with the same key replace each other in place (latest snapshot of a poll). */
+    key?: string;
+    tables?: DiagnosticTable[];
     /** Short technical description (statuses, page, definitions). No patient data. */
     label: string;
     durationMs: number;
@@ -33,7 +53,21 @@ export interface DiagnosticProbe {
     fields?: DiagnosticFieldSummary[];
 }
 
-const SAMPLE_FIELDS = /(Date|At)$|^(status|processDefinitionKey|processDefinitionName|appName|taskType|taskStatus)$/;
+/**
+ * Adds a probe at the top, or, when it has a key already recorded, replaces that probe in place
+ * (keeping its id, so an expanded row stays open). Keeps at most `max` probes.
+ */
+export function upsertDiagnosticProbe(probes: readonly DiagnosticProbe[], probe: DiagnosticProbe, max: number): DiagnosticProbe[] {
+    const index = probe.key ? probes.findIndex((current) => current.key === probe.key) : -1;
+    if (index >= 0) {
+        const next = [...probes];
+        next[index] = { ...probe, id: probes[index].id };
+        return next;
+    }
+    return [probe, ...probes].slice(0, max);
+}
+
+const SAMPLE_FIELDS =/(Date|At)$|^(status|processDefinitionKey|processDefinitionName|appName|taskType|taskStatus)$/;
 const MAX_SAMPLES = 3;
 
 function typeOf(value: unknown): string {

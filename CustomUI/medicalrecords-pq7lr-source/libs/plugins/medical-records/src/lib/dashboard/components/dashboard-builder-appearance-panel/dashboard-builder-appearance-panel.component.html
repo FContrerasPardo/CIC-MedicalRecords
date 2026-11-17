@@ -183,6 +183,32 @@
                     <option value="max">{{ 'MEDICAL_RECORDS.CHART.HEADLINE_AGG_MAX' | translate }}</option>
                 </select>
             </label>
+            <label class="dashboard-form-field" *ngIf="widget.chartHeadline?.show">
+                <span>{{ 'MEDICAL_RECORDS.CHART.HEADLINE_UNIT' | translate }}</span>
+                <input
+                    class="dashboard-form-control"
+                    type="text"
+                    maxlength="8"
+                    [ngModel]="widget.chartHeadline?.unit || ''"
+                    (ngModelChange)="patchChartHeadline({ unit: $event || undefined })"
+                />
+            </label>
+            <label class="checkbox-row" *ngIf="widget.chartHeadline?.show">
+                <input
+                    type="checkbox"
+                    [checked]="widget.chartHeadline?.showVariation === true"
+                    (change)="patchChartHeadline({ showVariation: $any($event.target).checked || undefined })"
+                />
+                <span>{{ 'MEDICAL_RECORDS.CHART.HEADLINE_SHOW_VARIATION' | translate }}</span>
+            </label>
+            <label class="checkbox-row" *ngIf="widget.chartHeadline?.show && widget.chartHeadline?.showVariation">
+                <input
+                    type="checkbox"
+                    [checked]="widget.chartHeadline?.lowerIsBetter === true"
+                    (change)="patchChartHeadline({ lowerIsBetter: $any($event.target).checked || undefined })"
+                />
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_LOWER_IS_BETTER' | translate }}</span>
+            </label>
         </div>
 
         <div class="appearance-panel__subsection">

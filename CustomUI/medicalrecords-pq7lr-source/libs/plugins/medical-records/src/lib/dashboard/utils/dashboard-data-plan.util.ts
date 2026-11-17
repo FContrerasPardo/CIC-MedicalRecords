@@ -2,6 +2,7 @@ import { resolveProcessDefinitionKeys } from '../definitions/dashboard-process-c
 import { DashboardWidgetConfig } from '../definitions/dashboard-widget.model';
 import { resolveWidgetDataSource } from './dashboard-data-source.util';
 import { ACTIVE_PROCESS_STATUSES, providerRequiredVariables } from './dashboard-provider-group.util';
+import { derivedFieldVariables, widgetDerivedFields } from './dashboard-audit-fields.util';
 
 /**
  * Data planner (pure). Every widget in the layout declares what process data it needs (process
@@ -49,10 +50,12 @@ function bindingVariableNames(config: DashboardWidgetConfig): string[] {
         chart.yField,
         ...(config.tableColumnKeys ?? '').split(','),
     ];
-    return fields
+    const variables = fields
         .map((field) => String(field ?? '').trim())
         .filter((field) => field.startsWith(VARIABLE_PREFIX))
         .map((field) => field.slice(VARIABLE_PREFIX.length));
+    // Derived `calc_*` fields (reconciliation and audit indicators) read their own process variables.
+    return [...variables, ...derivedFieldVariables(widgetDerivedFields(config))];
 }
 
 /** What one widget needs from the process Query service; null when it does not read process data. */

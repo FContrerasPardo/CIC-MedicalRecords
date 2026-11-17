@@ -577,6 +577,8 @@ export class DashboardBuilderShellComponent implements OnInit, AfterViewInit, On
         this.structureModalOpen = false;
         this.syncActiveContainer();
         this.savedMessage = 'MEDICAL_RECORDS.DASHBOARD_BUILDER.RESET_DONE';
+        // The demo template is also written to Appdata (the active layout file), so nobody uploads it by hand.
+        this.saveLayout();
     }
 
     updateSelectedWidget(patch: Partial<DashboardWidgetConfig>): void {

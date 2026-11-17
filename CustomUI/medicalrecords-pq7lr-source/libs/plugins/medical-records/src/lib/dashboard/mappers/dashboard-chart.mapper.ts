@@ -12,6 +12,9 @@ export interface ChartSeriesResult {
     values: number[];
     bars: number[];
     series?: DashboardChartSeries[];
+    /** Rows per bucket and sum of the value field per bucket (single-series charts). */
+    counts?: number[];
+    sums?: number[];
 }
 
 export interface BuildChartSeriesOptions {
@@ -36,19 +39,26 @@ export function buildChartSeries(
     }
 
     const buckets = new Map<string, number[]>();
+    const numeric = (yAggregation === 'sum' || yAggregation === 'avg') && !!yField;
 
     for (const row of rows) {
         const rawX = readChartLabelField(row, xField, chart.xFieldPath);
-        const bucketKey = xKind === 'date' ? bucketDate(rawX, dateBucket) : rawX.trim() || '(empty)';
-        const values = buckets.get(bucketKey) ?? [];
-        values.push(yAggregation === 'sum' && yField ? parseNumeric(readChartValueField(row, yField, chart.yFieldPath)) : 1);
-        buckets.set(bucketKey, values);
+        const labels = chart.argumentMultiValue && xKind !== 'date' ? readChartLabelList(row, xField, rawX) : [rawX];
+        const value = numeric ? parseNumeric(readChartValueField(row, yField, chart.yFieldPath)) : 1;
+        for (const label of labels) {
+            const bucketKey = xKind === 'date' ? bucketDate(label, dateBucket) : label.trim() || '(empty)';
+            const values = buckets.get(bucketKey) ?? [];
+            values.push(value);
+            buckets.set(bucketKey, values);
+        }
     }
 
-    let entries = Array.from(buckets.entries()).map(([label, bucketValues]) => ({
-        label,
-        value: yAggregation === 'sum' ? bucketValues.reduce((sum, current) => sum + current, 0) : bucketValues.length,
-    }));
+    let entries = Array.from(buckets.entries()).map(([label, bucketValues]) => {
+        const sum = bucketValues.reduce((total, current) => total + current, 0);
+        const count = bucketValues.length;
+        const value = yAggregation === 'avg' && numeric ? (count ? sum / count : 0) : yAggregation === 'sum' && numeric ? sum : count;
+        return { label, value, count, sum };
+    });
 
     if (xKind === 'date') {
         entries = entries.sort((left, right) => left.label.localeCompare(right.label));
@@ -60,7 +70,10 @@ export function buildChartSeries(
                 ? trimLeadingTrailingZeroEntries(entries)
                 : dropZeroEntries(entries);
     } else {
-        entries = entries.sort((left, right) => right.value - left.value);
+        entries =
+            chart.bucketOrder === 'label'
+                ? entries.sort((left, right) => left.label.localeCompare(right.label))
+                : entries.sort((left, right) => right.value - left.value || right.count - left.count);
         entries = entries.slice(0, maxBuckets);
     }
 
@@ -69,7 +82,23 @@ export function buildChartSeries(
     const maxValue = Math.max(...values, 1);
     const bars = values.map((value) => Math.round((value / maxValue) * 100));
 
-    return { labels, values, bars };
+    return { labels, values, bars, counts: entries.map((entry) => entry.count), sums: entries.map((entry) => entry.sum) };
+}
+
+/** Values of a list argument (JSON array of scalars); a plain value is a one-item list, an empty list counts nowhere. */
+function readChartLabelList(row: Record<string, string>, fieldKey: string, fallback: string): string[] {
+    const raw = (row[fieldKey] ?? '').trim();
+    if (raw.startsWith('[')) {
+        try {
+            const parsed: unknown = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                return parsed.filter((item) => item !== null && item !== undefined && typeof item !== 'object').map((item) => String(item));
+            }
+        } catch {
+            return [fallback];
+        }
+    }
+    return [fallback];
 }
 
 function buildStackedChartSeries(

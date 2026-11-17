@@ -41,6 +41,9 @@ interface ProcessInstanceEntry {
     processDefinitionName?: string;
     startDate?: string;
     startedDate?: string;
+    /** Completion date of the instance (reconciliation time of the reconciliation and audit panel). */
+    completedDate?: string;
+    endDate?: string;
     businessKey?: string;
     parentId?: string;
     /** Present when the request asked for `processVariableKeys` (array of {name, value} or a map). */
@@ -578,6 +581,7 @@ export class ProcessQueryDataProvider {
                 processDefinitionKey: record.processDefinitionKey ?? '',
                 processDefinitionName: record.processDefinitionName ?? '',
                 startDate: normalizeProcessDateValue(record.startDate ?? record.startedDate),
+                completedDate: normalizeProcessDateValue(record.completedDate ?? record.endDate),
                 businessKey: record.businessKey ?? '',
                 parentId: record.parentId ?? '',
                 ...this.inlineVariableColumns(record.variables),

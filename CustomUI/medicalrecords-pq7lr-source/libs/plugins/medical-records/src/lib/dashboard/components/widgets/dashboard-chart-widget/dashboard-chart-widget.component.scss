@@ -764,3 +764,118 @@
         margin: 0 auto;
     }
 }
+
+// ---- Card header (all charts): small title and muted helper, as in the operational-performance reference.
+.dashboard-chart-widget .card-title-row {
+    h3 {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0;
+    }
+
+    p {
+        margin-top: 2px;
+        color: var(--mr-muted, #667085);
+        font-size: 12px;
+    }
+}
+
+// ---- progress-bars display: thin bars with `x/y · %` labels.
+.chart-frame--progress {
+    margin-top: 14px;
+}
+
+.progress-chart__total {
+    margin: 0 0 10px;
+    color: var(--mr-muted, #667085);
+    font-size: 12px;
+
+    strong {
+        color: var(--mr-heading, #1d2433);
+    }
+}
+
+.progress-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.progress-chart__label {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--mr-on-surface, #1d2433);
+    font-size: 12px;
+
+    > span:first-child {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.progress-chart__value {
+    flex-shrink: 0;
+    color: var(--mr-muted, #667085);
+    font-variant-numeric: tabular-nums;
+}
+
+// Progress track adapted from CIC-Fin lending-dashboard `.progress-track` (rounded track, filled span).
+.progress-track {
+    height: 6px;
+    margin-top: 4px;
+    border-radius: 6px;
+    background: var(--mr-surface-muted, #eef1f6);
+    overflow: hidden;
+
+    > span {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--dash-accent, var(--mr-primary, #5c58b7));
+        transition: width 0.4s ease;
+
+        &.accent-ok { background: var(--kpi-stat-positive, #1c875f); }
+        &.accent-warn { background: var(--kpi-stat-flat, #e2a51f); }
+        &.accent-danger { background: var(--kpi-stat-negative, #d64545); }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .progress-track > span {
+        transition: none;
+    }
+}
+
+// ---- Headline unit and variation (last bucket vs the previous one).
+.dashboard-chart-widget__headline-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.dashboard-chart-widget__headline-unit {
+    margin-left: -5px;
+    font-size: 0.75em;
+}
+
+.dashboard-chart-widget__headline-variation {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 700;
+
+    .material-icons {
+        font-size: 15px;
+    }
+
+    &.is-positive { color: var(--kpi-stat-positive, #1c875f); }
+    &.is-negative { color: var(--kpi-stat-negative, #d64545); }
+}

@@ -1,0 +1,1274 @@
+{
+  "kind": "medical-records.dashboard.layout",
+  "layoutKey": "medical-records-ars",
+  "schemaVersion": 9,
+  "savedAt": "2026-11-13T18:54:29.072Z",
+  "layout": {
+    "version": 9,
+    "pages": [
+      {
+        "id": "page-overview",
+        "label": "Overview",
+        "containers": [
+          {
+            "id": "container-control-kpis",
+            "title": "",
+            "subtitle": "",
+            "layoutMode": "kpi-strip",
+            "widgetIds": [
+              "metric-total-processes",
+              "metric-pending",
+              "metric-completed",
+              "metric-error-rate",
+              "completion-rate"
+            ],
+            "columns": 5
+          },
+          {
+            "id": "container-ars-amounts",
+            "title": "Montos del periodo (RD$)",
+            "subtitle": "Recibido, en auditoría y observado salen de los procesos; glosado, reconocido y pagado están simulados hasta #147.",
+            "layoutMode": "kpi-strip",
+            "widgetIds": [
+              "amount-received",
+              "amount-in-audit",
+              "amount-observed",
+              "amount-glosado",
+              "amount-recognized",
+              "amount-paid"
+            ],
+            "columns": 6
+          },
+          {
+            "id": "container-providers",
+            "title": "",
+            "subtitle": "",
+            "layoutMode": "list",
+            "widgetIds": [
+              "provider-cards"
+            ]
+          },
+          {
+            "id": "container-open-accounts",
+            "title": "",
+            "subtitle": "",
+            "layoutMode": "list",
+            "widgetIds": [
+              "process-list"
+            ]
+          },
+          {
+            "id": "container-audit-reconciliation",
+            "title": "Conciliación y auditoría",
+            "subtitle": "Indicadores agregados de la conciliación y auditoría de cuentas médicas.",
+            "layoutMode": "grid-12",
+            "widgetIds": [
+              "audit-reconciliation-time",
+              "audit-reconciliation-by-provider",
+              "audit-findings-by-reason",
+              "audit-missing-documents",
+              "audit-accounts-by-stage",
+              "audit-agent-signals",
+              "audit-amount-at-risk"
+            ],
+            "appearance": "panel"
+          }
+        ]
+      },
+      {
+        "id": "page-documents",
+        "label": "Documents",
+        "containers": [
+          {
+            "id": "container-content-kpis",
+            "title": "Content KPIs",
+            "subtitle": "Repository volume and document mix.",
+            "layoutMode": "grid-4",
+            "widgetIds": [
+              "metric-content-total",
+              "metric-content-recent",
+              "chart-content-doc-types",
+              "chart-content-uploads"
+            ]
+          },
+          {
+            "id": "container-documents-table",
+            "title": "Document repository",
+            "subtitle": "Browse, filter, and export repository documents.",
+            "layoutMode": "grid-12",
+            "widgetIds": [
+              "documents-report"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-performance",
+        "label": "Performance",
+        "containers": [
+          {
+            "id": "container-metrics",
+            "title": "Operational metrics",
+            "subtitle": "Demo values until a real query is configured.",
+            "layoutMode": "grid-4",
+            "widgetIds": [
+              "metric-user-activity",
+              "metric-sla-compliance",
+              "metric-avg-days-payment",
+              "metric-execution-queue"
+            ]
+          },
+          {
+            "id": "container-performance-gauges",
+            "title": "Recovery",
+            "subtitle": "Demo projection.",
+            "layoutMode": "grid-12",
+            "widgetIds": [
+              "recovery-rate"
+            ]
+          }
+        ]
+      }
+    ],
+    "activePageId": "page-overview",
+    "widgets": {
+      "metric-total-processes": {
+        "id": "metric-total-processes",
+        "type": "metric",
+        "section": "insights",
+        "dataSource": "process",
+        "title": "MEDICAL_RECORDS.METRICS.TOTAL_PROCESSES",
+        "helper": "All medical-records instances in the selected period.",
+        "helperTooltip": "Live count from the configured process query.",
+        "trendDirection": "up",
+        "trendLabel": "MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK",
+        "comparisonPeriod": "previous_week",
+        "positive": true,
+        "icon": "account_tree",
+        "processQuery": {
+          "includeSubprocesses": false,
+          "metricScope": "root",
+          "status": [
+            "RUNNING",
+            "COMPLETED",
+            "SUSPENDED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 4,
+        "tableColumnKeys": "",
+        "containerId": "container-control-kpis"
+      },
+      "metric-pending": {
+        "id": "metric-pending",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "process",
+        "title": "MEDICAL_RECORDS.METRICS.IN_PROGRESS",
+        "helper": "Running or suspended medical accounts.",
+        "helperTooltip": "Live count from Automate for RUNNING and SUSPENDED status.",
+        "trendLabel": "MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK",
+        "comparisonPeriod": "previous_week",
+        "positive": false,
+        "icon": "pending_actions",
+        "processQuery": {
+          "includeSubprocesses": false,
+          "metricScope": "root",
+          "status": [
+            "RUNNING",
+            "SUSPENDED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-control-kpis"
+      },
+      "metric-completed": {
+        "id": "metric-completed",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "process",
+        "title": "MEDICAL_RECORDS.METRICS.COMPLETED",
+        "helper": "Completed medical-records process instances.",
+        "helperTooltip": "Live count from Automate for COMPLETED status.",
+        "trendLabel": "MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK",
+        "comparisonPeriod": "previous_week",
+        "positive": true,
+        "icon": "task_alt",
+        "processQuery": {
+          "includeSubprocesses": false,
+          "metricScope": "root",
+          "status": [
+            "COMPLETED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-control-kpis"
+      },
+      "metric-error-rate": {
+        "id": "metric-error-rate",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "process",
+        "title": "MEDICAL_RECORDS.METRICS.CANCELLED_PROCESSES",
+        "helper": "Cancelled medical-records process instances.",
+        "helperTooltip": "Live count from Automate for CANCELLED status.",
+        "trendLabel": "MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK",
+        "comparisonPeriod": "previous_week",
+        "positive": false,
+        "icon": "cancel",
+        "processQuery": {
+          "includeSubprocesses": false,
+          "metricScope": "root",
+          "status": [
+            "CANCELLED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-control-kpis"
+      },
+      "completion-rate": {
+        "id": "completion-rate",
+        "type": "gauge",
+        "section": "insights",
+        "dataSource": "process",
+        "title": "MEDICAL_RECORDS.CARDS.PROCESS_COMPLETION",
+        "helper": "Completed share of active process instances.",
+        "icon": "speed",
+        "gaugeMin": 0,
+        "gaugeMax": 100,
+        "gaugeTarget": 90,
+        "gaugeUnit": "%",
+        "gaugeMode": "ratio",
+        "processQuery": {
+          "includeSubprocesses": false,
+          "metricScope": "root",
+          "status": [
+            "RUNNING",
+            "COMPLETED",
+            "SUSPENDED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 4,
+        "tableColumnKeys": "",
+        "containerId": "container-control-kpis"
+      },
+      "provider-cards": {
+        "id": "provider-cards",
+        "type": "provider-cards",
+        "section": "insights",
+        "title": "Medical accounts",
+        "helper": "",
+        "span": "full",
+        "gridColumnSpan": 12,
+        "gridRowSpan": 4,
+        "tableColumnKeys": "",
+        "providerCardsOptions": {
+          "groupBy": {
+            "source": "batch-field",
+            "name": ""
+          },
+          "metrics": [
+            {
+              "id": "accounts",
+              "label": "MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.KPI_ACTIVE",
+              "kind": "count"
+            },
+            {
+              "id": "running",
+              "label": "MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.KPI_RUNNING",
+              "kind": "status",
+              "status": "RUNNING"
+            },
+            {
+              "id": "suspended",
+              "label": "MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.KPI_SUSPENDED",
+              "kind": "status",
+              "status": "SUSPENDED"
+            },
+            {
+              "id": "reviewRequired",
+              "label": "MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.KPI_REVIEW_REQUIRED",
+              "kind": "review-required"
+            }
+          ],
+          "statuses": [
+            "RUNNING",
+            "SUSPENDED"
+          ],
+          "idpVariable": "batchState",
+          "summaryVariable": "accountSummary",
+          "showSearch": true
+        },
+        "containerId": "container-providers"
+      },
+      "process-list": {
+        "id": "process-list",
+        "type": "process-list",
+        "section": "tasks",
+        "title": "",
+        "helper": "",
+        "processListOptions": {
+          "showSearch": false,
+          "showRefresh": false,
+          "showBulkActions": true,
+          "showSubtitle": false,
+          "showCountBadge": false,
+          "openTarget": "task",
+          "display": "table"
+        },
+        "span": "full",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-open-accounts",
+        "crossFilter": {
+          "follow": true,
+          "visibility": "always"
+        }
+      },
+      "productivity-chart": {
+        "id": "productivity-chart",
+        "type": "chart",
+        "section": "insights",
+        "dataSource": "process",
+        "title": "Productivity by Hour",
+        "helper": "Daily processing volume",
+        "span": "wide",
+        "processQuery": {
+          "includeSubprocesses": true,
+          "metricScope": "tree",
+          "status": [
+            "RUNNING",
+            "COMPLETED",
+            "SUSPENDED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "bindings": {
+          "argumentField": "startDate",
+          "valueAggregation": "count",
+          "dateBucket": "day",
+          "maxBuckets": 12
+        },
+        "chart": {
+          "xField": "startDate",
+          "yAggregation": "count",
+          "dateBucket": "day",
+          "maxBuckets": 12
+        },
+        "chartDisplayMode": "line",
+        "chartHeadline": {
+          "show": true,
+          "label": "Peak day",
+          "aggregation": "max"
+        },
+        "chartAxes": {
+          "xLabelFormat": "auto"
+        },
+        "gridColumnSpan": 8,
+        "gridRowSpan": 6,
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 8,
+          "rowSpan": 6
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-trends"
+      },
+      "outcome-distribution": {
+        "id": "outcome-distribution",
+        "type": "chart",
+        "section": "insights",
+        "dataSource": "process",
+        "title": "Outcome Distribution",
+        "helper": "Process instances grouped by status",
+        "span": "normal",
+        "processQuery": {
+          "includeSubprocesses": true,
+          "metricScope": "tree",
+          "status": [
+            "RUNNING",
+            "COMPLETED",
+            "SUSPENDED"
+          ],
+          "processDefinitionKey": "medical-records"
+        },
+        "bindings": {
+          "argumentField": "processDefinitionName",
+          "valueAggregation": "count",
+          "seriesField": "status",
+          "maxBuckets": 8
+        },
+        "chart": {
+          "xField": "processDefinitionName",
+          "yAggregation": "count",
+          "maxBuckets": 8
+        },
+        "chartDisplayMode": "horizontal-stacked",
+        "chartAxes": {
+          "xLabelFormat": "auto"
+        },
+        "gridColumnSpan": 4,
+        "gridRowSpan": 6,
+        "canvasRect": {
+          "col": 9,
+          "row": 1,
+          "colSpan": 4,
+          "rowSpan": 6
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-trends"
+      },
+      "metric-content-total": {
+        "id": "metric-content-total",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "content",
+        "title": "Total Documents",
+        "helper": "All documents in the repository.",
+        "helperTooltip": "Live count from the Content query.",
+        "comparisonPeriod": "previous_week",
+        "positive": true,
+        "icon": "inventory_2",
+        "contentQuery": "SELECT * FROM hxp:document WHERE sys_primaryType IS NOT NULL AND sys_primaryType <> ''",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-content-kpis"
+      },
+      "metric-content-recent": {
+        "id": "metric-content-recent",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "content",
+        "title": "Added This Period",
+        "helper": "Documents created in the selected period.",
+        "comparisonPeriod": "previous_week",
+        "positive": true,
+        "icon": "upload_file",
+        "contentQuery": "SELECT * FROM hxp:document WHERE sys_primaryType IS NOT NULL AND sys_primaryType <> ''",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 2,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-content-kpis"
+      },
+      "chart-content-doc-types": {
+        "id": "chart-content-doc-types",
+        "type": "chart",
+        "section": "metrics",
+        "dataSource": "content",
+        "title": "Documents by Type",
+        "helper": "Grouped by sys_primaryType",
+        "contentQuery": "SELECT * FROM hxp:document WHERE sys_primaryType IS NOT NULL AND sys_primaryType <> ''",
+        "bindings": {
+          "argumentField": "sys_primaryType",
+          "valueAggregation": "count",
+          "maxBuckets": 8
+        },
+        "chart": {
+          "xField": "sys_primaryType",
+          "yAggregation": "count",
+          "maxBuckets": 8
+        },
+        "chartDisplayMode": "donut",
+        "gridColumnSpan": 2,
+        "gridRowSpan": 6,
+        "span": "metric",
+        "chartAxes": {
+          "xLabelFormat": "auto"
+        },
+        "canvasRect": {
+          "col": 3,
+          "row": 1,
+          "colSpan": 2,
+          "rowSpan": 6
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-content-kpis"
+      },
+      "chart-content-uploads": {
+        "id": "chart-content-uploads",
+        "type": "chart",
+        "section": "metrics",
+        "dataSource": "content",
+        "title": "Upload Trend",
+        "helper": "Documents added per day",
+        "contentQuery": "SELECT * FROM hxp:document WHERE sys_primaryType IS NOT NULL AND sys_primaryType <> ''",
+        "bindings": {
+          "argumentField": "sys_created",
+          "valueAggregation": "count",
+          "dateBucket": "day",
+          "maxBuckets": 12
+        },
+        "chart": {
+          "xField": "sys_created",
+          "yAggregation": "count",
+          "dateBucket": "day",
+          "maxBuckets": 12
+        },
+        "chartDisplayMode": "line",
+        "chartHeadline": {
+          "show": false,
+          "label": "Peak day",
+          "aggregation": "max"
+        },
+        "span": "metric",
+        "gridColumnSpan": 4,
+        "gridRowSpan": 5,
+        "canvasRect": {
+          "col": 1,
+          "row": 7,
+          "colSpan": 4,
+          "rowSpan": 5
+        },
+        "chartAxes": {
+          "xLabelFormat": "auto"
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-content-kpis"
+      },
+      "documents-report": {
+        "id": "documents-report",
+        "type": "table",
+        "section": "insights",
+        "dataSource": "content",
+        "title": "Document Repository",
+        "helper": "Recent repository documents — filter rows or export to CSV.",
+        "contentQuery": "SELECT * FROM hxp:document WHERE sys_primaryType IS NOT NULL AND sys_primaryType <> ''",
+        "bindings": {
+          "columnFields": [
+            "sys_id",
+            "sys_title",
+            "sys_primaryType",
+            "sys_created"
+          ]
+        },
+        "tableColumnKeys": "sys_id, sys_title, sys_primaryType, sys_created",
+        "tablePageSize": 15,
+        "tableOptions": {
+          "showRowFilter": true
+        },
+        "span": "full",
+        "gridColumnSpan": 12,
+        "gridRowSpan": 8,
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 12,
+          "rowSpan": 8
+        },
+        "containerId": "container-documents-table"
+      },
+      "metric-user-activity": {
+        "id": "metric-user-activity",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "demo",
+        "title": "User Activity",
+        "helper": "Demo — pending real query",
+        "helperTooltip": "Demo value only. Not connected to live data.",
+        "comparisonPeriod": "none",
+        "demoValue": "8,950",
+        "positive": true,
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-metrics"
+      },
+      "metric-sla-compliance": {
+        "id": "metric-sla-compliance",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "demo",
+        "title": "SLA Compliance",
+        "helper": "Demo — pending real query",
+        "helperTooltip": "Demo value only. Not connected to live data.",
+        "comparisonPeriod": "none",
+        "demoValue": "92%",
+        "positive": true,
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 2,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-metrics"
+      },
+      "metric-avg-days-payment": {
+        "id": "metric-avg-days-payment",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "demo",
+        "title": "Avg Days to Pmt",
+        "helper": "Demo — pending real query",
+        "helperTooltip": "Demo value only. Not connected to live data.",
+        "comparisonPeriod": "none",
+        "demoValue": "42",
+        "positive": true,
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 3,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-metrics"
+      },
+      "metric-execution-queue": {
+        "id": "metric-execution-queue",
+        "type": "metric",
+        "section": "metrics",
+        "dataSource": "demo",
+        "title": "Execution Queue",
+        "helper": "Demo — pending real query",
+        "helperTooltip": "Demo value only. Not connected to live data.",
+        "comparisonPeriod": "none",
+        "demoValue": "120",
+        "positive": true,
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 4,
+          "row": 1,
+          "colSpan": 1,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-metrics"
+      },
+      "recovery-rate": {
+        "id": "recovery-rate",
+        "type": "gauge",
+        "section": "insights",
+        "dataSource": "demo",
+        "title": "Total Recovery Rate",
+        "helper": "Demo — projected payer recovery rate.",
+        "helperTooltip": "Demo value only. Not connected to live repository or process data.",
+        "trendDirection": "up",
+        "trendValue": "2.1%",
+        "trendLabel": "MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_MONTH",
+        "comparisonPeriod": "none",
+        "positive": true,
+        "icon": "trending_up",
+        "demoValue": "87.4",
+        "gaugeMin": 0,
+        "gaugeMax": 100,
+        "gaugeTarget": 90,
+        "gaugeUnit": "%",
+        "span": "normal",
+        "gridColumnSpan": 4,
+        "gridRowSpan": 4,
+        "tableColumnKeys": "",
+        "containerId": "container-performance-gauges",
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 4,
+          "rowSpan": 4
+        }
+      },
+      "audit-reconciliation-time": {
+        "id": "audit-reconciliation-time",
+        "type": "chart",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 3,
+        "gridRowSpan": 4,
+        "canvasRect": {
+          "col": 1,
+          "row": 1,
+          "colSpan": 3,
+          "rowSpan": 4
+        },
+        "tableColumnKeys": "",
+        "title": "Tiempo de conciliación",
+        "helper": "Horas medias de la radicación al cierre, por semana.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "startDate",
+          "dateBucket": "week",
+          "valueField": "calc_reconciliationHours",
+          "valueAggregation": "avg",
+          "maxBuckets": 8
+        },
+        "chart": {
+          "xField": "startDate",
+          "dateBucket": "week",
+          "yAggregation": "avg",
+          "yField": "calc_reconciliationHours",
+          "maxBuckets": 8
+        },
+        "chartDisplayMode": "line",
+        "chartHeadline": {
+          "show": true,
+          "label": "Media",
+          "aggregation": "avg",
+          "unit": "h",
+          "showVariation": true,
+          "lowerIsBetter": true
+        },
+        "chartAxes": {
+          "xLabelFormat": "auto",
+          "yLabel": "h"
+        },
+        "containerId": "container-audit-reconciliation"
+      },
+      "audit-reconciliation-by-provider": {
+        "id": "audit-reconciliation-by-provider",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 3,
+        "gridRowSpan": 4,
+        "canvasRect": {
+          "col": 4,
+          "row": 1,
+          "colSpan": 3,
+          "rowSpan": 4
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "chart",
+        "title": "Conciliación por prestador",
+        "helper": "% de cuentas con hallazgos de auditoría (x/y).",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "calc_provider",
+          "valueField": "calc_auditFinding",
+          "valueAggregation": "avg",
+          "valueFieldFormat": "percent",
+          "maxBuckets": 6
+        },
+        "chart": {
+          "xField": "calc_provider",
+          "yAggregation": "avg",
+          "yField": "calc_auditFinding",
+          "maxBuckets": 6
+        },
+        "chartDisplayMode": "progress-bars",
+        "kpiCard": {
+          "showOrigin": true,
+          "thresholds": {
+            "warnAt": 20,
+            "dangerAt": 40
+          }
+        }
+      },
+      "audit-findings-by-reason": {
+        "id": "audit-findings-by-reason",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 3,
+        "gridRowSpan": 4,
+        "canvasRect": {
+          "col": 7,
+          "row": 1,
+          "colSpan": 3,
+          "rowSpan": 4
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "chart",
+        "title": "Hallazgos de auditoría por motivo",
+        "helper": "Distribución de motivos en las cuentas del periodo.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "calc_auditReasons",
+          "argumentMultiValue": true,
+          "valueAggregation": "count",
+          "maxBuckets": 6
+        },
+        "chart": {
+          "xField": "calc_auditReasons",
+          "yAggregation": "count",
+          "maxBuckets": 6,
+          "argumentMultiValue": true
+        },
+        "chartDisplayMode": "progress-bars"
+      },
+      "audit-missing-documents": {
+        "id": "audit-missing-documents",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 3,
+        "gridRowSpan": 4,
+        "canvasRect": {
+          "col": 10,
+          "row": 1,
+          "colSpan": 3,
+          "rowSpan": 4
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "chart",
+        "title": "Documentos faltantes",
+        "helper": "Ocurrencias por factura según el checklist documental.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "calc_missingDocuments",
+          "argumentMultiValue": true,
+          "valueAggregation": "count",
+          "maxBuckets": 5
+        },
+        "chart": {
+          "xField": "calc_missingDocuments",
+          "yAggregation": "count",
+          "maxBuckets": 5,
+          "argumentMultiValue": true
+        },
+        "chartDisplayMode": "progress-bars"
+      },
+      "amount-received": {
+        "id": "amount-received",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto recibido",
+        "helper": "Facturado de las cuentas radicadas en el periodo (cada cuenta una vez).",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "process",
+        "icon": "receipt_long",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "valueField": "calc_billedAmount",
+          "valueAggregation": "sum"
+        },
+        "comparisonPeriod": "previous_week",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "amount-in-audit": {
+        "id": "amount-in-audit",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto en auditoría",
+        "helper": "Facturado de las cuentas del periodo aún abiertas.",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "process",
+        "icon": "fact_check",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED"
+          ]
+        },
+        "bindings": {
+          "valueField": "calc_inAuditAmount",
+          "valueAggregation": "sum"
+        },
+        "comparisonPeriod": "previous_week",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "amount-observed": {
+        "id": "amount-observed",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto observado",
+        "helper": "Facturado de cuentas con hallazgos de auditoría (revisión manual o riesgo alto).",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "process",
+        "icon": "report",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "valueField": "calc_observedAmount",
+          "valueAggregation": "sum"
+        },
+        "comparisonPeriod": "previous_week",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "amount-glosado": {
+        "id": "amount-glosado",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto glosado (simulado)",
+        "helper": "Simulado: sin glosas formales hasta el registro de auditoría (#147).",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "demo",
+        "demoValue": "184 500",
+        "icon": "gavel",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "amount-recognized": {
+        "id": "amount-recognized",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto reconocido (simulado)",
+        "helper": "Simulado: depende de la resolución de glosas (#147).",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "demo",
+        "demoValue": "1 215 300",
+        "icon": "verified",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "amount-paid": {
+        "id": "amount-paid",
+        "type": "metric",
+        "section": "metrics",
+        "span": "metric",
+        "gridColumnSpan": 1,
+        "gridRowSpan": 3,
+        "tableColumnKeys": "",
+        "containerId": "container-ars-amounts",
+        "title": "Monto pagado (simulado)",
+        "helper": "Simulado: sin fuente de desembolsos en el proceso.",
+        "kpiCard": {
+          "showOrigin": true
+        },
+        "dataSource": "demo",
+        "demoValue": "980 000",
+        "icon": "payments",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0
+        }
+      },
+      "audit-accounts-by-stage": {
+        "id": "audit-accounts-by-stage",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 4,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 1,
+          "row": 5,
+          "colSpan": 4,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "chart",
+        "title": "Cuentas por etapa del proceso",
+        "helper": "Etapa inferida del estado y las variables del proceso.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "calc_stage",
+          "valueAggregation": "count",
+          "bucketOrder": "label",
+          "maxBuckets": 6
+        },
+        "chart": {
+          "xField": "calc_stage",
+          "yAggregation": "count",
+          "maxBuckets": 6,
+          "bucketOrder": "label"
+        },
+        "chartDisplayMode": "progress-bars"
+      },
+      "audit-agent-signals": {
+        "id": "audit-agent-signals",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 4,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 5,
+          "row": 5,
+          "colSpan": 4,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "chart",
+        "title": "Señales de riesgo por agente",
+        "helper": "Cuentas con hallazgos, revisión manual o riesgo alto según cada agente.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "argumentField": "calc_agentSignals",
+          "argumentMultiValue": true,
+          "valueAggregation": "count",
+          "maxBuckets": 3
+        },
+        "chart": {
+          "xField": "calc_agentSignals",
+          "yAggregation": "count",
+          "maxBuckets": 3,
+          "argumentMultiValue": true
+        },
+        "chartDisplayMode": "progress-bars"
+      },
+      "audit-amount-at-risk": {
+        "id": "audit-amount-at-risk",
+        "section": "insights",
+        "dataSource": "process",
+        "span": "normal",
+        "gridColumnSpan": 4,
+        "gridRowSpan": 3,
+        "canvasRect": {
+          "col": 9,
+          "row": 5,
+          "colSpan": 4,
+          "rowSpan": 3
+        },
+        "tableColumnKeys": "",
+        "containerId": "container-audit-reconciliation",
+        "type": "metric",
+        "title": "Monto en riesgo (variación financiera)",
+        "helper": "Suma de la variación detectada por Financial Variance en el periodo.",
+        "processQuery": {
+          "processDefinitionKey": "medical-records",
+          "metricScope": "root",
+          "includeSubprocesses": false,
+          "status": [
+            "RUNNING",
+            "SUSPENDED",
+            "COMPLETED"
+          ]
+        },
+        "bindings": {
+          "valueField": "calc_auditVarianceAmount",
+          "valueAggregation": "sum"
+        },
+        "comparisonPeriod": "previous_week",
+        "metricOptions": {
+          "prefix": "RD$",
+          "grouping": true,
+          "decimals": 0,
+          "sparkline": true,
+          "lowerIsBetter": true
+        }
+      }
+    },
+    "theme": {
+      "brand": {
+        "teal": "#13EAC1",
+        "purple": "#6E33FF",
+        "purpleLight": "#D3A7FF",
+        "purpleDeep": "#5A2FD9",
+        "purpleMid": "#8855FF",
+        "blue": "#52A1FF",
+        "yellow": "#F1CB61",
+        "darkBlue": "#191F5E",
+        "gray": "#F4F6FE"
+      },
+      "primaryAccent": "#6E33FF",
+      "defaultSeriesStyle": {
+        "mode": "gradient",
+        "presetId": "hyland-purple-wave",
+        "gradientStops": [
+          {
+            "color": "#5A2FD9",
+            "position": 0
+          },
+          {
+            "color": "#6E33FF",
+            "position": 40
+          },
+          {
+            "color": "#52A1FF",
+            "position": 72
+          },
+          {
+            "color": "#13EAC1",
+            "position": 100
+          }
+        ]
+      },
+      "seriesPalette": [
+        "#6E33FF",
+        "#8855FF",
+        "#52A1FF",
+        "#13EAC1",
+        "#D3A7FF",
+        "#5A2FD9"
+      ],
+      "statusColors": {
+        "RUNNING": "#52A1FF",
+        "SUSPENDED": "#F1CB61",
+        "COMPLETED": "#13EAC1",
+        "CANCELLED": "#D3A7FF",
+        "CREATED": "#13EAC1",
+        "ASSIGNED": "#6E33FF",
+        "pending": "#13EAC1",
+        "analysis": "#6E33FF",
+        "resolved": "#5A2FD9",
+        "closed": "#D3A7FF"
+      },
+      "widgetChrome": "accent-line",
+      "density": "compact"
+    },
+    "dateRange": {
+      "start": "2025-01-01",
+      "end": "today"
+    },
+    "layoutSourceDocumentId": null
+  }
+}

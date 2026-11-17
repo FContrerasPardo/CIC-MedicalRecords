@@ -224,13 +224,16 @@ export class DashboardTrendService {
 
 
 
-    private computeDelta(
+    /** Change vs the previous period; `lowerIsBetter` turns a decrease into a positive trend (e.g. cycle time). */
+    computeDelta(
 
         current: number,
 
         previous: number,
 
-        comparisonPeriod: ComparisonPeriod
+        comparisonPeriod: ComparisonPeriod,
+
+        lowerIsBetter = false
 
     ): DashboardTrendResult {
 
@@ -282,7 +285,7 @@ export class DashboardTrendService {
 
             label: labelKey,
 
-            positive: direction !== 'down',
+            positive: lowerIsBetter ? direction !== 'up' : direction !== 'down',
 
         };
 

@@ -35,6 +35,7 @@ import {
 } from '../../../utils/dashboard-chart-axis.util';
 import { buildSmoothAreaPath, buildSmoothLinePath } from '../../../utils/dashboard-chart-curve.util';
 import { buildFieldsDiscoveryFingerprint } from '../../../utils/dashboard-data-source.util';
+import { buildChartProgressRows, chartHeadlineVariation, ChartHeadlineVariation, ChartProgressRow } from '../../../utils/dashboard-chart-progress.util';
 import { paletteColorAt, seriesStyleToCssBackground } from '../../../utils/dashboard-theme.util';
 
 interface ChartPoint {
@@ -144,6 +145,24 @@ export class DashboardChartWidgetComponent implements OnInit, OnChanges, AfterVi
 
     get isDonutMode(): boolean {
         return this.displayMode === 'donut';
+    }
+
+    get isProgressBarsMode(): boolean {
+        return this.displayMode === 'progress-bars';
+    }
+
+    /** Thin horizontal bars with `x/y · %` or `value · share %` (progress-bars display). */
+    get progressRows(): ChartProgressRow[] {
+        return buildChartProgressRows(this.data, this.config.bindings?.valueFieldFormat, this.config.kpiCard?.thresholds);
+    }
+
+    /** Total of the bucket values, shown above the progress bars of counts (e.g. reasons). */
+    get progressTotal(): number {
+        return this.data.values.reduce((sum, value) => sum + value, 0);
+    }
+
+    get progressShowsTotal(): boolean {
+        return this.isProgressBarsMode && this.data.aggregation !== 'avg';
     }
 
     get isCompactChart(): boolean {
@@ -318,6 +337,20 @@ export class DashboardChartWidgetComponent implements OnInit, OnChanges, AfterVi
             return formatChartTick(Math.max(...values));
         }
         return formatChartTick(values[values.length - 1]);
+    }
+
+    get headlineUnit(): string {
+        return this.config.chartHeadline?.unit?.trim() ?? '';
+    }
+
+    /** Last bucket vs the previous one (headline option `showVariation`). */
+    get headlineVariation(): ChartHeadlineVariation | null {
+        const headline = this.config.chartHeadline;
+        return headline?.showVariation ? chartHeadlineVariation(this.data.values, !!headline.lowerIsBetter) : null;
+    }
+
+    headlineVariationIcon(variation: ChartHeadlineVariation): string {
+        return variation.direction === 'up' ? 'trending_up' : variation.direction === 'down' ? 'trending_down' : 'trending_flat';
     }
 
     get chartSeries(): DashboardChartSeries[] {

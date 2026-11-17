@@ -5,8 +5,29 @@ import {
     capturedVariableNames,
     expandJsonValue,
     mergeCapturedVariables,
+    DiagnosticProbe,
     summarizeDiagnosticRows,
+    upsertDiagnosticProbe,
 } from './dashboard-diagnostics.util';
+
+describe('dashboard diagnostics (keyed probes)', () => {
+    const probe = (id: number, key?: string, label = 'x'): DiagnosticProbe => ({ id, at: '2026-11-16T10:00:00Z', kind: 'radication', label, durationMs: 1, key });
+
+    it('adds unkeyed probes at the top and caps the list', () => {
+        const probes = upsertDiagnosticProbe([probe(1), probe(2)], probe(3), 2);
+        expect(probes.map((item) => item.id)).toEqual([3, 1]);
+    });
+
+    it('replaces a keyed probe in place, keeping its id', () => {
+        const probes = upsertDiagnosticProbe([probe(1), probe(2, 'progress:a', 'old')], probe(9, 'progress:a', 'new'), 10);
+        expect(probes.map((item) => `${item.id}:${item.label}`)).toEqual(['1:x', '2:new']);
+    });
+
+    it('adds a keyed probe that was not recorded yet', () => {
+        const probes = upsertDiagnosticProbe([probe(1, 'progress:a')], probe(2, 'progress:b'), 10);
+        expect(probes.map((item) => item.key)).toEqual(['progress:b', 'progress:a']);
+    });
+});
 
 describe('dashboard diagnostics (masked)', () => {
     const rows = [

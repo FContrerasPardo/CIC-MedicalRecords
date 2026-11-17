@@ -34,55 +34,44 @@
     font-size: 12px;
 }
 
-// Theme option `widgetChrome: 'accent-line'`: widgets drop their card box (border, background,
-// shadow, decorative blob) and get a thin accent line on the left, like the KPI strip. Applies
-// to the view and the builder alike. ::ng-deep is needed because each widget owns its card styles.
-:host(.widget-chrome-accent) {
-    .widget-slot,
-    ::ng-deep .dashboard-kpi-strip__item {
-        position: relative;
-        padding-left: 14px;
+// Theme option `widgetChrome: 'accent-line'`: the KPI strips (process and amount cards) drop their card
+// box and get a thin accent line on the left. Grid widgets (charts, lists, tables) keep their card, so
+// the page is not lined everywhere. A KPI card already draws its own threshold-colored line: the strip
+// line is hidden there, so it is never doubled. ::ng-deep: each widget owns its card styles.
+:host(.widget-chrome-accent) ::ng-deep .dashboard-kpi-strip__item {
+    position: relative;
+    padding-left: 14px;
 
-        &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 3px;
-            border-radius: 3px;
-            background: var(--dash-accent, var(--mr-accent, #6e33ff));
-            pointer-events: none;
-        }
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 3px;
+        border-radius: 3px;
+        background: var(--dash-accent, var(--mr-accent, #6e33ff));
+        pointer-events: none;
     }
 
-    ::ng-deep {
-        .spotlight-card,
-        .metric-card,
-        .dashboard-metric-widget--header-kpi,
-        .dashboard-gauge-widget,
-        .dashboard-table-widget,
-        .attention-section,
-        .task-recent-widget,
-        .task-status-widget,
-        .link-card-widget,
-        .provider-cards {
-            border: 0 !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-        }
+    &:has(.dashboard-metric-widget--kpi-card)::before {
+        display: none;
+    }
 
-        .spotlight-card::after {
-            display: none !important;
-        }
+    .spotlight-card,
+    .metric-card,
+    .dashboard-metric-widget--header-kpi,
+    .dashboard-gauge-widget {
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
 
-        .spotlight-card,
-        .metric-card,
-        .dashboard-metric-widget--header-kpi {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
+    .spotlight-card::after {
+        display: none !important;
     }
 }
 
@@ -734,5 +723,65 @@
 
     &::before {
         display: none;
+    }
+}
+
+// Container `appearance: 'panel'` (e.g. "Conciliación y auditoría"): one flat bordered panel, widgets
+// split by thin dividers, no card box, shadow, decorative blob or origin chip. Discreet on purpose.
+.dashboard-container--panel {
+    .container-grid {
+        gap: 0 !important;
+        border: 1px solid rgba(194, 198, 212, 0.55);
+        border-radius: 10px;
+        background: var(--dash-surface, #fff);
+        overflow: hidden;
+    }
+
+    .widget-slot {
+        border-right: 1px solid rgba(194, 198, 212, 0.45);
+        border-bottom: 1px solid rgba(194, 198, 212, 0.45);
+        min-height: 0;
+    }
+
+    .widget-slot::before {
+        display: none !important;
+    }
+
+    ::ng-deep {
+        .spotlight-card,
+        .metric-card,
+        .dashboard-chart-widget,
+        .dashboard-metric-widget {
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            min-height: 0 !important;
+            height: 100%;
+            padding: 12px 16px !important;
+        }
+
+        .spotlight-card::after,
+        .spotlight-card::before,
+        .dashboard-metric-widget--kpi-card::before {
+            display: none !important;
+        }
+
+        .data-source-badge,
+        .dashboard-metric-widget__origin {
+            display: none !important;
+        }
+
+        .card-title-row h3,
+        .card-title-row h2,
+        .dashboard-metric-widget__title {
+            font-size: 13px;
+        }
+
+        .card-subtitle,
+        .dashboard-chart-widget p.card-subtitle,
+        .chart-state {
+            font-size: 11px;
+        }
     }
 }

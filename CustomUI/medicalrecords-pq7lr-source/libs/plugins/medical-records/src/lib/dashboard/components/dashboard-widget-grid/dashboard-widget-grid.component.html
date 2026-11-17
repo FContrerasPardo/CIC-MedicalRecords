@@ -76,6 +76,7 @@
             [cdkDragData]="container"
             (cdkDragEnded)="onContainerDragEnded($event)"
             [class.dashboard-container--kpi]="container.layoutMode === 'kpi-strip'"
+            [class.dashboard-container--panel]="container.appearance === 'panel' && container.layoutMode !== 'kpi-strip'"
             [class.dashboard-container--selected]="isContainerSelected(container.id)"
             [class.dashboard-container--palette-target]="isPaletteTarget(container.id)"
             [class.dashboard-container--dragging]="editMode"

@@ -73,7 +73,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     readonly chartAggregations: ChartAggregation[] = ['count', 'sum'];
     readonly valueMetricAggregations: ValueAggregation[] = ['count', 'sum', 'min', 'max', 'avg'];
     readonly valueFieldFormatOptions: ValueFieldFormat[] = ['number', 'percent'];
-    readonly chartDisplayModes: ChartDisplayMode[] = ['bar', 'line', 'stacked-bar', 'horizontal-stacked', 'donut'];
+    readonly chartDisplayModes: ChartDisplayMode[] = ['bar', 'line', 'stacked-bar', 'horizontal-stacked', 'donut', 'progress-bars'];
     readonly comparisonPeriods: ComparisonPeriod[] = ['none', 'previous_week', 'previous_month'];
     readonly gaugeModes: GaugeMode[] = ['count', 'ratio'];
     readonly xLabelFormats: ChartXLabelFormat[] = ['auto', 'full'];
@@ -254,7 +254,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     }
 
     get valueAggregationOptions(): ValueAggregation[] {
-        return this.isChartWidget ? this.valueMetricAggregations.filter((item) => item === 'count' || item === 'sum') : this.valueMetricAggregations;
+        return this.isChartWidget ? this.valueMetricAggregations.filter((item) => item === 'count' || item === 'sum' || item === 'avg') : this.valueMetricAggregations;
     }
 
     get bindingDropListIds(): string[] {
@@ -374,6 +374,21 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
 
     patchWidget(patch: Partial<DashboardWidgetConfig>): void {
         this.widgetPatch.emit(patch);
+    }
+
+    /** Metric presentation (unit, decimals, sparkline, lower is better), shared by every metric instance. */
+    patchMetricOptions(patch: Partial<NonNullable<DashboardWidgetConfig['metricOptions']>>): void {
+        this.patchWidget({ metricOptions: { ...this.widget.metricOptions, ...patch } });
+    }
+
+    /** Bar colour thresholds of the progress-bars display (same shape as the KPI card thresholds). */
+    patchThresholds(patch: { warnAt?: number; dangerAt?: number }): void {
+        const thresholds = { ...this.widget.kpiCard?.thresholds, ...patch };
+        this.patchWidget({ kpiCard: { ...this.widget.kpiCard, thresholds } });
+    }
+
+    numberOrUndefined(value: unknown): number | undefined {
+        return value === '' || value === null || value === undefined || !Number.isFinite(Number(value)) ? undefined : Number(value);
     }
 
     patchBindings(patch: Partial<DashboardWidgetDataBindings>): void {

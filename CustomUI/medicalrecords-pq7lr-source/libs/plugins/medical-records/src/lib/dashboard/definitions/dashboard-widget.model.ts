@@ -86,6 +86,8 @@ export interface DashboardContainerConfig {
     collapsed?: boolean;
     /** KPI strip only: number of columns (1-12). Widgets span `gridColumnSpan` columns (default 1). */
     columns?: number;
+    /** Grid containers: `cards` (default, one card per widget) or `panel` (one flat panel, widgets split by thin dividers). */
+    appearance?: 'cards' | 'panel';
 }
 
 export interface DashboardPageConfig {
@@ -119,12 +121,13 @@ export interface DashboardTableWidgetOptions {
     groupByFields?: string[];
 }
 
-export type ChartAggregation = 'count' | 'sum';
+export type ChartAggregation = 'count' | 'sum' | 'avg';
 export type NumericFieldAggregation = 'sum' | 'min' | 'max' | 'avg';
 export type ValueAggregation = 'count' | NumericFieldAggregation;
 export type ValueFieldFormat = 'number' | 'percent';
 export type ChartDateBucket = 'hour' | 'day' | 'week' | 'month';
-export type ChartDisplayMode = 'bar' | 'line' | 'stacked-bar' | 'horizontal-stacked' | 'donut';
+/** `progress-bars`: thin horizontal bars with `label · value` (or `x/y · %` for an average of a 0/1 field). */
+export type ChartDisplayMode = 'bar' | 'line' | 'stacked-bar' | 'horizontal-stacked' | 'donut' | 'progress-bars';
 export type ChartHeadlineAggregation = 'last' | 'sum' | 'avg' | 'max';
 export type DashboardFieldKind = 'date' | 'number' | 'category' | 'json';
 export type TrendDirection = 'up' | 'down' | 'flat';
@@ -148,6 +151,12 @@ export interface DashboardChartHeadlineConfig {
     show?: boolean;
     label?: string;
     aggregation?: ChartHeadlineAggregation;
+    /** Suffix after the headline value, e.g. `h`. */
+    unit?: string;
+    /** Show the change of the last bucket vs the previous one next to the headline. */
+    showVariation?: boolean;
+    /** Lower values are better (e.g. reconciliation time): a decrease is shown as positive. */
+    lowerIsBetter?: boolean;
 }
 
 export interface DashboardWidgetDataBindings {
@@ -163,6 +172,10 @@ export interface DashboardWidgetDataBindings {
     dateBucket?: ChartDateBucket;
     columnFields?: string[];
     maxBuckets?: number;
+    /** The argument holds a list (JSON array): the row counts once per value (e.g. calc_auditReasons). */
+    argumentMultiValue?: boolean;
+    /** Category buckets ordered by value (default) or by label (e.g. stage keys that carry their order). */
+    bucketOrder?: 'value' | 'label';
 }
 
 export interface DashboardChartConfig {
@@ -174,6 +187,10 @@ export interface DashboardChartConfig {
     seriesFieldPath?: string;
     dateBucket?: ChartDateBucket;
     maxBuckets?: number;
+    /** The argument holds a list (JSON array): the row counts once per value (e.g. calc_auditReasons). */
+    argumentMultiValue?: boolean;
+    /** Category buckets ordered by value (default) or by label (e.g. stage keys that carry their order). */
+    bucketOrder?: 'value' | 'label';
 }
 
 export type ChartXLabelFormat = 'auto' | 'full';
@@ -371,6 +388,8 @@ export interface DashboardWidgetConfig {
     /** Reaction to the filter-card selection (any widget type). */
     crossFilter?: DashboardCrossFilterOptions;
     taskWidgetOptions?: DashboardTaskWidgetOptions;
+    /** Metric widgets: unit suffix, decimals and a sparkline of the value over the period. */
+    metricOptions?: DashboardMetricOptions;
 }
 
 export interface DashboardLayoutState {
@@ -402,9 +421,29 @@ export interface DashboardMetricWidgetData {
     trendValue?: string;
     trendLabel?: string;
     helperTooltip?: string;
+    /** Value per equal slice of the period, oldest first (null = no data in the slice). */
+    sparkline?: Array<number | null>;
     loading: boolean;
     error?: string;
     source: DashboardDataSource;
+}
+
+/** Presentation of metric widgets (any instance). */
+export interface DashboardMetricOptions {
+    /** Text before the value, e.g. a currency `RD$`. */
+    prefix?: string;
+    /** Group thousands with a non-breaking space (amounts). */
+    grouping?: boolean;
+    /** Suffix after the value, e.g. `h` or `%`. */
+    unit?: string;
+    /** Decimals of numeric values (default 1, integers shown without decimals). */
+    decimals?: number;
+    /** Sparkline of the bound value over the active period (numeric aggregations of process data). */
+    sparkline?: boolean;
+    /** Slices of the sparkline (default 7). */
+    sparklineBuckets?: number;
+    /** Lower values are better (cycle time): a decrease is shown as positive. */
+    lowerIsBetter?: boolean;
 }
 
 export type DashboardGaugeTone = 'low' | 'medium' | 'high';
@@ -434,6 +473,11 @@ export interface DashboardChartWidgetData {
     values: number[];
     /** Stacked/multi-series values aligned with labels. */
     series?: DashboardChartSeries[];
+    /** Rows per bucket and sum of the value field per bucket (progress-bars `x/y` labels). */
+    counts?: number[];
+    sums?: number[];
+    /** Aggregation used for `values` (progress-bars picks the label format from it). */
+    aggregation?: ChartAggregation;
     loading: boolean;
     error?: string;
     source: DashboardDataSource;

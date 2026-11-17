@@ -74,9 +74,27 @@
                             {{ probe.rows ?? '–' }}<span *ngIf="probe.totalCount !== undefined"> / {{ probe.totalCount }}</span>
                         </td>
                     </tr>
-                    <tr *ngIf="expandedId() === probe.id && probe.fields?.length">
+                    <tr *ngIf="expandedId() === probe.id && (probe.fields?.length || probe.tables?.length)">
                         <td colspan="4">
-                            <ul class="mr-diagnostics__fields">
+                            <section class="mr-diagnostics__table" *ngFor="let table of probe.tables ?? []">
+                                <h3>{{ table.title }}</h3>
+                                <p class="mr-diagnostics__note" *ngIf="table.request"><code>{{ table.request }}</code> · {{ table.error ? 'FAILED' : 'OK' }} · {{ table.rows.length }}</p>
+                                <p class="mr-diagnostics__note mr-diagnostics__note--error" *ngIf="table.error">{{ table.error }}</p>
+                                <p class="mr-diagnostics__note" *ngIf="table.note">{{ table.note }}</p>
+                                <table *ngIf="table.rows.length">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" *ngFor="let column of table.columns">{{ column }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let row of table.rows">
+                                            <td *ngFor="let cell of row">{{ cell || '—' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                            <ul class="mr-diagnostics__fields" *ngIf="probe.fields?.length">
                                 <li *ngFor="let field of probe.fields">
                                     <code>{{ field.name }}</code>
                                     <span>{{ field.types.join('|') }}</span>

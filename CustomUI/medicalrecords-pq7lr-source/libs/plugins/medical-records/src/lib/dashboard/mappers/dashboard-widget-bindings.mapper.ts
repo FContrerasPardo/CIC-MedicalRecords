@@ -14,6 +14,9 @@ function resolveChartYAggregation(
     if (valueAggregation === 'count' || !valueAggregation) {
         return 'count';
     }
+    if (valueAggregation === 'avg' && valueField) {
+        return 'avg';
+    }
     if (valueAggregation === 'sum') {
         return 'sum';
     }
@@ -33,6 +36,8 @@ export function resolveChartConfig(config: DashboardWidgetConfig): DashboardChar
             seriesFieldPath: bindings.seriesFieldPath,
             dateBucket: bindings.dateBucket,
             maxBuckets: bindings.maxBuckets ?? 12,
+            argumentMultiValue: bindings.argumentMultiValue,
+            bucketOrder: bindings.bucketOrder,
         };
     }
 
@@ -94,6 +99,8 @@ export function chartConfigToBindings(chart?: DashboardChartConfig): DashboardWi
         seriesFieldPath: chart.seriesFieldPath,
         dateBucket: chart.dateBucket,
         maxBuckets: chart.maxBuckets,
+        argumentMultiValue: chart.argumentMultiValue,
+        bucketOrder: chart.bucketOrder,
     };
 }
 

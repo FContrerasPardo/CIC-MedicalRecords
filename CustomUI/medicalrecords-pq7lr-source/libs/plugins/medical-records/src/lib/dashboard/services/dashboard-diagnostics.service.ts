@@ -6,6 +6,7 @@ import {
     capturedVariableNames,
     DiagnosticProbe,
     mergeCapturedVariables,
+    upsertDiagnosticProbe,
 } from '../utils/dashboard-diagnostics.util';
 
 const STORAGE_KEY = 'medicalRecords.showRuntimeDiagnostics';
@@ -45,7 +46,7 @@ export class DashboardDiagnosticsService {
             return;
         }
         const entry: DiagnosticProbe = { id: this.nextId++, at: new Date().toISOString(), ...probe };
-        this.probes.update((current) => [entry, ...current].slice(0, MAX_PROBES));
+        this.probes.update((current) => upsertDiagnosticProbe(current, entry, MAX_PROBES));
     }
 
     /**

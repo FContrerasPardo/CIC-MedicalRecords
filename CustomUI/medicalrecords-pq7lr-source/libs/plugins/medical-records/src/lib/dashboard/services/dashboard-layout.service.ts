@@ -50,6 +50,8 @@ import {
     normalizeLayoutFileName,
 } from '../mappers/dashboard-layout-document.mapper';
 import { DashboardPeriodService } from './dashboard-period.service';
+// Demo template ("Reset demo layout"): the ARS control center built in the builder, versioned with the plugin.
+import demoLayoutTemplate from '../definitions/demo-layout.template.json';
 import { resolveLayoutDocumentId } from '../config/dashboard-layout-storage.config';
 import {
     dashboardDateRangeKey,
@@ -210,8 +212,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
         },
 
@@ -421,8 +423,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
         },
 
@@ -456,8 +458,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['COMPLETED'],
         },
 
@@ -1142,9 +1144,22 @@ export class DashboardLayoutService {
 
 
 
+    /**
+     * The demo template (`definitions/demo-layout.template.json`, an Appdata layout envelope or a bare
+     * layout) merged with the defaults; the code defaults when the template is unusable.
+     */
+    getDemoTemplateLayout(): DashboardLayoutState {
+        const envelope = demoLayoutTemplate as unknown as { layout?: DashboardLayoutState } & DashboardLayoutState;
+        const template = envelope.layout ?? envelope;
+        if (!template?.pages?.length || !template.widgets) {
+            return this.getDefaultLayout();
+        }
+        return this.mergeWithDefaults({ ...(JSON.parse(JSON.stringify(template)) as DashboardLayoutState), layoutSourceDocumentId: null });
+    }
+
     resetLayout(): DashboardLayoutState {
 
-        const layout = this.getDefaultLayout();
+        const layout = this.getDemoTemplateLayout();
 
         this.applyLayoutPreferences(layout);
 

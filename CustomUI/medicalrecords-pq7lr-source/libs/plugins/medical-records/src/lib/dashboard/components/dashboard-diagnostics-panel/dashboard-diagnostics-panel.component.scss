@@ -200,6 +200,35 @@ table {
     }
 }
 
+/* Structured detail of a probe (tasks, process fields, IDP service tasks). */
+.mr-diagnostics__table {
+    margin: 0 0 10px;
+
+    h3 {
+        margin: 4px 0 2px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .mr-diagnostics__note {
+        margin: 0 0 4px;
+    }
+
+    code {
+        word-break: break-all;
+    }
+
+    table th,
+    table td {
+        background: #fbfbfe;
+        word-break: break-word;
+    }
+}
+
+.mr-diagnostics__note--error {
+    color: #ba1a1a;
+}
+
 .mr-diagnostics__samples {
     color: #5b6478;
 }

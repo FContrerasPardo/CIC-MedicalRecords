@@ -1,8 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { AppConfigService, IdentityUserService } from '@alfresco/adf-core';
-
-import { AdfHttpClient } from '@alfresco/adf-core/api';
 
 import {
 
@@ -20,23 +18,19 @@ import {
 
 } from '@alfresco/adf-process-services-cloud';
 
-import { BehaviorSubject, catchError, forkJoin, from, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, Observable, of, switchMap, throwError } from 'rxjs';
 
 import { ProcessAttentionItem, ProcessAttentionListState } from '../definitions/process-attention.model';
 
 import { mapTaskToAttentionItem, matchesMedicalRecordsTask, TaskInstanceEntry } from '../mappers/task-attention.mapper';
+import { ProcessVariablesService } from './process-variables.service';
+import { DashboardDiagnosticsService } from './dashboard-diagnostics.service';
+import { DashboardPeriodService } from './dashboard-period.service';
+import { ProcessQueryDataProvider } from '../providers/process-query-data.provider';
+import { summarizeDiagnosticRows } from '../utils/dashboard-diagnostics.util';
+import { variablesToRow } from '../utils/dashboard-provider-group.util';
 
 
-
-interface ProcessVariablesResponse {
-
-    list?: {
-
-        entries?: Array<{ entry?: { name?: string; value?: unknown } }>;
-
-    };
-
-}
 
 
 
@@ -72,6 +66,11 @@ export class MedicalRecordsTaskQueryService {
 
 
 
+    private readonly processVariablesService = inject(ProcessVariablesService);
+    private readonly diagnostics = inject(DashboardDiagnosticsService);
+    private readonly processQueryDataProvider = inject(ProcessQueryDataProvider);
+    private readonly periodService = inject(DashboardPeriodService);
+
     constructor(
 
         private readonly taskListCloudService: TaskListCloudService,
@@ -80,16 +79,21 @@ export class MedicalRecordsTaskQueryService {
 
         private readonly identityUserService: IdentityUserService,
 
-        private readonly adfHttpClient: AdfHttpClient,
-
         private readonly appConfigService: AppConfigService
 
     ) {}
 
 
 
-    loadAttentionItems(): void {
+    /** Several widgets request the open tasks on init; one load in flight serves them all. */
+    private loadInFlight = false;
 
+    loadAttentionItems(): void {
+        if (this.loadInFlight) {
+            return;
+        }
+        this.loadInFlight = true;
+        const started = performance.now();
         this.stateSubject.next({ ...this.stateSubject.value, loading: true, error: undefined });
 
 
@@ -109,23 +113,21 @@ export class MedicalRecordsTaskQueryService {
 
 
                     const appName = this.resolveAppName();
-
-                    return forkJoin(
-
-                        tasks.map((task) => {
-
-                            const variablesProcessId =
-
-                                stringify(task.rootProcessInstanceId) ?? stringify(task.processInstanceId) ?? '';
-
-                            return this.fetchProcessVariables(variablesProcessId).pipe(
-
-                                map((variables) => mapTaskToAttentionItem(task, variables, appName))
-
-                            );
-
-                        })
-
+                    // Root variables come from the data plan (one inline request for the layout);
+                    // only roots outside the plan are fetched per instance.
+                    return this.processQueryDataProvider.planVariablesByInstance(this.periodService.dateRange).pipe(
+                        switchMap((planVariables) =>
+                            forkJoin(
+                                tasks.map((task) => {
+                                    const variablesProcessId =
+                                        stringify(task.rootProcessInstanceId) ?? stringify(task.processInstanceId) ?? '';
+                                    const planned = planVariables.get(variablesProcessId);
+                                    return (planned ? of(planned) : this.fetchProcessVariables(variablesProcessId)).pipe(
+                                        map((variables) => mapTaskToAttentionItem(task, variables, appName))
+                                    );
+                                })
+                            )
+                        )
                     );
 
                 }),
@@ -143,6 +145,18 @@ export class MedicalRecordsTaskQueryService {
             )
 
             .subscribe((items) => {
+
+                this.loadInFlight = false;
+                this.diagnostics.record({
+                    kind: 'open-tasks',
+                    label: 'CREATED + ASSIGNED (medical-records roots)',
+                    durationMs: Math.round(performance.now() - started),
+                    rows: items.length,
+                    error: this.stateSubject.value.error,
+                    fields: this.diagnostics.enabled()
+                        ? summarizeDiagnosticRows(items.map((item) => ({ taskType: item.taskType, taskStatus: item.taskStatus, ...variablesToRow(item.processVariables) })))
+                        : undefined,
+                });
 
                 if (this.stateSubject.value.error) {
 
@@ -374,58 +388,9 @@ export class MedicalRecordsTaskQueryService {
 
 
 
+    /** Shared with the dashboard widgets (short-lived cache), so each instance's batchState downloads once. */
     private fetchProcessVariables(processInstanceId: string): Observable<Record<string, unknown>> {
-
-        const appName = this.resolveAppName();
-
-        if (!appName || !processInstanceId) {
-
-            return of({});
-
-        }
-
-
-
-        const url = `${this.getQueryBaseUrl(appName)}/process-instances/${encodeURIComponent(processInstanceId)}/variables`;
-
-
-
-        return from(this.adfHttpClient.get<ProcessVariablesResponse>(url)).pipe(
-
-            map((response) => {
-
-                const variables = response?.list?.entries?.map((entry) => entry.entry) ?? [];
-
-                return variables.reduce<Record<string, unknown>>((accumulator, variable) => {
-
-                    const name = variable?.name;
-
-                    if (name) {
-
-                        accumulator[name] = variable.value;
-
-                    }
-
-                    return accumulator;
-
-                }, {});
-
-            }),
-
-            catchError(() => of({}))
-
-        );
-
-    }
-
-
-
-    private getQueryBaseUrl(appName: string): string {
-
-        const host = String(this.appConfigService.get('bpmHost', '')).replace(/\/+$/, '');
-
-        return `${host}/${appName}/query/v1`;
-
+        return this.processVariablesService.fetchVariables(processInstanceId);
     }
 
 

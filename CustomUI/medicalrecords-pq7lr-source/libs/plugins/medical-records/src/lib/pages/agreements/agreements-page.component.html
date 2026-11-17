@@ -1,0 +1,282 @@
+<section class="agreements" aria-labelledby="agreements-title">
+    <header class="agreements__bar">
+        <div>
+            <span class="eyebrow">{{ i18n + '.EYEBROW' | translate }}</span>
+            <h1 id="agreements-title">{{ 'MEDICAL_RECORDS.TOP_LINKS.AGREEMENTS' | translate }}</h1>
+            <p class="panel__lead">{{ i18n + '.STORE.LEAD' | translate }}</p>
+        </div>
+        <a class="btn" routerLink="/medical-records">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.BACK' | translate }}
+        </a>
+    </header>
+
+    <div class="agreements__layout">
+        <aside class="ag-sidebar" aria-labelledby="ag-sidebar-title">
+            <div class="ag-sidebar__head">
+                <h2 id="ag-sidebar-title">{{ i18n + '.SIDEBAR.TITLE' | translate }}</h2>
+                <span class="ag-sidebar__count">{{ indexResult?.index.agreements.length ?? 0 }}</span>
+                <button type="button" class="icon-btn" (click)="loadIndex()" [disabled]="loadingIndex || working" [attr.aria-label]="i18n + '.CHECKLIST.RELOAD' | translate" [title]="i18n + '.CHECKLIST.RELOAD' | translate">
+                    <span class="material-icons" aria-hidden="true">refresh</span>
+                </button>
+            </div>
+            @if (indexResult) {
+                <p class="ag-sidebar__source ag-sidebar__source--{{ indexResult.source }}" [title]="indexResult.path">
+                    <span class="material-icons" aria-hidden="true">{{ indexResult.source === 'appdata' ? 'cloud_done' : indexResult.source === 'invalid' ? 'error' : 'inventory_2' }}</span>
+                    {{ i18n + '.SIDEBAR.INDEX_' + (indexResult.source | uppercase) | translate }}
+                </p>
+            }
+            <label class="search ag-sidebar__search">
+                <span class="material-icons" aria-hidden="true">search</span>
+                <span class="sr-only">{{ i18n + '.SIDEBAR.SEARCH' | translate }}</span>
+                <input type="search" [value]="search" (input)="onSearch($any($event.target).value)" [placeholder]="i18n + '.SIDEBAR.SEARCH' | translate" />
+            </label>
+
+            @if (loadingIndex && !indexResult) {
+                <p class="panel__lead" role="status">{{ i18n + '.SIDEBAR.LOADING' | translate }}</p>
+            }
+            <ul class="ag-list">
+                @for (entry of visibleEntries; track entry.agreementId) {
+                    <li>
+                        <button type="button" class="ag-card" [class.ag-card--active]="entry.agreementId === selectedId" [attr.aria-current]="entry.agreementId === selectedId ? 'true' : null" (click)="select(entry.agreementId)">
+                            <span class="ag-card__top">
+                                <span class="ag-card__payer">{{ entry.payer || '—' }}</span>
+                                <span class="status status--{{ entry.status | lowercase }}">{{ i18n + '.STATUS_' + entry.status | translate }}</span>
+                            </span>
+                            <span class="ag-card__name">{{ entry.providerName }}</span>
+                            <span class="ag-card__meta">
+                                <code>{{ entry.agreementId }}</code>
+                            </span>
+                            @if (entry.updatedAt) {
+                                <span class="ag-card__footer">
+                                    <span class="material-icons" aria-hidden="true">schedule</span>{{ entry.updatedAt | date: 'dd/MM/yyyy' }}
+                                </span>
+                            }
+                        </button>
+                    </li>
+                } @empty {
+                    @if (!loadingIndex) {
+                        <li class="panel__lead">{{ i18n + '.SIDEBAR.EMPTY' | translate }}</li>
+                    }
+                }
+            </ul>
+
+            <div class="ag-sidebar__footer">
+                <button type="button" class="btn ag-sidebar__new" (click)="openDuplicate()" [disabled]="!files || working" [attr.aria-expanded]="duplicateOpen">
+                    <span class="material-icons" aria-hidden="true">library_add</span>{{ i18n + '.SIDEBAR.DUPLICATE' | translate }}
+                </button>
+                @if (duplicateOpen && selected) {
+                    <form class="ag-duplicate" (ngSubmit)="duplicate()">
+                        <p class="panel__lead">{{ i18n + '.SIDEBAR.DUPLICATE_LEAD' | translate: { name: selected.providerName } }}</p>
+                        <label>
+                            <span>{{ i18n + '.GENERAL.FIELD_PROVIDER_NAME' | translate }} *</span>
+                            <input type="text" name="duplicateName" [ngModel]="duplicateName" (ngModelChange)="onDuplicateName($event)" required />
+                        </label>
+                        <label>
+                            <span>{{ i18n + '.SIDEBAR.AGREEMENT_ID' | translate }} *</span>
+                            <input type="text" name="duplicateId" [ngModel]="duplicateId" (ngModelChange)="onDuplicateId($event)" required />
+                            <small>{{ i18n + '.SIDEBAR.AGREEMENT_ID_HINT' | translate }}</small>
+                        </label>
+                        <button type="submit" class="btn btn--primary" [disabled]="!duplicateValid || working">
+                            <span class="material-icons" aria-hidden="true">content_copy</span>{{ (working ? i18n + '.POLICY.SAVING' : i18n + '.SIDEBAR.CREATE_COPY') | translate }}
+                        </button>
+                    </form>
+                }
+            </div>
+        </aside>
+
+        <div class="ag-main">
+            @if (loadingFiles && !files) {
+                <p class="panel__lead" role="status">{{ i18n + '.STORE.LOADING' | translate }}</p>
+            } @else if (files && selected) {
+                <header class="ag-entity">
+                    <span class="ag-entity__icon" aria-hidden="true"><span class="material-icons">local_hospital</span></span>
+                    <div class="ag-entity__main">
+                        <div class="ag-entity__title">
+                            <h2>{{ general['providerDisplayName'] || selected.providerName }}</h2>
+                            <span class="status status--{{ selected.status | lowercase }}">{{ i18n + '.STATUS_' + selected.status | translate }}</span>
+                        </div>
+                        <p class="ag-entity__meta">
+                            <span><span class="material-icons" aria-hidden="true">account_balance</span>{{ general['payer'] || selected.payer || '—' }}</span>
+                            <span><span class="material-icons" aria-hidden="true">tag</span><code>{{ general['contractId'] || '—' }}</code></span>
+                            <span><span class="material-icons" aria-hidden="true">event</span>{{ general['effectiveFrom'] || '—' }} → {{ general['effectiveTo'] || '—' }}</span>
+                        </p>
+                    </div>
+                    <div class="panel__actions">
+                        <button type="button" class="btn" (click)="loadFiles()" [disabled]="loadingFiles || working">
+                            <span class="material-icons" aria-hidden="true">refresh</span>{{ i18n + '.CHECKLIST.RELOAD' | translate }}
+                        </button>
+                        @if (pendingFiles.length) {
+                            <button type="button" class="btn btn--primary" (click)="createFromTemplate()" [disabled]="working">
+                                <span class="material-icons" aria-hidden="true">cloud_upload</span>
+                                {{ (working ? i18n + '.POLICY.SAVING' : i18n + '.STORE.CREATE_ALL') | translate: { count: pendingFiles.length } }}
+                            </button>
+                        }
+                    </div>
+                </header>
+
+                @if (pendingFiles.length) {
+                    <p class="source source--default" role="note">
+                        <span class="material-icons" aria-hidden="true">info</span>
+                        {{ (hasTemplate ? i18n + '.STORE.PENDING' : i18n + '.STORE.PENDING_NO_TEMPLATE') | translate: { count: pendingFiles.length } }}
+                    </p>
+                }
+                @if (actionDone) {
+                    <p class="source source--appdata" role="status">{{ i18n + '.STORE.DONE_' + actionDone | translate }}</p>
+                }
+                @if (actionError) {
+                    <p class="source source--invalid" role="alert">{{ i18n + '.STORE.' + actionError | translate }}</p>
+                }
+
+                <ul class="file-strip" [attr.aria-label]="i18n + '.DOCUMENTS.FILES' | translate">
+                    @for (kind of fileKinds; track kind) {
+                        <li class="file-strip__item file-strip__item--{{ files[kind].source }}" [title]="files[kind].path">
+                            <span class="file-strip__dot" aria-hidden="true"></span>
+                            <span>{{ i18n + '.RULES.FILE_' + kind | translate }}</span>
+                            <span class="sr-only">{{ i18n + '.FILE.SOURCE_' + (files[kind].source | uppercase) | translate }}</span>
+                        </li>
+                    }
+                </ul>
+
+                <div class="config-tabs" role="tablist" [attr.aria-label]="i18n + '.TABS.LABEL' | translate">
+                    @for (item of tabs; track item.key) {
+                        <button
+                            type="button"
+                            role="tab"
+                            [id]="'ag-tab-' + item.key"
+                            class="config-tabs__tab"
+                            [class.config-tabs__tab--active]="tab === item.key"
+                            [attr.aria-selected]="tab === item.key"
+                            aria-controls="ag-tabpanel"
+                            (click)="tab = item.key"
+                        >
+                            <span class="material-icons" aria-hidden="true">{{ item.icon }}</span>{{ i18n + '.TABS.' + (item.key | uppercase) | translate }}
+                        </button>
+                    }
+                </div>
+
+                <div id="ag-tabpanel" role="tabpanel" class="config-tabs__panel" [attr.aria-labelledby]="'ag-tab-' + tab">
+                    <!-- Re-created per agreement (no draft leaks between agreements); kept rendered across tabs so unsaved edits survive. -->
+                    @for (agreementId of [selectedId]; track agreementId) {
+                        <medical-records-agreement-general-panel
+                            [hidden]="tab !== 'general'"
+                            [agreementId]="agreementId"
+                            [file]="files.agreement"
+                            [summary]="summary"
+                            (saved)="onSaved('agreement')"
+                        ></medical-records-agreement-general-panel>
+                        <medical-records-agreement-checklist-editor
+                            [hidden]="tab !== 'checklist'"
+                            [agreementId]="agreementId"
+                            [file]="files.documentationChecklist"
+                            [profileKeys]="profileKeys"
+                            (saved)="onSaved('documentationChecklist')"
+                        ></medical-records-agreement-checklist-editor>
+                        <medical-records-preanalysis-policy-editor
+                            [hidden]="tab !== 'policy'"
+                            [agreementId]="agreementId"
+                            [file]="files.preanalysisPolicy"
+                            [classCatalogue]="catalogueNames"
+                            [checklistRuleIds]="checklistRuleIds"
+                            (saved)="onSaved('preanalysisPolicy')"
+                        ></medical-records-preanalysis-policy-editor>
+                        <section class="panel" [hidden]="tab !== 'agentRules'" aria-labelledby="agent-rules-title">
+                            <div class="panel__head">
+                                <div>
+                                    <h2 id="agent-rules-title"><span class="material-icons" aria-hidden="true">smart_toy</span>{{ i18n + '.RULES.TITLE' | translate }}</h2>
+                                    <p class="panel__lead">{{ i18n + '.RULES.LEAD' | translate }}</p>
+                                </div>
+                            </div>
+                            <div class="filters sub-tabs" role="tablist" [attr.aria-label]="i18n + '.RULES.TITLE' | translate">
+                                @for (agent of agentTabs; track agent.key) {
+                                    <button type="button" role="tab" class="filter" [class.filter--active]="agentTab === agent.key" [attr.aria-selected]="agentTab === agent.key" (click)="agentTab = agent.key">
+                                        <span class="material-icons" aria-hidden="true">{{ agent.icon }}</span>{{ i18n + '.RULES.AGENT_' + (agent.key | uppercase) | translate }}
+                                        @if (agentTabPending(agent.kinds)) {
+                                            <span class="sub-tabs__pending" [title]="i18n + '.FILE.SOURCE_DEFAULT' | translate">•</span>
+                                        }
+                                    </button>
+                                }
+                            </div>
+                            @for (agent of agentTabs; track agent.key) {
+                                <div class="agent-files" role="tabpanel" [hidden]="agentTab !== agent.key">
+                                    @for (kind of agent.kinds; track kind) {
+                                        <medical-records-agreement-rules-file-editor
+                                            [agreementId]="agreementId"
+                                            [kind]="kind"
+                                            [file]="files[kind]"
+                                            (saved)="onSaved(kind)"
+                                        ></medical-records-agreement-rules-file-editor>
+                                    }
+                                </div>
+                            }
+                        </section>
+                    }
+
+                    @if (tab === 'documents') {
+                        <section class="panel" aria-labelledby="documents-title">
+                            <div class="panel__head">
+                                <div>
+                                    <h2 id="documents-title"><span class="material-icons" aria-hidden="true">folder_open</span>{{ i18n + '.DOCUMENTS.TITLE' | translate }}</h2>
+                                    <p class="panel__lead">{{ i18n + '.DOCUMENTS.LEAD' | translate }}</p>
+                                </div>
+                            </div>
+                            <div class="doc-table" role="table" [attr.aria-label]="i18n + '.DOCUMENTS.FILES' | translate">
+                                <div class="doc-table__row doc-table__row--head" role="row">
+                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.FILE' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.READ_BY' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.ORIGIN' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.FILE.VERSION' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.FILE.MODIFIED' | translate }}</span>
+                                </div>
+                                @for (kind of fileKinds; track kind) {
+                                    <div class="doc-table__row" role="row">
+                                        <span role="cell">
+                                            <strong>{{ i18n + '.RULES.FILE_' + kind | translate }}</strong>
+                                            <code class="doc-table__path">{{ files[kind].path }}</code>
+                                        </span>
+                                        <span role="cell">
+                                            {{ consumers[kind].agent }}
+                                            @if (consumers[kind].variable) {
+                                                <code>{{ consumers[kind].variable }}</code>
+                                            }
+                                        </span>
+                                        <span role="cell"><span class="status status--{{ files[kind].source }}">{{ i18n + '.DOCUMENTS.ORIGIN_' + (files[kind].source | uppercase) | translate }}</span></span>
+                                        <span role="cell"><code>{{ fileVersion(kind) || '—' }}</code></span>
+                                        <span role="cell">{{ files[kind].modifiedAt ? (files[kind].modifiedAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</span>
+                                    </div>
+                                }
+                            </div>
+                            @if (files.agreement.content['documents']; as docs) {
+                                <h3 class="doc-subtitle">{{ i18n + '.DOCUMENTS.CONTRACT' | translate }}</h3>
+                                <ul class="rule-list">
+                                    <li class="rule">
+                                        <div class="rule__head">
+                                            <span class="material-icons" aria-hidden="true">picture_as_pdf</span>
+                                            <strong>{{ $any(docs).primaryDocument?.title }}</strong>
+                                            <span class="tag">{{ $any(docs).primaryDocument?.status }}</span>
+                                        </div>
+                                        <p class="rule__scope">
+                                            <code>{{ $any(docs).primaryDocument?.contractId }}</code>
+                                            <span>{{ i18n + '.GENERAL.FIELD_EFFECTIVE_TO' | translate }}: {{ $any(docs).primaryDocument?.expiresAt }}</span>
+                                        </p>
+                                    </li>
+                                    @for (related of $any(docs).relatedFiles ?? []; track related.id) {
+                                        <li class="rule">
+                                            <div class="rule__head">
+                                                <span class="material-icons" aria-hidden="true">description</span>
+                                                <span>{{ related.title }}</span>
+                                                <span class="tag">{{ related.updatedAt }}</span>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                                <p class="panel__lead">{{ i18n + '.DOCUMENTS.READ_ONLY' | translate }}</p>
+                            }
+                        </section>
+                    }
+                </div>
+            } @else if (!loadingIndex) {
+                <p class="source source--invalid" role="alert">{{ i18n + '.STORE.LOAD_ERROR' | translate }}</p>
+            }
+        </div>
+    </div>
+</section>

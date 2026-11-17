@@ -25,6 +25,12 @@ export class DashboardBuilderStructureEditorModalComponent {
 
     @Output() pagePatch = new EventEmitter<Partial<DashboardPageConfig>>();
     @Output() containerPatch = new EventEmitter<Partial<DashboardContainerConfig>>();
+
+    /** KPI strip column count, clamped to 1-12; empty clears it (responsive default). */
+    onColumnsChange(value: unknown): void {
+        const columns = Math.round(Number(value));
+        this.containerPatch.emit({ columns: Number.isFinite(columns) && columns > 0 ? Math.min(12, columns) : undefined });
+    }
     @Output() closeModal = new EventEmitter<void>();
 
     containerLayoutModeLabel(mode: DashboardContainerLayoutMode): string {

@@ -297,6 +297,17 @@
                     <span>{{ chartDisplayModeLabel(mode) | translate }}</span>
                 </label>
             </div>
+            <ng-container *ngIf="widget.chartDisplayMode === 'progress-bars'">
+                <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.CHART.PROGRESS_HINT' | translate }}</p>
+                <label class="dashboard-form-field">
+                    <span>{{ 'MEDICAL_RECORDS.CHART.PROGRESS_WARN_AT' | translate }}</span>
+                    <input class="dashboard-form-control" type="number" [ngModel]="widget.kpiCard?.thresholds?.warnAt ?? ''" (ngModelChange)="patchThresholds({ warnAt: numberOrUndefined($event) })" />
+                </label>
+                <label class="dashboard-form-field">
+                    <span>{{ 'MEDICAL_RECORDS.CHART.PROGRESS_DANGER_AT' | translate }}</span>
+                    <input class="dashboard-form-control" type="number" [ngModel]="widget.kpiCard?.thresholds?.dangerAt ?? ''" (ngModelChange)="patchThresholds({ dangerAt: numberOrUndefined($event) })" />
+                </label>
+            </ng-container>
         </div>
 
         <div class="binding-slot" *ngIf="isChartWidget">
@@ -331,6 +342,17 @@
             <p class="binding-slot__note binding-slot__note--warn" *ngIf="selectedArgumentIsJson && !bindings.argumentFieldPath">
                 {{ 'MEDICAL_RECORDS.DATA_BINDING.JSON_PATH_REQUIRED' | translate }}
             </p>
+            <label class="checkbox-row" *ngIf="selectedArgumentKind !== 'date'">
+                <input type="checkbox" [checked]="!!bindings.argumentMultiValue" (change)="patchBindings({ argumentMultiValue: $any($event.target).checked || undefined })" />
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.ARGUMENT_MULTI_VALUE' | translate }}</span>
+            </label>
+            <label class="dashboard-form-field" *ngIf="selectedArgumentKind !== 'date'">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.BUCKET_ORDER' | translate }}</span>
+                <select class="dashboard-form-control" [ngModel]="bindings.bucketOrder || 'value'" (ngModelChange)="patchBindings({ bucketOrder: $event === 'value' ? undefined : $event })">
+                    <option value="value">{{ 'MEDICAL_RECORDS.DATA_BINDING.BUCKET_ORDER_VALUE' | translate }}</option>
+                    <option value="label">{{ 'MEDICAL_RECORDS.DATA_BINDING.BUCKET_ORDER_LABEL' | translate }}</option>
+                </select>
+            </label>
             <label class="dashboard-form-field" *ngIf="selectedArgumentKind === 'date'">
                 <span>{{ 'MEDICAL_RECORDS.CHART.FIELD_DATE_BUCKET' | translate }}</span>
                 <select class="dashboard-form-control" [ngModel]="bindings.dateBucket || 'day'" (ngModelChange)="patchBindings({ dateBucket: $event })">
@@ -606,6 +628,35 @@
                 />
                 <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.FIELD_TABLE_ROW_FILTER' | translate }}</span>
             </label>
+        </div>
+
+        <div class="binding-slot" *ngIf="isMetricWidget">
+            <span class="binding-slot__label">{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_OPTIONS' | translate }}</span>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_PREFIX' | translate }}</span>
+                <input class="dashboard-form-control" type="text" maxlength="8" [ngModel]="widget.metricOptions?.prefix || ''" (ngModelChange)="patchMetricOptions({ prefix: $event || undefined })" />
+            </label>
+            <label class="checkbox-row">
+                <input type="checkbox" [checked]="!!widget.metricOptions?.grouping" (change)="patchMetricOptions({ grouping: $any($event.target).checked || undefined })" />
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_GROUPING' | translate }}</span>
+            </label>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_UNIT' | translate }}</span>
+                <input class="dashboard-form-control" type="text" maxlength="8" [ngModel]="widget.metricOptions?.unit || ''" (ngModelChange)="patchMetricOptions({ unit: $event || undefined })" />
+            </label>
+            <label class="dashboard-form-field">
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_DECIMALS' | translate }}</span>
+                <input class="dashboard-form-control" type="number" min="0" max="4" [ngModel]="widget.metricOptions?.decimals ?? 1" (ngModelChange)="patchMetricOptions({ decimals: numberOrUndefined($event) })" />
+            </label>
+            <label class="checkbox-row">
+                <input type="checkbox" [checked]="!!widget.metricOptions?.sparkline" (change)="patchMetricOptions({ sparkline: $any($event.target).checked || undefined })" />
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_SPARKLINE' | translate }}</span>
+            </label>
+            <label class="checkbox-row">
+                <input type="checkbox" [checked]="!!widget.metricOptions?.lowerIsBetter" (change)="patchMetricOptions({ lowerIsBetter: $any($event.target).checked || undefined })" />
+                <span>{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_LOWER_IS_BETTER' | translate }}</span>
+            </label>
+            <p class="binding-slot__note">{{ 'MEDICAL_RECORDS.DATA_BINDING.METRIC_OPTIONS_HINT' | translate }}</p>
         </div>
 
         <label class="dashboard-form-field" *ngIf="isMetricWidget && widget.dataSource === 'demo'">

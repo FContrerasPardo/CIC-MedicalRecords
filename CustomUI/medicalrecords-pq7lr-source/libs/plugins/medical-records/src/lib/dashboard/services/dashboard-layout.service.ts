@@ -50,6 +50,8 @@ import {
     normalizeLayoutFileName,
 } from '../mappers/dashboard-layout-document.mapper';
 import { DashboardPeriodService } from './dashboard-period.service';
+// Demo template ("Reset demo layout"): the ARS control center built in the builder, versioned with the plugin.
+import demoLayoutTemplate from '../definitions/demo-layout.template.json';
 import { resolveLayoutDocumentId } from '../config/dashboard-layout-storage.config';
 import {
     dashboardDateRangeKey,
@@ -210,8 +212,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
         },
 
@@ -370,6 +372,29 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         canvasRect: { col: 1, row: 7, colSpan: 4, rowSpan: 5 },
     },
 
+    'kpi-in-progress': {
+        id: 'kpi-in-progress',
+        type: 'metric',
+        section: 'metrics',
+        dataSource: 'process',
+        title: 'Em andamento',
+        helper: 'Process instances RUNNING in the selected period.',
+        helperTooltip: 'Live count from Automate (status RUNNING).',
+        trendLabel: 'MEDICAL_RECORDS.DASHBOARD.TREND_VS_PREV_WEEK',
+        comparisonPeriod: 'previous_week',
+        icon: 'play_circle',
+        // demoValue is only shown when the process query fails; the origin chip then reads "error".
+        demoValue: '0',
+        processQuery: {
+            processDefinitionKey: 'medical-records',
+            includeSubprocesses: false,
+            metricScope: 'root',
+            status: ['RUNNING'],
+        },
+        kpiCard: { showOrigin: true },
+        span: 'metric',
+    },
+
     'metric-total-processes': {
 
         id: 'metric-total-processes',
@@ -398,8 +423,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
         },
 
@@ -433,8 +458,8 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
 
         processQuery: {
             processDefinitionKey: 'medical-records',
-            includeSubprocesses: true,
-            metricScope: 'tree',
+            includeSubprocesses: false,
+            metricScope: 'root',
             status: ['COMPLETED'],
         },
 
@@ -1119,9 +1144,22 @@ export class DashboardLayoutService {
 
 
 
+    /**
+     * The demo template (`definitions/demo-layout.template.json`, an Appdata layout envelope or a bare
+     * layout) merged with the defaults; the code defaults when the template is unusable.
+     */
+    getDemoTemplateLayout(): DashboardLayoutState {
+        const envelope = demoLayoutTemplate as unknown as { layout?: DashboardLayoutState } & DashboardLayoutState;
+        const template = envelope.layout ?? envelope;
+        if (!template?.pages?.length || !template.widgets) {
+            return this.getDefaultLayout();
+        }
+        return this.mergeWithDefaults({ ...(JSON.parse(JSON.stringify(template)) as DashboardLayoutState), layoutSourceDocumentId: null });
+    }
+
     resetLayout(): DashboardLayoutState {
 
-        const layout = this.getDefaultLayout();
+        const layout = this.getDemoTemplateLayout();
 
         this.applyLayoutPreferences(layout);
 
@@ -1144,6 +1182,22 @@ export class DashboardLayoutService {
         return this.normalizeWidget(
             {
                 ...template,
+                id: createId('widget'),
+                containerId,
+                section: legacySectionForLayoutMode(layoutMode),
+            },
+            layoutMode
+        );
+    }
+
+    createKpiCardWidget(
+        preset: 'kpi-in-progress',
+        containerId: string,
+        layoutMode: DashboardContainerLayoutMode = 'grid-4'
+    ): DashboardWidgetConfig {
+        return this.normalizeWidget(
+            {
+                ...DEFAULT_WIDGETS[preset],
                 id: createId('widget'),
                 containerId,
                 section: legacySectionForLayoutMode(layoutMode),
@@ -1319,6 +1373,18 @@ export class DashboardLayoutService {
 
         }
 
+        if (type === 'provider-cards') {
+            return this.normalizeWidget(
+                {
+                    ...base,
+                    title: 'Providers',
+                    gridColumnSpan: layoutMode === 'grid-4' ? 4 : 12,
+                    providerCardsOptions: { kpis: ['running', 'completed', 'cancelled', 'total'] },
+                },
+                layoutMode
+            );
+        }
+
         if (type === 'task-status-summary') {
 
             return this.normalizeWidget({
@@ -1422,7 +1488,12 @@ export class DashboardLayoutService {
             }
         }
 
-        pages = this.mergePagesWithDefaults(pages, defaults.pages, widgets);
+        // A layout saved with the current schema is authoritative: what it removed stays removed.
+        // Default containers/widgets are only merged into legacy or empty layouts.
+        const isCurrentSchema = (stored.version ?? 0) >= LAYOUT_SCHEMA_VERSION && pages.length > 0;
+        if (!isCurrentSchema) {
+            pages = this.mergePagesWithDefaults(pages, defaults.pages, widgets);
+        }
 
         const widgetsWithContainers = assignContainerIdsToWidgets(pages, widgets);
 

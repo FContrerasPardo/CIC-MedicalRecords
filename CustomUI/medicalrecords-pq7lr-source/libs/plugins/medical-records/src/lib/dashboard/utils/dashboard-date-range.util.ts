@@ -75,10 +75,14 @@ export function parseIsoDateInput(value: string): Date | null {
     return Number.isFinite(date.getTime()) ? date : null;
 }
 
+/** Persisted end value meaning "up to the current day", so saved layouts do not freeze their end date. */
+export const DATE_RANGE_END_TODAY = 'today';
+
 export function serializeDashboardDateRangePreference(range: DashboardDateRange): DashboardDateRangePreference {
+    const end = toIsoDate(range.end);
     return {
         start: toIsoDate(range.start),
-        end: toIsoDate(range.end),
+        end: end === toIsoDate(new Date()) ? DATE_RANGE_END_TODAY : end,
     };
 }
 
@@ -89,7 +93,8 @@ export function parseDashboardDateRangePreference(
         return null;
     }
     const start = parseIsoDateInput(preference.start);
-    const end = parseIsoDateInput(preference.end);
+    const end =
+        preference.end.trim().toLowerCase() === DATE_RANGE_END_TODAY ? endOfDay(new Date()) : parseIsoDateInput(preference.end);
     if (!start || !end) {
         return null;
     }

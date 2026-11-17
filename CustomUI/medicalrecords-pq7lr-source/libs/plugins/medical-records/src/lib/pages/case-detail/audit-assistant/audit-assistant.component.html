@@ -1,0 +1,122 @@
+<section class="kd" role="region" [attr.aria-labelledby]="headingId" [attr.aria-busy]="status === 'loading'">
+  <header class="kd__header">
+    <span class="material-icons kd__icon" aria-hidden="true">travel_explore</span>
+    <div class="kd__titles">
+      <h2 class="kd__title" [id]="headingId" tabindex="-1" #heading>{{ i18n + '.TITLE' | translate }}</h2>
+      <p class="kd__subtitle">{{ i18n + '.SUBTITLE' | translate }}</p>
+    </div>
+    <button *ngIf="closable" type="button" class="kd__icon-button" (click)="close()"
+            [attr.aria-label]="i18n + '.CLOSE' | translate">
+      <span class="material-icons" aria-hidden="true">close</span>
+    </button>
+  </header>
+
+  <!-- Context sent along with every question -->
+  <details class="kd__context" [open]="hasContext">
+    <summary>{{ i18n + '.CONTEXT_TITLE' | translate }}</summary>
+    <p *ngIf="!hasContext" class="kd__muted">{{ i18n + '.CONTEXT_EMPTY' | translate }}</p>
+    <dl *ngIf="hasContext" class="kd__facts">
+      <ng-container *ngIf="radicationId">
+        <dt>{{ i18n + '.PROMPT.RADICATION' | translate }}</dt><dd>{{ radicationId }}</dd>
+      </ng-container>
+      <ng-container *ngIf="invoiceNumber">
+        <dt>{{ i18n + '.PROMPT.INVOICE' | translate }}</dt><dd>{{ invoiceNumber }}</dd>
+      </ng-container>
+      <ng-container *ngIf="patientRef">
+        <dt>{{ i18n + '.PROMPT.PATIENT' | translate }}</dt><dd>{{ patientRef }}</dd>
+      </ng-container>
+      <ng-container *ngIf="providerName">
+        <dt>{{ i18n + '.PROMPT.PROVIDER' | translate }}</dt><dd>{{ providerName }}</dd>
+      </ng-container>
+      <ng-container *ngIf="agreementName">
+        <dt>{{ i18n + '.PROMPT.AGREEMENT' | translate }}</dt><dd>{{ agreementName }}</dd>
+      </ng-container>
+    </dl>
+    <div *ngIf="selectedFindings.length" class="kd__group">
+      <h3>{{ i18n + '.PROMPT.FINDINGS' | translate }} ({{ selectedFindings.length }})</h3>
+      <ul class="kd__chips">
+        <li *ngFor="let finding of selectedFindings" class="kd__chip">
+          <strong *ngIf="finding.code">{{ finding.code }}</strong> {{ finding.title }}
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="comments.length" class="kd__group">
+      <h3>{{ i18n + '.PROMPT.PROVIDER_COMMENTS' | translate }}</h3>
+      <blockquote *ngFor="let comment of comments" class="kd__quote">{{ comment }}</blockquote>
+    </div>
+  </details>
+
+  <!-- Connection state -->
+  <p *ngIf="status === 'loading'" class="kd__state" role="status">
+    <span class="kd__spinner" aria-hidden="true"></span>{{ i18n + '.LOADING' | translate }}
+  </p>
+  <div *ngIf="status === 'not-configured'" class="kd__state kd__state--warning" role="status">
+    <span class="material-icons" aria-hidden="true">link_off</span>
+    <div>
+      <p class="kd__state-title">{{ i18n + '.NOT_CONFIGURED' | translate }}</p>
+      <p>{{ i18n + '.NOT_CONFIGURED_HINT' | translate }}</p>
+    </div>
+  </div>
+  <div *ngIf="status === 'invalid' || status === 'error'" class="kd__state kd__state--error" role="alert">
+    <span class="material-icons" aria-hidden="true">error_outline</span>
+    <div>
+      <p class="kd__state-title">{{ i18n + (status === 'invalid' ? '.CONFIG_INVALID' : '.CONFIG_LOAD_FAILED') | translate }}</p>
+      <button type="button" class="kd__button" (click)="reload()">{{ i18n + '.RETRY' | translate }}</button>
+    </div>
+  </div>
+
+  <!-- Suggested questions -->
+  <div class="kd__group">
+    <h3>{{ i18n + '.SUGGESTED' | translate }}</h3>
+    <ul class="kd__suggestions">
+      <li *ngFor="let suggestion of suggestions; trackBy: trackSuggestion">
+        <button type="button" class="kd__suggestion" [disabled]="!ready" (click)="askSuggested(suggestion)">
+          <span class="material-icons" aria-hidden="true">chat_bubble_outline</span>
+          <span>{{ i18n + '.QUESTIONS.' + suggestion.key | translate: suggestion.params }}</span>
+        </button>
+        <button type="button" class="kd__icon-button" [disabled]="!ready" (click)="useSuggested(suggestion)"
+                [attr.aria-label]="i18n + '.EDIT_SUGGESTION' | translate"
+                [title]="i18n + '.EDIT_SUGGESTION' | translate">
+          <span class="material-icons" aria-hidden="true">edit</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Conversation: questions sent; answers live in the KD window -->
+  <div class="kd__group">
+    <h3>{{ i18n + '.CONVERSATION' | translate }}</h3>
+    <p *ngIf="!conversation.length" class="kd__muted">{{ i18n + '.CONVERSATION_EMPTY' | translate }}</p>
+    <ol *ngIf="conversation.length" class="kd__thread">
+      <li *ngFor="let entry of conversation; trackBy: trackEntry" class="kd__message">
+        <p class="kd__bubble">{{ entry.question }}</p>
+        <p class="kd__meta">
+          <time [attr.datetime]="entry.sentAt.toISOString()">{{ entry.sentAt | date: 'shortTime' }}</time>
+          · {{ i18n + (entry.copied ? '.ANSWER_IN_KD' : '.COPY_MANUALLY') | translate }}
+        </p>
+        <details class="kd__prompt" [open]="!entry.copied">
+          <summary>{{ i18n + '.SHOW_PROMPT' | translate }}</summary>
+          <textarea readonly rows="6" [value]="entry.prompt" [attr.aria-label]="i18n + '.SHOW_PROMPT' | translate"></textarea>
+        </details>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Composer -->
+  <form class="kd__composer" (ngSubmit)="sendDraft()">
+    <label class="kd__label" for="{{ headingId }}-composer">{{ i18n + '.ASK_LABEL' | translate }}</label>
+    <textarea #composer id="{{ headingId }}-composer" name="question" rows="3" [(ngModel)]="draft"
+              [disabled]="!ready" (keydown)="onComposerKeydown($event)"
+              [placeholder]="i18n + '.ASK_PLACEHOLDER' | translate"
+              [attr.aria-describedby]="headingId + '-hint'"></textarea>
+    <div class="kd__composer-actions">
+      <p class="kd__muted" [id]="headingId + '-hint'">{{ i18n + '.ASK_HINT' | translate }}</p>
+      <button type="submit" class="kd__button kd__button--primary" [disabled]="!canSend">
+        <span class="material-icons" aria-hidden="true">open_in_new</span>{{ i18n + '.ASK' | translate }}
+      </button>
+    </div>
+  </form>
+
+  <p class="kd__disclaimer">{{ i18n + '.DISCLAIMER' | translate }}</p>
+  <p class="kd__sr-only" aria-live="polite">{{ announcement }}</p>
+</section>

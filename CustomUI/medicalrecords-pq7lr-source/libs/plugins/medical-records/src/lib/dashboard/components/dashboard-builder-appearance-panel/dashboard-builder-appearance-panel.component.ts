@@ -7,7 +7,7 @@ import {
     DashboardLinkTargetType,
     DashboardSeriesPresetId,
     DashboardWidgetConfig,
-    ChartHeadlineAggregation,
+    DashboardChartHeadlineConfig,
 } from '../../definitions/dashboard-widget.model';
 import { HYLAND_BRAND, SERIES_STYLE_PRESETS } from '../../utils/dashboard-theme.util';
 import {
@@ -162,7 +162,7 @@ export class DashboardBuilderAppearancePanelComponent {
         this.patch({ chartSeriesStyle: undefined });
     }
 
-    patchChartHeadline(patch: { show?: boolean; label?: string; aggregation?: ChartHeadlineAggregation }): void {
+    patchChartHeadline(patch: Partial<DashboardChartHeadlineConfig>): void {
         this.patch({
             chartHeadline: {
                 ...this.widget.chartHeadline,

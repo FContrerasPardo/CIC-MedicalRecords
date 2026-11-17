@@ -6,7 +6,8 @@ export type DashboardWidgetType =
     | 'gauge'
     | 'link-card'
     | 'task-status-summary'
-    | 'task-recent-list';
+    | 'task-recent-list'
+    | 'provider-cards';
 
 export type DashboardLinkTargetType = 'route' | 'external';
 
@@ -52,7 +53,15 @@ export interface DashboardThemeConfig {
     defaultSeriesStyle: DashboardSeriesStyle;
     seriesPalette: string[];
     statusColors?: Record<string, string>;
+    /** Widget frame: `card` (bordered card, default) or `accent-line` (no box, accent line on the left). */
+    widgetChrome?: DashboardWidgetChrome;
+    /** Type and spacing scale: `comfortable` (default) or `compact` (fits the whole operation on one screen). */
+    density?: DashboardDensity;
 }
+
+export type DashboardDensity = 'comfortable' | 'compact';
+
+export type DashboardWidgetChrome = 'card' | 'accent-line';
 
 export type DashboardSeriesPresetId =
     | 'hyland-purple-wave'
@@ -75,6 +84,10 @@ export interface DashboardContainerConfig {
     layoutMode: DashboardContainerLayoutMode;
     widgetIds: DashboardWidgetId[];
     collapsed?: boolean;
+    /** KPI strip only: number of columns (1-12). Widgets span `gridColumnSpan` columns (default 1). */
+    columns?: number;
+    /** Grid containers: `cards` (default, one card per widget) or `panel` (one flat panel, widgets split by thin dividers). */
+    appearance?: 'cards' | 'panel';
 }
 
 export interface DashboardPageConfig {
@@ -93,6 +106,10 @@ export interface DashboardProcessListOptions {
     showCountBadge?: boolean;
     /** Where clicking a task row navigates. Default: open the task form directly. */
     openTarget?: ProcessListOpenTarget;
+    /** Root-process variables the list reads (requested through the data plan). Default: see PROCESS_LIST_DEFAULT_VARIABLES. */
+    variables?: string[];
+    /** `table`: compact rows under a column header (default); `cards`: stacked case cards. */
+    display?: 'table' | 'cards';
 }
 
 export type ProcessListOpenTarget = 'task' | 'subprocess' | 'macroProcess';
@@ -104,12 +121,13 @@ export interface DashboardTableWidgetOptions {
     groupByFields?: string[];
 }
 
-export type ChartAggregation = 'count' | 'sum';
+export type ChartAggregation = 'count' | 'sum' | 'avg';
 export type NumericFieldAggregation = 'sum' | 'min' | 'max' | 'avg';
 export type ValueAggregation = 'count' | NumericFieldAggregation;
 export type ValueFieldFormat = 'number' | 'percent';
 export type ChartDateBucket = 'hour' | 'day' | 'week' | 'month';
-export type ChartDisplayMode = 'bar' | 'line' | 'stacked-bar' | 'horizontal-stacked' | 'donut';
+/** `progress-bars`: thin horizontal bars with `label · value` (or `x/y · %` for an average of a 0/1 field). */
+export type ChartDisplayMode = 'bar' | 'line' | 'stacked-bar' | 'horizontal-stacked' | 'donut' | 'progress-bars';
 export type ChartHeadlineAggregation = 'last' | 'sum' | 'avg' | 'max';
 export type DashboardFieldKind = 'date' | 'number' | 'category' | 'json';
 export type TrendDirection = 'up' | 'down' | 'flat';
@@ -133,6 +151,12 @@ export interface DashboardChartHeadlineConfig {
     show?: boolean;
     label?: string;
     aggregation?: ChartHeadlineAggregation;
+    /** Suffix after the headline value, e.g. `h`. */
+    unit?: string;
+    /** Show the change of the last bucket vs the previous one next to the headline. */
+    showVariation?: boolean;
+    /** Lower values are better (e.g. reconciliation time): a decrease is shown as positive. */
+    lowerIsBetter?: boolean;
 }
 
 export interface DashboardWidgetDataBindings {
@@ -148,6 +172,10 @@ export interface DashboardWidgetDataBindings {
     dateBucket?: ChartDateBucket;
     columnFields?: string[];
     maxBuckets?: number;
+    /** The argument holds a list (JSON array): the row counts once per value (e.g. calc_auditReasons). */
+    argumentMultiValue?: boolean;
+    /** Category buckets ordered by value (default) or by label (e.g. stage keys that carry their order). */
+    bucketOrder?: 'value' | 'label';
 }
 
 export interface DashboardChartConfig {
@@ -159,6 +187,10 @@ export interface DashboardChartConfig {
     seriesFieldPath?: string;
     dateBucket?: ChartDateBucket;
     maxBuckets?: number;
+    /** The argument holds a list (JSON array): the row counts once per value (e.g. calc_auditReasons). */
+    argumentMultiValue?: boolean;
+    /** Category buckets ordered by value (default) or by label (e.g. stage keys that carry their order). */
+    bucketOrder?: 'value' | 'label';
 }
 
 export type ChartXLabelFormat = 'auto' | 'full';
@@ -201,6 +233,10 @@ export interface DashboardProcessQueryConfig {
     metricScope?: 'root' | 'tree';
     /** Fetch BPMN variables per instance (table/report columns prefixed with var_). */
     includeProcessVariables?: boolean;
+    /** Data planner only: explicit process definition names (union of the layout's widgets). */
+    definitionNames?: string[];
+    /** Data planner only: variables returned inline by the process list (`processDefinitionKey/name`). */
+    variableKeys?: string[];
 }
 
 export interface DashboardWidgetCanvasRect {
@@ -210,6 +246,74 @@ export interface DashboardWidgetCanvasRect {
     row: number;
     colSpan: number;
     rowSpan: number;
+}
+
+/** Options for metric widgets rendered as configurable KPI cards (operations view + builder preview). */
+export interface DashboardKpiCardOptions {
+    /** Show the real-origin chip (live / demo / error). Default: true. */
+    showOrigin?: boolean;
+    /** Optional thresholds that drive the accent color of the card. */
+    thresholds?: {
+        warnAt?: number;
+        dangerAt?: number;
+        direction?: 'higher-is-worse' | 'lower-is-worse';
+    };
+}
+
+/** Options of the provider-cards widget (one KPI card per provider found in the process batchState). */
+export interface DashboardProviderCardsOptions {
+    /** Ordered KPI keys shown on each card; empty = defaults (running, completed, cancelled, total). */
+    kpis?: Array<'running' | 'completed' | 'cancelled' | 'total' | 'reviewRequired'>;
+    /** What the cards group by. Default: the provider fields of the IDP batchState. */
+    groupBy?: DashboardProviderGroupBy;
+    /** Sub-KPIs counted per card. Empty = legacy `kpis` keys. */
+    metrics?: DashboardProviderCardMetric[];
+    /** Process statuses loaded (and enriched with variables). Default: active only (RUNNING, SUSPENDED). */
+    statuses?: string[];
+    /** Process variable with the IDP output (documents with fields). Default: batchState. */
+    idpVariable?: string;
+    /** Optional light summary variable written by Automate (e.g. accountSummary). */
+    summaryVariable?: string;
+    /** Search box in the header, shared with the widgets that follow the filter (default true). */
+    showSearch?: boolean;
+}
+
+/** One sub-KPI of a filter card, computed over the process instances of that card. */
+export interface DashboardProviderCardMetric {
+    id: string;
+    label: string;
+    /**
+     * count: instances in the card; status: instances with `status`; field-equals: instances whose
+     * `field` equals `equals`; review-required: batchState still needs human review; sum: numeric sum of `field`.
+     */
+    kind: 'count' | 'status' | 'field-equals' | 'review-required' | 'sum';
+    status?: string;
+    field?: DashboardProviderGroupBy;
+    equals?: string;
+}
+
+/** How a widget reacts to the filter-card selection (e.g. the selected provider). */
+export interface DashboardCrossFilterOptions {
+    /** Filter this widget's rows by the selected card (process-list widgets). */
+    follow?: boolean;
+    /** Show the widget always, only while a card is selected, or only while none is. */
+    visibility?: 'always' | 'when-selected' | 'when-not-selected';
+}
+
+export interface DashboardProviderGroupBy {
+    /** `batch-field`: a field extracted by IDP inside `batchState`; `process-variable`: a process variable. */
+    source: 'batch-field' | 'process-variable';
+    /** Field or variable name; empty with `batch-field` = provider aliases (Nombre del Prestador, IPS, ...). */
+    name?: string;
+    /** batch-field only: variable holding the IDP output. Default: the widget's IDP variable. */
+    variable?: string;
+}
+
+/** Emitted when the user picks a provider card. */
+export interface DashboardProviderSelection {
+    key: string;
+    /** Display name; null for the unidentified group. */
+    name: string | null;
 }
 
 export interface DashboardWidgetConfig {
@@ -277,7 +381,15 @@ export interface DashboardWidgetConfig {
     /** Compact KPI strip variant (header row under page hero). */
     headerKpi?: boolean;
     linkCardOptions?: DashboardLinkCardOptions;
+    /** KPI card presentation for metric widgets; absent = legacy metric look. */
+    kpiCard?: DashboardKpiCardOptions;
+    /** Provider cards configuration (type provider-cards). */
+    providerCardsOptions?: DashboardProviderCardsOptions;
+    /** Reaction to the filter-card selection (any widget type). */
+    crossFilter?: DashboardCrossFilterOptions;
     taskWidgetOptions?: DashboardTaskWidgetOptions;
+    /** Metric widgets: unit suffix, decimals and a sparkline of the value over the period. */
+    metricOptions?: DashboardMetricOptions;
 }
 
 export interface DashboardLayoutState {
@@ -309,9 +421,29 @@ export interface DashboardMetricWidgetData {
     trendValue?: string;
     trendLabel?: string;
     helperTooltip?: string;
+    /** Value per equal slice of the period, oldest first (null = no data in the slice). */
+    sparkline?: Array<number | null>;
     loading: boolean;
     error?: string;
     source: DashboardDataSource;
+}
+
+/** Presentation of metric widgets (any instance). */
+export interface DashboardMetricOptions {
+    /** Text before the value, e.g. a currency `RD$`. */
+    prefix?: string;
+    /** Group thousands with a non-breaking space (amounts). */
+    grouping?: boolean;
+    /** Suffix after the value, e.g. `h` or `%`. */
+    unit?: string;
+    /** Decimals of numeric values (default 1, integers shown without decimals). */
+    decimals?: number;
+    /** Sparkline of the bound value over the active period (numeric aggregations of process data). */
+    sparkline?: boolean;
+    /** Slices of the sparkline (default 7). */
+    sparklineBuckets?: number;
+    /** Lower values are better (cycle time): a decrease is shown as positive. */
+    lowerIsBetter?: boolean;
 }
 
 export type DashboardGaugeTone = 'low' | 'medium' | 'high';
@@ -341,6 +473,11 @@ export interface DashboardChartWidgetData {
     values: number[];
     /** Stacked/multi-series values aligned with labels. */
     series?: DashboardChartSeries[];
+    /** Rows per bucket and sum of the value field per bucket (progress-bars `x/y` labels). */
+    counts?: number[];
+    sums?: number[];
+    /** Aggregation used for `values` (progress-bars picks the label format from it). */
+    aggregation?: ChartAggregation;
     loading: boolean;
     error?: string;
     source: DashboardDataSource;
@@ -373,6 +510,9 @@ export const DEFAULT_PROCESS_LIST_OPTIONS: Required<DashboardProcessListOptions>
     showSubtitle: true,
     showCountBadge: true,
     openTarget: 'task',
+    /** Empty = the data plan uses PROCESS_LIST_DEFAULT_VARIABLES. */
+    variables: [],
+    display: 'table',
 };
 
 export const DEFAULT_HEADER_KPI_WIDGET_IDS = [

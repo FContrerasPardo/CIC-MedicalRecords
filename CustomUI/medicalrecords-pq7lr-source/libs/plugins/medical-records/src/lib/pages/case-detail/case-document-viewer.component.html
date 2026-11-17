@@ -1,0 +1,61 @@
+<div class="viewer-backdrop" (click)="close()">
+    <section
+        class="viewer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="case-viewer-title"
+        (click)="$event.stopPropagation()"
+    >
+        <header class="viewer__head">
+            <div>
+                <span class="viewer__eyebrow">{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.TITLE' | translate }}</span>
+                <h2 id="case-viewer-title">{{ title | translate }}</h2>
+                <p>{{ document.categoryKey | translate }}@if (document.mimeType) { · {{ document.mimeType }} }</p>
+            </div>
+            <button type="button" class="viewer__close" (click)="close()">
+                <span class="material-icons" aria-hidden="true">close</span>{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.CLOSE' | translate }}
+            </button>
+        </header>
+
+        <div class="viewer__body">
+            @if (loading) {
+                <p class="viewer__state" role="status">{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.LOADING' | translate }}</p>
+            } @else if (error && error !== 'PDF') {
+                <p class="viewer__state" role="alert">{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.ERROR_' + error | translate }}</p>
+            } @else if (blob) {
+                @if (error === 'PDF') {
+                    <p class="viewer__state" role="alert">{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.ERROR_PDF' | translate }}</p>
+                }
+                @if (isPdf) {
+                    <adf-pdf-viewer
+                        class="viewer__pdf"
+                        [blobFile]="blob"
+                        [fileName]="title"
+                        [showToolbar]="true"
+                        [allowThumbnails]="false"
+                        (error)="onPdfError()"
+                    />
+                } @else {
+                    <adf-viewer
+                        class="viewer__generic"
+                        [blobFile]="blob"
+                        [mimeType]="document.mimeType ?? ''"
+                        [showViewer]="true"
+                        [overlayMode]="false"
+                        [allowGoBack]="false"
+                        [allowNavigate]="false"
+                        [allowLeftSidebar]="false"
+                        [allowRightSidebar]="false"
+                        [showLeftSidebar]="false"
+                        [showRightSidebar]="false"
+                        [showToolbar]="true"
+                        [allowFullScreen]="true"
+                        [hideInfoButton]="true"
+                        [fileName]="title"
+                        [title]="title"
+                    />
+                }
+            }
+        </div>
+    </section>
+</div>

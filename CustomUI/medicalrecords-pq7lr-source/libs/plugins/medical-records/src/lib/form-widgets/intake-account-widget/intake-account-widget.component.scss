@@ -1666,3 +1666,44 @@ button[disabled] {
         flex-direction: column;
     }
 }
+
+/* Embedded in the case view: tighter rhythm, no viewport-tall grid, flat cards. */
+.intake-account-widget--embedded {
+    gap: 16px;
+
+    .summary-card,
+    .service-explorer-card,
+    .document-control-card {
+        box-shadow: none;
+        backdrop-filter: none;
+    }
+
+    .main-grid {
+        height: min(75vh, 860px);
+        max-height: min(75vh, 860px);
+    }
+}
+
+.requested-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid #b7e2d4;
+    border-radius: 999px;
+    background: #e8f7f1;
+    color: #0b6b4f;
+    font-size: 12px;
+    font-weight: 700;
+
+    .material-icons {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 860px) {
+    .intake-account-widget--embedded .main-grid {
+        height: auto;
+        max-height: none;
+    }
+}

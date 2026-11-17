@@ -1,0 +1,61 @@
+{
+  "kind": "medical-records.agreement",
+  "schemaVersion": 1,
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "status": "ACTIVE",
+  "demoNote": "Synthetic demo agreement: provider, contract and amounts are invented. No real contract, patient or affiliate data.",
+  "providerAliases": [
+    "Centro Médico LATAM",
+    "CM LATAM"
+  ],
+  "general": {
+    "providerName": "Centro Medico LATAM",
+    "providerDisplayName": "Centro Médico LATAM",
+    "agreementBadge": "MASTER AGREEMENT",
+    "contractId": "CONV-DEMO-ARSP-CML-2026",
+    "payer": "ARS Primera",
+    "planName": "Plan Básico (demo)",
+    "legalRepresentative": "Representante legal (demo)",
+    "contractType": "Evento",
+    "effectiveFrom": "2026-01-01",
+    "effectiveTo": "2026-12-31",
+    "jurisdiction": "República Dominicana",
+    "capitationBase": 0,
+    "capitationCurrency": "DOP",
+    "capitationPeriod": "mo",
+    "budgetTotal": 18000000,
+    "billedYtd": 0,
+    "pendingApproval": 0,
+    "budgetCurrency": "DOP"
+  },
+  "documents": {
+    "primaryDocument": {
+      "title": "Contrato de prestación de servicios Centro Médico LATAM – ARS Primera (demo)",
+      "status": "Active",
+      "contractId": "CONV-DEMO-ARSP-CML-2026",
+      "expiresAt": "2026-12-31",
+      "repositoryId": "",
+      "repositoryNodeId": "",
+      "mimeType": "application/pdf"
+    },
+    "relatedFiles": [
+      {
+        "id": "cml-annex-1",
+        "title": "Anexo tarifario 2026 (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      },
+      {
+        "id": "cml-annex-2",
+        "title": "Manual de radicación y soportes (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      }
+    ],
+    "historicalVersions": []
+  }
+}

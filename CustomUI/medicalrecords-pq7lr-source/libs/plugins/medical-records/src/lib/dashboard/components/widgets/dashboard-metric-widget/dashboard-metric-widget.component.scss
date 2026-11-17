@@ -108,3 +108,104 @@
     font-size: 18px;
     cursor: help;
 }
+
+// KPI card (configurable): leading accent bar driven by origin and thresholds, plus origin chip.
+.dashboard-metric-widget--kpi-card {
+    --kpi-card-accent: var(--dash-accent, var(--mr-primary, #00478d));
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--kpi-card-accent);
+    }
+
+    &[data-accent='ok'] { --kpi-card-accent: var(--kpi-stat-positive); }
+    &[data-accent='warn'] { --kpi-card-accent: #e8a317; }
+    &[data-accent='danger'] { --kpi-card-accent: var(--kpi-stat-negative); }
+    &[data-origin='demo'] { --kpi-card-accent: var(--kpi-stat-flat); }
+    &[data-origin='error'] { --kpi-card-accent: var(--kpi-stat-negative); }
+}
+
+.dashboard-metric-widget__icon {
+    margin-right: 4px;
+    font-size: 14px;
+    vertical-align: -3px;
+}
+
+.dashboard-metric-widget__origin {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 1px 7px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &.origin-live { color: var(--kpi-stat-positive); }
+    &.origin-demo { color: var(--kpi-stat-flat); border-style: dashed; }
+    &.origin-error { color: var(--kpi-stat-negative); }
+}
+
+// ---- Card variant (all metric instances): reference look - small title, large value, trend, sparkline.
+.dashboard-metric-widget.spotlight-card {
+    .card-title-row h3 {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0;
+    }
+
+    > strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.dashboard-metric-widget__unit {
+    margin-left: 1px;
+    font-size: 0.7em;
+    font-weight: 700;
+}
+
+.dashboard-metric-widget__spark {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    overflow: visible;
+}
+
+.dashboard-metric-widget__spark-area {
+    fill: var(--kpi-stat-positive, #1c875f);
+    opacity: 0.12;
+}
+
+.dashboard-metric-widget__spark-line {
+    fill: none;
+    stroke: var(--kpi-stat-positive, #1c875f);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+}
+
+.dashboard-metric-widget__spark-dot {
+    fill: var(--kpi-stat-positive, #1c875f);
+}
+
+.dashboard-metric-widget__prefix {
+    margin-right: 2px;
+    font-size: 0.6em;
+    font-weight: 700;
+}

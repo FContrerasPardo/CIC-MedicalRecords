@@ -22,10 +22,13 @@ import { MedicalRecordsMenuItemComponent } from './components/medical-records-me
 import { CustomWidgetModule } from './form-widgets/custom-widget/custom-widget.module'
 import { AnalysisTaskWidgetModule } from './form-widgets/analysis-task-widget/analysis-task-widget.module';
 import { IntakeAccountWidgetModule } from './form-widgets/intake-account-widget/intake-account-widget.module'
+import { CaseDetailWidgetModule } from './form-widgets/case-detail-widget/case-detail-widget.module';
 import { AgentRulesWidgetModule } from './form-widgets/agent-rules-widget/agent-rules-widget.module';
 import { DASHBOARD_LAYOUT_PERSISTENCE } from './dashboard/services/dashboard-layout-persistence.interface';
 import { DashboardLayoutRepositoryService } from './dashboard/services/dashboard-layout-repository.service';
 import { provideAppearanceManager } from './appearance/appearance.provider';
+import { UploadFileDocumentCreatorService } from '@alfresco-dbp/workspace-hxp/process-services-cloud-extension/process-form/data-access';
+import { UPLOAD_MIDDLEWARE_SERVICE } from '@hxp/shared-hxp/services';
 
 @NgModule({
     declarations: [
@@ -52,13 +55,18 @@ import { provideAppearanceManager } from './appearance/appearance.provider';
         AnalysisTaskWidgetModule,
         CustomWidgetModule,
         IntakeAccountWidgetModule,
-        AgentRulesWidgetModule
+        AgentRulesWidgetModule,
+        CaseDetailWidgetModule
     ],
     providers: [
         provideExtensionConfig(['medical-records.extension.json']),
         provideTranslations('medical-records', 'assets/medical-records'),
         { provide: DASHBOARD_LAYOUT_PERSISTENCE, useExisting: DashboardLayoutRepositoryService },
         provideAppearanceManager(),
+        // Same as CIC-Fin (agentic-bank-module.ts): the radication page uploads through HxpUploadService,
+        // which runs this middleware to turn each upload into the reference the start form's "Attach file" field expects.
+        UploadFileDocumentCreatorService,
+        { provide: UPLOAD_MIDDLEWARE_SERVICE, useExisting: UploadFileDocumentCreatorService },
     ],
 })
 export class MedicalRecordsModule {

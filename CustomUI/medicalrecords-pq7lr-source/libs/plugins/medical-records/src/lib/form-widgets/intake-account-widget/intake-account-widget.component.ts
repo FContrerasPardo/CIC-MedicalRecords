@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { PdfViewerComponent, ViewerComponent, WidgetComponent } from '@alfresco/adf-core';
 import { BlobDownloadService } from '@alfresco/adf-hx-content-services/services';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs/operators';
 import { BatchStateSource } from './batch-state.model';
-import { createEmptyIntakeAccountViewModel, computeIntakeReadiness, mapBatchStateToIntakeAccountViewModel } from './batch-state.mapper';
+import {
+    createEmptyIntakeAccountViewModel,
+    computeIntakeReadiness,
+    mapBatchStateToIntakeAccountViewModel,
+    mapBatchStateToIntakeForDocuments,
+} from './batch-state.mapper';
 import {
     applyCanonicalPatientName,
     markAllPendingReviewsComplete,
@@ -36,7 +41,21 @@ type PendingUploadItem = {
     imports: [CommonModule, ViewerComponent, PdfViewerComponent, TranslateModule],
     changeDetection: ChangeDetectionStrategy.Default,
 })
-export class IntakeAccountWidgetComponent extends WidgetComponent implements OnInit {
+export class IntakeAccountWidgetComponent extends WidgetComponent implements OnInit, OnChanges {
+    /**
+     * Embedded in the case view (outside the task form): the invoice and patient are already
+     * identified, so the patient selector, merge and alias banner are hidden, and the native
+     * upload becomes a request to the provider (`documentRequested`).
+     */
+    @Input() embedded = false;
+    /** Restricts the view to these documents (one customer invoice and its supporting documents). */
+    @Input() documentIds: readonly string[] | null = null;
+    /** Embedded mode: label of a missing support document the ARS asks the provider for. */
+    @Output() documentRequested = new EventEmitter<string>();
+    /** Embedded mode: labels already requested in this view (simulated, not persisted). */
+    readonly requestedDocumentLabels = new Set<string>();
+
+    private cachedDocumentIds: readonly string[] | null = null;
     private readonly UPLOAD_FIELD_ID = 'supportDocumentUpload';
     private readonly UPLOAD_HIGHLIGHT_TIMEOUT_MS = 2000;
     private readonly blobDownloadService = inject(BlobDownloadService);
@@ -85,7 +104,8 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
         if (
             primaryValue === this.cachedPrimaryValue &&
             fallbackValue === this.cachedFallbackValue &&
-            this.selectedPatientKey === this.cachedSelectedPatientKey
+            this.selectedPatientKey === this.cachedSelectedPatientKey &&
+            this.documentIds === this.cachedDocumentIds
         ) {
             return this.cachedViewModel;
         }
@@ -93,6 +113,7 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
         this.cachedPrimaryValue = primaryValue;
         this.cachedFallbackValue = fallbackValue;
         this.cachedSelectedPatientKey = this.selectedPatientKey;
+        this.cachedDocumentIds = this.documentIds;
 
         const batchState = this.resolveBatchState(primaryValue, fallbackValue);
 
@@ -102,7 +123,9 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
             return this.cachedViewModel;
         }
 
-        this.cachedViewModel = mapBatchStateToIntakeAccountViewModel(batchState, this.selectedPatientKey);
+        this.cachedViewModel = this.documentIds
+            ? mapBatchStateToIntakeForDocuments(batchState, this.documentIds)
+            : mapBatchStateToIntakeAccountViewModel(batchState, this.selectedPatientKey);
         this.selectedPatientKey = this.cachedViewModel.patientSelector.selectedKey;
         this.cachedSelectedPatientKey = this.selectedPatientKey;
 
@@ -192,6 +215,43 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
 
     ngOnInit(): void {
         this.refreshVisibleServices();
+    }
+
+    /** Embedded mode: a new invoice or variables snapshot starts a clean view. */
+    ngOnChanges(changes: SimpleChanges): void {
+        if (!this.embedded || (!changes['field'] && !changes['documentIds'])) {
+            return;
+        }
+        this.cachedPrimaryValue = undefined;
+        this.cachedFallbackValue = undefined;
+        this.reviewedServiceIds.clear();
+        this.reviewedDocumentIds.clear();
+        this.requestedDocumentLabels.clear();
+        this.resetInteractiveState();
+        this.refreshVisibleServices();
+    }
+
+    /** Embedded mode: asks the provider for the given missing support documents (simulated). */
+    requestFromProvider(labels: readonly string[], event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
+        labels
+            .map((label) => label?.trim())
+            .filter((label): label is string => !!label && !this.requestedDocumentLabels.has(label))
+            .forEach((label) => {
+                this.requestedDocumentLabels.add(label);
+                this.documentRequested.emit(label);
+            });
+    }
+
+    isRequestedFromProvider(labels: readonly string[]): boolean {
+        return labels.length > 0 && labels.every((label) => this.requestedDocumentLabels.has(label?.trim()));
+    }
+
+    /** Pending labels of the capture module that the active filter (or all) points to. */
+    get pendingUploadRequestLabels(): string[] {
+        const active = this.pendingUploadItems.find((item) => item.normalizedLabel === this.activePendingDocumentFilter);
+        return active ? [active.label] : this.pendingUploadItems.map((item) => item.label);
     }
 
     get explorerFilterCards(): IntakeAccountSummaryCardViewModel[] {
@@ -684,6 +744,10 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
     }
 
     get uploadCaptureMessage(): string | null {
+        if (this.embedded) {
+            return null;
+        }
+
         if (this.uploadFieldHighlighted) {
             return 'Usa el campo nativo File Upload resaltado para adjuntar el documento.';
         }
@@ -956,7 +1020,9 @@ export class IntakeAccountWidgetComponent extends WidgetComponent implements OnI
 
     override ngAfterViewInit(): void {
         super.ngAfterViewInit();
-        this.refreshUploadStatus();
+        if (!this.embedded) {
+            this.refreshUploadStatus();
+        }
     }
 
     ngOnDestroy(): void {

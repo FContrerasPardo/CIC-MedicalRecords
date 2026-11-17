@@ -1,6 +1,6 @@
 import { CdkDragDrop, CdkDragEnd, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -8,6 +8,7 @@ import {
     DashboardContainerLayoutMode,
     DashboardLayoutState,
     DashboardPageConfig,
+    DashboardProviderSelection,
     DashboardThemeConfig,
     DashboardWidgetCanvasRect,
     DashboardWidgetConfig,
@@ -15,6 +16,8 @@ import {
 } from '../../definitions/dashboard-widget.model';
 import { ProcessAttentionItem } from '../../definitions/process-attention.model';
 import { DashboardThemeService } from '../../services/dashboard-theme.service';
+import { DashboardCrossFilterService } from '../../services/dashboard-cross-filter.service';
+import { DashboardDataPlanService } from '../../services/dashboard-data-plan.service';
 import { DashboardContentLoadContextService } from '../../services/dashboard-content-load-context.service';
 import {
     collectContainerDropIds,
@@ -46,6 +49,7 @@ import { DashboardProcessListWidgetComponent } from '../widgets/dashboard-proces
 import { DashboardTableWidgetComponent } from '../widgets/dashboard-table-widget/dashboard-table-widget.component';
 import { DashboardTaskRecentListWidgetComponent } from '../widgets/dashboard-task-recent-list-widget/dashboard-task-recent-list-widget.component';
 import { DashboardTaskStatusSummaryWidgetComponent } from '../widgets/dashboard-task-status-summary-widget/dashboard-task-status-summary-widget.component';
+import { DashboardProviderCardsWidgetComponent } from '../widgets/dashboard-provider-cards-widget/dashboard-provider-cards-widget.component';
 import { DashboardKpiStripComponent } from '../dashboard-kpi-strip/dashboard-kpi-strip.component';
 import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/dashboard-period-pills.component';
 
@@ -54,6 +58,8 @@ import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/das
     standalone: true,
     host: {
         '[class.edit-mode-host]': 'editMode',
+        '[class.widget-chrome-accent]': "theme?.widgetChrome === 'accent-line'",
+        '[class.density-compact]': "theme?.density === 'compact'",
     },
     imports: [
         CommonModule,
@@ -68,6 +74,7 @@ import { DashboardDateRangeFilterComponent } from '../dashboard-period-pills/das
         DashboardLinkCardWidgetComponent,
         DashboardTaskStatusSummaryWidgetComponent,
         DashboardTaskRecentListWidgetComponent,
+        DashboardProviderCardsWidgetComponent,
         DashboardKpiStripComponent,
         DashboardDateRangeFilterComponent,
     ],
@@ -78,6 +85,7 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     @Input({ required: true }) pages: DashboardPageConfig[] = [];
     @Input({ required: true }) widgets: Record<DashboardWidgetId, DashboardWidgetConfig> = {};
     @Input() activePageId = '';
+    /** Rendered under the first KPI strip in operations mode (not in the editor). */
     @Input() theme?: DashboardThemeConfig;
     @Input() layoutSourceDocumentId?: string | null;
     @Input() editMode = false;
@@ -87,6 +95,10 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     @Input() selectedPageId: string | null = null;
 
     @Output() processSelected = new EventEmitter<ProcessAttentionItem>();
+    @Output() providerSelected = new EventEmitter<DashboardProviderSelection>();
+
+    private readonly crossFilterService = inject(DashboardCrossFilterService);
+    private readonly dataPlanService = inject(DashboardDataPlanService);
     @Output() layoutChange = new EventEmitter<DashboardLayoutState>();
     @Output() widgetSelect = new EventEmitter<DashboardWidgetId>();
     @Output() widgetRemove = new EventEmitter<DashboardWidgetId>();
@@ -134,6 +146,13 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        if (changes['pages'] || changes['widgets']) {
+            // The layout's widgets declare their data needs; the planner unifies them into one query.
+            const placed = new Set(this.pages.flatMap((page) => page.containers.flatMap((container) => container.widgetIds)));
+            this.dataPlanService.setWidgets(
+                [...placed].map((id) => this.widgets[id]).filter((widget): widget is DashboardWidgetConfig => !!widget)
+            );
+        }
         if (changes['editMode']?.currentValue) {
             this.ensureContainerCanvasRects();
         }
@@ -321,6 +340,19 @@ export class DashboardWidgetGridComponent implements OnChanges, OnInit {
         const span = resolveWidgetColumnSpan(config, container.layoutMode);
         const rowSpan = resolveWidgetRowSpan(config);
         return { gridColumn: `span ${span}`, gridRow: `span ${rowSpan}`, ...style };
+    }
+
+    /** Cross-filter visibility rule of a widget; the builder always shows every widget. */
+    isWidgetVisible(widgetId: DashboardWidgetId): boolean {
+        if (this.editMode) {
+            return true;
+        }
+        const visibility = this.widgets[widgetId]?.crossFilter?.visibility ?? 'always';
+        if (visibility === 'always') {
+            return true;
+        }
+        const selected = !!this.crossFilterService.selection;
+        return visibility === 'when-selected' ? selected : !selected;
     }
 
     useCanvasLayout(container: DashboardContainerConfig): boolean {

@@ -1,0 +1,226 @@
+<section class="rules-file" [attr.aria-label]="i18n + '.RULES.FILE_' + kind | translate">
+    <header class="rules-file__head">
+        <div class="rules-file__title">
+            <h3>{{ i18n + '.RULES.FILE_' + kind | translate }}</h3>
+            <p class="panel__lead">
+                <span class="material-icons" aria-hidden="true">smart_toy</span>{{ consumer.agent }}
+                @if (consumer.variable) {
+                    · {{ i18n + '.RULES.REPLACES' | translate }} <code>{{ consumer.variable }}</code>
+                }
+            </p>
+        </div>
+        <div class="panel__actions">
+            @if (draft) {
+                <div class="segmented" role="group" [attr.aria-label]="i18n + '.RULES.MODE' | translate">
+                    <button type="button" [class.segmented__on]="mode === 'form'" [attr.aria-pressed]="mode === 'form'" [disabled]="jsonInvalid" (click)="setMode('form')">
+                        <span class="material-icons" aria-hidden="true">view_agenda</span>{{ i18n + '.RULES.MODE_FORM' | translate }}
+                    </button>
+                    <button type="button" [class.segmented__on]="mode === 'json'" [attr.aria-pressed]="mode === 'json'" (click)="setMode('json')">
+                        <span class="material-icons" aria-hidden="true">data_object</span>{{ i18n + '.RULES.MODE_JSON' | translate }}
+                    </button>
+                </div>
+                <button type="button" class="btn" (click)="cancelEdit()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
+                </button>
+                <button type="button" class="btn btn--primary" (click)="save()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">save</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.EDITOR.SAVE') | translate }}
+                </button>
+            } @else {
+                <button type="button" class="btn" (click)="startEdit()" [disabled]="!file">
+                    <span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.EDITOR.EDIT' | translate }}
+                </button>
+                <button type="button" class="btn" (click)="download()" [disabled]="!file">
+                    <span class="material-icons" aria-hidden="true">download</span>{{ i18n + '.CHECKLIST.DOWNLOAD' | translate }}
+                </button>
+                @if (canCreate) {
+                    <button type="button" class="btn btn--primary" (click)="createFromTemplate()">
+                        <span class="material-icons" aria-hidden="true">cloud_upload</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.FILE.CREATE') | translate }}
+                    </button>
+                }
+            }
+        </div>
+    </header>
+
+    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    @if (saveError) {
+        <p class="source source--invalid" role="alert">{{ i18n + '.FILE.SAVE_ERROR' | translate }}</p>
+    }
+    @if (savedVersion) {
+        <p class="source source--appdata" role="status">{{ i18n + '.FILE.SAVED' | translate: { version: savedVersion } }}</p>
+    }
+    @if (draft && (saveAttempted || jsonInvalid) && issues.length) {
+        <p class="source source--invalid" role="alert">{{ i18n + '.EDITOR.HAS_ISSUES' | translate: { count: issues.length } }}</p>
+        @for (issue of issuesFor(null); track issue.code) {
+            <p class="edit-rule__issues" role="alert">{{ i18n + '.RULES.ISSUE_' + issue.code | translate }}</p>
+        }
+    }
+
+    @if (draft && mode === 'json') {
+        <label class="edit-rule__block">
+            <span>{{ i18n + '.RULES.JSON_LABEL' | translate }}</span>
+            <textarea class="rules-file__json" rows="22" spellcheck="false" [ngModel]="jsonText" (ngModelChange)="onJsonChange($event)" [class.rules-file__json--invalid]="jsonInvalid"></textarea>
+        </label>
+        <p class="panel__lead">{{ i18n + '.RULES.JSON_HINT' | translate }}</p>
+    } @else if (section) {
+        @if (section.metaFields.length) {
+            <dl class="facts rules-file__meta">
+                @for (meta of section.metaFields; track meta.key) {
+                    <div>
+                        <dt>{{ meta.label }}</dt>
+                        <dd>
+                            @if (draft) {
+                                <input type="text" [ngModel]="meta.value" (ngModelChange)="setMeta(meta.key, $event)" [attr.aria-label]="meta.label" />
+                            } @else {
+                                <code>{{ meta.value || '—' }}</code>
+                            }
+                        </dd>
+                    </div>
+                }
+                @for (metric of section.summaryMetrics; track metric.label) {
+                    <div><dt>{{ metric.label }}</dt><dd>{{ metric.value }}</dd></div>
+                }
+            </dl>
+        }
+
+        @if (isTariff && !draft) {
+            <div class="tariff-table" role="table" [attr.aria-label]="section.listTitle">
+                <div class="tariff-table__row tariff-table__row--head" role="row">
+                    <span role="columnheader">{{ i18n + '.RULES.SERVICE' | translate }}</span>
+                    <span role="columnheader" class="num">{{ i18n + '.RULES.EXPECTED' | translate }}</span>
+                    <span role="columnheader" class="num">{{ i18n + '.RULES.RANGE' | translate }}</span>
+                    <span role="columnheader">{{ i18n + '.RULES.AUTHORIZATION' | translate }}</span>
+                </div>
+                @for (item of section.listItems; track $index; let i = $index) {
+                    <div class="tariff-table__row" role="row">
+                        <span role="cell">
+                            <code class="rule__id">{{ item.title }}</code>
+                            <span class="tariff-table__desc">{{ item.subtitle }}</span>
+                        </span>
+                        <span role="cell" class="num"><strong>{{ amountOf(i, 'expectedAmount') | number: '1.0-2' }}</strong></span>
+                        <span role="cell" class="num">
+                            {{ amountOf(i, 'minAmount') | number: '1.0-2' }} – {{ amountOf(i, 'maxAmount') | number: '1.0-2' }}
+                            <span class="modifier modifier--{{ modifierTone(item) }}">{{ modifierLabel(item) }}</span>
+                        </span>
+                        <span role="cell">
+                            @if (rowValueOf(i, 'requiresAuthorization')) {
+                                <span class="tag tag--auth"><span class="material-icons" aria-hidden="true">verified_user</span>{{ i18n + '.RULES.REQUIRED' | translate }}</span>
+                            } @else {
+                                <span class="panel__lead">—</span>
+                            }
+                        </span>
+                    </div>
+                }
+            </div>
+        } @else {
+            <ol class="rules-file__rows">
+                @for (item of section.listItems; track $index; let i = $index) {
+                    <li class="edit-rule" [class.edit-rule--invalid]="draft && saveAttempted && issuesFor(i).length">
+                        <div class="rule__head">
+                            @if (draft) {
+                                <label class="edit-rule__id">
+                                    <span class="sr-only">{{ i18n + '.EDITOR.RULE_ID' | translate }}</span>
+                                    <input type="text" [ngModel]="rowValue(i, idKey)" (ngModelChange)="setField(i, idKey, $event, 'text')" [attr.aria-label]="i18n + '.EDITOR.RULE_ID' | translate" />
+                                </label>
+                            } @else {
+                                <code class="rule__id">{{ item.title }}</code>
+                            }
+                            @if (item.riskLevel && !isTariff) {
+                                <span class="risk risk--{{ item.riskLevel | lowercase }}">{{ item.riskLevel }}</span>
+                            }
+                            <span class="rule__subtitle">{{ item.subtitle }}</span>
+                            <span class="edit-rule__tools">
+                                @if (draft) {
+                                    <button type="button" class="icon-btn" (click)="toggle(i)" [attr.aria-expanded]="expanded.has(i)" [attr.aria-label]="i18n + '.RULES.TOGGLE_ROW' | translate">
+                                        <span class="material-icons" aria-hidden="true">{{ expanded.has(i) ? 'expand_less' : 'expand_more' }}</span>
+                                    </button>
+                                    <button type="button" class="icon-btn icon-btn--danger" (click)="removeRow(i)" [attr.aria-label]="i18n + '.POLICY.REMOVE_ROW' | translate">
+                                        <span class="material-icons" aria-hidden="true">delete</span>
+                                    </button>
+                                }
+                            </span>
+                        </div>
+                        @if (!draft) {
+                            @if (rowValueOf(i, 'description')) {
+                                <p class="rule__description">{{ rowValueOf(i, 'description') }}</p>
+                            }
+                            @if (item.chips?.items.length) {
+                                <p class="rule__scope">
+                                    <span>{{ item.chips?.label }}:</span>
+                                    @for (chip of item.chips?.items ?? []; track chip) {
+                                        <span class="tag">{{ chip }}</span>
+                                    }
+                                </p>
+                            }
+                        } @else if (expanded.has(i)) {
+                            <div class="rules-file__fields">
+                                @for (field of item.fields; track field.key) {
+                                    @if (field.key !== idKey) {
+                                        <label [class.rules-file__wide]="field.type === 'textarea'" [class.edit-rule__inline]="field.type === 'boolean'">
+                                            @if (field.type === 'boolean') {
+                                                <input type="checkbox" [ngModel]="field.value" (ngModelChange)="setField(i, field.key, $event, 'boolean')" />
+                                                <span>{{ field.label }}</span>
+                                            } @else {
+                                                <span>{{ field.label }}</span>
+                                                @if (field.type === 'textarea') {
+                                                    <textarea rows="2" [ngModel]="field.value" (ngModelChange)="setField(i, field.key, $event, 'text')"></textarea>
+                                                } @else if (field.type === 'select') {
+                                                    <select [ngModel]="field.value" (ngModelChange)="setField(i, field.key, $event, 'text')">
+                                                        @for (option of field.options ?? []; track option) {
+                                                            <option [ngValue]="option">{{ option }}</option>
+                                                        }
+                                                    </select>
+                                                } @else if (field.type === 'number') {
+                                                    <input type="number" min="0" [ngModel]="field.value" (ngModelChange)="setField(i, field.key, $event, 'number')" />
+                                                } @else {
+                                                    <input type="text" [ngModel]="field.value" (ngModelChange)="setField(i, field.key, $event, 'text')" />
+                                                }
+                                            }
+                                        </label>
+                                    }
+                                }
+                            </div>
+                            @if (item.chips; as chips) {
+                                <div class="list-editor">
+                                    <span class="list-editor__label">{{ chips.label }}</span>
+                                    <ul class="list-editor__chips">
+                                        @for (chip of chips.items; track chip; let index = $index) {
+                                            <li>
+                                                {{ chip }}
+                                                <button type="button" (click)="removeChip(i, chips.key, index)" [attr.aria-label]="(i18n + '.EDITOR.REMOVE_VALUE' | translate) + ' ' + chip">
+                                                    <span class="material-icons" aria-hidden="true">close</span>
+                                                </button>
+                                            </li>
+                                        }
+                                    </ul>
+                                    <span class="list-editor__add">
+                                        <input #chipInput type="text" [attr.aria-label]="chips.label" [placeholder]="i18n + '.EDITOR.ADD_VALUE' | translate" (keydown.enter)="addChip(i, chips.key, chipInput, $event)" />
+                                        <button type="button" class="icon-btn" (click)="addChip(i, chips.key, chipInput)" [attr.aria-label]="i18n + '.EDITOR.ADD_VALUE' | translate">
+                                            <span class="material-icons" aria-hidden="true">add</span>
+                                        </button>
+                                    </span>
+                                </div>
+                            }
+                        }
+                        @if (draft && saveAttempted && issuesFor(i).length) {
+                            <ul class="edit-rule__issues" role="alert">
+                                @for (issue of issuesFor(i); track issue.code) {
+                                    <li>{{ i18n + '.RULES.ISSUE_' + issue.code | translate }}</li>
+                                }
+                            </ul>
+                        }
+                    </li>
+                } @empty {
+                    <li class="panel__lead">{{ i18n + '.POLICY.NONE' | translate }}</li>
+                }
+            </ol>
+        }
+        @if (draft) {
+            <button type="button" class="btn" (click)="addRow()">
+                <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.RULES.ADD_ROW' | translate }}
+            </button>
+            <p class="panel__lead">{{ i18n + '.RULES.FORM_HINT' | translate }}</p>
+        }
+    } @else {
+        <p class="source source--invalid" role="alert">{{ i18n + '.FILE.UNREADABLE' | translate }}</p>
+    }
+</section>

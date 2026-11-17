@@ -1,0 +1,61 @@
+{
+  "kind": "medical-records.agreement",
+  "schemaVersion": 1,
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "status": "ACTIVE",
+  "demoNote": "Synthetic demo agreement: provider, contract and amounts are invented. No real contract, patient or affiliate data.",
+  "providerAliases": [
+    "HG HYLAND LATAM",
+    "Hospital General Hyland"
+  ],
+  "general": {
+    "providerName": "Hospital General HYLAND LATAM",
+    "providerDisplayName": "Hospital General HYLAND LATAM",
+    "agreementBadge": "MASTER AGREEMENT",
+    "contractId": "CONV-DEMO-ARSP-HGHL-2026",
+    "payer": "ARS Primera",
+    "planName": "Plan Hospitalario Ampliado (demo)",
+    "legalRepresentative": "Representante legal (demo)",
+    "contractType": "Paquete hospitalario",
+    "effectiveFrom": "2026-01-01",
+    "effectiveTo": "2026-12-31",
+    "jurisdiction": "República Dominicana",
+    "capitationBase": 0,
+    "capitationCurrency": "DOP",
+    "capitationPeriod": "mo",
+    "budgetTotal": 42000000,
+    "billedYtd": 0,
+    "pendingApproval": 0,
+    "budgetCurrency": "DOP"
+  },
+  "documents": {
+    "primaryDocument": {
+      "title": "Contrato de prestación de servicios Hospital General HYLAND LATAM – ARS Primera (demo)",
+      "status": "Active",
+      "contractId": "CONV-DEMO-ARSP-HGHL-2026",
+      "expiresAt": "2026-12-31",
+      "repositoryId": "",
+      "repositoryNodeId": "",
+      "mimeType": "application/pdf"
+    },
+    "relatedFiles": [
+      {
+        "id": "hghl-annex-1",
+        "title": "Anexo tarifario 2026 (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      },
+      {
+        "id": "hghl-annex-2",
+        "title": "Manual de radicación y soportes (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      }
+    ],
+    "historicalVersions": []
+  }
+}

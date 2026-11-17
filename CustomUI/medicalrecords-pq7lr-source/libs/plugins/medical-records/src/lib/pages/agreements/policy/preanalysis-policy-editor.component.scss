@@ -1,0 +1,94 @@
+// Shared look comes from agreements-page.component.scss; only the policy layout lives here.
+:host code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.policy {
+    &__section {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: minmax(180px, 2fr) minmax(90px, 0.8fr) minmax(110px, 0.8fr) auto;
+        align-items: end;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
+        border-left: 3px solid var(--mr-primary, #00478d);
+        border-radius: 10px;
+
+        &--invalid {
+            border-left-color: #d92d20;
+        }
+
+        @media (max-width: 720px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &__wide {
+        grid-column: 1 / -1;
+    }
+
+    &__id {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-weight: 700;
+    }
+
+    &__add {
+        justify-self: start;
+    }
+
+    &__issue-count {
+        min-width: 18px;
+        border-radius: 9px;
+        background: #d92d20;
+        color: #fff;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    &__advanced {
+        display: grid;
+        gap: 8px;
+        padding: 10px 12px;
+        border: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
+        border-radius: 12px;
+
+        summary {
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+    }
+
+    &__json {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+    }
+
+    &__view {
+        display: grid;
+        gap: 8px;
+
+        h3 {
+            margin: 0;
+            color: var(--mr-heading, #001b3d);
+            font-size: 15px;
+        }
+
+        h4 {
+            margin: 6px 0 0;
+            color: var(--mr-muted, #667085);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.filter .policy__issue-count {
+    display: inline-block;
+    color: #fff;
+}

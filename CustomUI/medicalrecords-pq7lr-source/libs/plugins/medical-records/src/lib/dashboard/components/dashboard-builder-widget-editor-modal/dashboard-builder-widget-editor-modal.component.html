@@ -42,6 +42,7 @@
                     <medical-records-dashboard-link-card-widget *ngIf="widget.type === 'link-card'" [config]="widget"></medical-records-dashboard-link-card-widget>
                     <medical-records-dashboard-task-status-summary-widget *ngIf="widget.type === 'task-status-summary'" [config]="widget"></medical-records-dashboard-task-status-summary-widget>
                     <medical-records-dashboard-task-recent-list-widget *ngIf="widget.type === 'task-recent-list'" [config]="widget"></medical-records-dashboard-task-recent-list-widget>
+                    <medical-records-dashboard-provider-cards-widget *ngIf="widget.type === 'provider-cards'" [config]="widget"></medical-records-dashboard-provider-cards-widget>
                     <p *ngIf="widget.type === 'process-list'" class="widget-editor-modal__preview-note">
                         {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PROCESS_LIST_PREVIEW' | translate }}
                     </p>
@@ -59,7 +60,7 @@
             <aside
                 class="widget-editor-modal__column widget-editor-modal__column--config"
                 [class.widget-editor-modal__column--table]="widget.type === 'table'"
-                *ngIf="isDataWidget || isProcessListWidget || isGaugeWidget"
+                *ngIf="isDataWidget || isProcessListWidget || isGaugeWidget || isProviderCardsWidget"
             >
                 <section class="gauge-options" *ngIf="isGaugeWidget">
                     <h3>{{ 'MEDICAL_RECORDS.GAUGE.CONFIG_INTRO' | translate }}</h3>
@@ -85,8 +86,171 @@
                     </label>
                 </section>
 
+                <section class="provider-cards-options" *ngIf="isProviderCardsWidget">
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.GROUP_BY' | translate }}</h3>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.GROUP_SOURCE' | translate }}</span>
+                        <select class="dashboard-form-control" [ngModel]="groupBySource" (ngModelChange)="setGroupBySource($event)">
+                            <option value="batch-field">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SOURCE_BATCH_FIELD' | translate }}</option>
+                            <option value="process-variable">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SOURCE_PROCESS_VARIABLE' | translate }}</option>
+                        </select>
+                    </label>
+                    <label class="dashboard-form-field">
+                        <span>{{ (groupBySource === 'process-variable' ? 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.VARIABLE_NAME' : 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.FIELD_NAME') | translate }}</span>
+                        <input
+                            type="text"
+                            class="dashboard-form-control"
+                            [attr.list]="groupBySource === 'process-variable' ? 'provider-variable-suggestions' : 'provider-field-suggestions'"
+                            [ngModel]="groupByName"
+                            (ngModelChange)="setGroupByName($event)"
+                            [placeholder]="groupBySource === 'batch-field' ? ('MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.FIELD_DEFAULT' | translate) : ''"
+                        />
+                        <small *ngIf="groupBySource === 'process-variable'">
+                            {{ variablesLoading
+                                ? ('MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.VARIABLES_LOADING' | translate)
+                                : ('MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.VARIABLES_FOUND' | translate: { count: discoveredVariables.length }) }}
+                        </small>
+                    </label>
+                    <datalist id="provider-field-suggestions">
+                        <option *ngFor="let suggestion of batchFieldSuggestions" [value]="suggestion"></option>
+                    </datalist>
+                    <datalist id="provider-variable-suggestions">
+                        <option *ngFor="let variable of discoveredVariables" [value]="variable"></option>
+                    </datalist>
+
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.VARIABLES' | translate }}</h3>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.IDP_VARIABLE' | translate }}</span>
+                        <input
+                            type="text"
+                            class="dashboard-form-control"
+                            list="provider-variable-suggestions"
+                            placeholder="batchState"
+                            [ngModel]="widget.providerCardsOptions?.idpVariable || ''"
+                            (ngModelChange)="patchProviderOptions({ idpVariable: $event || undefined })"
+                            (focus)="loadProcessVariables()"
+                        />
+                        <small>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.IDP_VARIABLE_HINT' | translate }}</small>
+                    </label>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SUMMARY_VARIABLE' | translate }}</span>
+                        <input
+                            type="text"
+                            class="dashboard-form-control"
+                            list="provider-variable-suggestions"
+                            placeholder="accountSummary"
+                            [ngModel]="widget.providerCardsOptions?.summaryVariable || ''"
+                            (ngModelChange)="patchProviderOptions({ summaryVariable: $event || undefined })"
+                            (focus)="loadProcessVariables()"
+                        />
+                        <small>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SUMMARY_VARIABLE_HINT' | translate }}</small>
+                    </label>
+                    <p class="provider-cards-options__hint">
+                        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.REQUIRED_VARIABLES' | translate: { names: requiredVariables.join(', ') } }}
+                    </p>
+
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.STATUSES' | translate }}</h3>
+                    <p class="provider-cards-options__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.STATUSES_HINT' | translate }}</p>
+                    <label class="checkbox-row" *ngFor="let status of processStatuses">
+                        <input type="checkbox" [checked]="providerStatuses.includes(status)" (change)="toggleProviderStatus(status, $any($event.target).checked)" />
+                        <span>{{ status }}</span>
+                    </label>
+
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.METRICS' | translate }}</h3>
+                    <div class="provider-metric" *ngFor="let metric of metrics; let index = index; let first = first; let last = last">
+                        <div class="provider-metric__row">
+                            <input
+                                type="text"
+                                class="dashboard-form-control"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.METRIC_LABEL' | translate"
+                                [ngModel]="metric.label"
+                                (ngModelChange)="updateMetric(index, { label: $event })"
+                            />
+                            <select
+                                class="dashboard-form-control"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.METRIC_KIND' | translate"
+                                [ngModel]="metric.kind"
+                                (ngModelChange)="updateMetric(index, { kind: $event })"
+                            >
+                                <option *ngFor="let kind of metricKinds" [value]="kind">{{ metricKindLabelKey(kind) | translate }}</option>
+                            </select>
+                            <span class="provider-cards-options__order">
+                                <button type="button" class="ghost-action-sm" [disabled]="first" (click)="moveMetric(index, -1)" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.MOVE_UP' | translate">
+                                    <span class="material-icons" aria-hidden="true">arrow_upward</span>
+                                </button>
+                                <button type="button" class="ghost-action-sm" [disabled]="last" (click)="moveMetric(index, 1)" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.MOVE_DOWN' | translate">
+                                    <span class="material-icons" aria-hidden="true">arrow_downward</span>
+                                </button>
+                                <button type="button" class="ghost-action-sm" [disabled]="metrics.length === 1" (click)="removeMetric(index)" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.REMOVE_METRIC' | translate">
+                                    <span class="material-icons" aria-hidden="true">delete_outline</span>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="provider-metric__row" *ngIf="metric.kind === 'status'">
+                            <select class="dashboard-form-control" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.STATUS_VALUE' | translate" [ngModel]="metric.status || 'RUNNING'" (ngModelChange)="updateMetric(index, { status: $event })">
+                                <option *ngFor="let status of processStatuses" [value]="status">{{ status }}</option>
+                            </select>
+                        </div>
+                        <div class="provider-metric__row" *ngIf="metric.kind === 'field-equals' || metric.kind === 'sum'">
+                            <select class="dashboard-form-control" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.GROUP_SOURCE' | translate" [ngModel]="metric.field?.source || 'batch-field'" (ngModelChange)="updateMetricField(index, { source: $event })">
+                                <option value="batch-field">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SOURCE_BATCH_FIELD' | translate }}</option>
+                                <option value="process-variable">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.SOURCE_PROCESS_VARIABLE' | translate }}</option>
+                            </select>
+                            <input
+                                type="text"
+                                class="dashboard-form-control"
+                                [attr.list]="metric.field?.source === 'process-variable' ? 'provider-variable-suggestions' : 'provider-field-suggestions'"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.FIELD_NAME' | translate"
+                                [placeholder]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.FIELD_NAME' | translate"
+                                [ngModel]="metric.field?.name || ''"
+                                (ngModelChange)="updateMetricField(index, { name: $event })"
+                            />
+                            <input
+                                *ngIf="metric.kind === 'field-equals'"
+                                type="text"
+                                class="dashboard-form-control"
+                                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.EQUALS_VALUE' | translate"
+                                [placeholder]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.EQUALS_VALUE' | translate"
+                                [ngModel]="metric.equals || ''"
+                                (ngModelChange)="updateMetric(index, { equals: $event })"
+                            />
+                        </div>
+                    </div>
+                    <button type="button" class="ghost-action-sm provider-cards-options__add" (click)="addMetric()">
+                        <span class="material-icons" aria-hidden="true">add</span>
+                        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.ADD_METRIC' | translate }}
+                    </button>
+                </section>
+
+                <section class="cross-filter-options" *ngIf="!isProviderCardsWidget">
+                    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.TITLE' | translate }}</h3>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.VISIBILITY' | translate }}</span>
+                        <select class="dashboard-form-control" [ngModel]="widget.crossFilter?.visibility || 'always'" (ngModelChange)="patchCrossFilter({ visibility: $event })">
+                            <option value="always">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.VISIBILITY_ALWAYS' | translate }}</option>
+                            <option value="when-selected">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.VISIBILITY_WHEN_SELECTED' | translate }}</option>
+                            <option value="when-not-selected">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.VISIBILITY_WHEN_NOT_SELECTED' | translate }}</option>
+                        </select>
+                    </label>
+                    <label class="checkbox-row" *ngIf="isProcessListWidget">
+                        <input type="checkbox" [checked]="!!widget.crossFilter?.follow" (change)="patchCrossFilter({ follow: $any($event.target).checked })" />
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.FOLLOW' | translate }}</span>
+                    </label>
+                </section>
+
                 <section class="open-tasks-options" *ngIf="isProcessListWidget">
                     <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.INTRO' | translate }}</h3>
+                    <label class="dashboard-form-field">
+                        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.DISPLAY' | translate }}</span>
+                        <select
+                            class="dashboard-form-control"
+                            [ngModel]="widget.processListOptions?.display || 'table'"
+                            (ngModelChange)="updateProcessListDisplay($event)"
+                        >
+                            <option value="table">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.DISPLAY_TABLE' | translate }}</option>
+                            <option value="cards">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.DISPLAY_CARDS' | translate }}</option>
+                        </select>
+                    </label>
                     <label class="checkbox-row">
                         <input type="checkbox" [checked]="widget.processListOptions?.showSearch !== false" (change)="updateProcessListOption('showSearch', $any($event.target).checked)" />
                         <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.SEARCH' | translate }}</span>

@@ -1,0 +1,751 @@
+<main class="loan-page radication-page" [class.loan-page--processing]="step === 'processing'">
+    <a class="back-link" [routerLink]="['/medical-records']"><mat-icon aria-hidden="true">arrow_back</mat-icon> {{ i18n + '.BACK' | translate }}</a>
+
+    <nav class="flow-stepper" [attr.aria-label]="i18n + '.STEPS.ARIA' | translate">
+        <ol>
+            @for (item of steps; track item; let index = $index) {
+                <li [class]="'flow-stepper__item flow-stepper__item--' + stepState(item)" [attr.aria-current]="item === step ? 'step' : null">
+                    <span class="flow-stepper__marker" aria-hidden="true">
+                        @if (stepState(item) === 'done') {
+                            <mat-icon>check</mat-icon>
+                        } @else {
+                            {{ index + 1 }}
+                        }
+                    </span>
+                    <span class="flow-stepper__label">{{ i18n + '.STEPS.' + (item | uppercase) | translate }}</span>
+                </li>
+            }
+        </ol>
+    </nav>
+
+    @switch (step) {
+        <!-- 1 · Load -->
+        @case ('upload') {
+            <section class="flow-layout">
+                <div class="flow-card">
+                    <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 1, total: steps.length } }}</div>
+                    <h1>{{ (uploadMode === 'more' ? i18n + '.MORE.TITLE' : i18n + '.TITLE') | translate }}</h1>
+                    <p class="intro">{{ (uploadMode === 'more' ? i18n + '.MORE.LEAD' : i18n + '.LEAD') | translate }}</p>
+                    <div class="product-meta">
+                        <p class="product-context">{{ i18n + '.EYEBROW' | translate }}</p>
+                        <span class="application-number" [attr.aria-label]="i18n + '.RESULT.NUMBER' | translate">{{ radicationNumber }}</span>
+                    </div>
+
+                    <div class="details-grid">
+                        <label>
+                            {{ i18n + '.FORM.PROVIDER' | translate }}
+                            <input name="provider" [(ngModel)]="providerName" autocomplete="organization" [readonly]="uploadMode === 'more'"
+                                [attr.aria-invalid]="hasIssue('PROVIDER_REQUIRED')" />
+                            @if (hasIssue('PROVIDER_REQUIRED')) {
+                                <span class="field-error" role="alert">{{ i18n + '.ISSUES.PROVIDER_REQUIRED' | translate }}</span>
+                            }
+                        </label>
+                        <label>
+                            {{ i18n + '.FORM.EMAIL' | translate }}
+                            <input name="email" type="email" [(ngModel)]="email" autocomplete="email" placeholder="name@example.com" [readonly]="uploadMode === 'more'"
+                                [attr.aria-invalid]="hasIssue('EMAIL_INVALID')" />
+                            @if (hasIssue('EMAIL_INVALID')) {
+                                <span class="field-error" role="alert">{{ i18n + '.ISSUES.EMAIL_INVALID' | translate }}</span>
+                            }
+                        </label>
+                    </div>
+
+                    <div class="accepted-card">
+                        <h2>{{ i18n + '.FORM.ACCEPTED' | translate }}</h2>
+                        <div class="accepted-columns">
+                            <div class="accepted-group">
+                                <div class="accepted-heading">
+                                    <span class="accepted-icon"><mat-icon aria-hidden="true">receipt_long</mat-icon></span>
+                                    <strong>{{ i18n + '.FORM.ACCEPTED_INVOICES' | translate }}</strong>
+                                </div>
+                                <div class="accepted-item"><mat-icon aria-hidden="true">description</mat-icon><span>{{ i18n + '.FORM.ACCEPTED_INVOICES_HINT' | translate }}</span></div>
+                            </div>
+                            <div class="accepted-group">
+                                <div class="accepted-heading">
+                                    <span class="accepted-icon"><mat-icon aria-hidden="true">fact_check</mat-icon></span>
+                                    <strong>{{ i18n + '.FORM.ACCEPTED_SUPPORTS' | translate }}</strong>
+                                </div>
+                                @for (document of (checklistResult?.checklist?.rules?.[0]?.requiredDocuments ?? []) | slice: 0 : 4; track document) {
+                                    <div class="accepted-item"><mat-icon aria-hidden="true">task</mat-icon><span>{{ document }}</span></div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
+                        (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
+                        (dragleave)="dragging = false" (drop)="onDrop($event)">
+                        <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+                        <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
+                        <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
+                        <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
+                    </label>
+                    @if (uploads.length) {
+                        <div class="upload-list" aria-live="polite">
+                            @for (upload of uploads; track upload.key) {
+                                <div class="upload-row">
+                                    <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
+                                    <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
+                                    <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
+                                    @if (upload.status === 'error' && upload.file) {
+                                        <button type="button" (click)="retryUpload(upload)" [attr.aria-label]="i18n + '.UPLOAD.RETRY' | translate: { name: upload.name }"><mat-icon>refresh</mat-icon></button>
+                                    }
+                                    <button type="button" (click)="removeUpload(upload)" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <div class="upload-messages">
+                    @for (issue of fileIssues; track issue) {
+                        @if (hasIssue(issue)) {
+                            <p class="error-message" role="alert">{{ i18n + '.ISSUES.' + issue | translate }}</p>
+                        }
+                    }
+                    @if (hasIssue('DOCUMENTS_REQUIRED')) {
+                        <p class="error-message" role="alert">{{ i18n + '.ISSUES.DOCUMENTS_REQUIRED' | translate }}</p>
+                    }
+                    @if (uploadMode === 'new' && !startError && formFieldIssues.length) {
+                        <div class="notice notice--warn" role="status">
+                            <mat-icon aria-hidden="true">warning_amber</mat-icon>
+                            <div>
+                                <strong>{{ i18n + '.ERRORS.FIELDS_PRECHECK' | translate }}</strong>
+                                <ul>
+                                    @for (issue of formFieldIssues; track issue.id) {
+                                        <li><code>{{ issue.id }}</code> · {{ i18n + '.FIELD_STATUS.' + (issue.status | uppercase) | translate: { actual: issue.actualId, type: issue.actualType } }}</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    @if (startError) {
+                        <div class="notice notice--error" role="alert">
+                            <mat-icon aria-hidden="true">error_outline</mat-icon>
+                            <div>
+                                <strong>{{ i18n + '.ERRORS.' + startError | translate }}</strong>
+                                @if (startErrorFields.length) {
+                                    <ul>
+                                        @for (issue of startErrorFields; track issue.id) {
+                                            <li><code>{{ issue.id }}</code> · {{ i18n + '.FIELD_STATUS.' + (issue.status | uppercase) | translate: { actual: issue.actualId, type: issue.actualType } }}</li>
+                                        }
+                                    </ul>
+                                }
+                                @if (startErrorDetail) {
+                                    <p>{{ i18n + '.ERRORS.AUTOMATE_SAID' | translate }} <code>{{ startErrorDetail }}</code></p>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (stepError) {
+                        <div class="notice notice--error" role="alert">
+                            <mat-icon aria-hidden="true">error_outline</mat-icon>
+                            <div>
+                                <strong>{{ i18n + '.STEP_ERRORS.' + stepError | translate }}</strong>
+                                @if (stepErrorDetail) {
+                                    <p>{{ i18n + '.ERRORS.AUTOMATE_SAID' | translate }} <code>{{ stepErrorDetail }}</code></p>
+                                }
+                            </div>
+                        </div>
+                    }
+                    </div>
+                    <div class="upload-actions">
+                        @if (uploadMode === 'more') {
+                            <button mat-button type="button" class="review-back-action" (click)="step = uploadReturnStep" [disabled]="sending">
+                                <mat-icon>arrow_back</mat-icon>{{ i18n + '.ACTIONS.BACK' | translate }}
+                            </button>
+                        }
+                        <button mat-flat-button color="primary" class="continue-button" type="button" [disabled]="sending" (click)="submit()">
+                            {{ (sending ? i18n + '.SENDING.BUTTON' : uploadMode === 'more' ? i18n + '.MORE.SUBMIT' : i18n + '.FORM.SUBMIT') | translate }}
+                            <mat-icon>arrow_forward</mat-icon>
+                        </button>
+                    </div>
+                </div>
+                <aside class="assistant-card">
+                    <div class="assistant-avatar" aria-hidden="true">✦</div>
+                    <h2>{{ i18n + '.ASSISTANT.TITLE' | translate }}</h2>
+                    <p>{{ (uploadMode === 'more' ? i18n + '.ASSISTANT.MORE' : i18n + '.ASSISTANT.UPLOAD') | translate }}</p>
+                    <p class="assistant-progress-message">{{ i18n + '.FORM.NUMBER_NOTE' | translate }}</p>
+                </aside>
+            </section>
+        }
+
+        <!-- 2 · Process -->
+        @case ('processing') {
+            <section class="processing-shell" aria-live="polite">
+                <div class="processing-stack">
+                    <div class="processing-layout">
+                        <div class="processing-card">
+                            <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 2, total: steps.length } }}</div>
+                            <h1>{{ i18n + '.PROCESS.TITLE' | translate }}</h1>
+                            @if (processInstanceId) {
+                                <p class="process-id">{{ radicationNumber }} · {{ i18n + '.RESULT.PROCESS' | translate }} {{ processInstanceId }}</p>
+                            }
+                            <div class="processing-progress" role="progressbar" [attr.aria-valuenow]="overallProgress" aria-valuemin="0" aria-valuemax="100"
+                                [attr.aria-label]="i18n + '.PROGRESS.ARIA' | translate">
+                                <div class="processing-progress-meta"><span>{{ i18n + '.PROCESS.PROGRESS' | translate }}</span><strong>{{ overallProgress }}%</strong></div>
+                                <div class="processing-progress-track"><span [style.width.%]="overallProgress"></span></div>
+                            </div>
+                            <div class="stage-list">
+                                @for (stage of processingStages; track stage.key) {
+                                    <div class="stage" [class.active]="stage.state === 'active' || stage.state === 'error'" [class.complete]="stage.state === 'done'"
+                                        [class.stage--error]="stage.state === 'error'">
+                                        <div class="stage-marker">
+                                            <mat-icon aria-hidden="true">{{ stage.state === 'done' ? 'check' : stage.state === 'error' ? 'priority_high' : 'autorenew' }}</mat-icon>
+                                        </div>
+                                        <div class="stage-body">
+                                            <div class="stage-head">
+                                                <h2>{{ i18n + '.PROGRESS.' + (stage.key | uppercase) | translate }}</h2>
+                                                <span class="stage-count">{{ i18n + '.PROGRESS.STATE_' + (stage.state | uppercase) | translate }}</span>
+                                            </div>
+                                            <div class="stage-details">
+                                                <div class="stage-details-inner">
+                                                    <p>{{ i18n + '.PROGRESS.' + (stage.key | uppercase) + '_HINT' | translate }}</p>
+                                                    @if (stage.key === 'extraction' && stage.state === 'active') {
+                                                        <ul class="stage-substates stage-substates--idp-trio">
+                                                            @for (substep of idpSubsteps; track substep.key) {
+                                                                <li class="idp-step-animated" [attr.data-idp-step]="substep.key" [attr.data-state]="substep.state"
+                                                                    [class.active]="substep.state === 'active'" [class.complete]="substep.state === 'done'"
+                                                                    [class.idp-step-animated--complete]="substep.state === 'done'" [class.idp-step--pending]="substep.state === 'pending'"
+                                                                    [class.idp-step--error]="substep.state === 'error'">
+                                                                    <div class="idp-step-panel" [attr.data-idp-step]="substep.key" [class.idp-step-panel--complete]="substep.state === 'done'">
+                                                                        <div class="idp-step-scene" aria-hidden="true">
+                                                                            <span class="idp-agent"><span class="idp-agent-halo"></span><span class="idp-agent-icon">✦</span></span>
+                                                                            <div class="idp-step-art">
+                                                                                @switch (substep.key) {
+                                                                                    @case ('separation') {
+                                                                                        <div class="idp-separation-art"><span class="idp-doc idp-doc--back"></span><span class="idp-doc idp-doc--mid"></span><span class="idp-doc idp-doc--front"></span></div>
+                                                                                    }
+                                                                                    @case ('classification') {
+                                                                                        <div class="idp-classification-art"><span class="idp-doc idp-doc--classify idp-doc--classify-a"></span><span class="idp-doc idp-doc--classify idp-doc--classify-b"></span><span class="idp-doc idp-doc--classify idp-doc--classify-c"></span></div>
+                                                                                    }
+                                                                                    @default {
+                                                                                        <div class="idp-extraction-art"><span class="idp-doc idp-doc--source"></span><span class="idp-data-line idp-data-line--1"></span><span class="idp-data-line idp-data-line--2"></span><span class="idp-data-line idp-data-line--3"></span></div>
+                                                                                    }
+                                                                                }
+                                                                                @if (substep.state === 'done') {
+                                                                                    <span class="idp-step-art-done" aria-hidden="true"><mat-icon>check</mat-icon></span>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                        <span class="idp-step-caption">
+                                                                            {{ i18n + '.PROCESS.IDP.' + (substep.key | uppercase) | translate }}
+                                                                            <span class="visually-hidden">· {{ i18n + '.PROGRESS.STATE_' + (substep.state | uppercase) | translate }}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    } @else if (stageTracks[stage.key] && (stage.state === 'active' || stage.state === 'done')) {
+                                                        <!-- CIC-Fin validation tracks (loan-application #validationTrackArt): agreement rules and checklist while the
+                                                             pre-analysis runs, the e-mail/notification art when Intake opens. -->
+                                                        <ul class="stage-substates stage-substates--agentic-validation">
+                                                            @for (track of stageTracks[stage.key]; track track.key) {
+                                                                <li class="idp-step-animated" [attr.data-idp-step]="track.art" [class.active]="stage.state === 'active'"
+                                                                    [class.complete]="stage.state === 'done'" [class.idp-step-animated--complete]="stage.state === 'done'">
+                                                                    <div class="idp-step-panel" [attr.data-idp-step]="track.art" [class.idp-step-panel--complete]="stage.state === 'done'">
+                                                                        <div class="idp-step-scene" aria-hidden="true">
+                                                                            <span class="idp-agent"><span class="idp-agent-halo"></span><span class="idp-agent-icon">✦</span></span>
+                                                                            <div class="idp-step-art">
+                                                                                @switch (track.art) {
+                                                                                    @case ('signatures') {
+                                                                                        <div class="idp-signatures-art">
+                                                                                            <mat-icon class="idp-signatures-shield">gpp_good</mat-icon>
+                                                                                            <span class="idp-signatures-doc" [class.idp-signatures-doc--animating]="stage.state === 'active'"
+                                                                                                [attr.data-label]="i18n + '.ART.RULES' | translate"><span class="idp-signatures-filler"></span><span class="idp-signatures-stroke"></span></span>
+                                                                                        </div>
+                                                                                    }
+                                                                                    @case ('checklist') {
+                                                                                        <div class="idp-checklist-art">
+                                                                                            <span class="idp-checklist-doc"></span>
+                                                                                            <div class="idp-rules-card idp-checklist-rules-card">
+                                                                                                @for (row of [1, 2, 3]; track row) {
+                                                                                                    <span class="idp-rules-row idp-checklist-row" [attr.data-checklist-row]="row"><span class="idp-rules-mark"><mat-icon>check</mat-icon></span><span class="idp-rules-line"></span></span>
+                                                                                                }
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    }
+                                                                                    @default {
+                                                                                        <div class="idp-packaging-art">
+                                                                                            <div class="idp-pack-targets"><mat-icon class="idp-pack-mail">mail</mat-icon><mat-icon class="idp-pack-cloud">cloud</mat-icon></div>
+                                                                                            <span class="idp-doc idp-pack-doc idp-pack-doc--1"></span><span class="idp-doc idp-pack-doc idp-pack-doc--2"></span>
+                                                                                        </div>
+                                                                                    }
+                                                                                }
+                                                                                @if (stage.state === 'done') {
+                                                                                    <span class="idp-step-art-done"><mat-icon>check</mat-icon></span>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                        <span class="idp-step-caption">{{ i18n + '.PROCESS.TRACKS.' + (track.key | uppercase) | translate }}</span>
+                                                                    </div>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                        @if (stage.key === 'preanalysis') {
+                                                            <medical-records-radication-external-checks channel="provider" [context]="externalChecksContext" [holdUntil]="stage.state === 'done'" />
+                                                        }
+                                                    } @else if (stage.key === 'radicated') {
+                                                        <medical-records-radication-stage-art [stage]="stage.key" [state]="stage.state" />
+                                                    }
+                                                    @if (stage.state === 'active') {
+                                                        <small>{{ i18n + '.PROCESS.AGENT_AT_WORK' | translate }}</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            @if (pollFailed || stageInError) {
+                                <div class="notice notice--error" role="alert">
+                                    <mat-icon aria-hidden="true">error_outline</mat-icon>
+                                    <div><strong>{{ (stageInError ? i18n + '.PROCESS.FAILED' : i18n + '.PROGRESS.POLL_FAILED') | translate }}</strong></div>
+                                </div>
+                            }
+                            <div class="review-actions">
+                                <button mat-button type="button" class="review-back-action" (click)="reset()"><mat-icon>add</mat-icon>{{ i18n + '.RESULT.NEW' | translate }}</button>
+                                <button mat-stroked-button type="button" (click)="refresh()"><mat-icon>refresh</mat-icon>{{ i18n + '.RESULT.REFRESH' | translate }}</button>
+                            </div>
+                        </div>
+                        <aside class="assistant-card processing-assistant">
+                            <div class="assistant-avatar" aria-hidden="true">✦</div>
+                            <h2>{{ i18n + '.ASSISTANT.TITLE' | translate }}</h2>
+                            <p>{{ i18n + '.ASSISTANT.PROCESSING' | translate }}</p>
+                            <p class="assistant-progress-message">{{ i18n + '.PROGRESS.FOLLOWING' | translate }}</p>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- 3 · Review: pre-analysis and comments per finding -->
+        @case ('review') {
+            <section class="flow-layout review-page-layout">
+                <div class="flow-card review-card">
+                    <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 3, total: steps.length } }}</div>
+                    <div class="review-title-row">
+                        <h1>{{ i18n + '.REVIEW.TITLE' | translate }}</h1>
+                        <div class="review-title-meta">
+                            <span class="preanalysis-badge" [attr.data-source]="reviewSource">{{ (reviewSource === 'agent' ? i18n + '.REVIEW.SOURCE_AGENT' : i18n + '.REVIEW.SOURCE_CHECKLIST') | translate }}</span>
+                            <span class="application-number">{{ radicationNumber }}</span>
+                        </div>
+                    </div>
+                    <p class="intro">{{ i18n + '.REVIEW.LEAD' | translate }}</p>
+                    @if (preanalysis) {
+                        <section class="review-invoices" [attr.aria-label]="i18n + '.REVIEW.INVOICES' | translate">
+                            @if ((account?.invoices.length ?? 0) === 1) {
+                                @for (invoice of account?.invoices ?? []; track invoice.key) {
+                                    <div class="review-invoice-strip">
+                                        <mat-icon aria-hidden="true">receipt_long</mat-icon>
+                                        <strong>{{ i18n + '.REVIEW.INVOICE' | translate }} {{ invoice.invoiceNumber || '—' }}</strong>
+                                        <span>{{ invoice.patientName || '—' }}</span>
+                                        <span>{{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}</span>
+                                        @if (invoice.totalBilled !== null) {
+                                            <span>{{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}</span>
+                                        }
+                                    </div>
+                                }
+                            } @else if (account?.invoices.length) {
+                                <div class="review-invoice-cards">
+                                    @for (invoice of account?.invoices ?? []; track invoice.key) {
+                                        <article>
+                                            <small>{{ i18n + '.REVIEW.INVOICE' | translate }} {{ invoice.invoiceNumber || '—' }}</small>
+                                            <strong>{{ invoice.patientName || '—' }}</strong>
+                                            <span>
+                                                {{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}
+                                                @if (invoice.totalBilled !== null) {
+                                                    · {{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}
+                                                }
+                                            </span>
+                                        </article>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="review-invoice-strip"><mat-icon aria-hidden="true">receipt_long</mat-icon><span>{{ i18n + '.REVIEW.INVOICES' | translate }}: —</span></div>
+                            }
+                        </section>
+
+                        @if (reviewRows.length) {
+                            <div class="review-table-toolbar">
+                                <button mat-button type="button" (click)="toggleAllRows()">
+                                    <mat-icon>{{ allRowsExpanded ? 'unfold_less' : 'unfold_more' }}</mat-icon>{{ (allRowsExpanded ? i18n + '.REVIEW.COLLAPSE_ALL' : i18n + '.REVIEW.EXPAND_ALL') | translate }}
+                                </button>
+                            </div>
+                            <div class="review-table review-findings" role="table" [attr.aria-label]="i18n + '.REVIEW.FINDINGS' | translate">
+                                <div class="review-table-head" role="row">
+                                    <span role="columnheader">{{ i18n + '.REVIEW.FINDING' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.REVIEW.DESCRIPTION' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.REVIEW.STATUS' | translate }}</span>
+                                    <span role="columnheader">{{ i18n + '.REVIEW.ACTIONS' | translate }}</span>
+                                </div>
+                                @for (row of reviewRows; track row.finding.id; let index = $index) {
+                                    <div class="review-table-row" role="row" [id]="'review-row-' + row.finding.id" [attr.data-status]="rowStatus(row)" [class.review-table-row--open]="isExpanded(row)">
+                                        <div class="review-document-name" role="cell">
+                                            <button type="button" class="review-row-toggle" (click)="toggleRow(row)" [attr.aria-expanded]="isExpanded(row)"
+                                                [attr.aria-label]="(isExpanded(row) ? i18n + '.REVIEW.COLLAPSE' : i18n + '.REVIEW.EXPAND') | translate">
+                                                <mat-icon aria-hidden="true">{{ isExpanded(row) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                                            </button>
+                                            @if (row.agent; as agent) {
+                                                <mat-icon aria-hidden="true">{{ agent.status === 'pass' ? 'task_alt' : agent.status === 'missing' ? 'report' : 'warning_amber' }}</mat-icon>
+                                                <strong>{{ agent.className || '—' }}</strong>
+                                            } @else {
+                                                <mat-icon aria-hidden="true">{{ row.finding.kind === 'MISSING_DOCUMENTS' || row.finding.kind === 'NO_INVOICE' ? 'report' : 'warning_amber' }}</mat-icon>
+                                                <strong>{{ i18n + '.FINDINGS.' + row.finding.kind | translate }}</strong>
+                                            }
+                                        </div>
+                                        <div class="review-cell review-cell-description" role="cell" [attr.data-label]="i18n + '.REVIEW.DESCRIPTION' | translate">
+                                            <!-- One invoice: the header already shows invoice and patient, rows do not repeat it. -->
+                                            @if (!singleInvoice) {
+                                                @if (findingInvoice(row.finding); as invoice) {
+                                                    <span class="review-finding-invoice">
+                                                        <mat-icon aria-hidden="true">receipt_long</mat-icon>
+                                                        {{ i18n + '.REVIEW.INVOICE_REF' | translate: { invoice: invoice.invoiceNumber || '—', patient: invoice.patientName || '—' } }}
+                                                    </span>
+                                                } @else if (row.agent?.invoiceNumber) {
+                                                    <span class="review-finding-invoice">
+                                                        <mat-icon aria-hidden="true">receipt_long</mat-icon>
+                                                        {{ i18n + '.REVIEW.INVOICE' | translate }} {{ row.agent?.invoiceNumber }}
+                                                    </span>
+                                                } @else if (row.agent) {
+                                                    <span class="review-finding-invoice">{{ i18n + '.REVIEW.ACCOUNT_LEVEL' | translate }}</span>
+                                                }
+                                            }
+                                            @if (row.agent?.received) {
+                                                <p class="review-summary">{{ i18n + '.REVIEW.RECEIVED_NOTE' | translate }}</p>
+                                            } @else if (!isExpanded(row)) {
+                                                @let headline = rowHeadline(row);
+                                                @if (headline.verified) {
+                                                    <p class="review-summary review-summary--clamp review-summary--verified">
+                                                        <strong>{{ i18n + '.REVIEW.COMMENT_VERIFIED' | translate }}</strong> {{ headline.verified }}
+                                                    </p>
+                                                }
+                                                @if (headline.pending) {
+                                                    <p class="review-summary review-summary--clamp review-summary--pending">
+                                                        <strong>{{ i18n + '.REVIEW.COMMENT_PENDING' | translate }}</strong> {{ headline.pending }}
+                                                    </p>
+                                                }
+                                                @if (headline.plain) {
+                                                    <p class="review-summary review-summary--clamp">{{ headline.plain }}</p>
+                                                }
+                                            } @else if (row.agent) {
+                                                @if (row.agent.sections; as sections) {
+                                                    @for (section of sections; track $index) {
+                                                        <div class="review-comment-section" [attr.data-kind]="section.kind">
+                                                            @if (sectionLabel(section); as label) {
+                                                                <strong>{{ label | translate }}</strong>
+                                                            }
+                                                            <p class="review-full-comment">{{ section.text }}</p>
+                                                        </div>
+                                                    }
+                                                } @else if (row.agent.comment) {
+                                                    <p class="review-full-comment">{{ row.agent.comment }}</p>
+                                                }
+                                            } @else {
+                                                @if (row.finding.subject) {
+                                                    <span class="review-summary">{{ row.finding.subject }}</span>
+                                                }
+                                                @if (row.finding.kind === 'MISSING_DOCUMENTS' || row.finding.kind === 'UNASSIGNED') {
+                                                    <span class="review-summary">{{ (row.finding.kind === 'MISSING_DOCUMENTS' ? i18n + '.PREANALYSIS.MISSING' : i18n + '.SUMMARY.DOCUMENTS') | translate }}: {{ row.finding.documents.join(', ') || '—' }}</span>
+                                                }
+                                            }
+                                            @if (isExpanded(row)) {
+                                            <div class="review-user-action">
+                                                <label [for]="'finding-comment-' + index">{{ i18n + '.COMMENTS.LABEL' | translate }}</label>
+                                                <textarea [id]="'finding-comment-' + index" rows="2" [maxlength]="maxCommentLength" [(ngModel)]="comments[row.finding.id]"
+                                                    [disabled]="savingComments || deciding" [placeholder]="i18n + '.COMMENTS.PLACEHOLDER' | translate"></textarea>
+                                                <button mat-stroked-button type="button" (click)="saveRowComment(row)"
+                                                    [disabled]="savingComments || deciding || !(comments[row.finding.id] ?? '').trim() || commentAttended(row.finding)">
+                                                    {{ (savingComments ? i18n + '.COMMENTS.SAVING' : i18n + '.REVIEW.SAVE_COMMENT') | translate }}
+                                                </button>
+                                                @if (commentAttended(row.finding)) {
+                                                    <span class="review-user-attended">{{ i18n + '.COMMENTS.SAVED' | translate }}</span>
+                                                }
+                                            </div>
+                                            } @else if (commentAttended(row.finding)) {
+                                                <span class="review-user-attended">{{ i18n + '.COMMENTS.SAVED' | translate }}</span>
+                                            }
+                                        </div>
+                                        <span class="review-cell review-status" role="cell" [class.review-status-warning]="row.agent ? row.agent.status !== 'pass' : row.finding.risk !== 'LOW'"
+                                            [attr.data-label]="i18n + '.REVIEW.STATUS' | translate">
+                                            @if (isDelivered(row) && rowStatus(row) === 'pass') {
+                                                {{ i18n + '.REVIEW.RECEIVED' | translate }}
+                                            } @else if (row.agent) {
+                                                {{ i18n + '.REVIEW.AGENT_STATUS.' + (row.agent.status | uppercase) | translate }} · {{ i18n + '.RISK.' + row.agent.risk | translate }}
+                                            } @else {
+                                                {{ i18n + '.RISK.' + row.finding.risk | translate }}
+                                            }
+                                        </span>
+                                        <div class="review-cell review-cell-action" role="cell" [attr.data-label]="i18n + '.REVIEW.ACTIONS' | translate">
+                                            @for (document of row.documents; track $index) {
+                                                <button mat-stroked-button type="button" [disabled]="!document.nodeId" (click)="viewDocument(document)"
+                                                    [title]="document.name || document.categoryKey"
+                                                    [attr.aria-label]="i18n + '.REVIEW.VIEW_NAMED' | translate: { name: document.name || document.categoryKey }">
+                                                    {{ i18n + '.REVIEW.VIEW' | translate }}
+                                                </button>
+                                            } @empty {
+                                                <span class="review-no-document">{{ i18n + '.REVIEW.NO_DOCUMENT' | translate }}</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        } @else {
+                            <div class="empty-review"><mat-icon aria-hidden="true">check_circle_outline</mat-icon><p>{{ i18n + '.PREANALYSIS.NO_FINDINGS' | translate }}</p></div>
+                        }
+                    } @else {
+                        <div class="empty-review review-loading"><span class="loading-orbit"><mat-icon>autorenew</mat-icon></span><p>{{ i18n + '.PREANALYSIS.LOADING' | translate }}</p></div>
+                    }
+                    @if (stepError) {
+                        <div class="notice notice--error" role="alert">
+                            <mat-icon aria-hidden="true">error_outline</mat-icon>
+                            <div>
+                                <strong>{{ i18n + '.STEP_ERRORS.' + stepError | translate }}</strong>
+                                @if (stepErrorDetail) {
+                                    <p>{{ i18n + '.ERRORS.AUTOMATE_SAID' | translate }} <code>{{ stepErrorDetail }}</code></p>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (reviewUploadOpen) {
+                        <div class="review-upload" aria-live="polite">
+                            <div class="review-upload-heading">
+                                <div>
+                                    <h2>{{ i18n + '.MORE.TITLE' | translate }}</h2>
+                                    <p>{{ i18n + '.MORE.LEAD' | translate }}</p>
+                                </div>
+                            </div>
+                            <label class="drop-zone review-drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
+                                (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
+                                (dragleave)="dragging = false" (drop)="onDrop($event)">
+                                <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+                                <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
+                                <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
+                                <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
+                            </label>
+                            @if (uploads.length) {
+                                <div class="upload-list">
+                                    @for (upload of uploads; track upload.key) {
+                                        <div class="upload-row">
+                                            <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
+                                            <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
+                                            <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
+                                            <button type="button" (click)="removeUpload(upload)" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            <div class="review-upload-actions">
+                                <button mat-button type="button" (click)="closeReviewUpload()" [disabled]="sending">{{ i18n + '.ACTIONS.BACK' | translate }}</button>
+                                <button mat-flat-button color="primary" type="button" [disabled]="sending || !reviewUploadReady" (click)="submit()">
+                                    <mat-icon>send</mat-icon>{{ (sending ? i18n + '.SENDING.BUTTON' : i18n + '.MORE.SUBMIT') | translate }}
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    <div class="review-actions">
+                        <button mat-button type="button" class="review-back-action" [routerLink]="caseRoute" [queryParams]="caseQueryParams">
+                            <mat-icon>open_in_new</mat-icon>{{ i18n + '.RESULT.OPEN_ARS' | translate }}
+                        </button>
+                        <div class="review-decision-actions">
+                            <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="savingComments || deciding || !processInstanceId || reviewUploadOpen" (click)="openReviewUpload()">
+                                <mat-icon>upload_file</mat-icon>{{ i18n + '.REVIEW.ADD_DOCUMENTS' | translate }}
+                            </button>
+                            <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="!commentCount || !commentsDirty || savingComments" (click)="saveComments()">
+                                <mat-icon>save</mat-icon>{{ (savingComments ? i18n + '.COMMENTS.SAVING' : i18n + '.COMMENTS.SAVE') | translate }}
+                            </button>
+                            <button mat-flat-button color="primary" type="button" class="review-continue-action" [disabled]="!preanalysis || savingComments" (click)="step = 'summary'">
+                                {{ i18n + '.ACTIONS.CONTINUE' | translate }}<mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <aside class="assistant-card review-assistant">
+                    <div class="assistant-avatar" aria-hidden="true">✦</div>
+                    <h2>{{ i18n + '.ASSISTANT.TITLE' | translate }}</h2>
+                    <p>{{ i18n + '.ASSISTANT.REVIEW' | translate }}</p>
+                    @if (reviewRows.length) {
+                        <div class="assistant-counts">
+                            <span data-status="missing"><strong>{{ reviewCounts.missing }}</strong> {{ i18n + '.ASSISTANT.COUNT_MISSING' | translate }}</span>
+                            <span data-status="attention"><strong>{{ reviewCounts.attention }}</strong> {{ i18n + '.ASSISTANT.COUNT_ATTENTION' | translate }}</span>
+                            <span data-status="pass"><strong>{{ reviewCounts.pass }}</strong> {{ i18n + '.ASSISTANT.COUNT_PASS' | translate }}</span>
+                        </div>
+                        <h3 class="assistant-subtitle">{{ i18n + '.ASSISTANT.ALERTS_TITLE' | translate }}</h3>
+                        <ul class="assistant-alerts">
+                            @for (row of reviewAlerts; track row.finding.id) {
+                                <li [attr.data-status]="rowStatus(row)">
+                                    <button type="button" (click)="focusRow(row)">
+                                        <mat-icon aria-hidden="true">{{ rowStatus(row) === 'missing' ? 'report' : 'warning_amber' }}</mat-icon>
+                                        <span>
+                                            <strong>{{ row.agent?.className || row.finding.subject || (i18n + '.FINDINGS.' + row.finding.kind | translate) }}</strong>
+                                            @if (row.agent?.invoiceNumber) {
+                                                <small>{{ i18n + '.REVIEW.INVOICE' | translate }} {{ row.agent?.invoiceNumber }}</small>
+                                            }
+                                        </span>
+                                        @if (commentAttended(row.finding)) {
+                                            <mat-icon class="assistant-alert-done" aria-hidden="true">mark_chat_read</mat-icon>
+                                        }
+                                    </button>
+                                </li>
+                            } @empty {
+                                <li class="assistant-alerts__empty">{{ i18n + '.ASSISTANT.ALL_CLEAR' | translate }}</li>
+                            }
+                        </ul>
+                    }
+                    <p class="assistant-progress-message">{{ i18n + '.COMMENTS.COUNT' | translate: { count: commentCount } }}</p>
+                    @if (policyView; as policyInfo) {
+                        <section class="review-policy" [attr.aria-label]="i18n + '.POLICY.TITLE' | translate">
+                            <h3 class="assistant-subtitle"><mat-icon aria-hidden="true">policy</mat-icon>{{ i18n + '.POLICY.TITLE' | translate }}</h3>
+                            <p class="review-policy__profile">
+                                <strong>{{ policyInfo.profileLabel }}</strong>
+                                <small>
+                                    {{ (policySource === 'appdata' ? i18n + '.POLICY.SOURCE_APPDATA' : i18n + '.POLICY.SOURCE_DEFAULT') | translate }}
+                                    @if (policyInfo.version) {
+                                        <span>· {{ policyInfo.version }}</span>
+                                    }
+                                    @if (agreementName) {
+                                        <span>· {{ (agreementMatched ? i18n + '.POLICY.AGREEMENT_MATCHED' : i18n + '.POLICY.AGREEMENT_DEFAULT') | translate: { name: agreementName } }}</span>
+                                    }
+                                </small>
+                            </p>
+                            <details class="review-policy__section" open>
+                                <summary>{{ i18n + '.POLICY.REQUIRED' | translate }} · {{ policyInfo.required.length }}</summary>
+                                <ul>
+                                    @for (item of policyInfo.required; track item.className) {
+                                        <li [attr.data-status]="item.status">
+                                            <mat-icon aria-hidden="true">{{ item.status === 'found' ? 'task_alt' : item.status === 'missing' ? 'report' : 'warning_amber' }}</mat-icon>
+                                            <span>{{ item.className }}</span>
+                                            <small>{{ i18n + '.POLICY.STATUS.' + (item.status | uppercase) | translate }}</small>
+                                        </li>
+                                    }
+                                </ul>
+                            </details>
+                            @if (policyInfo.conditional.length) {
+                                <details class="review-policy__section">
+                                    <summary>{{ i18n + '.POLICY.CONDITIONAL' | translate }} · {{ policyInfo.conditional.length }}</summary>
+                                    <ul>
+                                        @for (item of policyInfo.conditional; track item.className) {
+                                            <li [attr.data-status]="item.status" [title]="item.condition ?? ''">
+                                                <mat-icon aria-hidden="true">{{ item.status === 'found' ? 'task_alt' : item.status === 'missing' ? 'report' : item.status === 'attention' ? 'warning_amber' : 'radio_button_unchecked' }}</mat-icon>
+                                                <span>{{ item.className }}</span>
+                                                <small>{{ i18n + '.POLICY.STATUS.' + (item.status | uppercase) | translate }}</small>
+                                            </li>
+                                        }
+                                    </ul>
+                                </details>
+                            }
+                            @if (policyInfo.crossChecks.length) {
+                                <details class="review-policy__section">
+                                    <summary>{{ i18n + '.POLICY.CROSS_CHECKS' | translate }} · {{ policyInfo.crossChecks.length }}</summary>
+                                    <ul>
+                                        @for (check of policyInfo.crossChecks; track check.checkId) {
+                                            <li [title]="check.rule">
+                                                <mat-icon aria-hidden="true">rule</mat-icon>
+                                                <span>{{ check.label }}</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </details>
+                            }
+                        </section>
+                    }
+                </aside>
+            </section>
+        }
+
+        <!-- 4 · Summary: decision, then the radicated account -->
+        @case ('summary') {
+            <section class="confirmation-shell">
+                <div class="confirmation-layout">
+                    <div class="flow-card confirmation-card">
+                        <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 4, total: steps.length } }}</div>
+                        <h1>{{ (radicated ? i18n + '.SUMMARY.TITLE' : i18n + '.SUMMARY.TITLE_PENDING') | translate }}</h1>
+                        <p class="intro">{{ (radicated ? i18n + '.SUMMARY.LEAD' : i18n + '.SUMMARY.LEAD_PENDING') | translate }}</p>
+                        <div class="confirmation-sections">
+                            <section class="confirmation-section">
+                                <h2><mat-icon aria-hidden="true">assignment_turned_in</mat-icon>{{ i18n + '.SUMMARY.ACCOUNT' | translate }}</h2>
+                                <div class="confirmation-grid">
+                                    <article>
+                                        <small>{{ i18n + '.RESULT.NUMBER' | translate }}</small>
+                                        <strong>{{ radicationNumber }}</strong>
+                                        <button type="button" class="link-button" (click)="copyNumber()">{{ i18n + '.RESULT.COPY' | translate }}</button>
+                                    </article>
+                                    <article><small>{{ i18n + '.SUMMARY.STATUS' | translate }}</small><strong>{{ i18n + '.SUMMARY.STATUS_' + (summaryStatus | uppercase) | translate }}</strong></article>
+                                    <article><small>{{ i18n + '.FORM.PROVIDER' | translate }}</small><strong>{{ providerName || account?.account?.provider || '—' }}</strong></article>
+                                    <article><small>{{ i18n + '.SUMMARY.DATE' | translate }}</small><strong>{{ radicatedAt ? (radicatedAt | date: 'medium') : '—' }}</strong></article>
+                                </div>
+                            </section>
+                            <section class="confirmation-section">
+                                <h2><mat-icon aria-hidden="true">receipt_long</mat-icon>{{ i18n + '.SUMMARY.INVOICES' | translate }}</h2>
+                                <div class="confirmation-grid">
+                                    @for (invoice of account?.invoices ?? []; track invoice.key) {
+                                        <article>
+                                            <small>{{ invoice.invoiceNumber || '—' }}</small>
+                                            <strong>{{ invoice.patientName || '—' }}</strong>
+                                            <span>
+                                                {{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}
+                                                @if (invoice.totalBilled !== null) {
+                                                    · {{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}
+                                                }
+                                            </span>
+                                        </article>
+                                    } @empty {
+                                        <article><small>{{ i18n + '.SUMMARY.INVOICES' | translate }}</small><strong>—</strong></article>
+                                    }
+                                </div>
+                            </section>
+                            <section class="confirmation-section">
+                                <h2><mat-icon aria-hidden="true">fact_check</mat-icon>{{ i18n + '.PREANALYSIS.TITLE' | translate }}</h2>
+                                <div class="confirmation-grid">
+                                    <article><small>{{ i18n + '.PREANALYSIS.STATE' | translate }}</small><strong>{{ i18n + '.PREANALYSIS.STATUS.' + (reviewStatus | uppercase) | translate }}</strong></article>
+                                    <article><small>{{ i18n + '.DECISION.FINDINGS' | translate }}</small><strong>{{ openFindingCount }}</strong></article>
+                                    <article><small>{{ i18n + '.DECISION.COMMENTS' | translate }}</small><strong>{{ commentCount }}</strong></article>
+                                    <article><small>{{ i18n + '.SUMMARY.DOCUMENTS' | translate }}</small><strong>{{ preanalysis?.documentCount ?? 0 }}</strong></article>
+                                </div>
+                            </section>
+                        </div>
+                        @if (!radicated && commentCount && commentsDirty) {
+                            <p class="decision-note"><mat-icon aria-hidden="true">info_outline</mat-icon>{{ i18n + '.DECISION.UNSAVED' | translate }}</p>
+                        }
+                        @if (stepError) {
+                            <div class="notice notice--error" role="alert">
+                                <mat-icon aria-hidden="true">error_outline</mat-icon>
+                                <div>
+                                    <strong>{{ i18n + '.STEP_ERRORS.' + stepError | translate }}</strong>
+                                    @if (stepErrorDetail) {
+                                        <p>{{ i18n + '.ERRORS.AUTOMATE_SAID' | translate }} <code>{{ stepErrorDetail }}</code></p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="review-actions confirmation-actions">
+                            @if (radicated) {
+                                <button mat-button type="button" class="confirmation-back-action" (click)="reset()"><mat-icon>add</mat-icon>{{ i18n + '.RESULT.NEW' | translate }}</button>
+                                <div class="review-decision-actions">
+                                    <button mat-stroked-button type="button" [routerLink]="caseRoute" [queryParams]="caseQueryParams">{{ i18n + '.RESULT.OPEN_ARS' | translate }}</button>
+                                    <button mat-flat-button color="primary" type="button" class="confirmation-continue-action" [routerLink]="['/medical-records']">
+                                        {{ i18n + '.SUMMARY.ARS_DASHBOARD' | translate }}<mat-icon>dashboard</mat-icon>
+                                    </button>
+                                </div>
+                            } @else {
+                                <button mat-button type="button" class="confirmation-back-action" [disabled]="deciding" (click)="step = 'review'">
+                                    {{ i18n + '.ACTIONS.BACK' | translate }}
+                                </button>
+                                <div class="review-decision-actions">
+                                    <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="deciding" (click)="loadMoreDocuments()">
+                                        <mat-icon>upload_file</mat-icon>{{ i18n + '.DECISION.MORE' | translate }}
+                                    </button>
+                                    <button mat-flat-button color="primary" type="button" class="confirmation-continue-action" [disabled]="deciding" (click)="continueToSummary()">
+                                        {{ (deciding ? i18n + '.DECISION.SENDING' : i18n + '.DECISION.CONTINUE') | translate }}<mat-icon>arrow_forward</mat-icon>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+    }
+
+    @if (viewerDocument) {
+        <medical-records-case-document-viewer [document]="viewerDocument" (closed)="viewerDocument = null" />
+    }
+</main>

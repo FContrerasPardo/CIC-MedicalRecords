@@ -1,0 +1,53 @@
+{
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "policyId": "ARSP-HGHL-COMPLIANCE-2026",
+  "payer": "ARS Primera",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "rules": [
+    {
+      "policyRuleId": "COMP-001",
+      "type": "PRIOR_AUTH_REQUIRED",
+      "procedureCode": "903895",
+      "description": "Imaging procedures require prior authorization and the procedure order.",
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento"
+      ],
+      "riskLevelIfViolated": "HIGH"
+    },
+    {
+      "policyRuleId": "COMP-002",
+      "type": "ADMISSION_SUPPORT_REQUIRED",
+      "serviceCategory": "hospitalization",
+      "description": "Hospitalization services require the admission sheet.",
+      "requiredDocuments": [
+        "Planilla de Admisión",
+        "Nota de Enfermeria"
+      ],
+      "riskLevelIfViolated": "MEDIUM"
+    },
+    {
+      "policyRuleId": "COMP-003",
+      "type": "PRIOR_AUTH_AMOUNT_THRESHOLD",
+      "amountThreshold": 50000,
+      "currency": "DOP",
+      "description": "Any billed service above RD$ 50,000 requires a payer authorization number.",
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento"
+      ],
+      "riskLevelIfViolated": "HIGH"
+    },
+    {
+      "policyRuleId": "COMP-004",
+      "type": "ICU_DAILY_SUPPORT",
+      "procedureCode": "UCI-001",
+      "description": "Each billed ICU day needs a nursing note of that day (agreement clause, demo).",
+      "requiredDocuments": [
+        "Nota de Enfermeria"
+      ],
+      "riskLevelIfViolated": "MEDIUM"
+    }
+  ]
+}

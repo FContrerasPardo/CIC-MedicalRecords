@@ -12,7 +12,18 @@
         <div class="card-title-actions">
             <div class="dashboard-chart-widget__headline" *ngIf="showHeadline">
                 <span class="dashboard-chart-widget__headline-label" *ngIf="headlineLabel">{{ headlineLabel }}</span>
-                <span class="dashboard-chart-widget__headline-value">{{ headlineValue }}</span>
+                <span class="dashboard-chart-widget__headline-value">
+                    {{ headlineValue }}<span class="dashboard-chart-widget__headline-unit" *ngIf="headlineUnit">{{ headlineUnit }}</span>
+                    <span
+                        class="dashboard-chart-widget__headline-variation"
+                        *ngIf="headlineVariation as variation"
+                        [class.is-positive]="variation.positive"
+                        [class.is-negative]="!variation.positive"
+                        [attr.title]="'MEDICAL_RECORDS.CHART.HEADLINE_VARIATION_HINT' | translate"
+                    >
+                        <span class="material-icons" aria-hidden="true">{{ headlineVariationIcon(variation) }}</span>{{ variation.percent > 0 ? '+' : '' }}{{ variation.percent }}%
+                    </span>
+                </span>
             </div>
             <span class="data-source-badge" [ngClass]="'badge-' + data.source">{{ sourceLabelKey | translate }}</span>
             <div class="segment-control" *ngIf="showDemoSegment">
@@ -105,7 +116,32 @@
         </ul>
     </div>
 
-    <div class="chart-frame" *ngIf="showChart && !isDonutMode && !renderHorizontalStackedMode" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
+    <div class="chart-frame chart-frame--progress" *ngIf="showChart && isProgressBarsMode">
+        <p class="progress-chart__total" *ngIf="progressShowsTotal">
+            {{ 'MEDICAL_RECORDS.CHART.PROGRESS_TOTAL' | translate }} <strong>{{ formatChartValue(progressTotal) }}</strong>
+        </p>
+        <ul class="progress-chart">
+            <li class="progress-chart__row" *ngFor="let row of progressRows; trackBy: trackByIndex">
+                <div class="progress-chart__label">
+                    <span [attr.title]="row.label | translate">{{ row.label | translate }}</span>
+                    <span class="progress-chart__value">{{ row.display }}</span>
+                </div>
+                <!-- Progress track adapted from CIC-Fin lending-dashboard `.progress-track`. -->
+                <div
+                    class="progress-track"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    [attr.aria-valuenow]="row.percent"
+                    [attr.aria-label]="(row.label | translate) + ': ' + row.display"
+                >
+                    <span [ngClass]="'accent-' + row.accent" [style.width.%]="row.width"></span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="chart-frame" *ngIf="showChart && !isDonutMode && !renderHorizontalStackedMode && !isProgressBarsMode" [attr.aria-label]="'MEDICAL_RECORDS.CARDS.PRODUCTIVITY_CHART_ARIA' | translate">
         <div class="chart-y-caption">
             <span class="chart-axis-title chart-axis-title--y">
                 <ng-container *ngIf="customYAxisLabel; else defaultY">{{ customYAxisLabel }}</ng-container>

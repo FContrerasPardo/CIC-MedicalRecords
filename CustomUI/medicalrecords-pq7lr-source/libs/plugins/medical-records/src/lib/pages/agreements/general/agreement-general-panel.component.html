@@ -1,0 +1,125 @@
+<section class="panel" aria-labelledby="general-title">
+    <div class="panel__head">
+        <div>
+            <h2 id="general-title"><span class="material-icons" aria-hidden="true">handshake</span>{{ i18n + '.GENERAL.TITLE' | translate }}</h2>
+            <p class="panel__lead">{{ i18n + '.GENERAL.LEAD' | translate }}</p>
+        </div>
+        <div class="panel__actions">
+            @if (draft) {
+                <button type="button" class="btn" (click)="cancelEdit()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
+                </button>
+                <button type="button" class="btn btn--primary" (click)="save()" [disabled]="saving">
+                    <span class="material-icons" aria-hidden="true">save</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.EDITOR.SAVE') | translate }}
+                </button>
+            } @else {
+                <button type="button" class="btn" (click)="startEdit()" [disabled]="!file">
+                    <span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.EDITOR.EDIT' | translate }}
+                </button>
+                @if (canCreate) {
+                    <button type="button" class="btn btn--primary" (click)="createFromTemplate()">
+                        <span class="material-icons" aria-hidden="true">cloud_upload</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.FILE.CREATE') | translate }}
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    @if (saveError) {
+        <p class="source source--invalid" role="alert">{{ i18n + '.FILE.SAVE_ERROR' | translate }}</p>
+    }
+    @if (savedVersion) {
+        <p class="source source--appdata" role="status">{{ i18n + '.FILE.SAVED' | translate: { version: savedVersion } }}</p>
+    }
+    @if (invalid) {
+        <p class="source source--invalid" role="alert">{{ i18n + '.RULES.ISSUE_PROVIDER_REQUIRED' | translate }}</p>
+    }
+
+    @if (draft) {
+        <div class="editor">
+            <fieldset class="editor__header">
+                <legend>{{ i18n + '.GENERAL.CONTRACT' | translate }}</legend>
+                <label>
+                    <span>{{ i18n + '.GENERAL.STATUS' | translate }}</span>
+                    <select [(ngModel)]="draft.status">
+                        @for (option of statuses; track option) {
+                            <option [ngValue]="option">{{ i18n + '.STATUS_' + option | translate }}</option>
+                        }
+                    </select>
+                </label>
+                @for (field of fields; track field.key) {
+                    <label>
+                        <span>{{ i18n + '.GENERAL.FIELD_' + field.labelKey | translate }}{{ field.key === 'providerName' ? ' *' : '' }}</span>
+                        <input
+                            [type]="field.type === 'number' ? 'number' : field.key.startsWith('effective') ? 'date' : 'text'"
+                            [ngModel]="$any(draft.general)[field.key]"
+                            (ngModelChange)="setField(field.key, $event, field.type)"
+                        />
+                    </label>
+                }
+            </fieldset>
+            <div class="list-editor">
+                <span class="list-editor__label">{{ i18n + '.GENERAL.ALIASES' | translate }}</span>
+                <ul class="list-editor__chips">
+                    @for (alias of draft.aliases; track alias; let index = $index) {
+                        <li>
+                            {{ alias }}
+                            <button type="button" (click)="removeAlias(index)" [attr.aria-label]="(i18n + '.EDITOR.REMOVE_VALUE' | translate) + ' ' + alias">
+                                <span class="material-icons" aria-hidden="true">close</span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+                <span class="list-editor__add">
+                    <input #aliasInput type="text" [attr.aria-label]="i18n + '.GENERAL.ALIASES' | translate" [placeholder]="i18n + '.EDITOR.ADD_VALUE' | translate" (keydown.enter)="addAlias(aliasInput, $event)" />
+                    <button type="button" class="icon-btn" (click)="addAlias(aliasInput)" [attr.aria-label]="i18n + '.EDITOR.ADD_VALUE' | translate">
+                        <span class="material-icons" aria-hidden="true">add</span>
+                    </button>
+                </span>
+            </div>
+            <p class="panel__lead">{{ i18n + '.GENERAL.ALIASES_HINT' | translate }}</p>
+        </div>
+    } @else {
+        <div class="general-grid">
+            <dl class="facts facts--general">
+                @for (field of fields; track field.key) {
+                    @if (field.type === 'text') {
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_' + field.labelKey | translate }}</dt>
+                            <dd>{{ value(field.key) }}</dd>
+                        </div>
+                    }
+                }
+                <div>
+                    <dt>{{ i18n + '.GENERAL.ALIASES' | translate }}</dt>
+                    <dd>
+                        @for (alias of aliases; track alias) {
+                            <span class="tag">{{ alias }}</span>
+                        } @empty {
+                            —
+                        }
+                    </dd>
+                </div>
+            </dl>
+            <aside class="general-side">
+                <div class="budget">
+                    <span class="budget__label">{{ i18n + '.GENERAL.FIELD_BUDGET' | translate }}</span>
+                    <strong class="budget__value">{{ general.budgetCurrency || '' }} {{ (general.budgetTotal ?? 0) | number: '1.0-0' }}</strong>
+                    <div class="budget__bar" role="meter" [attr.aria-valuenow]="budgetUse" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="i18n + '.GENERAL.FIELD_BILLED_YTD' | translate">
+                        <span [style.width.%]="budgetUse"></span>
+                    </div>
+                    <span class="budget__meta">{{ i18n + '.GENERAL.FIELD_BILLED_YTD' | translate }}: {{ (general.billedYtd ?? 0) | number: '1.0-0' }} ({{ budgetUse }}%)</span>
+                </div>
+                <ul class="summary-list">
+                    @for (item of summary; track item.labelKey) {
+                        <li>
+                            <span>{{ i18n + '.' + item.labelKey | translate }}</span>
+                            <strong>{{ item.value }}</strong>
+                        </li>
+                    }
+                </ul>
+            </aside>
+        </div>
+    }
+</section>

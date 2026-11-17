@@ -76,11 +76,12 @@
             [cdkDragData]="container"
             (cdkDragEnded)="onContainerDragEnded($event)"
             [class.dashboard-container--kpi]="container.layoutMode === 'kpi-strip'"
+            [class.dashboard-container--panel]="container.appearance === 'panel' && container.layoutMode !== 'kpi-strip'"
             [class.dashboard-container--selected]="isContainerSelected(container.id)"
             [class.dashboard-container--palette-target]="isPaletteTarget(container.id)"
             [class.dashboard-container--dragging]="editMode"
         >
-            <header class="section-heading" (click)="activateContainer(container.id, $event)">
+            <header class="section-heading" *ngIf="editMode || container.title || container.subtitle" (click)="activateContainer(container.id, $event)">
                 <div class="section-heading__title-row">
                     <button
                         *ngIf="editMode"
@@ -136,11 +137,13 @@
             *ngIf="container.layoutMode === 'kpi-strip' && !container.collapsed"
             [widgetIds]="container.widgetIds"
             [widgets]="widgets"
+            [columns]="container.columns"
             [editMode]="editMode"
             [selectedWidgetId]="selectedWidgetId"
             [pageActive]="isPageActive(page.id)"
             (widgetSelect)="selectWidget($event)"
         ></medical-records-dashboard-kpi-strip>
+
 
         <div
             *ngIf="container.layoutMode !== 'kpi-strip' && !container.collapsed"
@@ -168,6 +171,7 @@
                     container.layoutMode === 'list' ? 'widget-slot--full' : ''
                 ]"
                 [ngStyle]="widgetSlotStyle(widgetId, container)"
+                [style.display]="isWidgetVisible(widgetId) ? null : 'none'"
                 (click)="selectWidget(widgetId, $event)"
             >
                 <div class="widget-slot__canvas" *ngIf="useCanvasLayout(container); else widgetSlotLegacy">
@@ -281,4 +285,11 @@
         *ngIf="widgets[widgetId]?.type === 'task-recent-list'"
         [config]="widgets[widgetId]"
     ></medical-records-dashboard-task-recent-list-widget>
+
+    <medical-records-dashboard-provider-cards-widget
+        *ngIf="widgets[widgetId]?.type === 'provider-cards'"
+        [config]="widgets[widgetId]"
+        [pageActive]="pageActive"
+        (providerSelected)="providerSelected.emit($event)"
+    ></medical-records-dashboard-provider-cards-widget>
 </ng-template>

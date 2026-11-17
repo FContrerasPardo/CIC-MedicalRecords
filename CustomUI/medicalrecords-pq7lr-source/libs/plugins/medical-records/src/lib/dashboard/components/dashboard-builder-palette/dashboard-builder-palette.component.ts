@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardWidgetType } from '../../definitions/dashboard-widget.model';
 
+export type DashboardPalettePreset = 'outcome-distribution' | 'kpi-in-progress';
+
 export interface DashboardPaletteItem {
     type: DashboardWidgetType;
     labelKey: string;
     icon: string;
-    preset?: 'outcome-distribution';
+    preset?: DashboardPalettePreset;
 }
 
 @Component({
@@ -27,7 +29,7 @@ export class DashboardBuilderPaletteComponent {
     @Input() layoutSaving = false;
     @Output() addWidget = new EventEmitter<{
         type: DashboardWidgetType;
-        preset?: 'outcome-distribution';
+        preset?: DashboardPalettePreset;
     }>();
     @Output() saveLayout = new EventEmitter<void>();
     @Output() resetLayout = new EventEmitter<void>();
@@ -42,6 +44,12 @@ export class DashboardBuilderPaletteComponent {
             type: 'metric',
             labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_METRIC',
             icon: 'insights',
+        },
+        {
+            type: 'metric',
+            labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_KPI_IN_PROGRESS',
+            icon: 'play_circle',
+            preset: 'kpi-in-progress',
         },
         {
             type: 'chart',
@@ -73,6 +81,11 @@ export class DashboardBuilderPaletteComponent {
             type: 'task-recent-list',
             labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_TASK_RECENT',
             icon: 'history',
+        },
+        {
+            type: 'provider-cards',
+            labelKey: 'MEDICAL_RECORDS.DASHBOARD_BUILDER.WIDGET_PROVIDER_CARDS',
+            icon: 'domain',
         },
         {
             type: 'process-list',

@@ -1,0 +1,21 @@
+{
+  "kind": "medical-records.agreements-index",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "agreements": [
+    {
+      "agreementId": "centro-medico-latam",
+      "providerName": "Centro Medico LATAM",
+      "payer": "ARS Primera",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-17T00:00:00.000Z"
+    },
+    {
+      "agreementId": "hospital-general-hyland-latam",
+      "providerName": "Hospital General HYLAND LATAM",
+      "payer": "ARS Primera",
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-17T00:00:00.000Z"
+    }
+  ]
+}

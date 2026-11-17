@@ -1,0 +1,267 @@
+@import '../../../_kpi-shared-tokens.scss';
+
+:host {
+    display: block;
+}
+
+.provider-cards {
+    display: grid;
+    gap: 10px;
+}
+
+.provider-cards__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    h3 {
+        margin: 0;
+        color: var(--kpi-stat-label-color);
+        font-size: var(--kpi-stat-label-size);
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+}
+
+.provider-cards__origin {
+    padding: 1px 7px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &.origin-live { color: var(--kpi-stat-positive); }
+    &.origin-error { color: var(--kpi-stat-negative); }
+}
+
+.provider-cards__notice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(232, 163, 23, 0.14);
+    color: var(--mr-on-surface, #0b1c30);
+    font-size: 12px;
+    font-weight: 700;
+
+    .material-icons { font-size: 16px; color: #e8a317; }
+}
+
+.provider-cards__state {
+    margin: 0;
+    color: var(--kpi-stat-helper-color);
+    font-size: 13px;
+    font-weight: 700;
+
+    &--error { color: var(--kpi-stat-negative); }
+}
+
+// One bordered card per provider (reference: CIC-Fin product cards): accent bar on top,
+// name header, and the provider KPIs as small tiles inside the card.
+.provider-cards__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 12px;
+}
+
+.provider-card {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+    overflow: hidden;
+    padding: 14px 14px 12px;
+    border: 1px solid var(--mr-border, rgba(194, 198, 212, 0.75));
+    border-radius: 14px;
+    background: var(--mr-surface, #ffffff);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(
+            90deg,
+            var(--dash-accent, var(--mr-primary, #6e33ff)),
+            var(--dash-brand-blue, #52a1ff)
+        );
+    }
+
+    &--unidentified::before {
+        background: var(--kpi-stat-flat, #667085);
+    }
+
+    &:hover {
+        border-color: var(--dash-accent, var(--mr-primary, #6e33ff));
+        box-shadow: 0 8px 22px color-mix(in srgb, var(--dash-accent, #6e33ff) 14%, transparent);
+    }
+
+    &:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--dash-accent, #6e33ff) 45%, transparent);
+        outline-offset: 2px;
+    }
+}
+
+.provider-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+
+    .material-icons {
+        flex: 0 0 auto;
+        font-size: 18px;
+        color: var(--dash-accent, var(--mr-primary, #6e33ff));
+    }
+
+    .provider-card__chevron {
+        margin-left: auto;
+        color: var(--mr-muted, #667085);
+    }
+}
+
+.provider-card__name {
+    overflow: hidden;
+    color: var(--mr-heading, #001b3d);
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.provider-card__kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+    gap: 6px;
+    margin: 0;
+}
+
+.provider-card__kpi {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    margin: 0;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: var(--mr-surface-muted, #f4f6fb);
+
+    dt {
+        overflow: hidden;
+        color: var(--kpi-stat-label-color, #727783);
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        line-height: 1.25;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    dd {
+        margin: 0;
+        color: var(--kpi-stat-value-color, #0b1c30);
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+}
+
+.provider-card--selected {
+    border-color: var(--dash-accent, var(--mr-primary, #6e33ff));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dash-accent, #6e33ff) 30%, transparent);
+
+    .provider-card__chevron {
+        color: var(--dash-accent, var(--mr-primary, #6e33ff));
+    }
+}
+
+.provider-card--dimmed {
+    opacity: 0.6;
+}
+
+.provider-cards__filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 3px 8px;
+    border: 1px solid color-mix(in srgb, var(--dash-accent, #6e33ff) 35%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--dash-accent, #6e33ff) 8%, transparent);
+    color: var(--dash-accent, var(--mr-primary, #6e33ff));
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 14px;
+    }
+}
+
+.provider-cards__search {
+    display: inline-flex;
+    flex: 1 1 260px;
+    align-items: center;
+    gap: 6px;
+    max-width: 420px;
+    padding: 4px 10px;
+    border: 1px solid var(--mr-border, #dfe3ec);
+    border-radius: 999px;
+    background: var(--mr-surface, #fff);
+
+    .material-icons {
+        color: var(--mr-muted, #667085);
+        font-size: 16px;
+    }
+
+    input {
+        flex: 1 1 auto;
+        min-width: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-size: 12px;
+    }
+
+    &:focus-within {
+        border-color: var(--dash-accent, #6e33ff);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--dash-accent, #6e33ff) 15%, transparent);
+    }
+}
+
+// The widget title acts as the heading of the whole medical-accounts area.
+.provider-cards__header {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+
+    h3 {
+        margin-right: 8px;
+        color: var(--mr-heading, #001b3d);
+        font-size: 15px;
+        letter-spacing: -0.01em;
+        text-transform: none;
+    }
+
+    .provider-cards__origin {
+        margin-left: auto;
+    }
+}

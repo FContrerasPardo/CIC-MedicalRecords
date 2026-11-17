@@ -13,6 +13,7 @@ archivo presente; **disponible** requiere descubrimiento del cliente;
 | hyland-issue-triage | `.agents/skills/hyland-issue-triage/SKILL.md` | Diagnóstico acotado; no publica ni ejecuta reproducciones automáticamente |
 | hyland-cin-cli | `.agents/skills/hyland-cin-cli/SKILL.md` | Consultas/diagnóstico; CLI y autenticación no comprobadas |
 | i18n-key-audit | `.agents/skills/i18n-key-audit/SKILL.md` y `.claude/skills/i18n-key-audit/` | Codex referencia el único script existente; claves, no calidad ni placeholders |
+| context-checkpoint | `.claude/skills/context-checkpoint/SKILL.md` y `.agents/skills/context-checkpoint/` | Baja contexto a issues y estado local; escribir issues requiere petición del usuario |
 
 Las cuatro adaptaciones Hyland provienen de [CIC-Learn](cic-learn.md).
 La auditoría i18n conserva sus casos y

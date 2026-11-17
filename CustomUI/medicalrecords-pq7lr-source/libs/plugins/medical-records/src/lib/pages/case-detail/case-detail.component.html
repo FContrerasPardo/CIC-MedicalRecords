@@ -1,0 +1,131 @@
+<section class="case-detail" aria-labelledby="account-title" [attr.aria-busy]="loadingCase">
+    <header class="account-head">
+        <div class="account-head__bar">
+            <a class="btn btn--text" routerLink="/medical-records">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>{{ i18n + '.ACTIONS.BACK' | translate }}
+            </a>
+            <span class="eyebrow">
+                {{ i18n + '.ACCOUNT.LABEL' | translate }}
+                @if (accountReference) {
+                    <code [title]="processInstanceId">{{ accountReference }}</code>
+                }
+            </span>
+        </div>
+
+        <div class="account-head__main">
+            <span class="material-icons account-head__icon" aria-hidden="true">local_hospital</span>
+            <div class="account-head__id">
+                <h1 id="account-title">
+                    @if (loadingCase) {
+                        {{ i18n + '.ACCOUNT.LOADING' | translate }}
+                    } @else {
+                        {{ account?.provider ?? (i18n + '.ACCOUNT.UNIDENTIFIED_PROVIDER' | translate) }}
+                    }
+                </h1>
+                @if (account?.providerTaxId) {
+                    <span class="account-head__sub">RNC {{ account?.providerTaxId }}</span>
+                }
+            </div>
+            @if (account; as acc) {
+                <span class="account-head__chips">
+                    @if (acc.reviewRequired) {
+                        <span class="chip chip--warn">{{ i18n + '.ACCOUNT.REVIEW_REQUIRED' | translate }}</span>
+                    } @else {
+                        <span class="chip chip--ok">{{ i18n + '.ACCOUNT.STATUS_READY' | translate }}</span>
+                    }
+                    @if (acc.unassignedCount) {
+                        <span class="chip">{{ i18n + '.ACCOUNT.UNASSIGNED' | translate: { count: acc.unassignedCount } }}</span>
+                    }
+                </span>
+            }
+        </div>
+
+        @if (loadingCase) {
+            <p class="account-head__loading" role="status">{{ i18n + '.LOADING_CASE' | translate }}</p>
+        } @else if (account) {
+            <dl class="account-head__facts">
+                <div>
+                    <dt>{{ i18n + '.ACCOUNT.PAYER' | translate }}</dt>
+                    <dd>{{ account.payer ?? '—' }}</dd>
+                </div>
+                <div>
+                    <dt>{{ i18n + '.ACCOUNT.INVOICES' | translate }}</dt>
+                    <dd>{{ account.invoiceCount }}</dd>
+                </div>
+                <div>
+                    <dt>{{ i18n + '.ACCOUNT.DOCUMENTS' | translate }}</dt>
+                    <dd>{{ account.documentCount }}</dd>
+                </div>
+                <div>
+                    <dt>{{ i18n + '.ACCOUNT.TOTAL_BILLED' | translate }}</dt>
+                    <dd>{{ account.totalBilled !== null ? (account.totalBilled | number: '1.2-2') : '—' }} <small>{{ account.currency }}</small></dd>
+                </div>
+                @if (selectedInvoice && invoices.length > 1) {
+                    <div class="account-head__invoice">
+                        <dt><label for="case-invoice-select">{{ i18n + '.INVOICES.CURRENT' | translate }}</label></dt>
+                        <dd>
+                            <select id="case-invoice-select" class="invoice-select" (change)="onInvoiceChange($event)">
+                                @for (invoice of invoices; track invoice.key) {
+                                    <option [value]="invoice.key" [selected]="invoice.key === selectedInvoice?.key">
+                                        {{ invoice.invoiceNumber ?? '—' }} · {{ invoice.patientName ?? (i18n + '.INVOICES.UNNAMED_PATIENT' | translate) }}
+                                    </option>
+                                }
+                            </select>
+                        </dd>
+                    </div>
+                }
+            </dl>
+        }
+    </header>
+
+    @if (loadingCase) {
+        <!-- The account header shows the loading state. -->
+    } @else if (!accountMode) {
+        <p class="empty-state" role="status">
+            <span class="material-icons" aria-hidden="true">receipt_long</span>{{ i18n + '.EMPTY.NO_ACCOUNT' | translate }}
+        </p>
+    } @else if (invoiceMode === 'none') {
+        <p class="empty-state" role="status">
+            <span class="material-icons" aria-hidden="true">receipt_long</span>{{ i18n + '.EMPTY.NO_INVOICES' | translate }}
+        </p>
+    } @else if (awaitingInvoice) {
+        <section class="invoice-picker" aria-labelledby="invoice-picker-title">
+            <h2 id="invoice-picker-title">{{ i18n + '.INVOICES.TITLE' | translate }}</h2>
+            <p class="invoice-picker__lead">{{ i18n + '.INVOICES.LEAD' | translate: { count: invoices.length } }}</p>
+            <ul class="invoice-picker__list">
+                @for (invoice of invoices; track invoice.key) {
+                    <li>
+                        <button type="button" class="invoice-option" (click)="selectInvoice(invoice.key)">
+                            <span class="material-icons invoice-option__icon" aria-hidden="true">receipt_long</span>
+                            <span class="invoice-option__body">
+                                <strong>{{ invoice.patientName ?? (i18n + '.INVOICES.UNNAMED_PATIENT' | translate) }}</strong>
+                                <span>
+                                    {{ i18n + '.INVOICES.NUMBER' | translate }}: {{ invoice.invoiceNumber ?? '—' }} ·
+                                    {{ i18n + '.INVOICES.DOCUMENTS' | translate: { count: invoice.documentCount } }}
+                                    @if (invoice.totalBilled !== null) {
+                                        · {{ invoice.totalBilled | number: '1.2-2' }} {{ invoice.currency }}
+                                    }
+                                </span>
+                            </span>
+                            @if (invoice.needsReview) {
+                                <span class="chip chip--warn">{{ i18n + '.INVOICES.NEEDS_REVIEW' | translate }}</span>
+                            }
+                            <span class="material-icons" aria-hidden="true">chevron_right</span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </section>
+    } @else if (selectedInvoice) {
+        <medical-records-invoice-workspace
+            [processInstanceId]="processInstanceId"
+            [variables]="processVariablesSnapshot"
+            [batchState]="batchState"
+            [invoice]="selectedInvoice"
+            [invoiceCount]="invoices.length"
+            [provider]="account?.provider ?? null"
+            [accountReference]="accountReference"
+            [initialTab]="initialTab"
+        ></medical-records-invoice-workspace>
+    }
+</section>

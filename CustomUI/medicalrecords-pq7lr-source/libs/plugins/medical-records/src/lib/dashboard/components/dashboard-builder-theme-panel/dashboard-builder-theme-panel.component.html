@@ -21,6 +21,32 @@
         </div>
 
         <div class="theme-panel__section">
+            <span class="theme-panel__label" id="theme-widget-chrome-label">{{ 'MEDICAL_RECORDS.THEME.WIDGET_CHROME' | translate }}</span>
+            <select
+                class="dashboard-form-control"
+                aria-labelledby="theme-widget-chrome-label"
+                [ngModel]="theme.widgetChrome ?? 'card'"
+                (ngModelChange)="selectWidgetChrome($event)"
+            >
+                <option value="card">{{ 'MEDICAL_RECORDS.THEME.WIDGET_CHROME_CARD' | translate }}</option>
+                <option value="accent-line">{{ 'MEDICAL_RECORDS.THEME.WIDGET_CHROME_ACCENT_LINE' | translate }}</option>
+            </select>
+        </div>
+
+        <div class="theme-panel__section">
+            <span class="theme-panel__label" id="theme-density-label">{{ 'MEDICAL_RECORDS.THEME.DENSITY' | translate }}</span>
+            <select
+                class="dashboard-form-control"
+                aria-labelledby="theme-density-label"
+                [ngModel]="theme.density ?? 'comfortable'"
+                (ngModelChange)="selectDensity($event)"
+            >
+                <option value="comfortable">{{ 'MEDICAL_RECORDS.THEME.DENSITY_COMFORTABLE' | translate }}</option>
+                <option value="compact">{{ 'MEDICAL_RECORDS.THEME.DENSITY_COMPACT' | translate }}</option>
+            </select>
+        </div>
+
+        <div class="theme-panel__section">
             <span class="theme-panel__label">{{ 'MEDICAL_RECORDS.THEME.SERIES_GRADIENT' | translate }}</span>
             <select
                 class="dashboard-form-control"

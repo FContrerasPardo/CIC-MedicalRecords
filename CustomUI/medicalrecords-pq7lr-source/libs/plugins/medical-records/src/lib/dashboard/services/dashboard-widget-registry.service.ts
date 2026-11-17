@@ -1,5 +1,9 @@
-import { Injectable } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { catchError, forkJoin, from, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { DocumentationChecklistRepositoryService } from '../../pages/agreements/checklist/documentation-checklist-repository.service';
+import { DocumentationChecklist } from '../../pages/agreements/checklist/documentation-checklist.util';
+import { addDerivedFields, derivedFieldDescriptors, derivedFieldsNeedChecklist, widgetDerivedFields } from '../utils/dashboard-audit-fields.util';
+import { previousComparisonRange } from '../utils/dashboard-date-range.util';
 import {
     DashboardChartWidgetData,
     DashboardFieldDescriptor,
@@ -18,6 +22,8 @@ import {
     mergeFieldDescriptors,
 } from '../mappers/dashboard-field-schema.mapper';
 import {
+    aggregateBySlices,
+    groupThousands,
     aggregateNumericFieldValues,
     applyValueFieldFormat,
     isNumericFieldAggregation,
@@ -39,11 +45,24 @@ import { DashboardPeriodService } from './dashboard-period.service';
 import { DashboardTrendResult, DashboardTrendService, filterRowsToDateRange } from './dashboard-trend.service';
 
 const CHART_MAX_ROWS = CONTENT_SAMPLE_MAX_ROWS;
+/** The documentary checklist (Appdata) is reused this long by every widget binding a derived field. */
+const CHECKLIST_TTL_MS = 60_000;
+
+interface NumericMetricResult {
+    value: string;
+    source: DashboardWidgetConfig['dataSource'];
+    error?: string;
+    trend?: DashboardTrendResult | null;
+    sparkline?: Array<number | null>;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DashboardWidgetRegistryService {
     readonly defaultChartLabels = ['12am', '4am', '8am', '12pm', '4pm', '8pm'];
     readonly defaultChartBars = [35, 25, 55, 45, 75, 85, 60, 95, 70, 50, 30, 20];
+
+    private readonly checklistRepository = inject(DocumentationChecklistRepositoryService);
+    private checklistCache: { at: number; result: Promise<DocumentationChecklist | null> } | null = null;
 
     readonly demoTableRows: Record<string, string>[] = [
         { id: 'demo-1', name: 'Sample row A', status: 'RUNNING', sourceField: 'exampleValue' },
@@ -65,7 +84,7 @@ export class DashboardWidgetRegistryService {
             isNumericFieldAggregation(bindings?.valueAggregation) && !!bindings?.valueField;
         const comparisonPeriod = config.comparisonPeriod ?? 'none';
 
-        const base$ =
+        const base$: Observable<NumericMetricResult> =
             dataSource === 'process' && !wantsNumericField
                 ? this.trendService.countInActiveRange(config).pipe(
                       map((count) => ({
@@ -106,36 +125,17 @@ export class DashboardWidgetRegistryService {
                             )
                         )
                   : wantsNumericField && dataSource !== 'demo'
-                    ? this.fetchRowsForChart(config, dataSource).pipe(
-                          map((rows) => ({
-                              value: String(
-                                  this.aggregateBoundField(
-                                      rows,
-                                      bindings!.valueField!,
-                                      bindings!.valueFieldPath,
-                                      bindings!.valueAggregation!,
-                                      bindings!.valueFieldFormat
-                                  )
-                              ),
-                              source: dataSource,
-                              error: undefined as string | undefined,
-                          })),
-                          catchError(() =>
-                              of({
-                                  value: config.demoValue ?? '—',
-                                  source: 'demo' as const,
-                                  error: `${dataSource}-query-failed`,
-                              })
-                          )
-                      )
+                    ? this.resolveNumericMetric(config, dataSource)
                     : of({ value: config.demoValue ?? '—', source: 'demo' as const, error: undefined as string | undefined });
 
         return base$.pipe(
-            switchMap((base) =>
-                this.trendService.resolveTrend(config, comparisonPeriod).pipe(
-                    map((trend) => this.buildMetricData(config, base.value, base.source, base.error, trend))
-                )
-            )
+            switchMap((base: NumericMetricResult) => {
+                // Numeric metrics compute their own comparison (value of the field, not a row count).
+                const trend$ = base.trend !== undefined ? of(base.trend) : this.trendService.resolveTrend(config, comparisonPeriod);
+                return trend$.pipe(
+                    map((trend) => ({ ...this.buildMetricData(config, base.value, base.source, base.error, trend), sparkline: base.sparkline }))
+                );
+            })
         );
     }
 
@@ -354,6 +354,9 @@ export class DashboardWidgetRegistryService {
                     bars: series.bars,
                     values: series.values,
                     series: series.series,
+                    counts: series.counts,
+                    sums: series.sums,
+                    aggregation: chart.yAggregation ?? 'count',
                     loading: false,
                     source: dataSource,
                 };
@@ -372,12 +375,14 @@ export class DashboardWidgetRegistryService {
             return of(mergeFieldDescriptors(inferFieldDescriptors(rows, maxBuckets), fallback));
         }
 
+        // Process data also offers the derived `calc_*` fields (reconciliation and audit indicators).
+        const derived = dataSource === 'process' ? derivedFieldDescriptors() : [];
         return this.fetchRowsForChart(config, dataSource).pipe(
             map((rows) => {
                 const inferred = inferFieldDescriptors(rows, maxBuckets);
-                return inferred.length ? mergeFieldDescriptors(inferred, fallback) : fallback;
+                return mergeFieldDescriptors(inferred.length ? mergeFieldDescriptors(inferred, fallback) : fallback, derived);
             }),
-            catchError(() => of(fallback))
+            catchError(() => of(mergeFieldDescriptors(fallback, derived)))
         );
     }
 
@@ -455,17 +460,17 @@ export class DashboardWidgetRegistryService {
 
     private fetchRowsForChart(
         config: DashboardWidgetConfig,
-        dataSource: 'content' | 'process'
+        dataSource: 'content' | 'process',
+        range = this.periodService.dateRange
     ): Observable<Record<string, string>[]> {
         if (dataSource === 'process') {
-            const range = this.periodService.dateRange;
             return this.processQueryDataProvider.fetchRowsCoveringDateRange(config, range, CHART_MAX_ROWS).pipe(
                 switchMap((result) => {
                     if (result.error) {
                         return throwError(() => new Error(result.error));
                     }
 
-                    return of(result.rows.map((row) => flattenTableRow(row)));
+                    return this.withDerivedFields(config, result.rows.map((row) => flattenTableRow(row)));
                 })
             );
         }
@@ -473,6 +478,78 @@ export class DashboardWidgetRegistryService {
         return this.contentQueryDataProvider.fetchAll(config, CHART_MAX_ROWS, this.contentOptions(config)).pipe(
             map((result) => result.documents.map((row) => flattenTableRow(row as Record<string, unknown>)))
         );
+    }
+
+    /** Adds the `calc_*` columns the widget binds; loads the documentary checklist only when one needs it. */
+    private withDerivedFields(config: DashboardWidgetConfig, rows: Record<string, string>[]): Observable<Record<string, string>[]> {
+        const fields = widgetDerivedFields(config);
+        if (!fields.length) {
+            return of(rows);
+        }
+        const checklist$ = derivedFieldsNeedChecklist(fields)
+            ? from(this.loadChecklist()).pipe(catchError(() => of<DocumentationChecklist | null>(null)))
+            : of<DocumentationChecklist | null>(null);
+        return checklist$.pipe(map((checklist) => rows.map((row) => addDerivedFields(row, fields, checklist))));
+    }
+
+    private loadChecklist(): Promise<DocumentationChecklist | null> {
+        if (!this.checklistCache || Date.now() - this.checklistCache.at > CHECKLIST_TTL_MS) {
+            const result = this.checklistRepository.load().then((loaded) => loaded.checklist);
+            this.checklistCache = { at: Date.now(), result };
+            result.catch(() => (this.checklistCache = null));
+        }
+        return this.checklistCache.result;
+    }
+
+    /**
+     * Numeric metric over the active period (process data): value, comparison with the previous period
+     * of the same length and an optional sparkline, from one row fetch covering both periods.
+     */
+    private resolveNumericMetric(config: DashboardWidgetConfig, dataSource: 'content' | 'process'): Observable<NumericMetricResult> {
+        const bindings = config.bindings!;
+        const aggregation = bindings.valueAggregation as 'sum' | 'min' | 'max' | 'avg';
+        const range = this.periodService.dateRange;
+        const comparison = (config.comparisonPeriod ?? 'none') !== 'none' && dataSource === 'process';
+        const previous = previousComparisonRange(range);
+        const fetchRange = comparison ? { start: previous.start, end: range.end } : range;
+        return this.fetchRowsForChart(config, dataSource, fetchRange).pipe(
+            map((rows) => {
+                const fields = inferFieldDescriptors(rows, bindings.maxBuckets ?? 12);
+                const scoped = this.scopeRowsToDateRange(rows, dataSource, fields, config);
+                const aggregate = (subset: Record<string, string>[]) =>
+                    this.aggregateBoundField(subset, bindings.valueField!, bindings.valueFieldPath, aggregation, bindings.valueFieldFormat);
+                const current = aggregate(scoped);
+                const result: NumericMetricResult = { value: this.formatMetricValue(config, current), source: dataSource };
+                if (comparison) {
+                    const previousRows = filterRowsToDateRange(rows, 'startDate', previous);
+                    result.trend = previousRows.length
+                        ? // Same-length previous period of the dashboard range, so the label is the generic "vs previous period".
+                        this.trendService.computeDelta(current, aggregate(previousRows), 'none', !!config.metricOptions?.lowerIsBetter)
+                        : null;
+                }
+                if (config.metricOptions?.sparkline && dataSource === 'process') {
+                    result.sparkline = aggregateBySlices(
+                        scoped,
+                        bindings.valueField!,
+                        bindings.valueFieldPath,
+                        aggregation,
+                        'startDate',
+                        range,
+                        config.metricOptions.sparklineBuckets ?? 7
+                    ).map((value) => (value === null ? null : applyValueFieldFormat(value, bindings.valueFieldFormat)));
+                }
+                return result;
+            }),
+            catchError(() => of<NumericMetricResult>({ value: config.demoValue ?? '—', source: 'demo', error: `${dataSource}-query-failed` }))
+        );
+    }
+
+    /** Rounds to `metricOptions.decimals` (default 1, integers without decimals). */
+    private formatMetricValue(config: DashboardWidgetConfig, value: number): string {
+        const decimals = Math.max(0, Math.min(4, config.metricOptions?.decimals ?? 1));
+        const factor = 10 ** decimals;
+        const rounded = Math.round(value * factor) / factor;
+        return config.metricOptions?.grouping ? groupThousands(rounded) : String(rounded);
     }
 
     private emptyChartData(source: DashboardChartWidgetData['source'], error: string): DashboardChartWidgetData {

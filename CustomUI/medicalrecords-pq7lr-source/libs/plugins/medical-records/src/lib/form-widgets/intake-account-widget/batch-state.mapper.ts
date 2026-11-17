@@ -3,7 +3,7 @@ import {
     IntakeDocumentClassificationRule,
     IntakeSupportHeuristicsConfig,
 } from './intake-heuristics.types';
-import intakeSupportHeuristics from './intake-support-heuristics.json';
+import * as intakeSupportHeuristicsModule from './intake-support-heuristics.json';
 import {
     BatchStateDocument,
     BatchStateField,
@@ -23,9 +23,17 @@ import {
     IntakeServiceStatus
 } from './intake-account-view.model';
 
+import {
+    BILLING_FIELDS,
+    normalizeIdentifier,
+    normalizeKey,
+    PLACEHOLDER_FIELD_TOKENS,
+} from './batch-state-billing-fields';
+
 type DocumentKind = IntakeDocumentKind;
 
-const INTAKE_SUPPORT_HEURISTICS = intakeSupportHeuristics as IntakeSupportHeuristicsConfig;
+// Jest runs without esModuleInterop: the JSON module may arrive as the namespace or as its `default`.
+const INTAKE_SUPPORT_HEURISTICS = ((intakeSupportHeuristicsModule as { default?: unknown }).default ?? intakeSupportHeuristicsModule) as IntakeSupportHeuristicsConfig;
 
 interface DocumentProfile {
     sourceKind: DocumentKind;
@@ -91,21 +99,6 @@ const EMPTY_MESSAGE = 'No fue posible leer batchState. Verifica que el formulari
 const STAGES = ['Intake', 'Analysis', 'Approval', 'Execution', 'Review', 'Completed'];
 const LOW_CONFIDENCE_THRESHOLD = 0.9;
 const DEFAULT_FILTER: IntakeServiceFilterKey = 'all';
-
-const BILLING_FIELDS = {
-    patientName: ['Nombre del Paciente', 'Paciente'],
-    patientId: ['Cedula', 'No. Carnet', 'Numero de Carnet', 'Document Number'],
-    mrn: ['Record', 'MRN', 'Historia Clinica'],
-    dob: ['Fecha Nacimiento', 'Fecha de Nacimiento'],
-    ageLabel: ['Edad'],
-    provider: ['Prestador', 'IPS', 'Institucion', 'Hospital', 'Centro Medico'],
-    invoiceNumber: ['Numero de Factura', 'Factura', 'No. Factura'],
-    admissionDate: ['Fecha Admision', 'Fecha de Admision', 'Fecha Ingreso'],
-    dischargeDate: ['Fecha De Alta', 'Fecha de Alta', 'Fecha Egreso'],
-    insurancePlan: ['Plan', 'Contratante', 'ARS', 'Aseguradora'],
-} as const;
-
-const PLACEHOLDER_FIELD_TOKENS = new Set(['NULL', 'NA', 'NONE', 'NIL', 'UNKNOWN', 'UNDEFINED']);
 
 export const INTAKE_PATIENT_FIELD_ALIASES = {
     patientName: BILLING_FIELDS.patientName,
@@ -210,6 +203,33 @@ export function mapBatchStateToIntakeAccountViewModel(batchState: BatchStateSour
         return createEmptyIntakeAccountViewModel('No fue posible asociar documentos a una cuenta medica.');
     }
 
+    return buildIntakeViewModel(batchState, clusters, selectedCluster);
+}
+
+/**
+ * Intake view of an explicit set of documents (one customer invoice and its supporting documents,
+ * as grouped by the IDP account mapping). Every document joins a single cluster: the patient is
+ * already identified upstream, so there is no patient selector and nothing to merge.
+ */
+export function mapBatchStateToIntakeForDocuments(batchState: BatchStateSource, documentIds: readonly string[]): IntakeAccountViewModel {
+    const ids = new Set(documentIds);
+    const documents = (Array.isArray(batchState.documents) ? batchState.documents : []).filter((document) => !!document && ids.has(document.id));
+
+    if (!documents.length) {
+        return createEmptyIntakeAccountViewModel('No se encontraron documentos en batchState.');
+    }
+
+    const [first, ...rest] = documents.reduce<AccountSeed[]>((collection, document) => {
+        collection.push(...buildSeedsFromDocument(document));
+        return collection;
+    }, []);
+    const cluster = finalizeCluster({ ...first, assistedMerged: false });
+    rest.forEach((seed) => mergeSeedIntoCluster(cluster, seed, false));
+
+    return buildIntakeViewModel(batchState, [cluster], cluster);
+}
+
+function buildIntakeViewModel(batchState: BatchStateSource, clusters: AccountCluster[], selectedCluster: AccountCluster): IntakeAccountViewModel {
     const services = buildServiceItems(selectedCluster);
     const documentsView = buildDocumentItems(selectedCluster, batchState);
     const alerts = buildAlerts(batchState, selectedCluster, services, documentsView);
@@ -582,6 +602,16 @@ function toServiceCard(cluster: AccountCluster, service: ServiceSeedRow): Intake
         hasReviewRequired,
         hasLowConfidence,
     };
+}
+
+/**
+ * Document rows for an explicit set of documents (e.g. one customer invoice and its supporting
+ * documents as grouped by the IDP account mapping), without the patient clustering.
+ */
+export function buildDocumentItemsFor(batchState: BatchStateSource, documentIds: readonly string[]): IntakeAccountDocumentItemViewModel[] {
+    const ids = new Set(documentIds);
+    const documents = (Array.isArray(batchState.documents) ? batchState.documents : []).filter((document) => !!document && ids.has(document.id));
+    return buildDocumentItems({ documents } as AccountCluster, batchState);
 }
 
 function buildDocumentItems(cluster: AccountCluster, batchState: BatchStateSource): IntakeAccountDocumentItemViewModel[] {
@@ -1011,7 +1041,7 @@ function toServiceSeedRow(
     }
 
     const serviceCode = trimOrNull(rowMap.get('SERVICIO') ?? null);
-    const cup = trimOrNull(rowMap.get('CUP') ?? rowMap.get('CUPS') ?? null);
+    const cup = trimOrNull(rowMap.get('CUP') ?? rowMap.get('CUPS') ?? rowMap.get('CUP CUM') ?? rowMap.get('CODIGO') ?? null);
     const description = trimOrNull(rowMap.get('DESCRIPCION') ?? null);
     const quantity = trimOrNull(rowMap.get('CANTIDAD') ?? null);
     const price = trimOrNull(rowMap.get('PRECIO') ?? null);
@@ -1425,24 +1455,6 @@ function formatDate(value: Date): string {
     const month = `${value.getUTCMonth() + 1}`.padStart(2, '0');
     const day = `${value.getUTCDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
-
-function normalizeKey(value: unknown): string {
-    return String(value ?? '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, ' ')
-        .trim()
-        .toUpperCase();
-}
-
-function normalizeIdentifier(value: unknown): string {
-    return String(value ?? '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9]+/g, '')
-        .trim()
-        .toUpperCase();
 }
 
 function createInitials(name: string | null): string {

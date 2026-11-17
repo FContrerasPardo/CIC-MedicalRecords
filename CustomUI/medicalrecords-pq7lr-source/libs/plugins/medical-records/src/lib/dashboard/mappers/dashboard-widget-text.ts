@@ -16,6 +16,12 @@ export function resolveWidgetText(
 
     if (trimmed) {
 
+        // A title may be an i18n key (e.g. the demo template), so it follows the UI language.
+        if (/^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$/.test(trimmed)) {
+            const translated = translate.instant(trimmed);
+            return translated && translated !== trimmed ? translated : trimmed;
+        }
+
         return trimmed;
 
     }

@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DashboardBuilderPaletteComponent } from '../../dashboard/components/dashboard-builder-palette/dashboard-builder-palette.component';
+import { DashboardBuilderPaletteComponent, DashboardPalettePreset } from '../../dashboard/components/dashboard-builder-palette/dashboard-builder-palette.component';
 import { DashboardBuilderThemePanelComponent } from '../../dashboard/components/dashboard-builder-theme-panel/dashboard-builder-theme-panel.component';
 import { DashboardBuilderLayoutSourcePanelComponent } from '../../dashboard/components/dashboard-builder-layout-source-panel/dashboard-builder-layout-source-panel.component';
 import { DashboardBuilderStructureEditorModalComponent } from '../../dashboard/components/dashboard-builder-structure-editor-modal/dashboard-builder-structure-editor-modal.component';
@@ -399,7 +399,7 @@ export class DashboardBuilderShellComponent implements OnInit, AfterViewInit, On
         }
     }
 
-    addWidget(event: { type: DashboardWidgetType; preset?: 'outcome-distribution' }): void {
+    addWidget(event: { type: DashboardWidgetType; preset?: DashboardPalettePreset }): void {
         const containerId = this.activeContainerId;
         const container = findContainer(this.layout.pages, containerId)?.container;
         if (!container) {
@@ -409,7 +409,9 @@ export class DashboardBuilderShellComponent implements OnInit, AfterViewInit, On
         const widget =
             event.preset === 'outcome-distribution'
                 ? this.layoutService.createOutcomeDistributionWidget(container.id, container.layoutMode)
-                : this.layoutService.createWidget(event.type, container.id, container.layoutMode);
+                : event.preset === 'kpi-in-progress'
+                  ? this.layoutService.createKpiCardWidget(event.preset, container.id, container.layoutMode)
+                  : this.layoutService.createWidget(event.type, container.id, container.layoutMode);
 
         const widgets = { ...this.layout.widgets, [widget.id]: widget };
         const pages = this.layout.pages.map((page) => ({
@@ -575,6 +577,8 @@ export class DashboardBuilderShellComponent implements OnInit, AfterViewInit, On
         this.structureModalOpen = false;
         this.syncActiveContainer();
         this.savedMessage = 'MEDICAL_RECORDS.DASHBOARD_BUILDER.RESET_DONE';
+        // The demo template is also written to Appdata (the active layout file), so nobody uploads it by hand.
+        this.saveLayout();
     }
 
     updateSelectedWidget(patch: Partial<DashboardWidgetConfig>): void {

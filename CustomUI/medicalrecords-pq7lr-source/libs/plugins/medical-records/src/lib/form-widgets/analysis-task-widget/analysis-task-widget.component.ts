@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WidgetComponent } from '@alfresco/adf-core';
 import { DocumentService } from '@alfresco/adf-hx-content-services/services';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, inject, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, inject, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Document } from '@hylandsoftware/hxcs-js-client';
 import { TranslateModule } from '@ngx-translate/core';
 import { take } from 'rxjs/operators';
@@ -69,6 +69,12 @@ const CONTRACT_DOCUMENT = {
 })
 export class AnalysisTaskWidgetComponent extends WidgetComponent implements OnDestroy {
     @ViewChild('findingsPanel') findingsPanel?: ElementRef<HTMLElement>;
+
+    /**
+     * Embedded in the case view (outside the task form, read-only v1): there is no native
+     * attach-file field, so the upload affordance is hidden. Subsanations stay in this view.
+     */
+    @Input() embedded = false;
 
     filterAgentId: AgentFieldId | null = null;
     filterRiskTone: RiskTone | null = null;

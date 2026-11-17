@@ -1,0 +1,111 @@
+<section class="mr-diagnostics" [class.mr-diagnostics--collapsed]="collapsed()" [attr.aria-label]="'MEDICAL_RECORDS.DIAGNOSTICS.TITLE' | translate">
+    <header class="mr-diagnostics__header">
+        <button type="button" class="mr-diagnostics__title" (click)="collapsed.set(!collapsed())" [attr.aria-expanded]="!collapsed()">
+            <span class="material-icons" aria-hidden="true">troubleshoot</span>
+            {{ 'MEDICAL_RECORDS.DIAGNOSTICS.TITLE' | translate }}
+            <span class="mr-diagnostics__count">{{ diagnostics.probes().length }}</span>
+        </button>
+        <span class="mr-diagnostics__actions">
+            <button type="button" (click)="diagnostics.download()" [disabled]="!diagnostics.probes().length">
+                <span class="material-icons" aria-hidden="true">download</span>
+                {{ 'MEDICAL_RECORDS.DIAGNOSTICS.DOWNLOAD' | translate }}
+            </button>
+            <button
+                type="button"
+                class="mr-diagnostics__variables"
+                (click)="pickerOpen.set(!pickerOpen())"
+                [attr.aria-expanded]="pickerOpen()"
+                [disabled]="!diagnostics.capturedVariables()"
+                [title]="'MEDICAL_RECORDS.DIAGNOSTICS.VARIABLES_WARNING' | translate"
+            >
+                <span class="material-icons" aria-hidden="true">data_object</span>
+                {{ 'MEDICAL_RECORDS.DIAGNOSTICS.DOWNLOAD_VARIABLES' | translate: { count: diagnostics.capturedVariables() } }}
+            </button>
+            <button type="button" (click)="diagnostics.clear()">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.CLEAR' | translate }}</button>
+            <button type="button" (click)="close()" [attr.aria-label]="'MEDICAL_RECORDS.DIAGNOSTICS.CLOSE' | translate">
+                <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+        </span>
+    </header>
+
+    <div class="mr-diagnostics__body" *ngIf="!collapsed()">
+        <p class="mr-diagnostics__note">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.NOTE' | translate }}</p>
+        <p class="mr-diagnostics__note mr-diagnostics__note--warn">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.VARIABLES_WARNING' | translate }}</p>
+        <section class="mr-diagnostics__picker" *ngIf="pickerOpen() && diagnostics.variableNames().length" [attr.aria-label]="'MEDICAL_RECORDS.DIAGNOSTICS.PICK_VARIABLES' | translate">
+            <header>
+                <strong>{{ 'MEDICAL_RECORDS.DIAGNOSTICS.PICK_VARIABLES' | translate }}</strong>
+                <button type="button" (click)="selectAllVariables(true)">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.SELECT_ALL' | translate }}</button>
+                <button type="button" (click)="selectAllVariables(false)">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.SELECT_NONE' | translate }}</button>
+            </header>
+            <ul>
+                <li *ngFor="let name of diagnostics.variableNames()">
+                    <label>
+                        <input type="checkbox" [checked]="selectedNames().has(name)" (change)="toggleVariable(name)" />
+                        <code>{{ name }}</code>
+                    </label>
+                </li>
+            </ul>
+            <button type="button" class="mr-diagnostics__picker-download" (click)="downloadSelectedVariables()" [disabled]="!selectedCount()">
+                <span class="material-icons" aria-hidden="true">download</span>
+                {{ 'MEDICAL_RECORDS.DIAGNOSTICS.DOWNLOAD_SELECTED' | translate: { count: selectedCount() } }}
+            </button>
+        </section>
+        <p class="mr-diagnostics__empty" *ngIf="!diagnostics.probes().length">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.EMPTY' | translate }}</p>
+
+        <table *ngIf="diagnostics.probes().length">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.KIND' | translate }}</th>
+                    <th scope="col">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.REQUEST' | translate }}</th>
+                    <th scope="col">ms</th>
+                    <th scope="col">{{ 'MEDICAL_RECORDS.DIAGNOSTICS.ROWS' | translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let probe of diagnostics.probes(); trackBy: trackProbe">
+                    <tr class="mr-diagnostics__row" [class.mr-diagnostics__row--error]="probe.error" (click)="toggleProbe(probe)">
+                        <td>
+                            <span class="mr-diagnostics__kind">{{ probe.kind }}</span>
+                            <span class="mr-diagnostics__cache" *ngIf="probe.cacheHit">cache</span>
+                        </td>
+                        <td class="mr-diagnostics__label">{{ probe.label }}<span *ngIf="probe.error"> · {{ probe.error }}</span></td>
+                        <td>{{ probe.durationMs | number }}</td>
+                        <td>
+                            {{ probe.rows ?? '–' }}<span *ngIf="probe.totalCount !== undefined"> / {{ probe.totalCount }}</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="expandedId() === probe.id && (probe.fields?.length || probe.tables?.length)">
+                        <td colspan="4">
+                            <section class="mr-diagnostics__table" *ngFor="let table of probe.tables ?? []">
+                                <h3>{{ table.title }}</h3>
+                                <p class="mr-diagnostics__note" *ngIf="table.request"><code>{{ table.request }}</code> · {{ table.error ? 'FAILED' : 'OK' }} · {{ table.rows.length }}</p>
+                                <p class="mr-diagnostics__note mr-diagnostics__note--error" *ngIf="table.error">{{ table.error }}</p>
+                                <p class="mr-diagnostics__note" *ngIf="table.note">{{ table.note }}</p>
+                                <table *ngIf="table.rows.length">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" *ngFor="let column of table.columns">{{ column }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let row of table.rows">
+                                            <td *ngFor="let cell of row">{{ cell || '—' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                            <ul class="mr-diagnostics__fields" *ngIf="probe.fields?.length">
+                                <li *ngFor="let field of probe.fields">
+                                    <code>{{ field.name }}</code>
+                                    <span>{{ field.types.join('|') }}</span>
+                                    <span>{{ field.present }}/{{ probe.rows ?? '?' }}</span>
+                                    <span *ngIf="field.samples?.length" class="mr-diagnostics__samples">{{ field.samples?.join(', ') }}</span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</section>

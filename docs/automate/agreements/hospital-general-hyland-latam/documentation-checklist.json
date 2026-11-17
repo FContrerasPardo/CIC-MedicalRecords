@@ -1,0 +1,245 @@
+{
+  "kind": "medical-records.documentation-checklist",
+  "schemaVersion": 1,
+  "rulesetId": "DOC-ARSP-HGHL-2026",
+  "name": "Checklist documental Hospital General HYLAND LATAM – ARS Primera",
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "payer": "ARS Primera",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "rules": [
+    {
+      "ruleId": "SIF-001",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Invoice with its service breakdown.",
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-002",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Admission sheet of the stay.",
+      "requiredDocuments": [
+        "Planilla de Admisión"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-003",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Payer claim form.",
+      "requiredDocuments": [
+        "Formulario de Reclamación (ARS Primera)"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-004",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Affiliation card of the patient.",
+      "requiredDocuments": [
+        "Carnet de Afiliación"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-010",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Laboratory results for the billed laboratory services.",
+      "requiredDocuments": [
+        "Laboratorios"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Laboratory services billed on the invoice"
+    },
+    {
+      "ruleId": "SIF-011",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Pathology report for the billed pathology services.",
+      "requiredDocuments": [
+        "Reporte de Patología"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Pathology services billed on the invoice"
+    },
+    {
+      "ruleId": "SIF-012",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Surgical report for the billed surgical services.",
+      "requiredDocuments": [
+        "Informe quirúrgico"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Surgical services billed (operating room, surgeons, assistants, surgical procedure)"
+    },
+    {
+      "ruleId": "SIF-013",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Procedure order or payer authorization.",
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Any surgery, hospitalization or procedure billed above RD$ 50,000: the authorization is always required, even when its number is on the invoice"
+    },
+    {
+      "ruleId": "SIF-014",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Prescription for the billed outpatient medication.",
+      "requiredDocuments": [
+        "Receta Médica"
+      ],
+      "riskLevelIfMissing": "LOW",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Outpatient medication billed"
+    },
+    {
+      "ruleId": "SIF-015",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Nursing notes for multi-night stays (agreement clause, demo).",
+      "requiredDocuments": [
+        "Nota de Enfermeria"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Hospitalization of two or more nights"
+    },
+    {
+      "ruleId": "MIO-001",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Each invoice with its service breakdown.",
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "MULTI_INVOICE_INVOICE_ONLY"
+      ],
+      "condition": ""
+    }
+  ]
+}

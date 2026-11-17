@@ -34,6 +34,7 @@ import { resolveActivePageId } from '../../utils/dashboard-layout-structure.util
 
 export class DashboardOverviewComponent implements OnInit {
 
+
     @Output() processSelected = new EventEmitter<ProcessAttentionItem>();
 
 
@@ -112,6 +113,7 @@ export class DashboardOverviewComponent implements OnInit {
 
     private applyLayout(layout: ReturnType<DashboardLayoutService['getLayout']>): void {
 
+        // The view renders the saved layout exactly as the builder does: same pages, order and geometry.
         this.pages = layout.pages;
 
         this.widgets = layout.widgets;

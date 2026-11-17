@@ -167,6 +167,19 @@ El bloque `_customApp` en `contexts.json5` contiene:
 
 ## Procesos, tareas y subprocesos
 
+### Inicio Centro de Operaciones (2026-11-11)
+
+- Primer corte de unificacion visual, relacionado con #128/#132: `/medical-records`
+  muestra `pages/operations-home/` y reutiliza el overview, grilla, KPI, consultas
+  y widgets existentes. La accion Nueva Cuenta conserva el inicio nativo de Automate.
+- El inicio usa todo el ancho disponible, indicadores fluidos y cola de tareas
+  antes de los graficos. La variante `operationsMode` presenta los widgets sin
+  las coordenadas fijas del canvas; el editor y el layout guardado se conservan.
+- No implementa aun selector de roles, historia por cuenta ni paginas clinica,
+  medico y ARS; #132 no se considera completada. No se modificaron contratos.
+- Textos nuevos en los siete idiomas (en/es/pt traducidos; otros con TODO).
+  Build, tests y validacion visual pendientes de autorizacion/revision del usuario.
+
 ### Continuidad: evaluacion Oncopilot / OncoTask (2026-11-10)
 
 - Handoff completo para otra maquina: `docs/oncology-clinic-ars-handoff.md`.

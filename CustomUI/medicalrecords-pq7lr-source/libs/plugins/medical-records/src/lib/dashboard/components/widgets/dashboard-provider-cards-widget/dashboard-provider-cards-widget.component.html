@@ -1,0 +1,79 @@
+<section class="provider-cards" [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.ARIA' | translate">
+    <header class="provider-cards__header">
+        <h3 *ngIf="config.title || config.titleKey">{{ config.title | dashboardWidgetText: config.titleKey }}</h3>
+        <label class="provider-cards__search" *ngIf="showSearch">
+            <span class="material-icons" aria-hidden="true">search</span>
+            <input
+                type="search"
+                [value]="search"
+                (input)="onSearch($any($event.target).value)"
+                [placeholder]="'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.SEARCH' | translate"
+                [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.SEARCH' | translate"
+            />
+        </label>
+        <button
+            type="button"
+            class="provider-cards__filter-chip"
+            *ngIf="selectedKey"
+            (click)="clearSelection()"
+            [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.CLEAR_FILTER' | translate"
+        >
+            <span class="material-icons" aria-hidden="true">filter_alt</span>
+            {{
+                'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.FILTERING'
+                    | translate: { name: selectedLabel || ('MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.UNIDENTIFIED' | translate) }
+            }}
+            <span class="material-icons" aria-hidden="true">close</span>
+        </button>
+        <span
+            class="provider-cards__origin"
+            *ngIf="originKey"
+            [ngClass]="state === 'ready' ? 'origin-live' : 'origin-error'"
+            >{{ originKey | translate }}</span
+        >
+    </header>
+
+    <p class="provider-cards__notice" role="status" *ngIf="state === 'ready' && partial">
+        <span class="material-icons" aria-hidden="true">warning_amber</span>
+        {{ 'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.PARTIAL' | translate: { limit: enrichLimit } }}
+    </p>
+
+    <p class="provider-cards__state" role="status" *ngIf="state === 'loading'">
+        {{ 'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.LOADING' | translate }}
+    </p>
+    <p class="provider-cards__state provider-cards__state--error" role="alert" *ngIf="state === 'error'">
+        {{ 'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.ERROR' | translate }}
+    </p>
+    <p class="provider-cards__state" *ngIf="state === 'ready' && !cards.length">
+        {{ 'MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.EMPTY' | translate }}
+    </p>
+
+    <div class="provider-cards__grid" *ngIf="state === 'ready' && cards.length">
+        <button
+            type="button"
+            class="provider-card"
+            *ngFor="let card of cards; trackBy: trackByCard"
+            [class.provider-card--unidentified]="isUnidentified(card)"
+            [class.provider-card--selected]="isSelected(card)"
+            [class.provider-card--dimmed]="!!selectedKey && !isSelected(card)"
+            [attr.aria-pressed]="isSelected(card)"
+            (click)="select(card)"
+        >
+            <span class="provider-card__head">
+                <span class="material-icons" aria-hidden="true">domain</span>
+                <span class="provider-card__name" [attr.title]="card.name">
+                    {{ card.name || ('MEDICAL_RECORDS.DASHBOARD.PROVIDER_CARDS.UNIDENTIFIED' | translate) }}
+                </span>
+                <span class="material-icons provider-card__chevron" aria-hidden="true">
+                    {{ isSelected(card) ? 'check_circle' : 'chevron_right' }}
+                </span>
+            </span>
+            <dl class="provider-card__kpis">
+                <div class="provider-card__kpi" *ngFor="let metric of metrics; trackBy: trackByMetric">
+                    <dt>{{ metric.label | translate }}</dt>
+                    <dd>{{ metricValue(card, metric) }}</dd>
+                </div>
+            </dl>
+        </button>
+    </div>
+</section>

@@ -1,5 +1,14 @@
 # IA Context - CIC-MedicalRecords
 
+## Uso selectivo (2026-11-19)
+
+Referencia técnica: buscar la sección necesaria, no cargar todo el archivo al iniciar.
+Trabajo actual: .claude/session-state.md e issue activa. Algunas secciones posteriores
+son históricas; no acreditan rama actual, despliegue ni runtime.
+La experiencia vigente integra radicación, convenios y trabajo por factura en páginas
+del plugin. Algunos widgets se reutilizan; no implican saltar a formularios nativos.
+Para un cambio concreto manda su contrato y el export de Automate correspondiente.
+
 ## Proposito
 
 Este archivo concentra el contexto operativo para asistentes de IA que colaboren
@@ -43,7 +52,7 @@ en este repositorio.
 
 ## Estado tecnico validado
 
-- Branch de trabajo actual/recomendado para este frente: `analysis-widget-redesign`.
+- Rama histórica del widget: `analysis-widget-redesign`. Consultar Git para la rama actual.
 - `codex/integration` queda como referencia historica de integracion anterior.
 - `main` queda como base estable.
 - La plantilla exige Node `>=24.14.0 <25.0.0` y npm `>=11.9.0 <12.0.0`.
@@ -94,8 +103,8 @@ El bloque `_customApp` en `contexts.json5` contiene:
   `@hyland/extend:plugin`.
 - Las pantallas de fases en `medical-records-shell` fueron una direccion visual
   inicial para igualar Stitch, no generadas con `@hyland/extend:page`.
-- Decision vigente: las etapas reales del workflow viven en formularios/widgets
-  de Automate, no en paginas internas del plugin.
+- Las etapas y contratos pertenecen a Automate; la experiencia actual se atiende
+  desde paginas integradas del plugin, reutilizando componentes cuando aplica.
 - El plugin `medical-records` debe evolucionar a un overview sin navegacion por
   etapas y redirigir/abrir tareas activas para continuar el flujo puntual.
 - La equivalencia de `--addTranslations true` se mantiene mediante

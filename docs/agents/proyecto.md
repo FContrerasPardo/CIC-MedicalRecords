@@ -6,7 +6,7 @@ Los roles son reutilizables; este archivo conserva los datos de esta demo.
 | Parámetro | Valor |
 | --- | --- |
 | Demo vigente | Cuentas Médicas / Latam Medical Billing: prevención de glosas con CIC/Automate; demostración, no productivo |
-| Ampliación propuesta | Clínica oncológica ↔ ARS; ver [handoff](../oncology-clinic-ars-handoff.md). Aún no redefine el proceso vigente |
+| Recorrido vigente | Prestador radica → ARS valida → auditor glosa/concilia; issues #129, #130, #150. Handoff oncológico histórico |
 | Repositorio | `FContrerasPardo/CIC-MedicalRecords` |
 | Ramas | `main` es base estable; trabajo UI en `refactor/integrated-ui`. Nuevas ramas según AGENTS.md |
 | Canon de origen | Worktree `C:\CIC-MR-canon`, rama `docs/agents-canon`, commit `2851908` |
@@ -18,7 +18,7 @@ Los roles son reutilizables; este archivo conserva los datos de esta demo.
 | Documentación de agentes | `docs/Agent Builder Config/`; derivada del export, actualizarla si lo contradice |
 | Configuración | `config/contexts.json5` es fuente de verdad; .env se genera y no se publica |
 | Contratos UI | batchState en intake y unifiedWidgetPayloadText en análisis; confirmar mappings en el export |
-| Navegación | Overview de tareas; las etapas reales viven en formularios/widgets de Automate |
+| Navegación | Páginas integradas del plugin para radicación, convenios y cuenta/factura; etapas y contratos definidos en Automate |
 | Idiomas | en.json es fuente; de/es/fr/it/pl/pt siguen las convenciones de CLAUDE.md |
 | Dominio | Salud: cuentas, autorizaciones, glosas y apelaciones. Origen de documentos por confirmar; no asumir que son sintéticos |
 | Artefactos vivos | Spec de demo, `docs/custom-ui/` y anexos de widgets/agentes; no hay un centro `docs/demo/` |

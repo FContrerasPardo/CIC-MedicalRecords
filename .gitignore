@@ -13,3 +13,4 @@ docs/backlog/.state.json
 
 # Local session state (context harness, see docs/agents/contexto.md)
 .claude/session-state.md
+.claude/session-state-history/

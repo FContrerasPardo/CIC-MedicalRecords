@@ -1,34 +1,29 @@
-# Project conventions (Claude Code)
+# Convenciones Angular de MedicalRecords
 
-This repo also has an `AGENTS.md` with token-saving rules — follow those too. This file adds the **verification workflow** for the Medical Records Angular 19 plugin under `CustomUI/medicalrecords-pq7lr-source/`.
+Aplicar AGENTS.md. Este archivo añade solo las reglas del plugin en
+CustomUI/medicalrecords-pq7lr-source/. No cargarlo para consultas ajenas a Angular.
 
-Shared role protocol and skill catalog: `docs/agents/README.md` and `docs/agents/skills.md`. Client profiles reference the shared documents; no Hyland plugin installation is implied. Project Codex adapters live in `.agents/skills/`; the existing Claude i18n skill keeps its script in `.claude/skills/i18n-key-audit/`.
+## Verificación
+- Durante iteración visual no ejecutar AOT. Usar el feedback del servidor del
+  usuario si está activo; no levantar otro por iniciativa propia.
+- Tests de lógica pura, solo autorizados:
+  npx nx test medical-records --testPathPattern=<spec>
+- Antes de un commit/push autorizado que afecte Angular, proponer:
+  npx nx build workspace-hxp --configuration=development
+  desde el workspace indicado. Requiere autorización explícita del comando;
+  pedir commit no la sustituye. Es la comprobación completa de plantillas,
+  bindings, tipos y SCSS; la librería no tiene target build.
+- Si se autoriza AOT, corregir fallos antes del commit. Si no, registrar pendiente.
+  Documentación sola no necesita build.
 
-## Main orchestrator agent (harness rule)
+## Traducciones
+- libs/plugins/medical-records/assets/i18n/en.json es la fuente.
+- de/es/fr/it/pl/pt: 0 faltantes, 0 sobrantes y 0 claves de código sin definir.
+- Claves nuevas sin traducir: [TODO] seguido del inglés.
+- Auditoría solo al cambiar traducciones y con autorización aplicable.
 
-The main Claude session is the **orchestrator**: the user's single interlocutor, owner of the plan, decisions, integration and final report. It manages sub-sessions (`start_session`, for self-contained tasks with their own branch) and subagents (`.claude/agents/hyland-*`, for bounded work whose result returns this turn), and verifies their output before reporting. Delegation never widens permissions: build, commit, push, PR, merge, publishing, history rewrites and PII handling still need the user's authorization in the turn. Full protocol: `docs/agents/README.md` → "Agente principal orquestador".
-
-## Persistent context (harness)
-Hooks in `.claude/settings.json` re-inject `.claude/session-state.md` on start/resume/compact, snapshot it before compaction and ask for a checkpoint when the conversation grows. Durable context goes to issues. Protocol: `docs/agents/contexto.md`; skill: `context-checkpoint`.
-
-## Verification workflow
-
-**During iteration (template / SCSS / logic tweaks): do NOT run the AOT build.** It's slow and competes with the user's running dev server.
-- A dev server (`nx serve workspace-hxp`) is usually running with HMR — rely on it for compile feedback. If the user reports a compile error from their terminal, fix it.
-- Run only fast, relevant checks:
-  - `npx nx test medical-records --testPathPattern=<spec>` — only when changing mapper / pure logic.
-  - i18n validation — only when changing translations.
-- For purely visual tweaks, run nothing; let HMR show the result.
-
-**Before an authorized commit/push affecting the Angular plugin: propose the AOT build as the final gate.** Run it only with the explicit command authorization required by `AGENTS.md`; otherwise report the gate as pending. Documentation-only changes do not require this build.
-- `npx nx build workspace-hxp --configuration=development` (run from `CustomUI/medicalrecords-pq7lr-source`).
-- This is the only thing that type-checks the plugin's **templates**: the `medical-records` library has no `build` target (only `lint`, `stylelint`, `test`), and unit tests don't compile component templates. So the app build is what catches template/binding/type/SCSS errors.
-- Fix any failure before committing.
-
-## i18n
-- `libs/plugins/medical-records/assets/i18n/en.json` is the source of truth.
-- The 6 other locales (de, es, fr, it, pl, pt) must stay in sync: **0 missing, 0 extra**, and **0 code drift** (every key used in `.ts`/`.html` must exist in en.json). New locale keys land as `[TODO] <english>` placeholders.
-
-## Notes
-- `nx lint` and `nx stylelint` currently fail for environment/config reasons unrelated to code changes (the `hxp/restrict-changes-to-plugins` rule can't resolve git from the workspace subdir; stylelint lacks a config for some files). Don't treat their failures as caused by your change.
-- The analysis task widget is read-only v1 — its buttons are visual only and do not write Automate variables.
+## Límites conocidos
+- Se han registrado fallos previos de lint/stylelint por configuración; contrastar
+  la evidencia actual antes de atribuirlos al cambio.
+- Acciones visuales o simuladas no acreditan escritura en Automate; comprobar
+  el componente y el contrato vigente de la tarea.

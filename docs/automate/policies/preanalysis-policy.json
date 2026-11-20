@@ -40,7 +40,7 @@
         "alwaysRequired": [
           { "className": "Factura y Desglose", "ruleId": "SIF-001", "risk": "HIGH" },
           { "className": "Planilla de Admisión", "ruleId": "SIF-002", "risk": "HIGH" },
-          { "className": "Formulario de Reclamación (ARS Primera)", "ruleId": "SIF-003", "risk": "MEDIUM" },
+          { "className": "Formulario de Reclamación", "ruleId": "SIF-003", "risk": "MEDIUM" },
           { "className": "Carnet de Afiliación", "ruleId": "SIF-004", "risk": "MEDIUM" }
         ],
         "conditionallyRequired": [

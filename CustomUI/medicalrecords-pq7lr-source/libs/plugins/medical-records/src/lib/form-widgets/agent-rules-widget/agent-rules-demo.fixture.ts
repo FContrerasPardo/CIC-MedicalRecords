@@ -4,8 +4,8 @@ export const AGREEMENT_GENERAL_DEMO: AgreementGeneralViewModel = {
     providerName: 'CM-UCE',
     providerDisplayName: 'Centro Médico UCE',
     agreementBadge: 'MASTER AGREEMENT',
-    contractId: 'CONV-ARS-PRIMERA-2024',
-    payer: 'ARS Primera',
+    contractId: 'CONV-HARS-2024',
+    payer: 'Hyland ARS',
     planName: 'Plan de Salud Unificado',
     legalRepresentative: 'Dr. Carlos Méndez',
     contractType: 'Evento',
@@ -101,9 +101,9 @@ const NUEVA_EPS_GENERAL: AgreementGeneralViewModel = {
 
 export const PAYER_SIDEBAR_PROFILES: PayerSidebarProfile[] = [
     {
-        id: 'ars-primera',
+        id: 'hyland-ars',
         category: 'EPS • SALUD',
-        name: 'ARS Primera',
+        name: 'Hyland ARS',
         status: 'ACTIVE',
         bindsRealPayload: true,
         footerLabel: 'Expires: Dec 2024',

@@ -1,0 +1,82 @@
+<section class="panel" aria-labelledby="documents-title">
+    <div class="panel__head">
+        <div>
+            <h2 id="documents-title"><span class="material-icons" aria-hidden="true">folder_open</span>{{ i18n + '.DOCUMENTS.TITLE' | translate }}</h2>
+            <p class="panel__lead">{{ i18n + '.DOCUMENTS.LEAD' | translate }}</p>
+        </div>
+    </div>
+    <div class="tab-help">
+        <medical-records-agreement-help-coach topic="DOCUMENTS" [active]="active"></medical-records-agreement-help-coach>
+    </div>
+
+    @if (error) {
+        <p class="source source--invalid" role="alert">{{ i18n + '.DOCUMENTS.ERROR_' + error | translate }}</p>
+    }
+    @if (done) {
+        <p class="source source--appdata" role="status">{{ i18n + '.DOCUMENTS.DONE_' + done | translate }}</p>
+    }
+
+    <div class="ag-docs">
+        <div>
+            <form class="ag-docs-form" (ngSubmit)="upload()">
+                <label>
+                    <span>{{ i18n + '.DOCUMENTS.TYPE' | translate }}</span>
+                    <select name="uploadType" [(ngModel)]="uploadType">
+                        @for (option of types; track option) {
+                            <option [ngValue]="option">{{ i18n + '.DOCUMENTS.TYPE_' + option | translate }}</option>
+                        }
+                    </select>
+                </label>
+                <label>
+                    <span>{{ i18n + '.DOCUMENTS.VALID_FROM' | translate }}</span>
+                    <input type="date" name="validFrom" [(ngModel)]="validFrom" />
+                </label>
+                <label>
+                    <span>{{ i18n + '.DOCUMENTS.VALID_TO' | translate }}</span>
+                    <input type="date" name="validTo" [(ngModel)]="validTo" />
+                </label>
+                <div class="ag-docs-form__actions">
+                    <button type="submit" class="btn btn--primary" [disabled]="!pickerAvailable || working || !file">
+                        <span class="material-icons" aria-hidden="true">upload_file</span>{{ i18n + '.DOCUMENTS.UPLOAD' | translate }}
+                    </button>
+                </div>
+                @if (!pickerAvailable) {
+                    <p class="source source--default" role="note">{{ i18n + '.DOCUMENTS.PICKER_UNAVAILABLE' | translate }}</p>
+                }
+            </form>
+
+            <h3 class="doc-subtitle">{{ i18n + '.DOCUMENTS.CONTRACT' | translate }}</h3>
+            <ul class="ag-docs__list">
+                @for (entry of files; track entry.documentId + entry.name) {
+                    <li class="ag-docs__item">
+                        <span class="material-icons" aria-hidden="true">{{ entry.type === 'CONTRACT' ? 'gavel' : 'description' }}</span>
+                        <span class="ag-docs__main">
+                            <strong>{{ entry.name }}</strong>
+                            <small>
+                                {{ i18n + '.DOCUMENTS.TYPE_' + entry.type | translate }} · {{ entry.validFrom || '—' }} → {{ entry.validTo || '—' }}
+                                @if (entry.declared) {
+                                    · {{ i18n + '.DOCUMENTS.DECLARED' | translate }}
+                                }
+                            </small>
+                        </span>
+                        <span class="status status--{{ validity(entry) | lowercase }}">{{ i18n + '.DOCUMENTS.VALIDITY_' + validity(entry) | translate }}</span>
+                        <button type="button" class="btn" (click)="view(entry)" [disabled]="!entry.documentId">
+                            <span class="material-icons" aria-hidden="true">visibility</span>{{ i18n + '.DOCUMENTS.VIEW' | translate }}
+                        </button>
+                        @if (!entry.declared) {
+                            <button type="button" class="icon-btn icon-btn--danger" (click)="remove(entry)" [disabled]="working" [attr.aria-label]="(i18n + '.DOCUMENTS.REMOVE' | translate) + ' ' + entry.name">
+                                <span class="material-icons" aria-hidden="true">link_off</span>
+                            </button>
+                        }
+                    </li>
+                } @empty {
+                    <li class="panel__lead">{{ i18n + '.DOCUMENTS.EMPTY' | translate }}</li>
+                }
+            </ul>
+        </div>
+    </div>
+</section>
+
+@if (viewerDocument) {
+    <medical-records-case-document-viewer [document]="viewerDocument" (closed)="viewerDocument = null" />
+}

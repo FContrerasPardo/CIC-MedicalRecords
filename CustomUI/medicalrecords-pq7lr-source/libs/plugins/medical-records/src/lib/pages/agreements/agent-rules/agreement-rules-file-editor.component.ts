@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AgentRulesListItem, AgentRulesSectionViewModel } from '../../../form-widgets/agent-rules-widget/agent-rules-widget.model';
 import { getListKeyForItem, getTariffModifierLabel, getTariffModifierTone, mapToViewModel } from '../../../form-widgets/agent-rules-widget/agent-rules.mapper';
+import { AssistantDraftRequest } from '../assistant/rule-assistant.model';
 import { addUniqueValue } from '../checklist/documentation-checklist.util';
 import { AgreementFileStatusComponent } from '../shared/agreement-file-status.component';
 import { AgreementFileLoadResult, AgreementRepositoryService } from '../store/agreement-repository.service';
@@ -62,10 +63,13 @@ const ID_PREFIX: Partial<Record<AgreementFileKind, string>> = {
 })
 export class AgreementRulesFileEditorComponent implements OnChanges {
     private readonly repository = inject(AgreementRepositoryService);
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
     @Input() agreementId = '';
     @Input({ required: true }) kind!: AgreementFileKind;
     @Input() file: AgreementFileLoadResult | null = null;
+    /** A row proposed by the rules assistant, added to the draft and highlighted. */
+    @Input() assistantDraft: AssistantDraftRequest | null = null;
     @Output() saved = new EventEmitter<void>();
 
     readonly i18n = I18N;
@@ -82,6 +86,8 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
     saveError = false;
     savedVersion: string | null = null;
     expanded = new Set<number>();
+    /** Rows added by the assistant in the current draft (highlighted). */
+    assistantRows = new Set<number>();
 
     get consumer(): { agent: string; variable: string | null } {
         return AGREEMENT_FILE_CONSUMERS[this.kind];
@@ -103,10 +109,38 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
         return this.issues.length;
     }
 
-    ngOnChanges(): void {
-        if (!this.draft) {
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['file'] && !this.draft) {
             this.rebuild(this.file?.content ?? null);
         }
+        if (changes['assistantDraft'] && this.assistantDraft?.proposal.kind === this.kind) {
+            this.addProposedRow(this.assistantDraft.proposal.row);
+        }
+    }
+
+    /** Rules assistant: opens the editor (when closed), appends the proposed row, expands and highlights it. */
+    addProposedRow(row: JsonObject): void {
+        const config = AGENT_RULES_LIST[this.kind];
+        if (!this.draft) {
+            this.startEdit();
+        }
+        if (!this.draft || !config) {
+            return;
+        }
+        if (this.mode === 'json') {
+            this.mode = 'form';
+        }
+        const rows = this.rows();
+        this.draft[config.listKey] = [...rows, cloneJson(row)];
+        this.expanded.add(rows.length);
+        this.assistantRows.add(rows.length);
+        this.syncFromDraft();
+        setTimeout(() => this.host.nativeElement.querySelector('.assistant-new')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+    }
+
+    /** Tariff status chip: authorization required, or active. */
+    tariffStatus(row: number): 'AUTH' | 'ACTIVE' {
+        return this.rowValueOf(row, 'requiresAuthorization') ? 'AUTH' : 'ACTIVE';
     }
 
     startEdit(): void {
@@ -123,6 +157,7 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
 
     cancelEdit(): void {
         this.draft = null;
+        this.assistantRows.clear();
         this.issues = [];
         this.jsonInvalid = false;
         this.rebuild(this.file?.content ?? null);
@@ -224,6 +259,7 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
         if (this.draft && config) {
             this.draft[config.listKey] = this.rows().filter((_item, position) => position !== row);
             this.expanded.clear();
+            this.assistantRows.clear();
             this.syncFromDraft();
         }
     }
@@ -285,6 +321,7 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
         const content = stampAgreementFile(this.kind, { ...this.draft, agreementId: this.agreementId });
         if (await this.write(content)) {
             this.draft = null;
+            this.assistantRows.clear();
             this.issues = [];
         }
     }
@@ -310,7 +347,7 @@ export class AgreementRulesFileEditorComponent implements OnChanges {
         this.saveError = false;
         this.savedVersion = null;
         try {
-            await this.repository.saveFile(this.agreementId, this.kind, content, this.file.documentId);
+            await this.repository.saveAgreementFile(this.file, content);
             this.savedVersion = String(content['version'] ?? '') || '—';
             this.saved.emit();
             return true;

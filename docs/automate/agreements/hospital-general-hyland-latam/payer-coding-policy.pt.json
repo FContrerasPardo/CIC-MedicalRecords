@@ -1,0 +1,33 @@
+{
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "policyId": "HARS-HGHL-CODING-POLICY-2026",
+  "payer": "Hyland ARS",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "rules": [
+    {
+      "policyRuleId": "PCP-001",
+      "type": "REQUIRES_PRIOR_AUTH_FOR_CODE",
+      "procedureCode": "903895",
+      "description": "Os códigos de imagem exigem autorização prévia quando faturados acima do limite ambulatorial.",
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento"
+      ],
+      "riskLevelIfViolated": "HIGH"
+    },
+    {
+      "policyRuleId": "PCP-002",
+      "type": "BUNDLED_SERVICE",
+      "primaryProcedureCode": "SRG-4921",
+      "bundledCodes": [
+        "AN-883",
+        "RM-102",
+        "HOSP-001"
+      ],
+      "description": "O pacote cirúrgico inclui anestesia, sala de recuperação e a primeira diária de internação: não podem ser faturados à parte.",
+      "riskLevelIfViolated": "MEDIUM"
+    }
+  ]
+}

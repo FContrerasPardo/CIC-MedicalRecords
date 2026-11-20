@@ -1,31 +1,14 @@
-<section class="panel" aria-labelledby="general-title">
-    <div class="panel__head">
+<section class="gp" aria-labelledby="general-title">
+    <div class="gp__head">
         <div>
-            <h2 id="general-title"><span class="material-icons" aria-hidden="true">handshake</span>{{ i18n + '.GENERAL.TITLE' | translate }}</h2>
-            <p class="panel__lead">{{ i18n + '.GENERAL.LEAD' | translate }}</p>
+            <span class="step-label">{{ i18n + '.TABS.GENERAL' | translate }}</span>
+            <h2 id="general-title">{{ i18n + '.GENERAL.TITLE' | translate }}</h2>
+            <p class="gp__lead">{{ i18n + '.GENERAL.LEAD' | translate }}</p>
         </div>
-        <div class="panel__actions">
-            @if (draft) {
-                <button type="button" class="btn" (click)="cancelEdit()" [disabled]="saving">
-                    <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
-                </button>
-                <button type="button" class="btn btn--primary" (click)="save()" [disabled]="saving">
-                    <span class="material-icons" aria-hidden="true">save</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.EDITOR.SAVE') | translate }}
-                </button>
-            } @else {
-                <button type="button" class="btn" (click)="startEdit()" [disabled]="!file">
-                    <span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.EDITOR.EDIT' | translate }}
-                </button>
-                @if (canCreate) {
-                    <button type="button" class="btn btn--primary" (click)="createFromTemplate()">
-                        <span class="material-icons" aria-hidden="true">cloud_upload</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.FILE.CREATE') | translate }}
-                    </button>
-                }
-            }
-        </div>
+        <medical-records-agreement-help-coach topic="GENERAL" [active]="active"></medical-records-agreement-help-coach>
     </div>
 
-    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    <medical-records-agreement-file-status [file]="file" (languageCreated)="saved.emit()"></medical-records-agreement-file-status>
     @if (saveError) {
         <p class="source source--invalid" role="alert">{{ i18n + '.FILE.SAVE_ERROR' | translate }}</p>
     }
@@ -35,9 +18,27 @@
     @if (invalid) {
         <p class="source source--invalid" role="alert">{{ i18n + '.RULES.ISSUE_PROVIDER_REQUIRED' | translate }}</p>
     }
+    @if (canCreate) {
+        <div class="gp__create">
+            <button type="button" class="btn btn--primary" (click)="createFromTemplate()">
+                <span class="material-icons" aria-hidden="true">cloud_upload</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.FILE.CREATE') | translate }}
+            </button>
+        </div>
+    }
 
     @if (draft) {
-        <div class="editor">
+        <article class="flow-card gp-card editor">
+            <header class="gp-card__head">
+                <h3><span class="material-icons" aria-hidden="true">edit</span>{{ i18n + '.GENERAL.EDIT_TITLE' | translate }}</h3>
+                <div class="panel__actions">
+                    <button type="button" class="btn" (click)="cancelEdit()" [disabled]="saving">
+                        <span class="material-icons" aria-hidden="true">close</span>{{ i18n + '.EDITOR.CANCEL' | translate }}
+                    </button>
+                    <button type="button" class="btn btn--primary" (click)="save()" [disabled]="saving">
+                        <span class="material-icons" aria-hidden="true">save</span>{{ (saving ? i18n + '.POLICY.SAVING' : i18n + '.EDITOR.SAVE') | translate }}
+                    </button>
+                </div>
+            </header>
             <fieldset class="editor__header">
                 <legend>{{ i18n + '.GENERAL.CONTRACT' | translate }}</legend>
                 <label>
@@ -59,6 +60,7 @@
                     </label>
                 }
             </fieldset>
+
             <div class="list-editor">
                 <span class="list-editor__label">{{ i18n + '.GENERAL.ALIASES' | translate }}</span>
                 <ul class="list-editor__chips">
@@ -78,48 +80,151 @@
                     </button>
                 </span>
             </div>
-            <p class="panel__lead">{{ i18n + '.GENERAL.ALIASES_HINT' | translate }}</p>
-        </div>
-    } @else {
-        <div class="general-grid">
-            <dl class="facts facts--general">
-                @for (field of fields; track field.key) {
-                    @if (field.type === 'text') {
-                        <div>
-                            <dt>{{ i18n + '.GENERAL.FIELD_' + field.labelKey | translate }}</dt>
-                            <dd>{{ value(field.key) }}</dd>
-                        </div>
-                    }
-                }
-                <div>
-                    <dt>{{ i18n + '.GENERAL.ALIASES' | translate }}</dt>
-                    <dd>
-                        @for (alias of aliases; track alias) {
-                            <span class="tag">{{ alias }}</span>
-                        } @empty {
-                            —
-                        }
-                    </dd>
-                </div>
-            </dl>
-            <aside class="general-side">
-                <div class="budget">
-                    <span class="budget__label">{{ i18n + '.GENERAL.FIELD_BUDGET' | translate }}</span>
-                    <strong class="budget__value">{{ general.budgetCurrency || '' }} {{ (general.budgetTotal ?? 0) | number: '1.0-0' }}</strong>
-                    <div class="budget__bar" role="meter" [attr.aria-valuenow]="budgetUse" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="i18n + '.GENERAL.FIELD_BILLED_YTD' | translate">
-                        <span [style.width.%]="budgetUse"></span>
+            <p class="gp__lead">{{ i18n + '.GENERAL.ALIASES_HINT' | translate }}</p>
+
+            <fieldset class="gp-contacts-editor">
+                <legend>{{ i18n + '.GENERAL.CONTACTS' | translate }}</legend>
+                @for (contact of draft.contacts; track contact.id; let index = $index) {
+                    <div class="gp-contacts-editor__row">
+                        <label>
+                            <span>{{ i18n + '.GENERAL.CONTACT_NAME' | translate }}</span>
+                            <input type="text" [(ngModel)]="contact.name" />
+                        </label>
+                        <label>
+                            <span>{{ i18n + '.GENERAL.CONTACT_ROLE' | translate }}</span>
+                            <input type="text" [(ngModel)]="contact.role" />
+                        </label>
+                        <label>
+                            <span>{{ i18n + '.GENERAL.CONTACT_EMAIL' | translate }}</span>
+                            <input type="email" [(ngModel)]="contact.email" />
+                        </label>
+                        <label>
+                            <span>{{ i18n + '.GENERAL.CONTACT_PHONE' | translate }}</span>
+                            <input type="tel" [(ngModel)]="contact.phone" />
+                        </label>
+                        <button type="button" class="icon-btn icon-btn--danger" (click)="removeContact(index)" [attr.aria-label]="i18n + '.GENERAL.REMOVE_CONTACT' | translate">
+                            <span class="material-icons" aria-hidden="true">delete</span>
+                        </button>
                     </div>
-                    <span class="budget__meta">{{ i18n + '.GENERAL.FIELD_BILLED_YTD' | translate }}: {{ (general.billedYtd ?? 0) | number: '1.0-0' }} ({{ budgetUse }}%)</span>
-                </div>
-                <ul class="summary-list">
-                    @for (item of summary; track item.labelKey) {
-                        <li>
-                            <span>{{ i18n + '.' + item.labelKey | translate }}</span>
-                            <strong>{{ item.value }}</strong>
-                        </li>
-                    }
-                </ul>
-            </aside>
+                }
+                <button type="button" class="btn" (click)="newContact()">
+                    <span class="material-icons" aria-hidden="true">person_add</span>{{ i18n + '.GENERAL.NEW_CONTACT' | translate }}
+                </button>
+                <p class="gp__lead">{{ i18n + '.GENERAL.CONTACTS_HINT' | translate }}</p>
+            </fieldset>
+        </article>
+    } @else {
+        <!-- Two independent columns: a short card never leaves a gap under it, and the last card of each column grows so both columns end together. -->
+        <div class="gp-grid">
+            <div class="gp-col">
+                <article class="flow-card gp-card" aria-labelledby="gp-info-title">
+                    <header class="gp-card__head">
+                        <h3 id="gp-info-title"><span class="material-icons" aria-hidden="true">info</span>{{ i18n + '.GENERAL.INFO_TITLE' | translate }}</h3>
+                        <button type="button" class="icon-btn" (click)="startEdit()" [disabled]="!file" [attr.aria-label]="i18n + '.EDITOR.EDIT' | translate" [title]="i18n + '.EDITOR.EDIT' | translate">
+                            <span class="material-icons" aria-hidden="true">edit</span>
+                        </button>
+                    </header>
+                    <dl class="gp-info">
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_LEGAL_REPRESENTATIVE' | translate }}</dt>
+                            <dd>{{ value('legalRepresentative') }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_CONTRACT_TYPE' | translate }}</dt>
+                            <dd><span class="gp-chip">{{ value('contractType') }}</span></dd>
+                        </div>
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_EFFECTIVE_FROM' | translate }}</dt>
+                            <dd>{{ general.effectiveFrom ? (general.effectiveFrom | date: 'dd/MM/yyyy') : '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.VALIDITY' | translate }}</dt>
+                            <dd>{{ general.effectiveTo ? (general.effectiveTo | date: 'dd/MM/yyyy') : '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_JURISDICTION' | translate }}</dt>
+                            <dd>{{ value('jurisdiction') }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ i18n + '.GENERAL.FIELD_PAYER' | translate }}</dt>
+                            <dd>{{ value('payer') }}</dd>
+                        </div>
+                        <div class="gp-info__wide">
+                            <dt>{{ i18n + '.GENERAL.ALIASES' | translate }}</dt>
+                            <dd>
+                                @for (alias of aliases; track alias) {
+                                    <span class="tag">{{ alias }}</span>
+                                } @empty {
+                                    —
+                                }
+                            </dd>
+                        </div>
+                    </dl>
+                </article>
+
+                <article class="flow-card gp-card gp-card--fill" aria-labelledby="gp-contacts-title">
+                    <header class="gp-card__head">
+                        <h3 id="gp-contacts-title"><span class="material-icons" aria-hidden="true">contacts</span>{{ i18n + '.GENERAL.CONTACTS' | translate }}</h3>
+                        <button type="button" class="btn" (click)="newContact()" [disabled]="!file">
+                            <span class="material-icons" aria-hidden="true">add</span>{{ i18n + '.GENERAL.NEW_CONTACT' | translate }}
+                        </button>
+                    </header>
+                    <ul class="gp-contacts">
+                        @for (contact of contacts; track contact.id) {
+                            <li class="gp-contact">
+                                <span class="gp-contact__avatar" aria-hidden="true">{{ initials(contact.name) }}</span>
+                                <span class="gp-contact__body">
+                                    <strong>{{ contact.name || '—' }}</strong>
+                                    <span class="gp-contact__role">{{ contact.role }}</span>
+                                    @if (contact.email) {
+                                        <a [href]="'mailto:' + contact.email"><span class="material-icons" aria-hidden="true">mail</span>{{ contact.email }}</a>
+                                    }
+                                    @if (contact.phone) {
+                                        <span><span class="material-icons" aria-hidden="true">call</span>{{ contact.phone }}</span>
+                                    }
+                                </span>
+                            </li>
+                        } @empty {
+                            <li class="gp__lead">{{ i18n + '.GENERAL.NO_CONTACTS' | translate }}</li>
+                        }
+                    </ul>
+                </article>
+            </div>
+            <div class="gp-col">
+                <article class="flow-card gp-card" aria-labelledby="gp-exec-title">
+                    <header class="gp-card__head">
+                        <h3 id="gp-exec-title"><span class="material-icons" aria-hidden="true">insights</span>{{ i18n + '.GENERAL.EXECUTION_TITLE' | translate }}</h3>
+                    </header>
+                    <ul class="gp-bars">
+                        @for (bar of bars; track bar.labelKey) {
+                            <li>
+                                <div class="gp-bars__meta">
+                                    <span>{{ i18n + '.GENERAL.' + bar.labelKey | translate }}</span>
+                                    <strong>{{ general.budgetCurrency || '' }} {{ bar.amount | number: '1.0-0' }}</strong>
+                                </div>
+                                <div class="gp-bars__track" role="meter" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="bar.percent" [attr.aria-label]="i18n + '.GENERAL.' + bar.labelKey | translate">
+                                    <span class="gp-bars__fill gp-bars__fill--{{ bar.tone }}" [style.width.%]="bar.percent"></span>
+                                </div>
+                                <small>{{ i18n + '.GENERAL.OF_BUDGET' | translate: { percent: bar.percent } }}</small>
+                            </li>
+                        }
+                    </ul>
+                </article>
+
+                <article class="flow-card gp-card gp-card--fill" aria-labelledby="gp-rules-title">
+                    <header class="gp-card__head">
+                        <h3 id="gp-rules-title"><span class="material-icons" aria-hidden="true">rule</span>{{ i18n + '.GENERAL.RULES_SUMMARY_TITLE' | translate }}</h3>
+                    </header>
+                    <ul class="summary-list">
+                        @for (item of summary; track item.labelKey) {
+                            <li>
+                                <span>{{ i18n + '.' + item.labelKey | translate }}</span>
+                                <strong>{{ item.value }}</strong>
+                            </li>
+                        }
+                    </ul>
+                </article>
+            </div>
         </div>
     }
 </section>

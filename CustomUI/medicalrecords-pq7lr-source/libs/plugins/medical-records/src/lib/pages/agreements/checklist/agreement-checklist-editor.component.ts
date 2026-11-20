@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { AssistantDraftRequest } from '../assistant/rule-assistant.model';
 import { AgreementFileStatusComponent } from '../shared/agreement-file-status.component';
+import { AgreementHelpCoachComponent } from '../shared/agreement-help-coach.component';
 import { AgreementFileLoadResult, AgreementRepositoryService } from '../store/agreement-repository.service';
 import { cloneJson, JsonObject, stampAgreementFile } from '../store/agreement-store.util';
 import {
@@ -34,17 +36,22 @@ const I18N = 'MEDICAL_RECORDS.AGREEMENTS';
 @Component({
     selector: 'medical-records-agreement-checklist-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, TranslateModule, AgreementFileStatusComponent],
+    imports: [CommonModule, FormsModule, TranslateModule, AgreementFileStatusComponent, AgreementHelpCoachComponent],
     templateUrl: './agreement-checklist-editor.component.html',
     styleUrls: ['../agreements-page.component.scss'],
 })
 export class AgreementChecklistEditorComponent implements OnChanges {
     private readonly repository = inject(AgreementRepositoryService);
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
     @Input() agreementId = '';
     @Input() file: AgreementFileLoadResult | null = null;
     /** Policy profile keys offered for the rule's profile list. */
     @Input() profileKeys: readonly string[] = [];
+    /** The tab is visible (first-time help). */
+    @Input() active = true;
+    /** A row proposed by the rules assistant, added to the draft and highlighted. */
+    @Input() assistantDraft: AssistantDraftRequest | null = null;
     /** The file was written: the page reloads it. */
     @Output() saved = new EventEmitter<void>();
 
@@ -59,6 +66,10 @@ export class AgreementChecklistEditorComponent implements OnChanges {
     savedVersion: string | null = null;
     search = '';
     riskFilter: RiskFilter = 'ALL';
+    /** Catalogue filter: only rules that require this document class. */
+    documentFilter: string | null = null;
+    /** Rule ids added by the assistant in the current draft (highlighted). */
+    assistantRuleIds = new Set<string>();
 
     visibleRules: ChecklistRule[] = [];
     catalogue: Array<{ name: string; rules: number }> = [];
@@ -76,9 +87,49 @@ export class AgreementChecklistEditorComponent implements OnChanges {
         return !!this.file && (this.file.source !== 'appdata' || this.file.legacy) && !this.publishing && !this.draft;
     }
 
-    ngOnChanges(): void {
-        this.checklist = this.file ? parseDocumentationChecklist(this.file.content) : null;
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['file']) {
+            this.checklist = this.file ? parseDocumentationChecklist(this.file.content) : null;
+            this.rebuild();
+        }
+        if (changes['assistantDraft'] && this.assistantDraft?.proposal.kind === 'documentationChecklist') {
+            this.addProposedRule(this.assistantDraft.proposal.row as unknown as ChecklistRule);
+        }
+    }
+
+    /** Rules assistant: opens the editor (when closed), appends the proposed rule and scrolls to it. */
+    addProposedRule(rule: ChecklistRule): void {
+        if (!this.draft) {
+            this.startEdit();
+        }
+        if (!this.draft) {
+            return;
+        }
+        const copy = cloneJson(rule);
+        this.draft.rules = [...this.draft.rules, copy];
+        this.assistantRuleIds.add(copy.ruleId);
+        this.validate();
+        setTimeout(() => this.host.nativeElement.querySelector('.assistant-new')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+    }
+
+    setDocumentFilter(name: string): void {
+        this.documentFilter = this.documentFilter === name ? null : name;
         this.rebuild();
+    }
+
+    /** Who uses a rule: validation, agent or both (i18n suffix). */
+    usedBy(rule: ChecklistRule): string {
+        const validation = rule.consumers.includes('validation');
+        const agent = rule.consumers.includes('agent');
+        return validation && agent ? 'BOTH' : agent ? 'AGENT' : validation ? 'VALIDATION' : 'NONE';
+    }
+
+    /** Edit one rule from the table: opens the editor and scrolls to that rule. */
+    editRule(ruleId: string): void {
+        if (!this.draft) {
+            this.startEdit();
+        }
+        setTimeout(() => this.host.nativeElement.querySelector('[data-rule-id="' + ruleId.replace(/"/g, '') + '"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
     }
 
     /** Writes the checklist shown (template or repaired file) to the agreement's folder, unchanged. */
@@ -102,6 +153,7 @@ export class AgreementChecklistEditorComponent implements OnChanges {
     cancelEdit(): void {
         this.draft = null;
         this.issues = [];
+        this.assistantRuleIds.clear();
     }
 
     async saveDraft(): Promise<void> {
@@ -116,6 +168,7 @@ export class AgreementChecklistEditorComponent implements OnChanges {
         const content = JSON.parse(serializeDocumentationChecklist({ ...this.draft, agreementId: this.agreementId })) as JsonObject;
         if (await this.write(stampAgreementFile('documentationChecklist', content))) {
             this.draft = null;
+            this.assistantRuleIds.clear();
         }
     }
 
@@ -240,7 +293,7 @@ export class AgreementChecklistEditorComponent implements OnChanges {
         this.publishError = false;
         this.savedVersion = null;
         try {
-            await this.repository.saveFile(this.agreementId, 'documentationChecklist', content, this.file.legacy ? null : this.file.documentId);
+            await this.repository.saveAgreementFile(this.file, content);
             this.savedVersion = String(content['version'] ?? '') || '—';
             this.saved.emit();
             return true;
@@ -262,6 +315,9 @@ export class AgreementChecklistEditorComponent implements OnChanges {
         const term = this.search.trim().toLowerCase();
         this.visibleRules = checklist.rules.filter((rule) => {
             if (this.riskFilter !== 'ALL' && rule.riskLevelIfMissing !== this.riskFilter) {
+                return false;
+            }
+            if (this.documentFilter && !rule.requiredDocuments.includes(this.documentFilter)) {
                 return false;
             }
             if (!term) {

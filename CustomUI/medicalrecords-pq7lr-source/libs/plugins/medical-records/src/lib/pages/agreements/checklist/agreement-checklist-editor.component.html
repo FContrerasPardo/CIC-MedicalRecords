@@ -35,7 +35,10 @@
         </div>
     </div>
 
-    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    <div class="tab-help">
+        <medical-records-agreement-help-coach topic="CHECKLIST" [active]="active"></medical-records-agreement-help-coach>
+    </div>
+    <medical-records-agreement-file-status [file]="file" (languageCreated)="saved.emit()"></medical-records-agreement-file-status>
     @if (publishError) {
         <p class="source source--invalid" role="alert">{{ i18n + '.FILE.SAVE_ERROR' | translate }}</p>
     }
@@ -59,86 +62,94 @@
                 <div><dt>{{ i18n + '.CHECKLIST.FOR_AGENT' | translate }}</dt><dd>{{ consumerCount('agent') }}</dd></div>
             </dl>
 
-            <div class="layout">
-                <div class="rules">
-                    <div class="toolbar">
-                        <label class="search">
-                            <span class="material-icons" aria-hidden="true">search</span>
-                            <span class="sr-only">{{ i18n + '.CHECKLIST.SEARCH' | translate }}</span>
-                            <input type="search" [value]="search" (input)="onSearch($any($event.target).value)" [placeholder]="i18n + '.CHECKLIST.SEARCH' | translate" />
-                        </label>
-                        <div class="filters" role="group" [attr.aria-label]="i18n + '.CHECKLIST.RISK' | translate">
-                            @for (filter of riskFilters; track filter) {
-                                <button type="button" class="filter" [class.filter--active]="riskFilter === filter" [attr.aria-pressed]="riskFilter === filter" (click)="setRiskFilter(filter)">
-                                    {{ i18n + '.CHECKLIST.RISK_' + filter | translate }} <span>{{ riskCount(filter) }}</span>
-                                </button>
-                            }
-                        </div>
-                    </div>
-
-                    @if (!visibleRules.length) {
-                        <p class="panel__lead">{{ i18n + '.CHECKLIST.EMPTY' | translate }}</p>
+            <div class="toolbar">
+                <label class="search">
+                    <span class="material-icons" aria-hidden="true">search</span>
+                    <span class="sr-only">{{ i18n + '.CHECKLIST.SEARCH' | translate }}</span>
+                    <input type="search" [value]="search" (input)="onSearch($any($event.target).value)" [placeholder]="i18n + '.CHECKLIST.SEARCH' | translate" />
+                </label>
+                <div class="filters" role="group" [attr.aria-label]="i18n + '.CHECKLIST.RISK' | translate">
+                    @for (filter of riskFilters; track filter) {
+                        <button type="button" class="filter" [class.filter--active]="riskFilter === filter" [attr.aria-pressed]="riskFilter === filter" (click)="setRiskFilter(filter)">
+                            {{ i18n + '.CHECKLIST.RISK_' + filter | translate }} <span>{{ riskCount(filter) }}</span>
+                        </button>
                     }
-                    <ul class="rule-list">
-                        @for (rule of visibleRules; track rule.ruleId) {
-                            <li class="rule" [class.rule--disabled]="!rule.enabled">
-                                <div class="rule__head">
-                                    <code class="rule__id">{{ rule.ruleId }}</code>
-                                    <span class="risk risk--{{ rule.riskLevelIfMissing | lowercase }}">{{ i18n + '.CHECKLIST.RISK_' + rule.riskLevelIfMissing | translate }}</span>
-                                    @if (!rule.enabled) {
-                                        <span class="tag">{{ i18n + '.CHECKLIST.DISABLED' | translate }}</span>
-                                    }
-                                    @if (rule.condition) {
-                                        <span class="tag tag--conditional">{{ i18n + '.CHECKLIST.CONDITIONAL' | translate }}</span>
-                                    }
-                                    <span class="rule__consumers">
-                                        @for (consumer of rule.consumers; track consumer) {
-                                            <span class="tag tag--consumer">
-                                                <span class="material-icons" aria-hidden="true">{{ consumer === 'agent' ? 'smart_toy' : 'fact_check' }}</span>
-                                                {{ i18n + '.CHECKLIST.CONSUMER_' + (consumer | uppercase) | translate }}
-                                            </span>
+                </div>
+            </div>
+
+            <div class="ck-layout">
+                <div class="ck-table__wrap">
+                    <table class="ck-table">
+                        <caption class="sr-only">{{ i18n + '.CHECKLIST.TITLE' | translate }}</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ i18n + '.CHECKLIST.COL_RULE' | translate }}</th>
+                                <th scope="col">{{ i18n + '.CHECKLIST.COL_DOCUMENT' | translate }}</th>
+                                <th scope="col">{{ i18n + '.CHECKLIST.COL_DESCRIPTION' | translate }}</th>
+                                <th scope="col">{{ i18n + '.CHECKLIST.RISK' | translate }}</th>
+                                <th scope="col">{{ i18n + '.CHECKLIST.COL_PROFILE' | translate }}</th>
+                                <th scope="col">{{ i18n + '.CHECKLIST.COL_USED_BY' | translate }}</th>
+                                <th scope="col"><span class="sr-only">{{ i18n + '.CHECKLIST.COL_ACTIONS' | translate }}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (rule of visibleRules; track rule.ruleId) {
+                                <tr [class.ck-table__row--disabled]="!rule.enabled">
+                                    <td>
+                                        <code class="rule__id">{{ rule.ruleId }}</code>
+                                        @if (!rule.enabled) {
+                                            <span class="tag">{{ i18n + '.CHECKLIST.DISABLED' | translate }}</span>
                                         }
-                                    </span>
-                                </div>
-                                <ul class="documents" [attr.aria-label]="i18n + '.CHECKLIST.REQUIRED_DOCUMENTS' | translate">
-                                    @for (doc of rule.requiredDocuments; track doc) {
-                                        <li><span class="material-icons" aria-hidden="true">description</span>{{ doc }}</li>
-                                    }
-                                </ul>
-                                @if (rule.description) {
-                                    <p class="rule__description">{{ rule.description }}</p>
-                                }
-                                @if (rule.condition) {
-                                    <p class="rule__description"><strong>{{ i18n + '.CHECKLIST.CONDITION' | translate }}:</strong> {{ rule.condition }}</p>
-                                }
-                                <p class="rule__scope">
-                                    <span>{{ i18n + '.CHECKLIST.APPLIES_TO' | translate }}:</span>
-                                    @for (profile of rule.profiles; track profile) {
-                                        <span class="tag"><code>{{ profile }}</code></span>
-                                    }
-                                    @for (code of rule.appliesTo.procedureCodes; track code) {
-                                        <span class="tag">{{ i18n + '.CHECKLIST.PROCEDURE' | translate }} <code>{{ code }}</code></span>
-                                    }
-                                    @for (category of rule.appliesTo.serviceCategories; track category) {
-                                        <span class="tag">{{ i18n + '.CHECKLIST.CATEGORY' | translate }} {{ category }}</span>
-                                    }
-                                    @if (!rule.profiles.length && !rule.appliesTo.procedureCodes.length && !rule.appliesTo.serviceCategories.length) {
-                                        <span class="tag">{{ i18n + '.CHECKLIST.ALL_ACCOUNTS' | translate }}</span>
-                                    }
-                                </p>
-                            </li>
-                        }
-                    </ul>
+                                    </td>
+                                    <td>
+                                        @for (doc of rule.requiredDocuments; track doc) {
+                                            <span class="ck-table__doc"><span class="material-icons" aria-hidden="true">description</span>{{ doc }}</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        {{ rule.description || '—' }}
+                                        @if (rule.condition) {
+                                            <span class="ck-table__condition"><strong>{{ i18n + '.CHECKLIST.CONDITION' | translate }}:</strong> {{ rule.condition }}</span>
+                                        }
+                                    </td>
+                                    <td><span class="risk risk--{{ rule.riskLevelIfMissing | lowercase }}">{{ i18n + '.CHECKLIST.RISK_' + rule.riskLevelIfMissing | translate }}</span></td>
+                                    <td>
+                                        @for (profile of rule.profiles; track profile) {
+                                            <code>{{ profile }}</code>
+                                        } @empty {
+                                            {{ i18n + '.CHECKLIST.ALL_ACCOUNTS' | translate }}
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="tag tag--consumer">
+                                            <span class="material-icons" aria-hidden="true">{{ usedBy(rule) === 'VALIDATION' ? 'fact_check' : 'smart_toy' }}</span>
+                                            {{ i18n + '.CHECKLIST.USED_BY_' + usedBy(rule) | translate }}
+                                        </span>
+                                    </td>
+                                    <td class="ck-table__actions">
+                                        <button type="button" class="icon-btn" (click)="editRule(rule.ruleId)" [attr.aria-label]="(i18n + '.EDITOR.EDIT' | translate) + ' ' + rule.ruleId">
+                                            <span class="material-icons" aria-hidden="true">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="7" class="panel__lead">{{ i18n + '.CHECKLIST.EMPTY' | translate }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
 
-                <aside class="catalogue" aria-labelledby="catalogue-title">
+                <aside class="ck-catalogue" aria-labelledby="catalogue-title">
                     <h3 id="catalogue-title">{{ i18n + '.CHECKLIST.CATALOGUE' | translate }}</h3>
-                    <p class="panel__lead">{{ i18n + '.CHECKLIST.CATALOGUE_LEAD' | translate }}</p>
                     <ul>
                         @for (item of catalogue; track item.name) {
                             <li>
-                                <span>{{ item.name }}</span>
-                                <span class="catalogue__count">{{ i18n + '.CHECKLIST.IN_RULES' | translate: { count: item.rules } }}</span>
+                                <button type="button" [attr.aria-pressed]="documentFilter === item.name" (click)="setDocumentFilter(item.name)" [title]="i18n + '.CHECKLIST.FILTER_BY_DOCUMENT' | translate">
+                                    <span>{{ item.name }}</span>
+                                    <span class="catalogue__count">{{ item.rules }}</span>
+                                </button>
                             </li>
                         }
                     </ul>
@@ -181,7 +192,14 @@
 
         <ol class="editor__rules">
             @for (rule of draft.rules; track $index; let i = $index; let first = $first; let last = $last) {
-                <li class="edit-rule" [class.edit-rule--invalid]="saveAttempted && issuesFor(i).length" [class.edit-rule--disabled]="!rule.enabled">
+                <li
+                    class="edit-rule"
+                    [attr.data-rule-id]="rule.ruleId"
+                    [class.edit-rule--invalid]="saveAttempted && issuesFor(i).length"
+                    [class.edit-rule--disabled]="!rule.enabled"
+                    [class.assistant-new]="assistantRuleIds.has(rule.ruleId)"
+                    [attr.data-assistant-label]="assistantRuleIds.has(rule.ruleId) ? (i18n + '.ASSISTANT.NEW_ROW' | translate) : null"
+                >
                     <div class="edit-rule__head">
                         <label class="edit-rule__id">
                             <span class="sr-only">{{ i18n + '.EDITOR.RULE_ID' | translate }}</span>

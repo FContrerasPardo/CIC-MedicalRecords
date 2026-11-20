@@ -1,0 +1,45 @@
+{
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "rulesetId": "CODING-HARS-CML-2026",
+  "codingSystem": "ICD10-CPT-CUPS",
+  "rules": [
+    {
+      "ruleId": "CR-001",
+      "type": "DIAGNOSIS_PROCEDURE_REQUIRED_LINK",
+      "procedureCode": "903895",
+      "description": "Os exames de imagem exigem um diagnóstico que justifique a indicação.",
+      "allowedDiagnosisCodes": [
+        "J18.9",
+        "R91.8",
+        "R07.9"
+      ],
+      "riskLevelIfViolated": "HIGH"
+    },
+    {
+      "ruleId": "CR-002",
+      "type": "INCOMPATIBLE_PROCEDURE_COMBINATION",
+      "procedureCode": "99214",
+      "incompatibleWith": [
+        "99215"
+      ],
+      "description": "Os códigos de avaliação e manejo 99214 e 99215 não são faturados juntos para o mesmo paciente e data.",
+      "riskLevelIfViolated": "HIGH"
+    },
+    {
+      "ruleId": "CR-003",
+      "type": "DUPLICATE_SAME_DAY_REVIEW",
+      "procedureCode": "907106",
+      "description": "O mesmo painel laboratorial repetido no mesmo dia precisa de justificativa.",
+      "riskLevelIfViolated": "MEDIUM"
+    }
+  ],
+  "obsoleteCodes": [
+    {
+      "code": "OLD-001",
+      "replacementCode": "NEW-001",
+      "effectiveEndDate": "2025-12-31"
+    }
+  ]
+}

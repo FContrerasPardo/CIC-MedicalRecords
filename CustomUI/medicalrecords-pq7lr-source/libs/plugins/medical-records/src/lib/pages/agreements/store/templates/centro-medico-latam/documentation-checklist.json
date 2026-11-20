@@ -1,11 +1,11 @@
 {
   "kind": "medical-records.documentation-checklist",
   "schemaVersion": 1,
-  "rulesetId": "DOC-ARSP-CML-2026",
-  "name": "Checklist documental Centro Médico LATAM – ARS Primera",
+  "rulesetId": "DOC-HARS-CML-2026",
+  "name": "Checklist documental Centro Médico LATAM – Hyland ARS",
   "agreementId": "centro-medico-latam",
   "version": "2026-11-17-r1",
-  "payer": "ARS Primera",
+  "payer": "Hyland ARS",
   "effectiveFrom": "2026-01-01",
   "effectiveTo": "2026-12-31",
   "updatedAt": "2026-11-17T00:00:00.000Z",
@@ -60,7 +60,7 @@
       },
       "description": "Payer claim form.",
       "requiredDocuments": [
-        "Formulario de Reclamación (ARS Primera)"
+        "Formulario de Reclamación"
       ],
       "riskLevelIfMissing": "MEDIUM",
       "consumers": [

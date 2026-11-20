@@ -1,0 +1,108 @@
+{
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "contractId": "CONV-DEMO-HARS-HGHL-2026",
+  "payer": "Hyland ARS",
+  "provider": "Hospital General HYLAND LATAM",
+  "currency": "DOP",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "defaultAllowedVariancePercentage": 5,
+  "tariffRules": [
+    {
+      "serviceCode": "890201",
+      "procedureCode": "890201",
+      "description": "General medicine consultation",
+      "expectedAmount": 2950,
+      "minAmount": 2803,
+      "maxAmount": 3098,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ]
+    },
+    {
+      "serviceCode": "903895",
+      "procedureCode": "903895",
+      "description": "Plain radiology exam",
+      "expectedAmount": 12750,
+      "minAmount": 12113,
+      "maxAmount": 13388,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento",
+        "Factura y Desglose"
+      ]
+    },
+    {
+      "serviceCode": "907106",
+      "procedureCode": "907106",
+      "description": "Complete blood count",
+      "expectedAmount": 1100,
+      "minAmount": 1045,
+      "maxAmount": 1155,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Laboratorios"
+      ]
+    },
+    {
+      "serviceCode": "898101",
+      "procedureCode": "898101",
+      "description": "Surgical pathology study",
+      "expectedAmount": 7550,
+      "minAmount": 7173,
+      "maxAmount": 7928,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": false,
+      "requiredDocuments": [
+        "Reporte de Patología"
+      ]
+    },
+    {
+      "serviceCode": "SRG-4921",
+      "procedureCode": "SRG-4921",
+      "description": "Outpatient surgical package (demo)",
+      "expectedAmount": 100300,
+      "minAmount": 95285,
+      "maxAmount": 105315,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Informe quirúrgico",
+        "Orden o autorización de procedimiento"
+      ]
+    },
+    {
+      "serviceCode": "HOSP-001",
+      "procedureCode": "HOSP-001",
+      "description": "Hospitalization day in a shared room",
+      "expectedAmount": 11200,
+      "minAmount": 10640,
+      "maxAmount": 11760,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Planilla de Admisión"
+      ]
+    },
+    {
+      "serviceCode": "UCI-001",
+      "procedureCode": "UCI-001",
+      "description": "Intensive care day (demo)",
+      "expectedAmount": 38000,
+      "minAmount": 36100,
+      "maxAmount": 39900,
+      "allowedVariancePercentage": 5,
+      "requiresAuthorization": true,
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento",
+        "Nota de Enfermeria"
+      ]
+    }
+  ]
+}

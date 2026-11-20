@@ -1,7 +1,9 @@
 import { normalizeKey } from '../../../form-widgets/intake-account-widget/batch-state-billing-fields';
+import { AI_SETTINGS_FILE_NAME, AiSettingsIssueCode, validateAiSettings } from '../ai-rules/agreement-ai-settings.util';
 import { parsePreanalysisPolicy } from '../../radication/utils/radication-policy.util';
 import { parseDocumentationChecklist } from '../checklist/documentation-checklist.util';
 import { bumpPolicyVersion } from '../policy/preanalysis-policy-editor.util';
+import { AgreementContentLanguage, localizedFileName } from './agreement-locale.util';
 
 /**
  * Agreements (convenios) stored per agreement in Appdata. Each rule document is its own JSON file so
@@ -16,6 +18,7 @@ import { bumpPolicyVersion } from '../policy/preanalysis-policy-editor.util';
  * /MedRec/Appdata/Agreements/<agreementId>/payer-compliance-policy.json  Compliance Alert
  * /MedRec/Appdata/Agreements/<agreementId>/payer-coding-policy.json  Coding Integrity
  * /MedRec/Appdata/Agreements/<agreementId>/coding-rules.json         Coding Integrity
+ * /MedRec/Appdata/Agreements/<agreementId>/ai-settings.json          AI rules: validations, thresholds, change log (UI only for now)
  * ```
  *
  * Pure module: paths, parsing, validation, version stamps, provider matching and duplication.
@@ -43,7 +46,8 @@ export type AgreementFileKind =
     | 'tariffAgreement'
     | 'payerCompliancePolicy'
     | 'payerCodingPolicy'
-    | 'codingRules';
+    | 'codingRules'
+    | 'aiSettings';
 
 export const AGREEMENT_FILE_KINDS: readonly AgreementFileKind[] = [
     'agreement',
@@ -53,6 +57,7 @@ export const AGREEMENT_FILE_KINDS: readonly AgreementFileKind[] = [
     'payerCompliancePolicy',
     'payerCodingPolicy',
     'codingRules',
+    'aiSettings',
 ];
 
 export const AGREEMENT_FILE_NAMES: Record<AgreementFileKind, string> = {
@@ -63,6 +68,7 @@ export const AGREEMENT_FILE_NAMES: Record<AgreementFileKind, string> = {
     payerCompliancePolicy: 'payer-compliance-policy.json',
     payerCodingPolicy: 'payer-coding-policy.json',
     codingRules: 'coding-rules.json',
+    aiSettings: AI_SETTINGS_FILE_NAME,
 };
 
 /** Who reads each file: the UI, the pre-analysis agent or one of the Agent Mesh agents (and its legacy variable). */
@@ -74,6 +80,8 @@ export const AGREEMENT_FILE_CONSUMERS: Record<AgreementFileKind, { agent: string
     payerCompliancePolicy: { agent: 'Compliance Alert', variable: 'payerCompliancePolicy' },
     payerCodingPolicy: { agent: 'Coding Integrity', variable: 'payerCodingPolicy' },
     codingRules: { agent: 'Coding Integrity', variable: 'codingRules' },
+    // Not read by the Automate agents yet (see docs/automate/convenios-appdata.md → «Reglas IA»).
+    aiSettings: { agent: 'UI (AI rules; agents not wired yet)', variable: null },
 };
 
 /** `appdata`: read from the file; `default`: no file, bundled template shown; `invalid`: file unreadable, template shown. */
@@ -103,8 +111,18 @@ export function agreementFolderPath(agreementId: string): string {
     return `${AGREEMENTS_ROOT_PATH}/${agreementId}`;
 }
 
-export function agreementFilePath(agreementId: string, kind: AgreementFileKind): string {
-    return `${agreementFolderPath(agreementId)}/${AGREEMENT_FILE_NAMES[kind]}`;
+/** Base file (read by the agents) or, with a language, its language version (`<name>.<lang>.json`). */
+export function agreementFilePath(agreementId: string, kind: AgreementFileKind, language?: AgreementContentLanguage | null): string {
+    return `${agreementFolderPath(agreementId)}/${agreementFileName(kind, language)}`;
+}
+
+export function agreementFileName(kind: AgreementFileKind, language?: AgreementContentLanguage | null): string {
+    return language ? localizedFileName(AGREEMENT_FILE_NAMES[kind], language) : AGREEMENT_FILE_NAMES[kind];
+}
+
+/** Folder of the contract and annexes of an agreement (uploaded from the Documents tab). */
+export function agreementContractFolderPath(agreementId: string): string {
+    return `${agreementFolderPath(agreementId)}/Contract`;
 }
 
 function record(value: unknown): JsonObject {
@@ -212,6 +230,11 @@ export function indexEntryFromAgreement(agreementId: string, agreement: unknown,
     };
 }
 
+/** Payer of an `agreement.json` document (`general.payer`); empty when absent. */
+export function agreementPayer(agreement: unknown): string {
+    return text(record(record(agreement)['general'])['payer']);
+}
+
 /** Provider aliases of an `agreement.json` document. */
 export function agreementAliases(agreement: unknown): string[] {
     const aliases = record(agreement)['providerAliases'];
@@ -272,7 +295,8 @@ export type AgreementFileIssueCode =
     | 'ROW_ID_DUPLICATE'
     | 'RISK_INVALID'
     | 'AMOUNT_INVALID'
-    | 'AMOUNT_RANGE_INVALID';
+    | 'AMOUNT_RANGE_INVALID'
+    | AiSettingsIssueCode;
 
 export interface AgreementFileIssue {
     code: AgreementFileIssueCode;
@@ -281,7 +305,7 @@ export interface AgreementFileIssue {
 }
 
 /** Issues that make a file unusable: it is then shown as `invalid` and the template is used. */
-const STRUCTURAL: readonly AgreementFileIssueCode[] = ['JSON_INVALID', 'RULES_REQUIRED', 'PROFILES_REQUIRED', 'LIST_REQUIRED'];
+const STRUCTURAL: readonly AgreementFileIssueCode[] = ['JSON_INVALID', 'RULES_REQUIRED', 'PROFILES_REQUIRED', 'LIST_REQUIRED', 'AI_VALIDATIONS_REQUIRED'];
 
 const RISKS = ['HIGH', 'MEDIUM', 'LOW'];
 
@@ -358,6 +382,8 @@ export function validateAgreementFile(kind: AgreementFileKind, value: unknown): 
             return parseDocumentationChecklist(root) ? [] : [{ code: 'RULES_REQUIRED', row: null }];
         case 'preanalysisPolicy':
             return parsePreanalysisPolicy(root) ? [] : [{ code: 'PROFILES_REQUIRED', row: null }];
+        case 'aiSettings':
+            return validateAiSettings(root).map((code) => ({ code, row: null }));
         default:
             return validateRows(kind, root);
     }

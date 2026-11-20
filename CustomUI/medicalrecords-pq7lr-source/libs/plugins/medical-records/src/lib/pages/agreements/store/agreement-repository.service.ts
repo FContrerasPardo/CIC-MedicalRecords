@@ -1,12 +1,22 @@
 import { inject, Injectable } from '@angular/core';
+import { IdentityUserService } from '@alfresco/adf-core';
 import { UPLOAD_API_TOKEN } from '@alfresco/adf-hx-content-services/api';
 import { BlobDownloadService, DocumentService } from '@alfresco/adf-hx-content-services/services';
 import { Document, UploadApi } from '@hylandsoftware/hxcs-js-client';
 import { firstValueFrom } from 'rxjs';
+import { DashboardDiagnosticsService } from '../../../dashboard/services/dashboard-diagnostics.service';
+import { AiChangeMeta, AiHistoryEvent, appendAiHistoryToContent, stampTemplateCreation, syncAiSettingsLanguageVersion } from '../ai-rules/agreement-ai-settings.util';
+import { AGREEMENT_CONTENT_LANGUAGES, AgreementContentLanguage, localizeAgreementContent, resolveLocalizedSource, syncAgreementLanguageVersion } from './agreement-locale.util';
 import {
+    AGREEMENT_FILE_CONSUMERS,
     AGREEMENT_FILE_KINDS,
     AGREEMENT_FILE_NAMES,
+    agreementContractFolderPath,
+    agreementFileName,
+    agreementFileVersion,
+    cloneJson,
     agreementAliases,
+    agreementPayer,
     agreementFilePath,
     agreementFolderPath,
     AgreementFileKind,
@@ -30,7 +40,8 @@ import {
     serializeAgreementJson,
     upsertIndexEntry,
 } from './agreement-store.util';
-import { agreementTemplateFile, templateAgreementsIndex } from './agreement-templates';
+import { migrateDemoValues } from './agreement-demo-migration.util';
+import { agreementTemplateFile, templateAgreementsIndex, templateTranslations } from './agreement-templates';
 
 export interface AgreementFileLoadResult {
     agreementId: string;
@@ -45,6 +56,20 @@ export interface AgreementFileLoadResult {
     modifiedAt: string | null;
     /** The content came from the legacy global file (`/Checklists`, `/Policies`), read-only fallback. */
     legacy: boolean;
+    /** Language version requested (UI language); null for the consumers, which read the base file. */
+    language?: AgreementContentLanguage | null;
+    /** The content shown is the language version (`<name>.<lang>.json`). */
+    localized?: boolean;
+    /** The language version in Appdata (null when absent): saving updates it. */
+    variantDocumentId?: string | null;
+    /** The base exists in Appdata but has no version in the requested language: the base is shown. */
+    missingLanguage?: boolean;
+    /** The base file exists in Appdata (readable). */
+    baseInAppdata?: boolean;
+    /** Version of the base file when it differs from the language version shown (saved later in another language). */
+    baseVersion?: string | null;
+    /** The saved file (base or language version) holds values of an older demo template: they are shown migrated, not saved. */
+    demoMigrated?: boolean;
 }
 
 export interface AgreementsIndexLoadResult {
@@ -53,6 +78,14 @@ export interface AgreementsIndexLoadResult {
     path: string;
     documentId: string | null;
     modifiedAt: string | null;
+    /** The saved index holds values of an older demo template: they are shown migrated, not saved. */
+    demoMigrated?: boolean;
+}
+
+/** What the sidebar shows of an agreement, read from its `agreement.json` (language version or base). */
+export interface AgreementSummary {
+    payer: string;
+    demoMigrated: boolean;
 }
 
 export type AgreementFiles = Record<AgreementFileKind, AgreementFileLoadResult>;
@@ -77,6 +110,8 @@ export class AgreementRepositoryService {
     private readonly documentService = inject(DocumentService);
     private readonly blobDownloadService = inject(BlobDownloadService);
     private readonly uploadApi = inject<UploadApi>(UPLOAD_API_TOKEN);
+    private readonly diagnostics = inject(DashboardDiagnosticsService);
+    private readonly identityUserService = inject(IdentityUserService, { optional: true });
 
     readonly indexPath = AGREEMENTS_INDEX_PATH;
 
@@ -89,9 +124,11 @@ export class AgreementRepositoryService {
         }
         const documentId = document.sys_id;
         const modifiedAt = document.sys_modified ?? null;
-        const index = parseAgreementsIndex(await this.readText(documentId));
+        const parsed = parseAgreementsIndex(await this.readText(documentId));
+        const migration = parsed ? migrateDemoValues(parsed) : null;
+        const index = migration?.value ?? null;
         return index
-            ? { ...base, index, source: 'appdata', documentId, modifiedAt }
+            ? { ...base, index, source: 'appdata', documentId, modifiedAt, demoMigrated: !!migration?.changed }
             : { ...base, index: seed, source: 'invalid', documentId, modifiedAt };
     }
 
@@ -113,16 +150,17 @@ export class AgreementRepositoryService {
         });
         const document = await this.tryGetByPath(path);
         if (document?.sys_id) {
-            const content = parseJsonObject(await this.readText(document.sys_id));
+            const migration = migrateDemoValues(parseJsonObject(await this.readText(document.sys_id)));
+            const content = migration.value;
             const modifiedAt = document.sys_modified ?? null;
             return content && isUsableAgreementFile(kind, content)
-                ? { agreementId, kind, content, source: 'appdata', path, documentId: document.sys_id, modifiedAt, legacy: false }
+                ? { agreementId, kind, content, source: 'appdata', path, documentId: document.sys_id, modifiedAt, legacy: false, demoMigrated: migration.changed }
                 : template('invalid', document.sys_id, modifiedAt);
         }
         const legacyPath = options.legacyFallback ? LEGACY_PATHS[kind] : undefined;
         if (legacyPath) {
             const legacy = await this.tryGetByPath(legacyPath);
-            const content = legacy?.sys_id ? parseJsonObject(await this.readText(legacy.sys_id)) : null;
+            const content = legacy?.sys_id ? migrateDemoValues(parseJsonObject(await this.readText(legacy.sys_id))).value : null;
             if (legacy?.sys_id && content && isUsableAgreementFile(kind, content)) {
                 return { agreementId, kind, content, source: 'appdata', path: legacyPath, documentId: null, modifiedAt: legacy.sys_modified ?? null, legacy: true };
             }
@@ -130,9 +168,216 @@ export class AgreementRepositoryService {
         return template('default', null, null);
     }
 
-    async loadAgreement(agreementId: string): Promise<AgreementFiles> {
-        const results = await Promise.all(AGREEMENT_FILE_KINDS.map((kind) => this.loadFile(agreementId, kind)));
-        return Object.fromEntries(results.map((result) => [result.kind, result])) as AgreementFiles;
+    /**
+     * One file of an agreement in a language (the page). Order: the language version
+     * (`<name>.<lang>.json`); else the base file, flagged `missingLanguage`; else the bundled template
+     * in that language (`default`). `documentId` is always the base file's id.
+     */
+    async loadLocalizedFile(agreementId: string, kind: AgreementFileKind, language: AgreementContentLanguage): Promise<AgreementFileLoadResult> {
+        const [base, variant] = await Promise.all([this.loadFile(agreementId, kind), this.tryGetByPath(agreementFilePath(agreementId, kind, language))]);
+        const extra = { language, localized: false, variantDocumentId: variant?.sys_id ?? null, missingLanguage: false, baseVersion: null, baseInAppdata: base.source === 'appdata' && !base.legacy };
+        const migration = migrateDemoValues(variant?.sys_id ? parseJsonObject(await this.readText(variant.sys_id)) : null);
+        const content = migration.value;
+        const usable = !!content && isUsableAgreementFile(kind, content);
+        const pick = resolveLocalizedSource(usable ? 'usable' : variant?.sys_id ? 'unusable' : 'absent', extra.baseInAppdata);
+        if (pick === 'variant' && content) {
+            const baseVersion = extra.baseInAppdata ? agreementFileVersion(kind, base.content) : '';
+            return {
+                ...base,
+                ...extra,
+                content,
+                source: 'appdata',
+                path: agreementFilePath(agreementId, kind, language),
+                modifiedAt: variant?.sys_modified ?? null,
+                localized: true,
+                baseVersion: baseVersion && baseVersion !== agreementFileVersion(kind, content) ? baseVersion : null,
+                demoMigrated: !!base.demoMigrated || migration.changed,
+            };
+        }
+        if (pick === 'base') {
+            return { ...base, ...extra, missingLanguage: true };
+        }
+        return { ...base, ...extra, content: agreementTemplateFile(agreementId, kind, language) };
+    }
+
+    /** Every file of an agreement: in a language for the page, or the base files. */
+    async loadAgreement(agreementId: string, language?: AgreementContentLanguage | null): Promise<AgreementFiles> {
+        const results = await Promise.all(
+            AGREEMENT_FILE_KINDS.map((kind) => (language ? this.loadLocalizedFile(agreementId, kind, language) : this.loadFile(agreementId, kind)))
+        );
+        const files = Object.fromEntries(results.map((result) => [result.kind, result])) as AgreementFiles;
+        this.recordDiagnostics(agreementId, files);
+        return files;
+    }
+
+    /**
+     * Saves a file edited on the page: the version of its language (`<name>.<lang>.json`) and the base
+     * file the agents read, so they always use the last saved rules. Without a language, only the base.
+     */
+    async saveAgreementFile(file: AgreementFileLoadResult, content: JsonObject): Promise<void> {
+        if (file.language) {
+            await this.writeJson(agreementFolderPath(file.agreementId), agreementFileName(file.kind, file.language), serializeAgreementJson(content), file.variantDocumentId ?? null);
+        }
+        await this.saveFile(file.agreementId, file.kind, content, file.legacy ? null : file.documentId);
+        if ((file.kind === 'agreement' || file.kind === 'aiSettings') && file.language) {
+            await this.syncAgreementLanguageVersions(file.agreementId, file.kind, content, file.language);
+        }
+    }
+
+    /** Who is changing the rules, for the AI rules history: the signed-in user's name; null when unknown («Current user»). */
+    currentUserName(): string | null {
+        try {
+            const user = this.identityUserService?.getCurrentUserInfo();
+            const name = [user?.firstName, user?.lastName].filter((part) => !!part && String(part).trim()).join(' ').trim();
+            return name || user?.username || null;
+        } catch {
+            return null;
+        }
+    }
+
+    /** Date, time and user of a change logged in the AI rules history. */
+    changeMeta(now = new Date()): AiChangeMeta {
+        return { at: now.toISOString(), user: this.currentUserName() };
+    }
+
+    /**
+     * Appends events to the AI rules history of an agreement (`ai-settings.json`, base and language
+     * versions). Only when the file is already saved: logging never creates it. Returns whether it wrote.
+     */
+    async appendAiHistory(agreementId: string, events: readonly AiHistoryEvent[], language: AgreementContentLanguage): Promise<boolean> {
+        if (!events.length) {
+            return false;
+        }
+        const file = await this.loadLocalizedFile(agreementId, 'aiSettings', language);
+        if (!file.baseInAppdata) {
+            return false;
+        }
+        await this.saveAgreementFile(file, appendAiHistoryToContent(file.content, events));
+        return true;
+    }
+
+    /**
+     * `agreement.json` holds data that is the same in every language (contacts, contract files, the
+     * Knowledge Discovery link…), and `ai-settings.json` only has texts per language (switches,
+     * thresholds and history are shared): after a save, the other existing language versions get that
+     * data too, so it persists whatever the UI language when the page is reloaded.
+     */
+    private async syncAgreementLanguageVersions(agreementId: string, kind: 'agreement' | 'aiSettings', saved: JsonObject, from: AgreementContentLanguage): Promise<void> {
+        for (const language of AGREEMENT_CONTENT_LANGUAGES.filter((item) => item !== from)) {
+            const existing = await this.tryGetByPath(agreementFilePath(agreementId, kind, language));
+            if (!existing?.sys_id) {
+                continue;
+            }
+            const current = parseJsonObject(await this.readText(existing.sys_id));
+            const usable = !!current && isUsableAgreementFile(kind, current);
+            const next =
+                current && usable
+                    ? kind === 'agreement'
+                        ? syncAgreementLanguageVersion(current, saved, from, language, templateTranslations())
+                        : syncAiSettingsLanguageVersion(current, saved)
+                    : localizeAgreementContent(cloneJson(saved), language, templateTranslations());
+            await this.writeJson(agreementFolderPath(agreementId), agreementFileName(kind, language), serializeAgreementJson(next), existing.sys_id);
+        }
+    }
+
+    /** Creates the missing language version of a file from what is shown (base texts translated with the template dictionary). */
+    async createLanguageVersion(file: AgreementFileLoadResult, language: AgreementContentLanguage): Promise<void> {
+        const content = localizeAgreementContent(cloneJson(file.content), language, templateTranslations());
+        const existing = await this.tryGetByPath(agreementFilePath(file.agreementId, file.kind, language));
+        await this.writeJson(agreementFolderPath(file.agreementId), agreementFileName(file.kind, language), serializeAgreementJson(content), existing?.sys_id ?? null);
+    }
+
+    /**
+     * What the sidebar shows of each agreement, from its `agreement.json` (language version, else the
+     * base; migrated like the page). Agreements without a readable file in Appdata are left out: the
+     * index entry is used for them.
+     */
+    async loadAgreementSummaries(agreementIds: readonly string[], language: AgreementContentLanguage): Promise<Record<string, AgreementSummary>> {
+        const files = await Promise.all(agreementIds.map((agreementId) => this.loadLocalizedFile(agreementId, 'agreement', language).catch(() => null)));
+        const summaries: Record<string, AgreementSummary> = {};
+        for (const file of files) {
+            if (file?.source === 'appdata') {
+                summaries[file.agreementId] = { payer: agreementPayer(file.content), demoMigrated: !!file.demoMigrated };
+            }
+        }
+        return summaries;
+    }
+
+    /**
+     * «Update the agreement files»: rewrites every saved file of the agreement (base and language
+     * versions) that still holds values of an older demo template, and its index entry (also the
+     * other entries with old values). Only run on the user's request. Returns the files rewritten.
+     */
+    async applyDemoMigration(agreementId: string): Promise<number> {
+        let rewritten = 0;
+        let agreement: JsonObject | null = null;
+        for (const kind of AGREEMENT_FILE_KINDS) {
+            for (const language of [null, ...AGREEMENT_CONTENT_LANGUAGES]) {
+                const document = await this.tryGetByPath(agreementFilePath(agreementId, kind, language));
+                if (!document?.sys_id) {
+                    continue;
+                }
+                const migration = migrateDemoValues(parseJsonObject(await this.readText(document.sys_id)));
+                if (!migration.value) {
+                    continue;
+                }
+                if (kind === 'agreement' && !language) {
+                    agreement = migration.value;
+                }
+                if (migration.changed) {
+                    await this.writeJson(agreementFolderPath(agreementId), agreementFileName(kind, language), serializeAgreementJson(migration.value), document.sys_id);
+                    rewritten++;
+                }
+            }
+        }
+        const index = await this.loadIndex();
+        if (agreement && isUsableAgreementFile('agreement', agreement)) {
+            await this.syncIndexEntry(agreementId, agreement, index);
+            rewritten++;
+        } else if (index.demoMigrated) {
+            await this.saveIndex(index.index, index.documentId);
+            rewritten++;
+        }
+        return rewritten;
+    }
+
+    /** Creates (when missing) the contract folder of an agreement and returns its path. */
+    async ensureContractFolder(agreementId: string): Promise<string> {
+        const path = agreementContractFolderPath(agreementId);
+        await this.ensureFolder(path);
+        return path;
+    }
+
+    /** One entry per agreement file in the floating technical view (path, origin, version, language, reader). */
+    private recordDiagnostics(agreementId: string, files: AgreementFiles): void {
+        for (const kind of AGREEMENT_FILE_KINDS) {
+            const file = files[kind];
+            const consumer = AGREEMENT_FILE_CONSUMERS[kind];
+            this.diagnostics.record({
+                kind: 'agreements',
+                key: `agreement-file:${agreementId}:${kind}`,
+                label: `${AGREEMENT_FILE_NAMES[kind]} · ${file.source}${file.legacy ? ' (legacy)' : ''} · v${agreementFileVersion(kind, file.content) || '—'}${
+                    file.language ? ` · ${file.localized ? file.language : `${file.language} → base`}` : ''
+                } · ${consumer.agent}${consumer.variable ? ` (${consumer.variable})` : ''}`,
+                durationMs: 0,
+                tables: [
+                    {
+                        title: `${agreementId} / ${AGREEMENT_FILE_NAMES[kind]}`,
+                        columns: ['Path', 'Read by', 'Origin', 'Version', 'Language', 'Modified'],
+                        rows: [
+                            [
+                                file.path,
+                                `${consumer.agent}${consumer.variable ? ` · ${consumer.variable}` : ''}`,
+                                file.legacy ? 'legacy' : file.source,
+                                agreementFileVersion(kind, file.content) || '—',
+                                file.language ? (file.localized ? file.language : `${file.language} (missing: base shown)`) : 'base',
+                                file.modifiedAt ?? '—',
+                            ],
+                        ],
+                    },
+                ],
+            });
+        }
     }
 
     /**
@@ -187,11 +432,30 @@ export class AgreementRepositoryService {
     }
 
     /** Writes the bundled template of every file not yet in Appdata (absent or unreadable) and registers the agreement in the index. */
-    async createFromTemplate(agreementId: string, files: AgreementFiles, index: AgreementsIndexLoadResult): Promise<void> {
+    async createFromTemplate(agreementId: string, files: AgreementFiles, index: AgreementsIndexLoadResult, languages: readonly AgreementContentLanguage[] = []): Promise<void> {
+        // The AI rules history starts with «AI profile created from template», dated now and signed by the user.
+        const meta = this.changeMeta();
+        const fromTemplate = (kind: AgreementFileKind, language?: AgreementContentLanguage): JsonObject => {
+            const content = agreementTemplateFile(agreementId, kind, language);
+            return kind === 'aiSettings' ? stampTemplateCreation(content, meta) : content;
+        };
         for (const kind of AGREEMENT_FILE_KINDS) {
             const file = files[kind];
-            if (file.source !== 'appdata' || file.legacy) {
-                await this.saveFile(agreementId, kind, agreementTemplateFile(agreementId, kind), file.documentId);
+            const baseMissing = file.legacy || !(file.baseInAppdata ?? file.source === 'appdata');
+            const base = baseMissing ? fromTemplate(kind) : null;
+            if (base) {
+                await this.saveFile(agreementId, kind, base, file.legacy ? null : file.documentId);
+            }
+            for (const language of languages) {
+                const existing = await this.tryGetByPath(agreementFilePath(agreementId, kind, language));
+                if (existing?.sys_id) {
+                    continue;
+                }
+                // Base already in Appdata (maybe edited): its texts translated; otherwise the template of that language.
+                const content = base
+                    ? fromTemplate(kind, language)
+                    : localizeAgreementContent(cloneJson(file.localized ? await this.baseContent(agreementId, kind) : file.content), language, templateTranslations());
+                await this.writeJson(agreementFolderPath(agreementId), agreementFileName(kind, language), serializeAgreementJson(content), null);
             }
         }
         const agreement = files.agreement.source === 'appdata' ? files.agreement.content : agreementTemplateFile(agreementId, 'agreement');
@@ -210,6 +474,10 @@ export class AgreementRepositoryService {
             }
         }
         await this.syncIndexEntry(target.agreementId, copy.agreement ?? {}, index);
+    }
+
+    private async baseContent(agreementId: string, kind: AgreementFileKind): Promise<JsonObject> {
+        return (await this.loadFile(agreementId, kind)).content;
     }
 
     private async readText(documentId: string): Promise<string | null> {

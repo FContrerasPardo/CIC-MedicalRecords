@@ -830,11 +830,11 @@ export function resolveActivePayerId(items: AgentRuleScriptItem[]): string {
     const payer = String(tariff?.payer ?? '').trim().toLowerCase();
     const provider = String(tariff?.provider ?? '').trim().toLowerCase();
 
-    if (payer.includes('ars primera') || provider.includes('cm-uce') || provider.includes('cm uce')) {
-        return 'ars-primera';
+    if (payer.includes('hyland ars') || provider.includes('cm-uce') || provider.includes('cm uce')) {
+        return 'hyland-ars';
     }
 
-    return 'ars-primera';
+    return 'hyland-ars';
 }
 
 export function mapTariffSectionFromPayloadValue(

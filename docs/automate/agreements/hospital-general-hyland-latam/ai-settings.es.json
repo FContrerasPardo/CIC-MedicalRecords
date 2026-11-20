@@ -1,0 +1,53 @@
+{
+  "kind": "medical-records.agreement-ai-settings",
+  "schemaVersion": 1,
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-18-r1",
+  "updatedAt": "2026-11-18T00:00:00.000Z",
+  "validations": [
+    {
+      "id": "coding-icd10-procedure",
+      "enabled": true,
+      "agent": "Coding Integrity",
+      "title": "Diagnóstico CIE-10 frente a procedimiento",
+      "description": "Comprueba que cada procedimiento facturado sea coherente con el diagnóstico CIE-10 de la cuenta; por ejemplo, que no haya una cirugía de rodilla para un diagnóstico respiratorio."
+    },
+    {
+      "id": "authorization-check",
+      "enabled": true,
+      "agent": "Compliance Alert",
+      "title": "Verificación de autorizaciones",
+      "description": "Comprueba que los servicios que necesitan autorización previa del pagador la tengan y que cubra las fechas y los montos facturados."
+    },
+    {
+      "id": "documentary-support",
+      "enabled": true,
+      "agent": "Pre-analysis",
+      "title": "Soportes documentales",
+      "description": "Comprueba que la cuenta traiga los documentos que pide el checklist del convenio (factura, formulario de reclamación, notas clínicas…) antes de analizarla."
+    },
+    {
+      "id": "tariff-variance",
+      "enabled": true,
+      "agent": "Financial Variance",
+      "title": "Variación tarifaria frente al convenio",
+      "description": "Compara cada monto facturado con la tarifa pactada y señala las diferencias que superan la tolerancia permitida."
+    }
+  ],
+  "thresholds": {
+    "autoApprovalMinConfidencePct": 92,
+    "anomalySensitivity": "HIGH",
+    "tariffVariancePct": 5
+  },
+  "history": [
+    {
+      "at": "2026-11-18T00:00:00.000Z",
+      "event": "TEMPLATE_CREATED",
+      "user": null,
+      "file": "ai-settings.json",
+      "field": null,
+      "from": null,
+      "to": null
+    }
+  ]
+}

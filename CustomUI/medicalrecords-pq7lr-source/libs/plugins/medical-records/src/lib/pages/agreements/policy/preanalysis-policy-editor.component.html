@@ -32,7 +32,10 @@
         </div>
     </div>
 
-    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    <div class="tab-help">
+        <medical-records-agreement-help-coach topic="POLICY" [active]="active"></medical-records-agreement-help-coach>
+    </div>
+    <medical-records-agreement-file-status [file]="file" (languageCreated)="saved.emit()"></medical-records-agreement-file-status>
     @if (missingRuleIds.length && !draft) {
         <div class="source source--invalid" role="alert">
             <span class="material-icons" aria-hidden="true">link_off</span>

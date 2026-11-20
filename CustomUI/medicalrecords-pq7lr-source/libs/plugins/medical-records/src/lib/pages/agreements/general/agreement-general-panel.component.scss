@@ -1,0 +1,344 @@
+// General tab in the CIC-Fin card style of the radication (`pages/radication/_cic-fin-loan-application.scss`):
+// white flow cards, 18px radius, soft shadow, uppercase step label, muted 13px labels.
+:host {
+    --ab-ink: var(--mr-heading, #001b3d);
+    --ab-muted: var(--mr-muted, #475467);
+    --ab-line: var(--mr-border, #d0d5dd);
+    --ab-tint: var(--mr-surface-muted, #f2f4f7);
+    --ab-paper: var(--mr-surface, #ffffff);
+    --ab-accent-text: var(--mr-primary, #00478d);
+    --ab-brand: var(--mr-primary, #00478d);
+    --ab-brand-secondary: var(--mr-accent, #6e33ff);
+    --ab-ok-text: var(--mr-success-text, #12b76a);
+    --ab-warn-text: var(--mr-warning, #b54708);
+}
+
+.gp {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+
+        > div:first-child {
+            min-width: 0;
+        }
+
+        h2 {
+            margin: 6px 0 4px;
+            color: var(--ab-ink);
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        medical-records-agreement-help-coach {
+            flex: 0 0 auto;
+            align-self: flex-start;
+        }
+    }
+
+    &__lead {
+        margin: 0;
+        color: var(--ab-muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    &__create {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.step-label {
+    color: var(--ab-accent-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.flow-card {
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--ab-line);
+    border-radius: 18px;
+    background: var(--ab-paper);
+    box-shadow: 0 8px 26px rgba(41, 42, 90, 0.06);
+}
+
+.gp-card {
+    display: grid;
+    align-content: start;
+    gap: 16px;
+    padding: 24px 26px;
+
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        h3 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 0;
+            color: var(--ab-ink);
+            font-size: 17px;
+
+            .material-icons {
+                color: var(--ab-accent-text);
+                font-size: 20px;
+            }
+        }
+    }
+}
+
+// Two independent columns (info + contacts | execution + rules): each stacks its own cards, so a
+// shorter card never leaves a gap; both columns stretch to the same height and the last card of
+// each one (`--fill`) takes the remaining space, so the bottoms line up.
+.gp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+}
+
+.gp-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.gp-card--fill {
+    flex: 1 1 auto;
+}
+
+.gp-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 22px;
+    margin: 0;
+
+    div {
+        display: grid;
+        gap: 5px;
+        min-width: 0;
+    }
+
+    &__wide {
+        grid-column: 1 / -1;
+    }
+
+    dt {
+        color: var(--ab-muted);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    dd {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 0;
+        color: var(--ab-ink);
+        font-size: 14px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+}
+
+.gp-chip {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--ab-tint);
+    color: var(--ab-accent-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.gp-bars {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        display: grid;
+        gap: 6px;
+    }
+
+    &__meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--ab-muted);
+        font-size: 13px;
+        font-weight: 600;
+
+        strong {
+            color: var(--ab-ink);
+        }
+    }
+
+    &__track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--ab-tint);
+    }
+
+    &__fill {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        transition: width 600ms ease;
+
+        &--primary {
+            background: linear-gradient(90deg, var(--ab-brand), var(--ab-brand-secondary));
+        }
+
+        &--ok {
+            background: var(--ab-ok-text);
+        }
+
+        &--warn {
+            background: var(--ab-warn-text);
+        }
+    }
+
+    small {
+        color: var(--ab-muted);
+        font-size: 11.5px;
+    }
+}
+
+.gp-contacts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gp-contact {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--ab-line);
+    border-radius: 12px;
+    background: var(--ab-tint);
+
+    &__avatar {
+        display: grid;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--ab-brand), var(--ab-brand-secondary));
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    &__body {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+        font-size: 12.5px;
+
+        strong {
+            color: var(--ab-ink);
+            font-size: 14px;
+        }
+
+        a,
+        span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--ab-muted);
+            overflow-wrap: anywhere;
+        }
+
+        a {
+            color: var(--ab-accent-text);
+            text-decoration: none;
+        }
+
+        .material-icons {
+            font-size: 15px;
+        }
+    }
+
+    &__role {
+        font-weight: 600;
+    }
+}
+
+.gp-contacts-editor {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 12px;
+    border: 1px solid var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
+    border-radius: 12px;
+
+    legend {
+        padding: 0 4px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 10px;
+        align-items: end;
+
+        label {
+            display: grid;
+            gap: 4px;
+            color: var(--ab-muted);
+            font-size: 12px;
+        }
+    }
+
+    .btn {
+        justify-self: start;
+    }
+}
+
+@media (max-width: 1100px) {
+    .gp-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .gp__head {
+        flex-direction: column;
+    }
+
+    .gp-info,
+    .gp-contacts-editor__row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gp-card {
+        padding: 18px;
+    }
+}

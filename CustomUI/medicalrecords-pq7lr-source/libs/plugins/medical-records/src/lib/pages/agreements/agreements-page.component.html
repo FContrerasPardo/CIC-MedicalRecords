@@ -20,7 +20,7 @@
                 </button>
             </div>
             @if (indexResult) {
-                <p class="ag-sidebar__source ag-sidebar__source--{{ indexResult.source }}" [title]="indexResult.path">
+                <p class="ag-sidebar__source ag-sidebar__source--{{ indexResult.source }}">
                     <span class="material-icons" aria-hidden="true">{{ indexResult.source === 'appdata' ? 'cloud_done' : indexResult.source === 'invalid' ? 'error' : 'inventory_2' }}</span>
                     {{ i18n + '.SIDEBAR.INDEX_' + (indexResult.source | uppercase) | translate }}
                 </p>
@@ -39,7 +39,7 @@
                     <li>
                         <button type="button" class="ag-card" [class.ag-card--active]="entry.agreementId === selectedId" [attr.aria-current]="entry.agreementId === selectedId ? 'true' : null" (click)="select(entry.agreementId)">
                             <span class="ag-card__top">
-                                <span class="ag-card__payer">{{ entry.payer || '—' }}</span>
+                                <span class="ag-card__payer">{{ payerOf(entry) || '—' }}</span>
                                 <span class="status status--{{ entry.status | lowercase }}">{{ i18n + '.STATUS_' + entry.status | translate }}</span>
                             </span>
                             <span class="ag-card__name">{{ entry.providerName }}</span>
@@ -93,13 +93,26 @@
                     <div class="ag-entity__main">
                         <div class="ag-entity__title">
                             <h2>{{ general['providerDisplayName'] || selected.providerName }}</h2>
-                            <span class="status status--{{ selected.status | lowercase }}">{{ i18n + '.STATUS_' + selected.status | translate }}</span>
+                            <span class="ag-entity__badge">
+                                {{ general['agreementBadge'] || (i18n + '.GENERAL.FIELD_BADGE' | translate) }} /
+                                <span class="status status--{{ selected.status | lowercase }}">{{ i18n + '.STATUS_' + selected.status | translate }}</span>
+                            </span>
                         </div>
                         <p class="ag-entity__meta">
+                            <span><span class="material-icons" aria-hidden="true">tag</span>{{ general['contractId'] || '—' }} · {{ general['planName'] || '—' }}</span>
                             <span><span class="material-icons" aria-hidden="true">account_balance</span>{{ general['payer'] || selected.payer || '—' }}</span>
-                            <span><span class="material-icons" aria-hidden="true">tag</span><code>{{ general['contractId'] || '—' }}</code></span>
                             <span><span class="material-icons" aria-hidden="true">event</span>{{ general['effectiveFrom'] || '—' }} → {{ general['effectiveTo'] || '—' }}</span>
+                            <span class="ag-entity__lang" [title]="i18n + '.FILE.LANGUAGE_HINT' | translate">
+                                <span class="material-icons" aria-hidden="true">translate</span>{{ language }}
+                            </span>
                         </p>
+                    </div>
+                    <div class="ag-entity__value">
+                        <span>{{ i18n + '.' + headerValue.labelKey | translate }}</span>
+                        <strong>{{ general['capitationCurrency'] || general['budgetCurrency'] || '' }} {{ headerValue.amount | number: '1.0-0' }}</strong>
+                        @if (headerValue.suffix) {
+                            <small>/ {{ headerValue.suffix }}</small>
+                        }
                     </div>
                     <div class="panel__actions">
                         <button type="button" class="btn" (click)="loadFiles()" [disabled]="loadingFiles || working">
@@ -108,17 +121,29 @@
                         @if (pendingFiles.length) {
                             <button type="button" class="btn btn--primary" (click)="createFromTemplate()" [disabled]="working">
                                 <span class="material-icons" aria-hidden="true">cloud_upload</span>
-                                {{ (working ? i18n + '.POLICY.SAVING' : i18n + '.STORE.CREATE_ALL') | translate: { count: pendingFiles.length } }}
+                                {{ (working ? i18n + '.POLICY.SAVING' : i18n + '.STORE.CREATE_ALL') | translate: { count: pendingFiles.length, language: (language | uppercase) } }}
                             </button>
                         }
+                        <button type="button" class="btn" (click)="createFromTemplate(true)" [disabled]="working" [title]="i18n + '.STORE.CREATE_ALL_LANGUAGES_HINT' | translate">
+                            <span class="material-icons" aria-hidden="true">translate</span>{{ i18n + '.STORE.CREATE_ALL_LANGUAGES' | translate }}
+                        </button>
                     </div>
                 </header>
 
                 @if (pendingFiles.length) {
                     <p class="source source--default" role="note">
                         <span class="material-icons" aria-hidden="true">info</span>
-                        {{ (hasTemplate ? i18n + '.STORE.PENDING' : i18n + '.STORE.PENDING_NO_TEMPLATE') | translate: { count: pendingFiles.length } }}
+                        {{ (hasTemplate ? i18n + '.STORE.PENDING' : i18n + '.STORE.PENDING_NO_TEMPLATE') | translate: { count: pendingFiles.length, language: (language | uppercase) } }}
                     </p>
+                }
+                @if (demoMigrationPending) {
+                    <div class="source source--default ag-migration" role="note">
+                        <span class="material-icons" aria-hidden="true">update</span>
+                        <span class="ag-migration__text">{{ i18n + '.STORE.DEMO_MIGRATION' | translate }}</span>
+                        <button type="button" class="btn btn--primary" (click)="applyDemoMigration()" [disabled]="working">
+                            <span class="material-icons" aria-hidden="true">sync</span>{{ (working ? i18n + '.POLICY.SAVING' : i18n + '.STORE.DEMO_MIGRATION_ACTION') | translate }}
+                        </button>
+                    </div>
                 }
                 @if (actionDone) {
                     <p class="source source--appdata" role="status">{{ i18n + '.STORE.DONE_' + actionDone | translate }}</p>
@@ -126,16 +151,6 @@
                 @if (actionError) {
                     <p class="source source--invalid" role="alert">{{ i18n + '.STORE.' + actionError | translate }}</p>
                 }
-
-                <ul class="file-strip" [attr.aria-label]="i18n + '.DOCUMENTS.FILES' | translate">
-                    @for (kind of fileKinds; track kind) {
-                        <li class="file-strip__item file-strip__item--{{ files[kind].source }}" [title]="files[kind].path">
-                            <span class="file-strip__dot" aria-hidden="true"></span>
-                            <span>{{ i18n + '.RULES.FILE_' + kind | translate }}</span>
-                            <span class="sr-only">{{ i18n + '.FILE.SOURCE_' + (files[kind].source | uppercase) | translate }}</span>
-                        </li>
-                    }
-                </ul>
 
                 <div class="config-tabs" role="tablist" [attr.aria-label]="i18n + '.TABS.LABEL' | translate">
                     @for (item of tabs; track item.key) {
@@ -154,11 +169,12 @@
                     }
                 </div>
 
-                <div id="ag-tabpanel" role="tabpanel" class="config-tabs__panel" [attr.aria-labelledby]="'ag-tab-' + tab">
+                <div id="ag-tabpanel" role="tabpanel" class="config-tabs__panel" [class.config-tabs__panel--fab-room]="true" [attr.aria-labelledby]="'ag-tab-' + tab">
                     <!-- Re-created per agreement (no draft leaks between agreements); kept rendered across tabs so unsaved edits survive. -->
                     @for (agreementId of [selectedId]; track agreementId) {
                         <medical-records-agreement-general-panel
                             [hidden]="tab !== 'general'"
+                            [active]="tab === 'general'"
                             [agreementId]="agreementId"
                             [file]="files.agreement"
                             [summary]="summary"
@@ -166,13 +182,16 @@
                         ></medical-records-agreement-general-panel>
                         <medical-records-agreement-checklist-editor
                             [hidden]="tab !== 'checklist'"
+                            [active]="tab === 'checklist'"
                             [agreementId]="agreementId"
                             [file]="files.documentationChecklist"
                             [profileKeys]="profileKeys"
+                            [assistantDraft]="assistantDraft"
                             (saved)="onSaved('documentationChecklist')"
                         ></medical-records-agreement-checklist-editor>
                         <medical-records-preanalysis-policy-editor
                             [hidden]="tab !== 'policy'"
+                            [active]="tab === 'policy'"
                             [agreementId]="agreementId"
                             [file]="files.preanalysisPolicy"
                             [classCatalogue]="catalogueNames"
@@ -198,82 +217,54 @@
                             </div>
                             @for (agent of agentTabs; track agent.key) {
                                 <div class="agent-files" role="tabpanel" [hidden]="agentTab !== agent.key">
-                                    @for (kind of agent.kinds; track kind) {
-                                        <medical-records-agreement-rules-file-editor
-                                            [agreementId]="agreementId"
-                                            [kind]="kind"
-                                            [file]="files[kind]"
-                                            (saved)="onSaved(kind)"
-                                        ></medical-records-agreement-rules-file-editor>
-                                    }
-                                </div>
-                            }
-                        </section>
-                    }
-
-                    @if (tab === 'documents') {
-                        <section class="panel" aria-labelledby="documents-title">
-                            <div class="panel__head">
-                                <div>
-                                    <h2 id="documents-title"><span class="material-icons" aria-hidden="true">folder_open</span>{{ i18n + '.DOCUMENTS.TITLE' | translate }}</h2>
-                                    <p class="panel__lead">{{ i18n + '.DOCUMENTS.LEAD' | translate }}</p>
-                                </div>
-                            </div>
-                            <div class="doc-table" role="table" [attr.aria-label]="i18n + '.DOCUMENTS.FILES' | translate">
-                                <div class="doc-table__row doc-table__row--head" role="row">
-                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.FILE' | translate }}</span>
-                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.READ_BY' | translate }}</span>
-                                    <span role="columnheader">{{ i18n + '.DOCUMENTS.ORIGIN' | translate }}</span>
-                                    <span role="columnheader">{{ i18n + '.FILE.VERSION' | translate }}</span>
-                                    <span role="columnheader">{{ i18n + '.FILE.MODIFIED' | translate }}</span>
-                                </div>
-                                @for (kind of fileKinds; track kind) {
-                                    <div class="doc-table__row" role="row">
-                                        <span role="cell">
-                                            <strong>{{ i18n + '.RULES.FILE_' + kind | translate }}</strong>
-                                            <code class="doc-table__path">{{ files[kind].path }}</code>
-                                        </span>
-                                        <span role="cell">
-                                            {{ consumers[kind].agent }}
-                                            @if (consumers[kind].variable) {
-                                                <code>{{ consumers[kind].variable }}</code>
-                                            }
-                                        </span>
-                                        <span role="cell"><span class="status status--{{ files[kind].source }}">{{ i18n + '.DOCUMENTS.ORIGIN_' + (files[kind].source | uppercase) | translate }}</span></span>
-                                        <span role="cell"><code>{{ fileVersion(kind) || '—' }}</code></span>
-                                        <span role="cell">{{ files[kind].modifiedAt ? (files[kind].modifiedAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</span>
+                                    <div class="tab-help">
+                                        <medical-records-agreement-help-coach [topic]="agent.help" [active]="tab === 'agentRules' && agentTab === agent.key"></medical-records-agreement-help-coach>
                                     </div>
-                                }
-                            </div>
-                            @if (files.agreement.content['documents']; as docs) {
-                                <h3 class="doc-subtitle">{{ i18n + '.DOCUMENTS.CONTRACT' | translate }}</h3>
-                                <ul class="rule-list">
-                                    <li class="rule">
-                                        <div class="rule__head">
-                                            <span class="material-icons" aria-hidden="true">picture_as_pdf</span>
-                                            <strong>{{ $any(docs).primaryDocument?.title }}</strong>
-                                            <span class="tag">{{ $any(docs).primaryDocument?.status }}</span>
-                                        </div>
-                                        <p class="rule__scope">
-                                            <code>{{ $any(docs).primaryDocument?.contractId }}</code>
-                                            <span>{{ i18n + '.GENERAL.FIELD_EFFECTIVE_TO' | translate }}: {{ $any(docs).primaryDocument?.expiresAt }}</span>
-                                        </p>
-                                    </li>
-                                    @for (related of $any(docs).relatedFiles ?? []; track related.id) {
-                                        <li class="rule">
-                                            <div class="rule__head">
-                                                <span class="material-icons" aria-hidden="true">description</span>
-                                                <span>{{ related.title }}</span>
-                                                <span class="tag">{{ related.updatedAt }}</span>
-                                            </div>
-                                        </li>
+                                    @if (agent.key === 'ai') {
+                                        <medical-records-agreement-ai-settings-panel
+                                            [agreementId]="agreementId"
+                                            [file]="files.aiSettings"
+                                            [tariffContent]="files.tariffAgreement.content"
+                                            (saved)="onSaved('aiSettings')"
+                                        ></medical-records-agreement-ai-settings-panel>
+                                    } @else {
+                                        @for (kind of agent.kinds; track kind) {
+                                            <medical-records-agreement-rules-file-editor
+                                                [agreementId]="agreementId"
+                                                [kind]="kind"
+                                                [file]="files[kind]"
+                                                [assistantDraft]="assistantDraft"
+                                                (saved)="onSaved(kind)"
+                                            ></medical-records-agreement-rules-file-editor>
+                                        }
                                     }
-                                </ul>
-                                <p class="panel__lead">{{ i18n + '.DOCUMENTS.READ_ONLY' | translate }}</p>
+                                </div>
                             }
                         </section>
+                        <medical-records-agreement-documents-panel
+                            [hidden]="tab !== 'documents'"
+                            [active]="tab === 'documents'"
+                            [agreementId]="agreementId"
+                            [file]="files.agreement"
+                            [providerName]="selected.providerName"
+                            (saved)="onSaved('agreement')"
+                        ></medical-records-agreement-documents-panel>
                     }
                 </div>
+
+                <!--
+                    Floating agent in every tab, with the Knowledge Discovery gear always visible: rules assistant in General,
+                    Checklist, Policy and Agent rules; onboarding chat towards Knowledge Discovery in Documents (the single KD entry
+                    point of the page). Every tab reserves room at the bottom so it never covers the last «View» buttons.
+                -->
+                <medical-records-rule-assistant-panel
+                    [agreementId]="selectedId"
+                    [files]="files"
+                    [mode]="tab === 'documents' ? 'knowledgeDiscovery' : 'rules'"
+                    [kdPlaceId]="kdPlaceId"
+                    [kdFallback]="kdFallback"
+                    (apply)="applyProposal($event)"
+                ></medical-records-rule-assistant-panel>
             } @else if (!loadingIndex) {
                 <p class="source source--invalid" role="alert">{{ i18n + '.STORE.LOAD_ERROR' | translate }}</p>
             }

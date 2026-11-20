@@ -37,10 +37,34 @@ cualquier error sale con 0.
 
 ## Reglas
 
-- Una decisión vigente siempre apunta a su issue. Sin issue, se crea o se pregunta.
+- Una decisión duradera apunta a su issue. Sin autorización para publicar, dejar un pendiente local; no bloquear el trabajo autorizado.
 - Comentar o crear issues es escritura externa en un repo público: requiere
   la petición o autorización del usuario en el turno.
 - Sin PII/PHI ni valores de entorno en issues ni en el estado.
 - Tras compactar o reanudar: contrastar estado con `git status` y las issues
   antes de actuar; no re-decidir lo registrado.
 - Las sub-sesiones en worktree no ven el estado local: su fuente es la issue.
+
+## Estado breve y carga selectiva (2026-11-19)
+- Reemplazar el estado vigente; no añadir una cronología por cada petición.
+- Objetivo: hasta 60 líneas y 5.000 caracteres de contenido manual; reservar espacio
+  al bloque auto-snapshot y mantener el total por debajo de 8.000 caracteres.
+- Poner objetivo, siguiente acción y bloqueos al principio. Las novedades no van al final.
+- Conservar el bloque auto-snapshot del hook; marcar su fecha como histórica.
+- Si hace falta preservar historial antes de resumir, guardarlo bajo
+  .claude/session-state-history/ (local e ignorado). No cargarlo al arrancar.
+- No releer el estado si ya está disponible y no cambió.
+- Para consultar avance: estado, git status resumido y solo las issues vinculadas
+  necesarias. No listar todo el backlog ni reconstruir la conversación.
+- Codex lee el estado cuando necesita continuidad; los hooks citados arriba son de Claude.
+- Especificación por tarea: [SDD mínimo](sdd.md).
+
+## Plantilla del contenido manual
+Objetivo: ...
+Siguiente acción: ...
+Issue / especificación local: ...
+Rama observada y fecha: ...
+Hecho y evidencia: ... (inspeccionado / reportado / ejecutado / runtime)
+Bloqueos y autorizaciones pendientes: ...
+Rutas y referencias: ...
+Trabajo ajeno o concurrente que conservar: ...

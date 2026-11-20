@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { parsePreanalysisPolicy, PreanalysisPolicy } from '../../radication/utils/radication-policy.util';
 import { addUniqueValue } from '../checklist/documentation-checklist.util';
 import { AgreementFileStatusComponent } from '../shared/agreement-file-status.component';
+import { AgreementHelpCoachComponent } from '../shared/agreement-help-coach.component';
 import { AgreementFileLoadResult, AgreementRepositoryService } from '../store/agreement-repository.service';
 import { cloneJson, JsonObject } from '../store/agreement-store.util';
 import {
@@ -35,7 +36,7 @@ const I18N = 'MEDICAL_RECORDS.AGREEMENTS';
 @Component({
     selector: 'medical-records-preanalysis-policy-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, TranslateModule, AgreementFileStatusComponent],
+    imports: [CommonModule, FormsModule, TranslateModule, AgreementFileStatusComponent, AgreementHelpCoachComponent],
     templateUrl: './preanalysis-policy-editor.component.html',
     styleUrls: ['../agreements-page.component.scss', './preanalysis-policy-editor.component.scss'],
 })
@@ -44,6 +45,8 @@ export class PreanalysisPolicyEditorComponent implements OnChanges {
 
     @Input() agreementId = '';
     @Input() file: AgreementFileLoadResult | null = null;
+    /** The tab is visible (first-time help). */
+    @Input() active = true;
     /** Extra class names for suggestions (the checklist document catalogue). */
     @Input() classCatalogue: readonly string[] = [];
     /** Rule ids of the agreement's checklist (the canonical catalogue); null skips the cross-check. */
@@ -252,7 +255,7 @@ export class PreanalysisPolicyEditorComponent implements OnChanges {
         this.saveError = false;
         this.savedVersion = null;
         try {
-            await this.repository.saveFile(this.agreementId, 'preanalysisPolicy', content, this.file.legacy ? null : this.file.documentId);
+            await this.repository.saveAgreementFile(this.file, content);
             this.savedVersion = parsePreanalysisPolicy(content)?.version || '—';
             this.saved.emit();
             return true;

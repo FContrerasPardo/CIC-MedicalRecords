@@ -21,7 +21,7 @@ describe('agent-rules.mapper UI helpers', () => {
                 group: 'Financial',
                 value: {
                     contractId: 'CONV-TEST-2024',
-                    payer: 'ARS Primera',
+                    payer: 'Hyland ARS',
                     provider: 'CM-UCE',
                     tariffRules: [],
                 },
@@ -44,7 +44,7 @@ describe('agent-rules.mapper UI helpers', () => {
                     group: 'Financial',
                     value: {
                         contractId: 'CONV-TEST-2024',
-                        payer: 'ARS Primera',
+                        payer: 'Hyland ARS',
                         provider: 'CM-UCE',
                         effectiveFrom: '2024-02-01',
                         effectiveTo: '2024-11-30',
@@ -57,7 +57,7 @@ describe('agent-rules.mapper UI helpers', () => {
         const general = mapAgreementGeneralViewModel(items);
 
         expect(general.contractId).toBe('CONV-TEST-2024');
-        expect(general.payer).toBe('ARS Primera');
+        expect(general.payer).toBe('Hyland ARS');
         expect(general.providerDisplayName).toBe('CM-UCE');
         expect(general.effectiveFrom).toBe('2024-02-01');
     });
@@ -115,7 +115,7 @@ describe('agent-rules.mapper UI helpers', () => {
         expect(label).toBe('+15%');
     });
 
-    it('resolves ARS Primera as the active payer from tariff payload', () => {
+    it('resolves Hyland ARS as the active payer from tariff payload', () => {
         const items = ensureUiTabItems(
             parseScriptPayload([
                 {
@@ -125,7 +125,7 @@ describe('agent-rules.mapper UI helpers', () => {
                     group: 'Financial',
                     value: {
                         contractId: 'CONV-TEST-2024',
-                        payer: 'ARS Primera',
+                        payer: 'Hyland ARS',
                         provider: 'CM-UCE',
                         tariffRules: [],
                     },
@@ -133,7 +133,7 @@ describe('agent-rules.mapper UI helpers', () => {
             ])
         );
 
-        expect(resolveActivePayerId(items)).toBe('ars-primera');
+        expect(resolveActivePayerId(items)).toBe('hyland-ars');
     });
 
     it('returns demo payer profiles with read-only tariff sections', () => {

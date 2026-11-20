@@ -1,4 +1,5 @@
 import { normalizeKey } from '../../../form-widgets/intake-account-widget/batch-state-billing-fields';
+import { AgreementContentLanguage, localizeAgreementContent, resolveLocalizedSource, TemplateTranslations, untranslatedTexts } from '../../agreements/store/agreement-locale.util';
 
 /**
  * Documentary pre-analysis policy (`docs/automate/policies/preanalysis-policy.json`), shown in the
@@ -29,6 +30,8 @@ export interface PolicyProfile {
     label: string;
     alwaysRequired: PolicyDocumentRequirement[];
     conditionallyRequired: PolicyDocumentRequirement[];
+    /** Classes the profile accepts without requiring them (`documentRequirements.optional`). */
+    optional?: string[];
     crossChecks: PolicyCrossCheck[];
 }
 
@@ -98,6 +101,7 @@ export function parsePreanalysisPolicy(value: unknown): PreanalysisPolicy | null
             label: text(profile['label']) || key,
             alwaysRequired: requirements(documents['alwaysRequired']),
             conditionallyRequired: requirements(documents['conditionallyRequired']),
+            optional: (Array.isArray(documents['optional']) ? documents['optional'] : []).map(text).filter((name) => !!name),
             crossChecks: (Array.isArray(profile['crossChecks']) ? profile['crossChecks'] : [])
                 .map(record)
                 .filter((check) => !!text(check['checkId']) || !!text(check['label']))
@@ -115,6 +119,45 @@ export function parsePreanalysisPolicy(value: unknown): PreanalysisPolicy | null
         defaultProfile: text(selection['defaultProfile']) || SINGLE_INVOICE_PROFILE,
         profiles,
     };
+}
+
+/** Where the policy shown on the page comes from in the UI language. */
+export type PolicyLanguageOrigin = 'variant' | 'template' | 'base';
+
+export interface LocalizedPolicyChoice {
+    policy: PreanalysisPolicy | null;
+    origin: PolicyLanguageOrigin;
+    /** Some texts stayed in the base language (no `<name>.<lang>.json` and no template translation): discreet notice. */
+    baseLanguageShown: boolean;
+}
+
+/**
+ * The policy the page shows in a language (`resolveLocalizedSource`, as the agreements page): the
+ * agreement's `preanalysis-policy.<lang>.json` when usable; else, with the base file in Appdata, the
+ * base translated with the template dictionary (texts outside it stay in the base language and set
+ * `baseLanguageShown`); else the bundled template in that language. The Automate agent keeps reading
+ * the base file: this only decides what is displayed.
+ */
+export function chooseLocalizedPolicy(input: {
+    language: AgreementContentLanguage;
+    /** Content of `<name>.<lang>.json`; `undefined` when the file is absent, `null` when unreadable. */
+    variant?: unknown;
+    /** The readable base file in Appdata (`null` when absent, unreadable or only the legacy global file). */
+    base: unknown;
+    /** The bundled template already in `language`. */
+    template: unknown;
+    translations: TemplateTranslations;
+}): LocalizedPolicyChoice {
+    const variantPolicy = input.variant ? parsePreanalysisPolicy(input.variant) : null;
+    const pick = resolveLocalizedSource(variantPolicy ? 'usable' : input.variant === undefined ? 'absent' : 'unusable', !!parsePreanalysisPolicy(input.base));
+    if (pick === 'variant') {
+        return { policy: variantPolicy, origin: 'variant', baseLanguageShown: false };
+    }
+    if (pick === 'base') {
+        const localized = localizeAgreementContent(input.base, input.language, input.translations);
+        return { policy: parsePreanalysisPolicy(localized), origin: 'base', baseLanguageShown: untranslatedTexts(input.base, input.language, input.translations).length > 0 };
+    }
+    return { policy: parsePreanalysisPolicy(input.template), origin: 'template', baseLanguageShown: false };
 }
 
 /** As the policy says: one invoice → full clinical support; two or more → invoice only. */

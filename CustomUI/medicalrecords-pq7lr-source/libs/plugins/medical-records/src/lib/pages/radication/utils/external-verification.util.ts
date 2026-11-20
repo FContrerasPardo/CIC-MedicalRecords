@@ -4,15 +4,19 @@
  * CIC-Fin's bureau checks (`components/external-checks/external-checks-animation.component.ts`),
  * generalized: several systems, per-channel visibility and a result per invoice.
  *
- * v1 has no real integration: the mock adapters derive a deterministic, synthetic result from a hash
- * of the invoice number, so the same invoice always shows the same outcome. Pure logic only.
+ * v1 has no real integration: the mock adapters answer every invoice as verified, and each system
+ * shows the validation types it runs while it queries. The demo never shows a failed external check:
+ * the provider would have nothing to fix. Pure logic only.
  */
 
 export type ExternalVerificationKey = 'affiliation' | 'authorization' | 'contract' | 'priorClaims' | 'providerHis';
 export type ExternalVerificationChannel = 'provider' | 'ars';
 export type ExternalVerificationMode = 'simulated' | 'real';
-export type ExternalVerificationStatus = 'ok' | 'alert' | 'inconsistency' | 'no_response';
+/** `no_response` only when a system has no adapter or its adapter failed. */
+export type ExternalVerificationStatus = 'ok' | 'no_response';
 export type ExternalCheckRowState = 'querying' | ExternalVerificationStatus;
+/** One validation type of a system while its row runs: waiting, being checked, or verified. */
+export type ExternalValidationState = 'pending' | 'checking' | 'ok';
 
 export interface InvoiceRef {
     invoiceNumber: string;
@@ -48,6 +52,8 @@ export interface ExternalCheckDefinition {
     mode: ExternalVerificationMode;
     /** Time the visual query takes before the row can show its result. */
     durationMs: number;
+    /** i18n keys of the validation types the system runs, in the order the animation checks them. */
+    validationKeys: readonly string[];
 }
 
 interface SystemSpec {
@@ -55,65 +61,61 @@ interface SystemSpec {
     labelKey: string;
     durationMs: number;
     channels: { provider: boolean; ars: boolean };
-    /** Status of a non-ok synthetic result for this system. */
-    issue: Exclude<ExternalVerificationStatus, 'ok'>;
     okKey: string;
-    issueKey: string;
+    validationKeys: readonly string[];
 }
+
+const KEY = 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS';
 
 /** Systems and channels, as the design table: prior claims only for the ARS, HIS only when authorized. */
 const SYSTEMS: Record<ExternalVerificationKey, SystemSpec> = {
     affiliation: {
         icon: 'verified_user',
-        labelKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SYSTEMS.AFFILIATION',
+        labelKey: `${KEY}.SYSTEMS.AFFILIATION`,
         durationMs: 2600,
         channels: { provider: true, ars: true },
-        issue: 'alert',
-        okKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.AFFILIATION_OK',
-        issueKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.AFFILIATION_ALERT',
+        okKey: `${KEY}.DETAIL.AFFILIATION_OK`,
+        validationKeys: [`${KEY}.VALIDATIONS.AFFILIATION_ACTIVE`, `${KEY}.VALIDATIONS.AFFILIATION_PLAN`, `${KEY}.VALIDATIONS.AFFILIATION_COPAY`],
     },
     authorization: {
         icon: 'approval',
-        labelKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SYSTEMS.AUTHORIZATION',
+        labelKey: `${KEY}.SYSTEMS.AUTHORIZATION`,
         durationMs: 3800,
         channels: { provider: true, ars: true },
-        issue: 'alert',
-        okKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.AUTHORIZATION_OK',
-        issueKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.AUTHORIZATION_ALERT',
+        okKey: `${KEY}.DETAIL.AUTHORIZATION_OK`,
+        validationKeys: [`${KEY}.VALIDATIONS.AUTHORIZATION_PRIOR`, `${KEY}.VALIDATIONS.AUTHORIZATION_VALIDITY`, `${KEY}.VALIDATIONS.AUTHORIZATION_MATCH`],
     },
     contract: {
         icon: 'request_quote',
-        labelKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SYSTEMS.CONTRACT',
+        labelKey: `${KEY}.SYSTEMS.CONTRACT`,
         durationMs: 5000,
         channels: { provider: true, ars: true },
-        issue: 'inconsistency',
-        okKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.CONTRACT_OK',
-        issueKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.CONTRACT_INCONSISTENCY',
+        okKey: `${KEY}.DETAIL.CONTRACT_OK`,
+        validationKeys: [`${KEY}.VALIDATIONS.CONTRACT_TARIFF`, `${KEY}.VALIDATIONS.CONTRACT_VARIATION`, `${KEY}.VALIDATIONS.CONTRACT_SERVICES`],
     },
+    // ARS channel only (not shown on the provider's radication).
     priorClaims: {
         icon: 'content_copy',
-        labelKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SYSTEMS.PRIOR_CLAIMS',
+        labelKey: `${KEY}.SYSTEMS.PRIOR_CLAIMS`,
         durationMs: 6000,
         channels: { provider: false, ars: true },
-        issue: 'alert',
-        okKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.PRIOR_CLAIMS_OK',
-        issueKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.PRIOR_CLAIMS_ALERT',
+        okKey: `${KEY}.DETAIL.PRIOR_CLAIMS_OK`,
+        validationKeys: [],
     },
     providerHis: {
         icon: 'local_hospital',
-        labelKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SYSTEMS.PROVIDER_HIS',
+        labelKey: `${KEY}.SYSTEMS.PROVIDER_HIS`,
         durationMs: 6800,
         channels: { provider: false, ars: true },
-        issue: 'no_response',
-        okKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.PROVIDER_HIS_OK',
-        issueKey: 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.PROVIDER_HIS_NO_RESPONSE',
+        okKey: `${KEY}.DETAIL.PROVIDER_HIS_OK`,
+        validationKeys: [],
     },
 };
 
 export const EXTERNAL_VERIFICATION_KEYS: readonly ExternalVerificationKey[] = ['affiliation', 'authorization', 'contract', 'priorClaims', 'providerHis'];
 
 /** Detail shown when a system did not return items (no invoices or no adapter). */
-export const EXTERNAL_CHECKS_NO_DATA_KEY = 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.NO_DATA';
+export const EXTERNAL_CHECKS_NO_DATA_KEY = `${KEY}.DETAIL.NO_DATA`;
 
 export interface ExternalChecksOptions {
     /** The provider's HIS can be queried (explicit, authorized access). Off by default. */
@@ -127,45 +129,22 @@ export function externalChecksFor(channel: ExternalVerificationChannel, options:
             return !!options.hisAuthorized && SYSTEMS[key].channels[channel];
         }
         return SYSTEMS[key].channels[channel];
-    }).map((key) => ({ key, icon: SYSTEMS[key].icon, labelKey: SYSTEMS[key].labelKey, mode: 'simulated', durationMs: SYSTEMS[key].durationMs }));
-}
-
-/** FNV-1a 32-bit hash: stable across runs and browsers. */
-export function hashText(text: string): number {
-    let hash = 0x811c9dc5;
-    for (let index = 0; index < text.length; index++) {
-        hash ^= text.charCodeAt(index);
-        hash = Math.imul(hash, 0x01000193) >>> 0;
-    }
-    return hash >>> 0;
-}
-
-/** Deterministic synthetic outcome of one system for one invoice: about 7 in 10 come back ok. */
-export function simulatedItemStatus(key: ExternalVerificationKey, invoiceNumber: string): ExternalVerificationStatus {
-    return hashText(`${key}:${invoiceNumber.trim().toUpperCase()}`) % 10 < 7 ? 'ok' : SYSTEMS[key].issue;
-}
-
-const SEVERITY: Record<ExternalVerificationStatus, number> = { ok: 0, no_response: 1, alert: 2, inconsistency: 3 };
-
-/** Worst status of the items; no items means the system had nothing to answer. */
-export function aggregateVerificationStatus(items: readonly { status: ExternalVerificationStatus }[]): ExternalVerificationStatus {
-    if (!items.length) {
-        return 'no_response';
-    }
-    return items.reduce<ExternalVerificationStatus>((worst, item) => (SEVERITY[item.status] > SEVERITY[worst] ? item.status : worst), 'ok');
-}
-
-/** Result of the mock adapter of a system: one item per invoice, derived from its number. */
-export function buildSimulatedVerification(key: ExternalVerificationKey, query: ExternalVerificationQuery, checkedAt: string): ExternalVerificationResult {
-    const items = query.invoices.map((invoice): ExternalVerificationItem => {
-        const status = simulatedItemStatus(key, invoice.invoiceNumber);
-        return {
-            invoiceNumber: invoice.invoiceNumber,
-            patientRef: invoice.patientRef,
-            status,
-            detailKey: status === 'ok' ? SYSTEMS[key].okKey : SYSTEMS[key].issueKey,
-        };
+    }).map((key) => {
+        const spec = SYSTEMS[key];
+        return { key, icon: spec.icon, labelKey: spec.labelKey, mode: 'simulated', durationMs: spec.durationMs, validationKeys: spec.validationKeys };
     });
+}
+
+/** No items (nothing to answer) or an item without answer → `no_response`; otherwise `ok`. */
+export function aggregateVerificationStatus(items: readonly { status: ExternalVerificationStatus }[]): ExternalVerificationStatus {
+    return !items.length || items.some((item) => item.status === 'no_response') ? 'no_response' : 'ok';
+}
+
+/** Result of the mock adapter of a system: one verified item per invoice. */
+export function buildSimulatedVerification(key: ExternalVerificationKey, query: ExternalVerificationQuery, checkedAt: string): ExternalVerificationResult {
+    const items = query.invoices.map(
+        (invoice): ExternalVerificationItem => ({ invoiceNumber: invoice.invoiceNumber, patientRef: invoice.patientRef, status: 'ok', detailKey: SYSTEMS[key].okKey })
+    );
     return { key, mode: 'simulated', status: aggregateVerificationStatus(items), items, checkedAt };
 }
 
@@ -211,6 +190,22 @@ export function deriveExternalCheckRows(definitions: readonly ExternalCheckDefin
         const resolved = !!result && clock.elapsedMs >= definition.durationMs && (!isLast || clock.released);
         return { definition, state: resolved && result ? result.status : 'querying', result: resolved ? result : null };
     });
+}
+
+/**
+ * Validation types of a row as the animation advances: verified one by one over the row's time;
+ * while the row is querying its last type stays `checking` (it waits for the result and, on the last
+ * row, for the pre-analysis). Once the row shows its result, every type is verified.
+ */
+export function deriveValidationStates(row: ExternalCheckRow, elapsedMs: number): ExternalValidationState[] {
+    const keys = row.definition.validationKeys;
+    if (row.state !== 'querying') {
+        return keys.map(() => 'ok');
+    }
+    const step = row.definition.durationMs / Math.max(1, keys.length);
+    const done = keys.map((_, index) => index < keys.length - 1 && elapsedMs >= step * (index + 1));
+    const checking = done.indexOf(false);
+    return keys.map((_, index) => (done[index] ? 'ok' : index === checking ? 'checking' : 'pending'));
 }
 
 /** Every row shows its result: the timer can stop. */

@@ -5,9 +5,15 @@ Protocolo compartido por Codex y Claude. Integra el canon de la rama
 CIC-Learn del 2026-11-10. Estos roles desarrollan la demo; no son agentes de
 Agent Builder ni recursos desplegados en Automate.
 
+## Lectura selectiva
+
+Las instrucciones permanentes viven en AGENTS.md; no releer este protocolo por
+cada petición. Usar [SDD mínimo](sdd.md) para tareas de varios pasos y
+[contexto breve](contexto.md) para continuidad. Los perfiles se cargan a demanda.
+
 ## Fuentes y roles
 
-Aplicar `AGENTS.md`, consultar el [catálogo](skills.md) y los
+Aplicar `AGENTS.md`. Consultar, solo si la tarea lo requiere, el [catálogo](skills.md) y los
 [parámetros del proyecto](proyecto.md), y cargar solo el perfil pertinente.
 Los perfiles no amplían permisos ni sustituyen los contratos del export.
 

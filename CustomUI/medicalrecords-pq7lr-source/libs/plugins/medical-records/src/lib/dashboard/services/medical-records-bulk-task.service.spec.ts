@@ -19,6 +19,6 @@ describe('MedicalRecordsBulkTaskService', () => {
         expect(source).toContain('claimTask');
         expect(source).toContain("payloadType: 'CompleteTaskPayload'");
         expect(source).toContain('completeTaskForm');
-        expect(source).toContain('loadAttentionItems');
+        expect(source).toContain('reloadAll');
     });
 });

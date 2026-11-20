@@ -1,4 +1,5 @@
 import { normalizeKey } from '../../../form-widgets/intake-account-widget/batch-state-billing-fields';
+import { DEMO_PAYER_NAME } from '../store/demo-payer';
 
 /**
  * Documentary checklist of an agreement, stored as a JSON file in Appdata so it can be changed at
@@ -63,11 +64,11 @@ const SINGLE = ['SINGLE_INVOICE_FULL'];
 export const DEFAULT_DOCUMENTATION_CHECKLIST: DocumentationChecklist = fromDocumentationRules({
     rulesetId: 'DOC-RULES-DEMO',
     name: 'Checklist documental de demostración',
-    payer: 'ARS Primera',
+    payer: DEMO_PAYER_NAME,
     rules: [
         { ruleId: 'SIF-001', profiles: SINGLE, description: 'Invoice with its service breakdown.', requiredDocuments: ['Factura y Desglose'], riskLevelIfMissing: 'HIGH' },
         { ruleId: 'SIF-002', profiles: SINGLE, description: 'Admission sheet of the stay.', requiredDocuments: ['Planilla de Admisión'], riskLevelIfMissing: 'HIGH' },
-        { ruleId: 'SIF-003', profiles: SINGLE, description: 'Payer claim form.', requiredDocuments: ['Formulario de Reclamación (ARS Primera)'], riskLevelIfMissing: 'MEDIUM' },
+        { ruleId: 'SIF-003', profiles: SINGLE, description: 'Payer claim form.', requiredDocuments: ['Formulario de Reclamación'], riskLevelIfMissing: 'MEDIUM' },
         { ruleId: 'SIF-004', profiles: SINGLE, description: 'Affiliation card of the patient.', requiredDocuments: ['Carnet de Afiliación'], riskLevelIfMissing: 'MEDIUM' },
         {
             ruleId: 'SIF-010',

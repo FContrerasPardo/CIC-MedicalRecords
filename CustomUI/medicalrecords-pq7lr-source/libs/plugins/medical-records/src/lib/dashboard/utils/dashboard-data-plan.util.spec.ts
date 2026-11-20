@@ -30,7 +30,8 @@ describe('dashboard data plan', () => {
     it('describes each widget need with named variables', () => {
         expect(needForWidget(providers)).toEqual({
             widgetId: 'providers',
-            definitions: ['medical-records'],
+            definitions: ['Process_1777481415500'],
+            queryNames: ['Radicación', 'medical-records'],
             statuses: ['RUNNING', 'SUSPENDED'],
             variables: ['accountSummary', 'batchState'],
             allVariables: false,
@@ -41,7 +42,9 @@ describe('dashboard data plan', () => {
 
     it('unifies all widgets into one query (union of definitions and statuses)', () => {
         const plan = buildDataPlan([kpi('done', ['COMPLETED']), kpi('active', ['RUNNING', 'SUSPENDED']), providers]);
-        expect(plan?.definitions).toEqual(['medical-records']);
+        // Legacy configs store the root by name: the plan uses the canonical key and queries every known name.
+        expect(plan?.definitions).toEqual(['Process_1777481415500']);
+        expect(plan?.queryNames).toEqual(['Radicación', 'medical-records']);
         expect(plan?.statuses).toEqual(['COMPLETED', 'RUNNING', 'SUSPENDED']);
         expect(buildDataPlan([kpi('done', ['COMPLETED']), kpi('total', undefined)])?.statuses).toBeNull();
     });

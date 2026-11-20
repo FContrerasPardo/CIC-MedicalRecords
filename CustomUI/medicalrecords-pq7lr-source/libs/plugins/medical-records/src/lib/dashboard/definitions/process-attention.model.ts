@@ -21,8 +21,25 @@ export interface ProcessAttentionItem {
     nativeReference: NativeAutomationReference;
 }
 
+/** What the open-tasks query received and kept (technical view and builder preview; no patient data). */
+export interface OpenTasksQueryStats {
+    /** Root key and names used, and the subprocess keys included (or 'off'). */
+    root: string;
+    subprocesses: string;
+    /** Running root ids returned per root name sent to the Query service. */
+    rootIdsByName: Array<{ name: string; count: number }>;
+    rootIds: number;
+    /** Unique tasks returned by the server (ASSIGNED to me + CREATED). */
+    received: number;
+    accepted: number;
+    acceptedByRule: Record<string, number>;
+    rejected: number;
+    rejectedByReason: Record<string, number>;
+}
+
 export interface ProcessAttentionListState {
     items: ProcessAttentionItem[];
     loading: boolean;
     error?: string;
+    stats?: OpenTasksQueryStats;
 }

@@ -43,9 +43,10 @@
                     <medical-records-dashboard-task-status-summary-widget *ngIf="widget.type === 'task-status-summary'" [config]="widget"></medical-records-dashboard-task-status-summary-widget>
                     <medical-records-dashboard-task-recent-list-widget *ngIf="widget.type === 'task-recent-list'" [config]="widget"></medical-records-dashboard-task-recent-list-widget>
                     <medical-records-dashboard-provider-cards-widget *ngIf="widget.type === 'provider-cards'" [config]="widget"></medical-records-dashboard-provider-cards-widget>
-                    <p *ngIf="widget.type === 'process-list'" class="widget-editor-modal__preview-note">
-                        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PROCESS_LIST_PREVIEW' | translate }}
-                    </p>
+                    <medical-records-dashboard-builder-process-list-preview
+                        *ngIf="widget.type === 'process-list'"
+                        [widget]="widget"
+                    ></medical-records-dashboard-builder-process-list-preview>
                 </div>
                 <div class="widget-editor-modal__appearance-config" *ngIf="widget.type !== 'table'">
                     <medical-records-dashboard-builder-appearance-panel
@@ -221,6 +222,12 @@
                         {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.PROVIDER_CARDS_OPTIONS.ADD_METRIC' | translate }}
                     </button>
                 </section>
+
+                <medical-records-dashboard-builder-process-list-scope
+                    *ngIf="isProcessListWidget"
+                    [widget]="widget"
+                    (widgetPatch)="patchWidget($event)"
+                ></medical-records-dashboard-builder-process-list-scope>
 
                 <section class="cross-filter-options" *ngIf="!isProviderCardsWidget">
                     <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CROSS_FILTER.TITLE' | translate }}</h3>

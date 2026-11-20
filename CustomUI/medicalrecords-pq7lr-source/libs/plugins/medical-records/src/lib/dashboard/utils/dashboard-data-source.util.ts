@@ -1,4 +1,5 @@
 import { DashboardDataSource, DashboardWidgetConfig } from '../definitions/dashboard-widget.model';
+import { activeProcessMapping, matchProcessDefinitions, ProcessMapping } from '../definitions/process-mapping';
 
 export const DEFAULT_PROCESS_STATUSES = ['RUNNING', 'COMPLETED', 'SUSPENDED', 'CANCELLED'] as const;
 
@@ -62,20 +63,65 @@ export function filterRowsByProcessStatus(
     return rows.filter((row) => allowed.has(String(row['status'] ?? '').toUpperCase()));
 }
 
+export interface ProcessDefinitionRowFilterResult {
+    rows: Array<Record<string, unknown>>;
+    /** Rows accepted by their definition key. */
+    byKey: number;
+    /** Rows accepted by their definition name only (e.g. a renamed root). */
+    byName: number;
+    /** Rows without key nor name, kept as they are. */
+    unidentified: number;
+    dropped: number;
+}
+
+function rowIdentity(row: Record<string, unknown>): { processDefinitionKey: string; processDefinitionName: string } {
+    return {
+        processDefinitionKey: String(row['processDefinitionKey'] ?? '').trim(),
+        processDefinitionName: String(row['processDefinitionName'] ?? '').trim(),
+    };
+}
+
+/**
+ * Client-side definition filter through the central mapping: a row of a wanted role is kept by key
+ * OR name, so a root row is never dropped because its display name changed («Radicación»).
+ */
+export function classifyRowsByProcessDefinitions(
+    rows: Array<Record<string, unknown>>,
+    definitionKeys: readonly string[] | undefined,
+    mapping: ProcessMapping = activeProcessMapping()
+): ProcessDefinitionRowFilterResult {
+    const result: ProcessDefinitionRowFilterResult = { rows: [], byKey: 0, byName: 0, unidentified: 0, dropped: 0 };
+    if (!definitionKeys?.length) {
+        result.rows = rows;
+        return result;
+    }
+    for (const row of rows) {
+        const identity = rowIdentity(row);
+        if (!identity.processDefinitionKey && !identity.processDefinitionName) {
+            result.unidentified++;
+            result.rows.push(row);
+            continue;
+        }
+        const match = matchProcessDefinitions(identity, definitionKeys, mapping);
+        if (match === 'key') {
+            result.byKey++;
+        } else if (match === 'name') {
+            result.byName++;
+        } else {
+            result.dropped++;
+            continue;
+        }
+        result.rows.push(row);
+    }
+    return result;
+}
+
 export function filterRowsByProcessDefinitions(
     rows: Array<Record<string, unknown>>,
-    definitionKeys?: string[]
+    definitionKeys?: string[],
+    mapping: ProcessMapping = activeProcessMapping()
 ): Array<Record<string, unknown>> {
-    if (!definitionKeys?.length) {
-        return rows;
-    }
-
-    const allowed = new Set(definitionKeys);
-    return rows.filter((row) => {
-        const key = String(row['processDefinitionKey'] ?? '').trim();
-        const name = String(row['processDefinitionName'] ?? '').trim();
-        return allowed.has(key) || allowed.has(name);
-    });
+    return classifyRowsByProcessDefinitions(rows, definitionKeys, mapping).rows;
 }
 
 export function isLikelyContentFieldKey(key?: string): boolean {

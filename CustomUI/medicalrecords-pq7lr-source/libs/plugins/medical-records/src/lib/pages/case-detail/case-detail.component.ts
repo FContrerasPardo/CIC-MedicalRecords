@@ -2,15 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subscription, of } from 'rxjs';
+import { Subscription, from, of } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { ProcessVariablesService } from '../../dashboard/services/process-variables.service';
 import { BatchStateSource } from '../../form-widgets/intake-account-widget/batch-state.model';
 import { parseBatchState } from './batch-state-case-detail.provider';
-import { readCaseRouteContext, resolveWorkspaceTab, WorkspaceTabId } from './utils/case-navigation.util';
+import { readCaseRouteContext, resolveInitialInvoiceKey, resolveWorkspaceTab, WorkspaceTabId } from './utils/case-navigation.util';
 import { buildCaseAccountView, CaseAccountSummary, CaseInvoiceMode, CaseInvoiceOption, resolveInvoiceSelection } from './utils/case-invoice.util';
 import { resolveAccountReference } from './utils/case-account-validation.util';
 import { InvoiceWorkspaceComponent } from './invoice-workspace/invoice-workspace.component';
+import { CaseProgressRepositoryService } from './invoice-workspace/case-progress-repository.service';
 
 
 const I18N = 'MEDICAL_RECORDS.CASE_DETAIL';
@@ -32,6 +33,7 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
     private readonly route = inject(ActivatedRoute, { optional: true });
     private readonly router = inject(Router, { optional: true });
     private readonly processVariables = inject(ProcessVariablesService);
+    private readonly progressRepository = inject(CaseProgressRepositoryService);
     private routeSubscription?: Subscription;
 
     readonly i18n = I18N;
@@ -47,11 +49,15 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
     invoiceMode: CaseInvoiceMode = 'none';
     selectedInvoice: CaseInvoiceOption | null = null;
     initialTab: WorkspaceTabId | null = null;
+    /** Sub-section of the route (`findings`: the Findings panel of the intake). */
+    initialSubTab: string | null = null;
 
     /** Process variables and batchState of the account, handed to the invoice workspace (#147). */
     processVariablesSnapshot: Record<string, unknown> = {};
     batchState: BatchStateSource | null = null;
     private requestedInvoiceKey: string | null = null;
+    /** Process whose variables are loaded; changing only the invoice does not reload them. */
+    private loadedProcessInstanceId: string | null = null;
 
     /** Host form (case-detail widget): the account comes from its batchState, without a process. */
     @Input() set batchStateSource(value: BatchStateSource | null | undefined) {
@@ -72,6 +78,7 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
                 map((params) => readCaseRouteContext((key) => params.get(key))),
                 tap((context) => {
                     this.initialTab = resolveWorkspaceTab(context.target);
+                    this.initialSubTab = context.target?.subTab ?? null;
                     this.requestedInvoiceKey = context.invoiceKey;
                     if (context.processInstanceId) {
                         this.accountMode = true;
@@ -82,19 +89,55 @@ export class CaseDetailComponent implements OnInit, OnDestroy {
                     if (!context.processInstanceId) {
                         return of(null);
                     }
+                    // Another invoice of the account already loaded: only the selection changes, so the
+                    // workspace keeps its account progress (Continue moves between patients this way).
+                    if (context.processInstanceId === this.loadedProcessInstanceId) {
+                        return of({ variables: null, invoiceKey: context.invoiceKey });
+                    }
                     this.loadingCase = true;
-                    return this.processVariables
-                        .fetchVariables(context.processInstanceId)
-                        .pipe(map((variables) => ({ variables, invoiceKey: context.invoiceKey })));
+                    const processInstanceId = context.processInstanceId;
+                    return this.processVariables.fetchVariables(processInstanceId).pipe(
+                        switchMap((variables) => from(this.initialInvoiceKey(variables, processInstanceId, context.invoiceKey))),
+                        map((result) => ({ variables: result.variables, invoiceKey: result.invoiceKey }))
+                    );
                 })
             )
             .subscribe((result) => {
                 if (!result) {
                     return;
                 }
+                if (!result.variables) {
+                    this.applySelection(this.invoices, result.invoiceKey);
+                    return;
+                }
                 this.loadingCase = false;
-                this.applyAccount(result.variables ?? {}, result.invoiceKey);
+                this.loadedProcessInstanceId = this.processInstanceId;
+                this.applyAccount(result.variables, result.invoiceKey);
+                // Reopened on the last patient: the URL says so, for reloads and the back button.
+                if (result.invoiceKey && result.invoiceKey !== this.requestedInvoiceKey && this.selectedInvoice?.key === result.invoiceKey) {
+                    this.requestedInvoiceKey = result.invoiceKey;
+                    this.router?.navigate([], { relativeTo: this.route ?? undefined, queryParams: { invoice: result.invoiceKey }, queryParamsHandling: 'merge', replaceUrl: true });
+                }
             });
+    }
+
+    /**
+     * Patient to open in a multi-invoice account: the one in the URL, else the last one the analyst
+     * worked on (case-progress.json `lastInvoiceKey`, read fresh); null shows the invoice selector.
+     */
+    private async initialInvoiceKey(
+        variables: Record<string, unknown>,
+        processInstanceId: string,
+        requested: string | null
+    ): Promise<{ variables: Record<string, unknown>; invoiceKey: string | null }> {
+        const batchState = parseBatchState(variables['batchState']);
+        const keys = batchState ? buildCaseAccountView(batchState).invoices.map((invoice) => invoice.key) : [];
+        const direct = resolveInitialInvoiceKey(requested, null, keys);
+        if (direct || keys.length < 2) {
+            return { variables, invoiceKey: direct ?? requested };
+        }
+        const progress = await this.progressRepository.peekProgress(variables, variables['batchState'], processInstanceId, { fresh: true }).catch(() => null);
+        return { variables, invoiceKey: resolveInitialInvoiceKey(requested, progress?.lastInvoiceKey, keys) };
     }
 
     ngOnDestroy(): void {

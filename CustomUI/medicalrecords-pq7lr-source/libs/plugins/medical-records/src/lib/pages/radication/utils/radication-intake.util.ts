@@ -44,7 +44,7 @@ export interface ProviderFindingComments {
 /** Only non-empty comments of findings that still exist, trimmed and capped. */
 export function buildProviderFindingComments(input: {
     radicationNumber: string;
-    findings: readonly PreanalysisFinding[];
+    findings: ReadonlyArray<PreanalysisFinding>;
     comments: Readonly<Record<string, string | null | undefined>>;
     at: Date;
 }): ProviderFindingComments {

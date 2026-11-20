@@ -1,0 +1,224 @@
+{
+  "kind": "medical-records.documentation-checklist",
+  "schemaVersion": 1,
+  "rulesetId": "DOC-HARS-CML-2026",
+  "name": "Checklist documental Centro Médico LATAM – Hyland ARS",
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-17-r1",
+  "payer": "Hyland ARS",
+  "effectiveFrom": "2026-01-01",
+  "effectiveTo": "2026-12-31",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "rules": [
+    {
+      "ruleId": "SIF-001",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Factura con el desglose de servicios.",
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-002",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Planilla de admisión de la estancia.",
+      "requiredDocuments": [
+        "Planilla de Admisión"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-003",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Formulario de reclamación del pagador.",
+      "requiredDocuments": [
+        "Formulario de Reclamación"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-004",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Carnet de afiliación del paciente.",
+      "requiredDocuments": [
+        "Carnet de Afiliación"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": ""
+    },
+    {
+      "ruleId": "SIF-010",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Resultados de laboratorio de los servicios de laboratorio facturados.",
+      "requiredDocuments": [
+        "Laboratorios"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Servicios de laboratorio facturados en la factura"
+    },
+    {
+      "ruleId": "SIF-011",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Reporte de patología de los servicios de patología facturados.",
+      "requiredDocuments": [
+        "Reporte de Patología"
+      ],
+      "riskLevelIfMissing": "MEDIUM",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Servicios de patología facturados en la factura"
+    },
+    {
+      "ruleId": "SIF-012",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Informe quirúrgico de los servicios quirúrgicos facturados.",
+      "requiredDocuments": [
+        "Informe quirúrgico"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Servicios quirúrgicos facturados (quirófano, cirujanos, ayudantes, procedimiento quirúrgico)"
+    },
+    {
+      "ruleId": "SIF-013",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Orden del procedimiento o autorización del pagador.",
+      "requiredDocuments": [
+        "Orden o autorización de procedimiento"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Procedimiento u hospitalización facturado por encima de RD$ 100.000 que necesita autorización del pagador, salvo que el número de autorización esté en la factura y en el formulario de reclamación"
+    },
+    {
+      "ruleId": "SIF-014",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Receta de la medicación ambulatoria facturada.",
+      "requiredDocuments": [
+        "Receta Médica"
+      ],
+      "riskLevelIfMissing": "LOW",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "SINGLE_INVOICE_FULL"
+      ],
+      "condition": "Medicación ambulatoria facturada"
+    },
+    {
+      "ruleId": "MIO-001",
+      "appliesTo": {
+        "procedureCodes": [],
+        "serviceCategories": []
+      },
+      "description": "Cada factura con su desglose de servicios.",
+      "requiredDocuments": [
+        "Factura y Desglose"
+      ],
+      "riskLevelIfMissing": "HIGH",
+      "consumers": [
+        "validation",
+        "agent"
+      ],
+      "enabled": true,
+      "profiles": [
+        "MULTI_INVOICE_INVOICE_ONLY"
+      ],
+      "condition": ""
+    }
+  ]
+}

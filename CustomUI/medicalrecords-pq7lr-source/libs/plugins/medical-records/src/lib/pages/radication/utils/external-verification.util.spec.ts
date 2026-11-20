@@ -2,11 +2,10 @@ import {
     aggregateVerificationStatus,
     buildSimulatedVerification,
     deriveExternalCheckRows,
+    deriveValidationStates,
     externalChecksFor,
     externalChecksSettled,
     externalVerificationInvoices,
-    hashText,
-    simulatedItemStatus,
 } from './external-verification.util';
 
 describe('radication external verifications', () => {
@@ -18,31 +17,44 @@ describe('radication external verifications', () => {
         expect(externalChecksFor('ars').every((check) => check.mode === 'simulated')).toBe(true);
     });
 
-    it('derives the same synthetic result for the same invoice', () => {
-        expect(hashText('FAC-001')).toBe(hashText('FAC-001'));
-        expect(hashText('FAC-001')).not.toBe(hashText('FAC-002'));
-        expect(simulatedItemStatus('contract', 'fac-001 ')).toBe(simulatedItemStatus('contract', 'FAC-001'));
-        const statuses = new Set(Array.from({ length: 40 }, (_, index) => simulatedItemStatus('contract', `FAC-${index}`)));
-        expect(statuses.has('ok')).toBe(true);
-        expect(statuses.has('inconsistency')).toBe(true);
+    it('lists the validation types of each provider system', () => {
+        const validations = Object.fromEntries(externalChecksFor('provider').map((check) => [check.key, check.validationKeys.map((key) => key.split('.').pop())]));
+        expect(validations).toEqual({
+            affiliation: ['AFFILIATION_ACTIVE', 'AFFILIATION_PLAN', 'AFFILIATION_COPAY'],
+            authorization: ['AUTHORIZATION_PRIOR', 'AUTHORIZATION_VALIDITY', 'AUTHORIZATION_MATCH'],
+            contract: ['CONTRACT_TARIFF', 'CONTRACT_VARIATION', 'CONTRACT_SERVICES'],
+        });
     });
 
-    it('builds one item per invoice and keeps the worst status', () => {
-        const invoices = Array.from({ length: 12 }, (_, index) => ({ invoiceNumber: `FAC-${index}`, patientRef: `P-${index + 1}` }));
-        const result = buildSimulatedVerification('affiliation', { providerId: 'SYN-PROVIDER', invoices }, '2026-01-01T00:00:00.000Z');
-        expect(result.items.length).toBe(12);
-        expect(result.mode).toBe('simulated');
-        expect(result.checkedAt).toBe('2026-01-01T00:00:00.000Z');
-        expect(result.items.every((item) => ['ok', 'alert'].includes(item.status))).toBe(true);
-        expect(result.status).toBe(result.items.some((item) => item.status === 'alert') ? 'alert' : 'ok');
-        expect(result.items[0].detailKey).toContain('MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.DETAIL.AFFILIATION_');
+    it('verifies every invoice of every system: the demo shows no alerts', () => {
+        const invoices = Array.from({ length: 40 }, (_, index) => ({ invoiceNumber: `SYN-FAC-${index}`, patientRef: `P-${index + 1}` }));
+        for (const check of externalChecksFor('ars', { hisAuthorized: true })) {
+            const result = buildSimulatedVerification(check.key, { providerId: 'SYN-PROVIDER', invoices }, '2026-01-01T00:00:00.000Z');
+            expect(result.items.length).toBe(40);
+            expect(result.mode).toBe('simulated');
+            expect(result.checkedAt).toBe('2026-01-01T00:00:00.000Z');
+            expect(result.status).toBe('ok');
+            expect(result.items.every((item) => item.status === 'ok' && item.detailKey.endsWith('_OK'))).toBe(true);
+        }
     });
 
-    it('aggregates statuses by severity', () => {
+    it('answers no_response only without items or with an unanswered item', () => {
         expect(aggregateVerificationStatus([])).toBe('no_response');
         expect(aggregateVerificationStatus([{ status: 'ok' }, { status: 'no_response' }])).toBe('no_response');
-        expect(aggregateVerificationStatus([{ status: 'alert' }, { status: 'no_response' }])).toBe('alert');
-        expect(aggregateVerificationStatus([{ status: 'alert' }, { status: 'inconsistency' }, { status: 'ok' }])).toBe('inconsistency');
+        expect(aggregateVerificationStatus([{ status: 'ok' }, { status: 'ok' }])).toBe('ok');
+    });
+
+    it('checks the validation types one by one and ends with all of them verified', () => {
+        const [check] = externalChecksFor('provider');
+        const row = (state: 'querying' | 'ok') => ({ definition: check, state, result: null });
+        const third = check.durationMs / 3;
+        expect(deriveValidationStates(row('querying'), 0)).toEqual(['checking', 'pending', 'pending']);
+        expect(deriveValidationStates(row('querying'), third)).toEqual(['ok', 'checking', 'pending']);
+        expect(deriveValidationStates(row('querying'), third * 2)).toEqual(['ok', 'ok', 'checking']);
+        // Held (no result yet): the last type keeps checking whatever the time.
+        expect(deriveValidationStates(row('querying'), 60000)).toEqual(['ok', 'ok', 'checking']);
+        expect(deriveValidationStates(row('ok'), 0)).toEqual(['ok', 'ok', 'ok']);
+        expect(deriveValidationStates({ definition: { ...check, validationKeys: [] }, state: 'querying', result: null }, 0)).toEqual([]);
     });
 
     it('uses the account invoices or synthetic references from a count', () => {

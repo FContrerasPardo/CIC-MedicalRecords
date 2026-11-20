@@ -20,6 +20,7 @@ import {
     IntakeAccountTone,
     IntakeServiceFilterKey,
     IntakeAccountViewModel,
+    IntakeServiceGroupRef,
     IntakeServiceStatus
 } from './intake-account-view.model';
 
@@ -28,6 +29,10 @@ import {
     normalizeIdentifier,
     normalizeKey,
     PLACEHOLDER_FIELD_TOKENS,
+    amountsMatch,
+    amountTolerance,
+    billedRowAmount,
+    parseAmount,
 } from './batch-state-billing-fields';
 
 type DocumentKind = IntakeDocumentKind;
@@ -68,6 +73,9 @@ interface ServiceSeedRow {
     sourceDocumentKind: DocumentKind;
     sourceDocumentConfidence: number | null;
     sourceDocumentReviewRequired: boolean;
+    /** Every cell of the billed-services row, label as extracted by IDP, in table order. */
+    extractedFields: Array<{ label: string; value: string }>;
+    serviceGroup?: IntakeServiceGroupRef | null;
 }
 
 interface AccountSeed {
@@ -601,6 +609,9 @@ function toServiceCard(cluster: AccountCluster, service: ServiceSeedRow): Intake
         tone,
         hasReviewRequired,
         hasLowConfidence,
+        sourceDocumentId: service.sourceDocumentId,
+        extractedFields: service.extractedFields,
+        serviceGroup: service.serviceGroup ?? null,
     };
 }
 
@@ -1018,9 +1029,197 @@ function extractServiceRows(document: BatchStateDocument, kind: DocumentKind, in
         return [];
     }
 
-    return serviceTable.records
+    const rows = serviceTable.records
         .map((row, index) => toServiceSeedRow(document, kind, row.records ?? [], invoiceNumber, index))
         .filter((service): service is ServiceSeedRow => Boolean(service));
+    // Group rows close the items above them (or the "Servicio" text groups them); they are never services.
+    return assignServiceGroups(rows).map(({ row, group }) => ({ ...row, serviceGroup: group }));
+}
+
+/** Minimal billed row the service grouping reads. */
+export interface ServiceGroupRowLike {
+    serviceDate: string | null;
+    serviceCode: string | null;
+    cup: string | null;
+    description: string | null;
+    quantity?: string | null;
+    price: string | null;
+    total: string | null;
+}
+
+/** Group row of the billed-services table: a subtotal that closes the items above it. */
+export interface ServiceGroupRow {
+    code: string;
+    name: string;
+    /** Billed subtotal of the row (Price, else Total); null when not readable. */
+    amount: number | null;
+}
+
+const GROUP_ROW_DESCRIPTION = /^(\d{3})\s+(.*\S)\s*$/;
+const GROUP_ROW_CODE = /^\d{3}$/;
+const SUB_TOTAL_ROW = /\bSUB\s*-?\s*TOTAL\b/i;
+const HAS_LETTER = /[A-Za-zÀ-ɏ]/;
+const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+
+/** Group text in the "Servicio" column (e.g. "02-CONSUL CONSULTA"); an item code (only digits) is not one. */
+export function serviceGroupText(serviceCode: string | null | undefined): string | null {
+    const value = collapseSpaces(String(serviceCode ?? ''));
+    return value && HAS_LETTER.test(value) ? value : null;
+}
+
+/**
+ * Group row of the billed-services table: no date nor "Servicio", and either a description
+ * "<3-digit code> <name>" (e.g. "400   LABORATORIO") with an empty CUP/CUM, or a 3-digit CUP/CUM
+ * with the name as description. Its amount is the Price or the Total. A row with a date
+ * (e.g. "PAQUETE QUIRURGICO") is always an item.
+ */
+export function sectionHeaderOf(row: ServiceGroupRowLike): ServiceGroupRow | null {
+    if (row.serviceDate?.trim() || row.serviceCode?.trim()) {
+        return null;
+    }
+    const cup = collapseSpaces(row.cup ?? '');
+    const description = collapseSpaces(row.description ?? '');
+    let code: string;
+    let name: string;
+    if (!cup) {
+        const match = GROUP_ROW_DESCRIPTION.exec(description);
+        if (!match) {
+            return null;
+        }
+        [code, name] = [match[1], match[2]];
+    } else if (GROUP_ROW_CODE.test(cup) && !/^\d/.test(description)) {
+        [code, name] = [cup, description];
+    } else {
+        return null;
+    }
+    if (!HAS_LETTER.test(name)) {
+        return null;
+    }
+    return { code, name: collapseSpaces(name), amount: parseAmount(row.price) ?? parseAmount(row.total) };
+}
+
+/** "Sub Total" row of the format with the service in the "Servicio" column. */
+function isSubTotalRow(row: ServiceGroupRowLike): boolean {
+    return [row.description, row.serviceCode, row.cup].some((value) => !!value && SUB_TOTAL_ROW.test(value));
+}
+
+type GroupedRow<T> = { row: T; group: IntakeServiceGroupRef | null };
+
+/**
+ * Service group of each billed row, in table order, without group rows. Two formats:
+ * - most items carry a group text in "Servicio" (e.g. "06-INSUMO INSUMOS"): that text is the group;
+ *   a row without it inherits the previous one until a "Sub Total" row (never a service);
+ * - otherwise the group rows (see `sectionHeaderOf`) are subtotals that close the items ABOVE them:
+ *   each closes the items pending since the previous group row. When those items exceed its amount
+ *   (beyond `amountTolerance`), the items from the end up to the amount are its own and the first
+ *   ones go to the nearest previous group whose amount is not yet covered (preferring one whose
+ *   missing amount matches); with none, they stay. Repeated codes (page breaks) merge; group rows
+ *   with no pending items (summary block) create no group but their amount is the reference
+ *   subtotal of the code. Items no group row closes stay without group (null).
+ */
+export function assignServiceGroups<T extends ServiceGroupRowLike>(rows: readonly T[]): Array<GroupedRow<T>> {
+    return usesServiceColumnGroups(rows) ? groupByServiceColumn(rows) : groupByGroupRows(rows);
+}
+
+function usesServiceColumnGroups(rows: readonly ServiceGroupRowLike[]): boolean {
+    const items = rows.filter((row) => !sectionHeaderOf(row) && !isSubTotalRow(row));
+    const withText = items.filter((row) => serviceGroupText(row.serviceCode)).length;
+    return withText > 0 && withText * 2 > items.length;
+}
+
+function groupByServiceColumn<T extends ServiceGroupRowLike>(rows: readonly T[]): Array<GroupedRow<T>> {
+    const groups = new Map<string, IntakeServiceGroupRef>();
+    const result: Array<GroupedRow<T>> = [];
+    let current: IntakeServiceGroupRef | null = null;
+    rows.forEach((row, index) => {
+        if (isSubTotalRow(row)) {
+            current = null;
+            return;
+        }
+        const text = serviceGroupText(row.serviceCode);
+        if (text) {
+            const key = `service:${normalizeKey(text)}`;
+            const group: IntakeServiceGroupRef = groups.get(key) ?? { key, code: null, label: text, order: index, billedSubtotal: null };
+            groups.set(key, group);
+            current = group;
+        }
+        result.push({ row, group: current });
+    });
+    return result;
+}
+
+function groupByGroupRows<T extends ServiceGroupRowLike>(rows: readonly T[]): Array<GroupedRow<T>> {
+    type Item = { row: T; index: number; amount: number; code: string | null };
+    const items: Item[] = [];
+    const names = new Map<string, string>();
+    /** Distinct billed amounts of each code, in cents (a repeated amount counts once). */
+    const billed = new Map<string, Set<number>>();
+    /** Codes of the group rows seen so far, in table order. */
+    const closers: string[] = [];
+    let pending: Item[] = [];
+
+    const sum = (list: readonly Item[]): number => list.reduce((total, item) => total + item.amount, 0);
+    const billedOf = (code: string): number | null => {
+        const amounts = billed.get(code);
+        return amounts?.size ? [...amounts].reduce((total, cents) => total + cents, 0) / 100 : null;
+    };
+    const deficitOf = (code: string): number => {
+        const amount = billedOf(code);
+        if (amount === null) {
+            return 0;
+        }
+        const missing = amount - sum(items.filter((item) => item.code === code));
+        return missing > amountTolerance(amount) ? missing : 0;
+    };
+    const previousWithDeficit = (leftover: number, ownCode: string): string | null => {
+        const candidates = [...new Set([...closers].reverse())].filter((code) => code !== ownCode && deficitOf(code) > 0);
+        return candidates.find((code) => amountsMatch(leftover, deficitOf(code))) ?? candidates[0] ?? null;
+    };
+
+    rows.forEach((row, index) => {
+        const groupRow = sectionHeaderOf(row);
+        if (!groupRow) {
+            const item: Item = { row, index, amount: billedRowAmount(row) ?? 0, code: null };
+            items.push(item);
+            pending.push(item);
+            return;
+        }
+        const { code, amount } = groupRow;
+        if (!names.has(code)) {
+            names.set(code, groupRow.name);
+        }
+        if (amount !== null) {
+            billed.set(code, (billed.get(code) ?? new Set<number>()).add(Math.round(amount * 100)));
+        }
+        let own = pending;
+        if (amount !== null && sum(pending) > amount + amountTolerance(amount)) {
+            let start = pending.length;
+            let reached = 0;
+            while (start > 0 && reached < amount - amountTolerance(amount)) {
+                start--;
+                reached += pending[start].amount;
+            }
+            const leftovers = pending.slice(0, start);
+            const target = leftovers.length ? previousWithDeficit(sum(leftovers), code) : null;
+            if (target) {
+                leftovers.forEach((item) => (item.code = target));
+                own = pending.slice(start);
+            }
+        }
+        own.forEach((item) => (item.code = code));
+        pending = [];
+        closers.push(code);
+    });
+
+    const groups = new Map<string, IntakeServiceGroupRef>();
+    for (const item of items) {
+        const code = item.code;
+        if (code !== null && !groups.has(code)) {
+            // Items are in table order: the first one of a code is its position in the invoice.
+            groups.set(code, { key: `section:${code}`, code, label: `${code} ${names.get(code) ?? ''}`.trim(), order: item.index, billedSubtotal: billedOf(code) });
+        }
+    }
+    return items.map(({ row, code }) => ({ row, group: code === null ? null : (groups.get(code) ?? null) }));
 }
 
 function toServiceSeedRow(
@@ -1031,12 +1230,15 @@ function toServiceSeedRow(
     index: number
 ): ServiceSeedRow | null {
     const rowMap = new Map<string, string>();
+    const extractedFields: Array<{ label: string; value: string }> = [];
 
     for (const cell of cells) {
-        const key = normalizeKey(cell.recordName ?? cell.name);
+        const label = String(cell.recordName ?? cell.name ?? '').trim();
+        const key = normalizeKey(label);
         const value = toDisplayValue(cell.value);
         if (key && value !== null) {
             rowMap.set(key, value);
+            extractedFields.push({ label, value });
         }
     }
 
@@ -1074,6 +1276,7 @@ function toServiceSeedRow(
         sourceDocumentKind: kind,
         sourceDocumentConfidence: typeof document.classificationConfidence === 'number' ? document.classificationConfidence : null,
         sourceDocumentReviewRequired: isDocumentReviewPending(document),
+        extractedFields,
     };
 }
 
@@ -1254,6 +1457,11 @@ function getDocumentKind(className: string | undefined): DocumentKind {
 
 function getDocumentPriority(kind: DocumentKind): number {
     return INTAKE_SUPPORT_HEURISTICS.documentPriority[kind] ?? INTAKE_SUPPORT_HEURISTICS.documentPriority.other;
+}
+
+/** Support label of a document class, as used in `requiredDocuments` / `presentDocuments` / `missingDocuments`. */
+export function documentSupportLabel(className: string | null | undefined): string {
+    return mapDocumentKindLabel(getDocumentKind(className ?? undefined));
 }
 
 function mapDocumentKindLabel(kind: DocumentKind): string {

@@ -2,8 +2,8 @@
   "agreementId": "centro-medico-latam",
   "version": "2026-11-17-r1",
   "updatedAt": "2026-11-17T00:00:00.000Z",
-  "policyId": "ARSP-CML-COMPLIANCE-2026",
-  "payer": "ARS Primera",
+  "policyId": "HARS-CML-COMPLIANCE-2026",
+  "payer": "Hyland ARS",
   "effectiveFrom": "2026-01-01",
   "effectiveTo": "2026-12-31",
   "rules": [

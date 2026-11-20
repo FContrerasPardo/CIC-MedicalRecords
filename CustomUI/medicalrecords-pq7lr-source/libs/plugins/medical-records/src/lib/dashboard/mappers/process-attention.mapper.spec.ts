@@ -12,7 +12,7 @@ describe('mapProcessToAttentionItem', () => {
                             name: 'Invoice.pdf',
                             fields: [
                                 { name: 'Patient Name', value: 'Maria Daniela Martinez' },
-                                { name: 'Insurance Plan', value: 'ARS Primera' },
+                                { name: 'Insurance Plan', value: 'Hyland ARS' },
                             ],
                             extractionReviewStatus: 'ReviewRequired',
                         },
@@ -22,7 +22,7 @@ describe('mapProcessToAttentionItem', () => {
         );
 
         expect(item.title).toContain('Maria Daniela Martinez');
-        expect(item.subtitle).toContain('ARS Primera');
+        expect(item.subtitle).toContain('Hyland ARS');
         expect(item.nativeReference.processInstanceId).toBe('proc-123');
         expect(item.tone).toBe('red');
     });

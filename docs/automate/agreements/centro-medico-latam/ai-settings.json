@@ -1,0 +1,53 @@
+{
+  "kind": "medical-records.agreement-ai-settings",
+  "schemaVersion": 1,
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-18-r1",
+  "updatedAt": "2026-11-18T00:00:00.000Z",
+  "validations": [
+    {
+      "id": "coding-icd10-procedure",
+      "enabled": true,
+      "agent": "Coding Integrity",
+      "title": "ICD-10 diagnosis vs. procedure",
+      "description": "Checks that each billed procedure matches the ICD-10 diagnosis of the account, for example no knee surgery for a respiratory diagnosis."
+    },
+    {
+      "id": "authorization-check",
+      "enabled": true,
+      "agent": "Compliance Alert",
+      "title": "Authorization check",
+      "description": "Checks that the services that need a prior authorization from the payer have one, and that it covers the billed dates and amounts."
+    },
+    {
+      "id": "documentary-support",
+      "enabled": true,
+      "agent": "Pre-analysis",
+      "title": "Supporting documents",
+      "description": "Checks that the account brings the documents the agreement checklist asks for (invoice, claim form, clinical notes…) before it is analyzed."
+    },
+    {
+      "id": "tariff-variance",
+      "enabled": true,
+      "agent": "Financial Variance",
+      "title": "Tariff variance vs. agreement",
+      "description": "Compares each billed amount with the agreed tariff and flags the differences beyond the allowed tolerance."
+    }
+  ],
+  "thresholds": {
+    "autoApprovalMinConfidencePct": 90,
+    "anomalySensitivity": "MEDIUM",
+    "tariffVariancePct": 10
+  },
+  "history": [
+    {
+      "at": "2026-11-18T00:00:00.000Z",
+      "event": "TEMPLATE_CREATED",
+      "user": null,
+      "file": "ai-settings.json",
+      "field": null,
+      "from": null,
+      "to": null
+    }
+  ]
+}

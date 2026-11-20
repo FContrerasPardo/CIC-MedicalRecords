@@ -1,0 +1,88 @@
+{
+  "kind": "medical-records.agreement",
+  "schemaVersion": 1,
+  "agreementId": "centro-medico-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "status": "ACTIVE",
+  "demoNote": "Convênio sintético de demonstração: prestador, contrato e valores são fictícios. Sem dados reais de contratos, pacientes ou afiliados.",
+  "providerAliases": [
+    "Centro Médico LATAM",
+    "CM LATAM"
+  ],
+  "general": {
+    "providerName": "Centro Medico LATAM",
+    "providerDisplayName": "Centro Médico LATAM",
+    "agreementBadge": "CONTRATO MARCO",
+    "contractId": "CONV-DEMO-HARS-CML-2026",
+    "payer": "Hyland ARS",
+    "planName": "Plano Básico (demo)",
+    "legalRepresentative": "Representante legal (demo)",
+    "contractType": "Por evento",
+    "effectiveFrom": "2026-01-01",
+    "effectiveTo": "2026-12-31",
+    "jurisdiction": "República Dominicana",
+    "capitationBase": 0,
+    "capitationCurrency": "DOP",
+    "capitationPeriod": "mo",
+    "budgetTotal": 18000000,
+    "billedYtd": 0,
+    "pendingApproval": 0,
+    "budgetCurrency": "DOP"
+  },
+  "contacts": [
+    {
+      "id": "cml-contact-1",
+      "name": "Fernando Contreras",
+      "role": "Coordenação do convênio",
+      "email": "fernando.contreras@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "cml-contact-2",
+      "name": "Mauricio Valdez",
+      "role": "Auditoria médica",
+      "email": "mauricio.valdez@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "cml-contact-3",
+      "name": "Larissa Trentin",
+      "role": "Faturamento",
+      "email": "larissa.trentin@hyland.com",
+      "phone": ""
+    }
+  ],
+  "documents": {
+    "primaryDocument": {
+      "title": "Contrato de prestação de serviços Centro Médico LATAM – Hyland ARS (demo)",
+      "status": "Active",
+      "contractId": "CONV-DEMO-HARS-CML-2026",
+      "expiresAt": "2026-12-31",
+      "repositoryId": "",
+      "repositoryNodeId": "",
+      "mimeType": "application/pdf"
+    },
+    "relatedFiles": [
+      {
+        "id": "cml-annex-1",
+        "title": "Anexo tarifário 2026 (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      },
+      {
+        "id": "cml-annex-2",
+        "title": "Manual de protocolo e documentos de suporte (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      }
+    ],
+    "historicalVersions": []
+  },
+  "knowledgeDiscovery": {
+    "url": "",
+    "label": ""
+  }
+}

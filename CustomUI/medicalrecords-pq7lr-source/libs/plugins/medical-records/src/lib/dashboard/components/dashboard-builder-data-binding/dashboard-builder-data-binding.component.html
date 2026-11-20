@@ -33,17 +33,46 @@
                     [ngModel]="selectedProcessKey"
                     (ngModelChange)="onProcessCatalogChange($event)"
                 >
-                    <option *ngFor="let entry of processCatalog" [value]="entry.key">
-                        {{ entry.labelKey | translate }}
-                    </option>
+                    <ng-container *ngIf="deployedDefinitions.length; else catalogOptions">
+                        <option *ngIf="selectedProcessKeyMissing" [value]="selectedProcessKey">{{ selectedProcessKey }}</option>
+                        <option *ngFor="let definition of deployedDefinitions" [value]="definition.key">
+                            {{ formatDeployedDefinition(definition) }}
+                        </option>
+                    </ng-container>
+                    <ng-template #catalogOptions>
+                        <option *ngFor="let entry of processCatalog" [value]="entry.key">
+                            {{ entry.labelKey | translate }}
+                        </option>
+                    </ng-template>
                 </select>
             </label>
+            <p class="data-binding__hint" *ngIf="deployedDefinitions.length">
+                {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.ROOT_PROCESS_HINT' | translate }}
+            </p>
+
+            <div class="data-binding__process-warning" role="status" *ngIf="configuredProcessCheck as check">
+                <p>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.NOT_DEPLOYED_KEY' | translate: { configured: configuredProcessIdentifier } }}</p>
+                <ng-container *ngIf="check.equivalent; else noEquivalent">
+                    <p>
+                        {{
+                            'MEDICAL_RECORDS.PROCESS_CATALOG.EQUIVALENT_DEFINITION'
+                                | translate: { definition: formatDeployedDefinition(check.equivalent) }
+                        }}
+                    </p>
+                    <button type="button" class="btn-ghost-sm" (click)="useEquivalentDefinition(check.equivalent)">
+                        {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.USE_EQUIVALENT' | translate }}
+                    </button>
+                </ng-container>
+                <ng-template #noEquivalent>
+                    <p>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.NO_EQUIVALENT' | translate }}</p>
+                </ng-template>
+            </div>
 
             <p class="data-binding__hint" *ngIf="selectedProcessCatalogEntry as entry">
                 {{ entry.descriptionKey | translate }}
             </p>
 
-            <div class="process-subprocess-list" *ngIf="selectedProcessCatalogEntry?.subprocessDefinitionKeys?.length">
+            <div class="process-subprocess-list" *ngIf="subprocessOptions.length">
                 <span class="process-subprocess-list__label">{{
                     'MEDICAL_RECORDS.PROCESS_CATALOG.SUBPROCESSES' | translate
                 }}</span>
@@ -73,10 +102,10 @@
                         type="button"
                         class="process-subprocess-chip"
                         [class.process-subprocess-chip--active]="isSubprocessIncluded(subprocess)"
-                        *ngFor="let subprocess of selectedProcessCatalogEntry!.subprocessDefinitionKeys"
+                        *ngFor="let subprocess of subprocessOptions"
                         (click)="toggleSubprocessDefinition(subprocess)"
                     >
-                        {{ subprocess }}
+                        {{ subprocessLabel(subprocess) }}
                     </button>
                 </div>
             </div>

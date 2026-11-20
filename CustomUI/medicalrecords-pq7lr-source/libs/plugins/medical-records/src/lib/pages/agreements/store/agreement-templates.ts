@@ -1,4 +1,5 @@
 import * as cmlAgreement from './templates/centro-medico-latam/agreement.json';
+import * as cmlAiSettings from './templates/centro-medico-latam/ai-settings.json';
 import * as cmlCodingRules from './templates/centro-medico-latam/coding-rules.json';
 import * as cmlChecklist from './templates/centro-medico-latam/documentation-checklist.json';
 import * as cmlCodingPolicy from './templates/centro-medico-latam/payer-coding-policy.json';
@@ -6,6 +7,7 @@ import * as cmlCompliance from './templates/centro-medico-latam/payer-compliance
 import * as cmlPolicy from './templates/centro-medico-latam/preanalysis-policy.json';
 import * as cmlTariff from './templates/centro-medico-latam/tariff-agreement.json';
 import * as hghlAgreement from './templates/hospital-general-hyland-latam/agreement.json';
+import * as hghlAiSettings from './templates/hospital-general-hyland-latam/ai-settings.json';
 import * as hghlCodingRules from './templates/hospital-general-hyland-latam/coding-rules.json';
 import * as hghlChecklist from './templates/hospital-general-hyland-latam/documentation-checklist.json';
 import * as hghlCodingPolicy from './templates/hospital-general-hyland-latam/payer-coding-policy.json';
@@ -13,6 +15,8 @@ import * as hghlCompliance from './templates/hospital-general-hyland-latam/payer
 import * as hghlPolicy from './templates/hospital-general-hyland-latam/preanalysis-policy.json';
 import * as hghlTariff from './templates/hospital-general-hyland-latam/tariff-agreement.json';
 import * as indexModule from './templates/agreements-index.json';
+import * as translationsModule from './templates/template-translations.json';
+import { AgreementContentLanguage, localizeAgreementContent, TemplateTranslations } from './agreement-locale.util';
 import { AgreementFileKind, AgreementsIndex, cloneJson, DEFAULT_AGREEMENT_ID, JsonObject, parseAgreementsIndex } from './agreement-store.util';
 
 /**
@@ -33,6 +37,7 @@ const TEMPLATES: Record<string, Record<AgreementFileKind, JsonObject>> = {
         payerCompliancePolicy: json(cmlCompliance),
         payerCodingPolicy: json(cmlCodingPolicy),
         codingRules: json(cmlCodingRules),
+        aiSettings: json(cmlAiSettings),
     },
     'hospital-general-hyland-latam': {
         agreement: json(hghlAgreement),
@@ -42,6 +47,7 @@ const TEMPLATES: Record<string, Record<AgreementFileKind, JsonObject>> = {
         payerCompliancePolicy: json(hghlCompliance),
         payerCodingPolicy: json(hghlCodingPolicy),
         codingRules: json(hghlCodingRules),
+        aiSettings: json(hghlAiSettings),
     },
 };
 
@@ -53,11 +59,19 @@ export function hasAgreementTemplate(agreementId: string): boolean {
 
 /**
  * A fresh copy of a template file: the agreement's own seed, or the default agreement's seed for an
- * agreement created by duplication (its files are then expected in Appdata).
+ * agreement created by duplication (its files are then expected in Appdata). With a language, the
+ * texts are those of that language version (same ids, codes and numbers).
  */
-export function agreementTemplateFile(agreementId: string, kind: AgreementFileKind): JsonObject {
+export function agreementTemplateFile(agreementId: string, kind: AgreementFileKind, language?: AgreementContentLanguage | null): JsonObject {
     const template = TEMPLATES[agreementId] ?? TEMPLATES[DEFAULT_AGREEMENT_ID];
-    return cloneJson(template[kind]);
+    const copy = cloneJson(template[kind]);
+    return language ? localizeAgreementContent(copy, language, templateTranslations()) : copy;
+}
+
+/** Texts of the bundled templates per language (`templates/template-translations.json`). */
+export function templateTranslations(): TemplateTranslations {
+    const file = json(translationsModule) as { texts?: TemplateTranslations };
+    return file.texts ?? {};
 }
 
 /** The seed index (both synthetic agreements). */

@@ -1,3 +1,5 @@
+import { matchesProcessRole, ProcessRole } from '../../../dashboard/definitions/process-mapping';
+
 /**
  * Progress of a radicated account, read from the runtime. Stages follow the deployed BPMN
  * (`medical-records`): start form → "initialize-batch" in parallel with "Document IA" (calls Document
@@ -22,15 +24,18 @@ export const RADICATION_STAGES: readonly RadicationStageKey[] = ['radicated', 'e
 /** Stages shown while processing: up to the moment the review can start. */
 export const RADICATION_PROCESSING_STAGES: readonly RadicationStageKey[] = ['radicated', 'extraction', 'preanalysis', 'intake'];
 
-/** Called process names and task names as deployed in Automate. */
-export const RADICATION_PROCESS_NAMES = {
-    root: 'medical-records',
-    initialize: 'initialize-batch',
-    extraction: 'Document AI Process',
-    analysis: 'AgentMesh',
-} as const;
-/** Child process "Preanalysis" (export `preanalysis-p6gj3.bpmn20.xml`), by definition name or id. */
-export const RADICATION_PREANALYSIS_PROCESS: readonly string[] = ['Preanalysis', 'Process_1794866470316'];
+/**
+ * Called processes by role of the central process mapping (`dashboard/definitions/process-mapping.ts`):
+ * matched by definition key first, then by name, so a rename in Automate does not break progress.
+ */
+export const RADICATION_PROCESS_ROLES = {
+    root: 'root',
+    initialize: 'initializeBatch',
+    extraction: 'documentAi',
+    preanalysis: 'preanalysis',
+    analysis: 'agentMesh',
+} as const satisfies Record<string, ProcessRole>;
+/** Task names as deployed in Automate. */
 export const RADICATION_TASK_NAMES = {
     intake: 'Nueva Cuenta',
     analysis: 'Analysis',
@@ -53,6 +58,8 @@ export const RADICATION_IDP_ACTIVITIES = {
 export interface RadicationRuntimeItem {
     id?: string | null;
     name: string | null | undefined;
+    /** Child processes only: definition key (matched before the name). */
+    key?: string | null;
     status: string | null | undefined;
 }
 
@@ -121,6 +128,14 @@ function itemState(items: readonly RadicationRuntimeItem[], name: string | reado
     return stateOf(items.filter((item) => wanted.has(normalize(item.name))).map((item) => status(item.status)));
 }
 
+function processState(items: readonly RadicationRuntimeItem[], role: ProcessRole): ItemState {
+    return stateOf(
+        items
+            .filter((item) => matchesProcessRole({ processDefinitionKey: item.key, processDefinitionName: item.name }, role))
+            .map((item) => status(item.status))
+    );
+}
+
 function serviceTaskState(tasks: readonly RadicationServiceTask[], names: readonly string[]): ItemState {
     const wanted = new Set(names.map(normalize));
     return stateOf(tasks.filter((task) => wanted.has(normalize(task.activityName)) || wanted.has(normalize(task.activityId))).map((task) => status(task.status)));
@@ -170,11 +185,11 @@ export function deriveIdpSubsteps(serviceTasks: readonly RadicationServiceTask[]
 
 export function deriveRadicationProgress(snapshot: RadicationRuntimeSnapshot): RadicationProgress {
     const processStatus = status(snapshot.processStatus);
-    const initialize = itemState(snapshot.childProcesses, RADICATION_PROCESS_NAMES.initialize);
-    const extraction = itemState(snapshot.childProcesses, RADICATION_PROCESS_NAMES.extraction);
-    const preanalysis = itemState(snapshot.childProcesses, RADICATION_PREANALYSIS_PROCESS);
+    const initialize = processState(snapshot.childProcesses, RADICATION_PROCESS_ROLES.initialize);
+    const extraction = processState(snapshot.childProcesses, RADICATION_PROCESS_ROLES.extraction);
+    const preanalysis = processState(snapshot.childProcesses, RADICATION_PROCESS_ROLES.preanalysis);
     const intake = itemState(snapshot.tasks, RADICATION_TASK_NAMES.intake);
-    const mesh = itemState(snapshot.childProcesses, RADICATION_PROCESS_NAMES.analysis);
+    const mesh = processState(snapshot.childProcesses, RADICATION_PROCESS_ROLES.analysis);
     const analysisTask = itemState(snapshot.tasks, RADICATION_TASK_NAMES.analysis);
     const failed = FAILED.has(processStatus);
     const finished = FINISHED.has(processStatus);

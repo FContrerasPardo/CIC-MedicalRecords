@@ -123,6 +123,21 @@
     font-weight: 700;
 }
 
+.data-binding__process-warning {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+    padding: 8px 10px;
+    border-left: 3px solid var(--dash-warning, #b7791f);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--dash-warning, #b7791f) 10%, transparent);
+    font-size: 12px;
+
+    p {
+        margin: 0;
+    }
+}
+
 .data-binding--items-table .data-binding__items {
     display: flex;
     flex-direction: column;

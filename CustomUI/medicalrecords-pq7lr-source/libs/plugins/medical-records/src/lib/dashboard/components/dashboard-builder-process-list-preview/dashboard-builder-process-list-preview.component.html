@@ -1,0 +1,55 @@
+<section class="process-list-preview">
+    <p class="process-list-preview__intro">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.CONFIG_MODAL.PROCESS_LIST_PREVIEW' | translate }}</p>
+
+    <h4>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_TITLE' | translate }}</h4>
+    <dl class="process-list-preview__summary">
+        <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_ROOT' | translate }}</dt>
+        <dd>
+            <code>{{ scope.root.key }}</code>
+            <span class="process-list-preview__muted">{{ scope.root.names.join(', ') }}</span>
+        </dd>
+        <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_SUBPROCESSES' | translate }}</dt>
+        <dd>
+            <ng-container *ngIf="scope.includeSubprocesses && scope.subprocesses.length; else rootTasksOnly">
+                <code>{{ subprocessKeys }}</code>
+            </ng-container>
+            <ng-template #rootTasksOnly>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_SUBPROCESSES_OFF' | translate }}</ng-template>
+        </dd>
+        <dt>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_VARIABLES' | translate }}</dt>
+        <dd>
+            {{
+                (configuredVariables.length
+                    ? 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_VARIABLES_CUSTOM'
+                    : 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_VARIABLES_DEFAULT'
+                ) | translate: { count: variableCount }
+            }}
+        </dd>
+    </dl>
+
+    <div class="process-list-preview__live" *ngIf="state$ | async as state" role="status" aria-live="polite">
+        <ng-container *ngIf="state.loading; else loaded">
+            <span class="material-icons" aria-hidden="true">hourglass_top</span>
+            <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_LOADING' | translate }}</span>
+        </ng-container>
+        <ng-template #loaded>
+            <ng-container *ngIf="state.error; else found">
+                <span class="material-icons process-list-preview__error" aria-hidden="true">error_outline</span>
+                <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_ERROR' | translate }}</span>
+            </ng-container>
+            <ng-template #found>
+                <div class="process-list-preview__count">
+                    <strong>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_FOUND' | translate: { count: state.items.length } }}</strong>
+                    <span class="process-list-preview__muted" *ngIf="state.stats as stats">
+                        {{
+                            'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_COUNTS'
+                                | translate: { received: stats.received, accepted: stats.accepted, rejected: stats.rejected, roots: stats.rootIds }
+                        }}
+                    </span>
+                </div>
+            </ng-template>
+        </ng-template>
+        <button type="button" class="btn-ghost-sm" [disabled]="state.loading" (click)="refresh()">
+            {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PREVIEW_REFRESH' | translate }}
+        </button>
+    </div>
+</section>

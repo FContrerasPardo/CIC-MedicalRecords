@@ -1,3 +1,4 @@
+import { rootProcessKey } from '../../../definitions/process-mapping';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -170,7 +171,7 @@ export class DashboardProviderCardsWidgetComponent implements OnInit, OnChanges,
         const queryConfig: DashboardWidgetConfig = {
             ...this.config,
             processQuery: {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: false,
                 metricScope: 'root',
                 ...this.config.processQuery,

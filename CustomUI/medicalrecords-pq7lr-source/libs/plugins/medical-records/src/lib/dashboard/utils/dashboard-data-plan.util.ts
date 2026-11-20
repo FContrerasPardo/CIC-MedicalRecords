@@ -1,4 +1,5 @@
-import { resolveProcessDefinitionKeys } from '../definitions/dashboard-process-catalog';
+import { resolveProcessDefinitionFilter } from '../definitions/dashboard-process-catalog';
+import { matchProcessDefinitions, normalizeProcessIdentifier, rootProcessKey } from '../definitions/process-mapping';
 import { DashboardWidgetConfig } from '../definitions/dashboard-widget.model';
 import { resolveWidgetDataSource } from './dashboard-data-source.util';
 import { ACTIVE_PROCESS_STATUSES, providerRequiredVariables } from './dashboard-provider-group.util';
@@ -15,8 +16,10 @@ export const VARIABLE_PREFIX = 'var_';
 
 export interface WidgetDataNeed {
     widgetId: string;
-    /** Process definition names as sent to the Query service (original case, sorted). */
+    /** Canonical process definition keys (sorted); legacy names resolve through the mapping. */
     definitions: string[];
+    /** Definition names sent to the Query service for those keys (sorted). */
+    queryNames: string[];
     /** Upper-cased statuses; null = all statuses. */
     statuses: string[] | null;
     /** Process variables read by the widget, by name. */
@@ -29,6 +32,7 @@ export interface DataPlan {
     /** Changes whenever any need changes; executions are cached per signature and date range. */
     signature: string;
     definitions: string[];
+    queryNames: string[];
     statuses: string[] | null;
     needs: WidgetDataNeed[];
 }
@@ -58,6 +62,11 @@ function bindingVariableNames(config: DashboardWidgetConfig): string[] {
     return [...variables, ...derivedFieldVariables(widgetDerivedFields(config))];
 }
 
+function definitionsFor(processQuery: Parameters<typeof resolveProcessDefinitionFilter>[0]): Pick<WidgetDataNeed, 'definitions' | 'queryNames'> {
+    const filter = resolveProcessDefinitionFilter(processQuery);
+    return { definitions: [...filter.keys].sort(), queryNames: [...filter.names].sort() };
+}
+
 /** What one widget needs from the process Query service; null when it does not read process data. */
 export function needForWidget(config: DashboardWidgetConfig | null | undefined): WidgetDataNeed | null {
     if (!config?.id) {
@@ -65,22 +74,28 @@ export function needForWidget(config: DashboardWidgetConfig | null | undefined):
     }
     if (config.type === 'provider-cards') {
         const options = config.providerCardsOptions ?? {};
-        const processQuery = { processDefinitionKey: 'medical-records', metricScope: 'root' as const, ...config.processQuery };
+        const processQuery = { processDefinitionKey: rootProcessKey(), metricScope: 'root' as const, ...config.processQuery };
         const statuses = options.statuses?.filter(Boolean).length ? options.statuses : ACTIVE_PROCESS_STATUSES;
         return {
             widgetId: config.id,
-            definitions: [...resolveProcessDefinitionKeys(processQuery)].sort(),
+            ...definitionsFor(processQuery),
             statuses: normalizedStatuses(statuses),
             variables: providerRequiredVariables(options),
             allVariables: false,
         };
     }
     if (config.type === 'process-list') {
-        // Open tasks belong to active medical-records roots; their variables come from the plan.
-        const configured = config.processListOptions?.variables?.map((name) => name.trim()).filter(Boolean);
+        // Open tasks belong to active roots (the widget's root, or the mapping root); their variables come from the plan.
+        const listOptions = config.processListOptions;
+        const configured = listOptions?.variables?.map((name) => name.trim()).filter(Boolean);
+        const rootKey = listOptions?.rootProcessKey?.trim();
         return {
             widgetId: config.id,
-            definitions: [...resolveProcessDefinitionKeys({ processDefinitionKey: 'medical-records', metricScope: 'root' })].sort(),
+            ...definitionsFor({
+                processDefinitionKey: rootKey || rootProcessKey(),
+                processDefinitionName: rootKey ? listOptions?.rootProcessName : undefined,
+                metricScope: 'root',
+            }),
             statuses: ['RUNNING', 'SUSPENDED'],
             variables: [...new Set(configured?.length ? configured : PROCESS_LIST_DEFAULT_VARIABLES)].sort(),
             allVariables: false,
@@ -93,7 +108,7 @@ export function needForWidget(config: DashboardWidgetConfig | null | undefined):
     const variables = [...new Set(bindingVariableNames(config))].sort();
     return {
         widgetId: config.id,
-        definitions: [...resolveProcessDefinitionKeys(processQuery)].sort(),
+        ...definitionsFor(processQuery),
         statuses: normalizedStatuses(processQuery.status),
         variables,
         allVariables: !!processQuery.includeProcessVariables && variables.length === 0,
@@ -108,10 +123,11 @@ export function buildDataPlan(widgets: ReadonlyArray<DashboardWidgetConfig>): Da
     }
     needs.sort((a, b) => a.widgetId.localeCompare(b.widgetId));
     const definitions = [...new Set(needs.flatMap((need) => need.definitions))].sort();
+    const queryNames = [...new Set(needs.flatMap((need) => need.queryNames))].sort();
     const statuses = needs.some((need) => need.statuses === null)
         ? null
         : [...new Set(needs.flatMap((need) => need.statuses ?? []))].sort();
-    return { signature: JSON.stringify({ definitions, statuses, needs }), definitions, statuses, needs };
+    return { signature: JSON.stringify({ definitions, queryNames, statuses, needs }), definitions, queryNames, statuses, needs };
 }
 
 /**
@@ -130,8 +146,8 @@ export function planCoversNeed(plan: DataPlan | null | undefined, need: WidgetDa
     if (need.allVariables || need.variables.length) {
         return false;
     }
-    const definitions = plan.definitions.map((name) => name.toLowerCase());
-    if (!need.definitions.every((name) => definitions.includes(name.toLowerCase()))) {
+    const definitions = plan.definitions.map(normalizeProcessIdentifier);
+    if (!need.definitions.every((key) => definitions.includes(normalizeProcessIdentifier(key)))) {
         return false;
     }
     if (plan.statuses === null) {
@@ -146,22 +162,33 @@ export function planCoversNeed(plan: DataPlan | null | undefined, need: WidgetDa
  * widget with `processListOptions.variables`.
  */
 export const PROCESS_LIST_DEFAULT_VARIABLES: readonly string[] = [
+    // Radication number: start-form field `MedRecNum`, mapped in Automate to the process variable `MedRec`.
+    // The search box and the account reference read it.
+    'MedRec',
+    'MedRecNum',
     'accountId',
     'batchState',
     'codingIntegrityResult',
     'complianceAlertResult',
     'financialVarianceResult',
     'medicalAccountId',
+    'radicationId',
 ];
 
-function rowDefinition(row: Record<string, unknown>): string {
-    return String(row['processDefinitionName'] ?? '').trim().toLowerCase();
+function rowDefinition(row: Record<string, unknown>): { processDefinitionKey: string; processDefinitionName: string } {
+    return {
+        processDefinitionKey: String(row['processDefinitionKey'] ?? '').trim(),
+        processDefinitionName: String(row['processDefinitionName'] ?? '').trim(),
+    };
 }
 
-/** True when the row belongs to the need (definition and status). */
+/**
+ * True when the row belongs to the need (definition and status). The definition matches by key or
+ * by name through the central mapping: a root row is kept even when its display name changed.
+ */
 export function rowMatchesNeed(row: Record<string, unknown>, need: Pick<WidgetDataNeed, 'definitions' | 'statuses'>): boolean {
     const definition = rowDefinition(row);
-    if (definition && !need.definitions.some((name) => name.toLowerCase() === definition)) {
+    if ((definition.processDefinitionKey || definition.processDefinitionName) && !matchProcessDefinitions(definition, need.definitions)) {
         return false;
     }
     if (need.statuses) {

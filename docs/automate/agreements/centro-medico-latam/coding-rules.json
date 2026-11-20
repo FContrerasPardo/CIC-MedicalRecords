@@ -2,7 +2,7 @@
   "agreementId": "centro-medico-latam",
   "version": "2026-11-17-r1",
   "updatedAt": "2026-11-17T00:00:00.000Z",
-  "rulesetId": "CODING-ARSP-CML-2026",
+  "rulesetId": "CODING-HARS-CML-2026",
   "codingSystem": "ICD10-CPT-CUPS",
   "rules": [
     {

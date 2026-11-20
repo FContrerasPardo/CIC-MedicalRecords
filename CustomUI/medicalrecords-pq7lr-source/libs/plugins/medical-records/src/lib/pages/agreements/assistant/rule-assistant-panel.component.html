@@ -1,0 +1,162 @@
+<!-- Invitation towards Knowledge Discovery (Documents, first time per agreement): polite live region, never focused. -->
+<div class="ra-invite-region" aria-live="polite">
+    @if (inviteVisible && kdMode && !open) {
+        <div class="ra-invite">
+            <button type="button" class="ra-invite__text" (click)="toggle()">
+                <span class="material-icons" aria-hidden="true">travel_explore</span>{{ kdI18n + '.INVITE' | translate }}
+            </button>
+            <button type="button" class="ra-icon-btn ra-invite__close" (click)="dismissInvite()" [attr.aria-label]="kdI18n + '.DISMISS' | translate" [title]="kdI18n + '.DISMISS' | translate">
+                <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+        </div>
+    }
+</div>
+
+<div class="ra-dock">
+    <button
+        type="button"
+        class="ra-gear"
+        (click)="configureKd()"
+        [disabled]="!kdPlaceValid"
+        [attr.aria-label]="kdRootI18n + '.SETTINGS' | translate"
+        [title]="kdRootI18n + '.SETTINGS' | translate"
+    >
+        <span class="material-icons" aria-hidden="true">settings</span>
+    </button>
+    <button
+        #toggleButtonRef
+        type="button"
+        class="ra-fab"
+        [class.ra-fab--open]="open"
+        (click)="toggle()"
+        [attr.aria-expanded]="open"
+        [attr.aria-controls]="panelId"
+    >
+        <span class="material-icons" aria-hidden="true">{{ open ? 'close' : kdMode ? 'travel_explore' : 'auto_awesome' }}</span>
+        <span>{{ (kdMode ? kdI18n + '.TITLE' : i18n + '.TITLE') | translate }}</span>
+    </button>
+</div>
+
+@if (open && kdMode) {
+    <!-- Documents: onboarding chat towards Knowledge Discovery. -->
+    <section class="ra-panel ra-panel--kd" [id]="panelId" role="dialog" aria-modal="false" [attr.aria-labelledby]="panelId + '-title'">
+        <header class="ra-panel__head">
+            <span class="ra-avatar" aria-hidden="true"><span class="material-icons">travel_explore</span></span>
+            <div class="ra-panel__titles">
+                <h2 [id]="panelId + '-title'">{{ kdI18n + '.TITLE' | translate }}</h2>
+                <p>{{ kdI18n + '.SUBTITLE' | translate }}</p>
+            </div>
+            <button type="button" class="ra-icon-btn" (click)="close()" [attr.aria-label]="kdI18n + '.COLLAPSE' | translate">
+                <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+        </header>
+        <ol class="ra-log" aria-live="polite">
+            <li class="ra-msg ra-msg--assistant">
+                <p>{{ kdI18n + '.QUESTION' | translate }}</p>
+                <p class="ra-msg__note">{{ kdI18n + '.WHAT' | translate }}</p>
+                @if (kdStatus !== 'loading' && !kdLink) {
+                    <p class="ra-msg__note">{{ kdI18n + '.NOT_CONFIGURED' | translate }}</p>
+                }
+                <div class="ra-kd-actions">
+                    @if (kdStatus === 'loading' && !kdLink) {
+                        <button #kdYesRef type="button" class="ra-btn ra-btn--primary" disabled>
+                            <span class="material-icons" aria-hidden="true">hourglass_empty</span>{{ kdRootI18n + '.LOADING' | translate }}
+                        </button>
+                    } @else if (kdLink) {
+                        <a #kdYesRef class="ra-btn ra-btn--primary" [href]="kdLink.url" target="_blank" rel="noopener noreferrer" [title]="kdLink.description" (click)="onKdOpened()">
+                            <span class="material-icons" aria-hidden="true">open_in_new</span>{{ kdI18n + '.YES' | translate }}
+                            <span class="sr-only">{{ kdRootI18n + '.NEW_TAB' | translate }}</span>
+                        </a>
+                    } @else {
+                        <button #kdYesRef type="button" class="ra-btn ra-btn--primary" (click)="configureKd()" [disabled]="!kdPlaceValid">
+                            <span class="material-icons" aria-hidden="true">settings</span>{{ kdI18n + '.YES' | translate }}
+                        </button>
+                    }
+                    <button type="button" class="ra-btn" (click)="close()">{{ kdI18n + '.NOT_NOW' | translate }}</button>
+                </div>
+            </li>
+        </ol>
+    </section>
+}
+
+@if (open && !kdMode) {
+    <section class="ra-panel" [id]="panelId" role="dialog" aria-modal="false" [attr.aria-labelledby]="panelId + '-title'">
+        <header class="ra-panel__head">
+            <span class="ra-avatar" aria-hidden="true"><span class="material-icons">auto_awesome</span></span>
+            <div class="ra-panel__titles">
+                <h2 [id]="panelId + '-title'">{{ i18n + '.TITLE' | translate }}</h2>
+                <p>{{ i18n + '.SUBTITLE' | translate }}</p>
+            </div>
+            <button type="button" class="ra-icon-btn" (click)="close()" [attr.aria-label]="i18n + '.CLOSE' | translate">
+                <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+        </header>
+
+        <ol class="ra-log" aria-live="polite">
+            @for (message of messages; track trackMessage($index, message)) {
+                <li class="ra-msg ra-msg--{{ message.from }}">
+                    <p>{{ message.from === 'user' ? message.text : (message.text | translate: message.params) }}</p>
+                    @if (message.proposals?.length) {
+                        <ul class="ra-proposals">
+                            @for (proposal of message.proposals; track proposal.id) {
+                                <li class="ra-proposal">
+                                    <div class="ra-proposal__where">
+                                        <span class="material-icons" aria-hidden="true">place</span>
+                                        <span>
+                                            <strong>{{ 'MEDICAL_RECORDS.AGREEMENTS.RULES.FILE_' + proposal.kind | translate }}</strong>
+                                            · {{ 'MEDICAL_RECORDS.AGREEMENTS.TABS.' + (targets[proposal.kind].tab | uppercase) | translate }}
+                                            @if (targets[proposal.kind].agentTab; as agentTab) {
+                                                · {{ 'MEDICAL_RECORDS.AGREEMENTS.RULES.AGENT_' + (agentTab | uppercase) | translate }}
+                                            }
+                                        </span>
+                                    </div>
+                                    <p class="ra-proposal__row"><code>{{ rowId(proposal) }}</code> {{ rowSummary(proposal) }}</p>
+                                    <p class="ra-proposal__reason">{{ i18n + '.' + proposal.reason | translate }}</p>
+                                    <button type="button" class="ra-btn" (click)="createDraft(proposal)" [disabled]="applied.has(proposal.id)">
+                                        <span class="material-icons" aria-hidden="true">{{ applied.has(proposal.id) ? 'check' : 'edit_note' }}</span>
+                                        {{ (applied.has(proposal.id) ? i18n + '.DRAFT_CREATED' : i18n + '.CREATE_DRAFT') | translate }}
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    @if (message.unrecognized?.length) {
+                        <p class="ra-msg__note">{{ i18n + '.UNRECOGNIZED' | translate: { count: message.unrecognized?.length } }}</p>
+                    }
+                </li>
+            }
+            @if (busy) {
+                <li class="ra-msg ra-msg--assistant" role="status">{{ i18n + '.THINKING' | translate }}</li>
+            }
+        </ol>
+
+        <div class="ra-examples" role="group" [attr.aria-label]="i18n + '.EXAMPLES' | translate">
+            @for (key of examples; track key) {
+                <button type="button" class="ra-chip" (click)="useExample(key)">{{ i18n + '.' + key | translate }}</button>
+            }
+        </div>
+
+        <form class="ra-composer" (ngSubmit)="send()">
+            <label class="sr-only" [attr.for]="panelId + '-input'">{{ i18n + '.INPUT_LABEL' | translate }}</label>
+            <textarea
+                #composer
+                [id]="panelId + '-input'"
+                name="draft"
+                rows="3"
+                [(ngModel)]="draft"
+                (keydown)="onComposerKeydown($event)"
+                [placeholder]="i18n + '.PLACEHOLDER' | translate"
+            ></textarea>
+            <div class="ra-composer__actions">
+                <label class="ra-btn ra-btn--ghost">
+                    <span class="material-icons" aria-hidden="true">upload_file</span>{{ i18n + '.IMPORT' | translate }}
+                    <input #fileInput type="file" class="sr-only" accept=".json,.csv,.txt,application/json,text/csv,text/plain" (change)="importFile(fileInput)" />
+                </label>
+                <button type="submit" class="ra-btn ra-btn--primary" [disabled]="!draft.trim() || busy">
+                    <span class="material-icons" aria-hidden="true">send</span>{{ i18n + '.SEND' | translate }}
+                </button>
+            </div>
+            <p class="ra-hint">{{ i18n + '.IMPORT_HINT' | translate }}</p>
+        </form>
+    </section>
+}

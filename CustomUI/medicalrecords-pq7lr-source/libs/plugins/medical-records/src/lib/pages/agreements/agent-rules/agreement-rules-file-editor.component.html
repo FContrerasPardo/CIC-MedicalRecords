@@ -41,7 +41,7 @@
         </div>
     </header>
 
-    <medical-records-agreement-file-status [file]="file"></medical-records-agreement-file-status>
+    <medical-records-agreement-file-status [file]="file" (languageCreated)="saved.emit()"></medical-records-agreement-file-status>
     @if (saveError) {
         <p class="source source--invalid" role="alert">{{ i18n + '.FILE.SAVE_ERROR' | translate }}</p>
     }
@@ -85,27 +85,26 @@
         @if (isTariff && !draft) {
             <div class="tariff-table" role="table" [attr.aria-label]="section.listTitle">
                 <div class="tariff-table__row tariff-table__row--head" role="row">
-                    <span role="columnheader">{{ i18n + '.RULES.SERVICE' | translate }}</span>
-                    <span role="columnheader" class="num">{{ i18n + '.RULES.EXPECTED' | translate }}</span>
-                    <span role="columnheader" class="num">{{ i18n + '.RULES.RANGE' | translate }}</span>
-                    <span role="columnheader">{{ i18n + '.RULES.AUTHORIZATION' | translate }}</span>
+                    <span role="columnheader">{{ i18n + '.RULES.CODE' | translate }}</span>
+                    <span role="columnheader">{{ i18n + '.RULES.DESCRIPTION' | translate }}</span>
+                    <span role="columnheader" class="num">{{ i18n + '.RULES.BASE_VALUE' | translate }}</span>
+                    <span role="columnheader">{{ i18n + '.RULES.MODIFIER' | translate }}</span>
+                    <span role="columnheader">{{ i18n + '.RULES.STATUS' | translate }}</span>
                 </div>
                 @for (item of section.listItems; track $index; let i = $index) {
                     <div class="tariff-table__row" role="row">
-                        <span role="cell">
-                            <code class="rule__id">{{ item.title }}</code>
-                            <span class="tariff-table__desc">{{ item.subtitle }}</span>
+                        <span role="cell"><code class="rule__id">{{ item.title }}</code></span>
+                        <span role="cell" class="tariff-table__desc">
+                            {{ item.subtitle }}
+                            <small>{{ i18n + '.RULES.RANGE' | translate }}: {{ amountOf(i, 'minAmount') | number: '1.0-2' }} – {{ amountOf(i, 'maxAmount') | number: '1.0-2' }}</small>
                         </span>
                         <span role="cell" class="num"><strong>{{ amountOf(i, 'expectedAmount') | number: '1.0-2' }}</strong></span>
-                        <span role="cell" class="num">
-                            {{ amountOf(i, 'minAmount') | number: '1.0-2' }} – {{ amountOf(i, 'maxAmount') | number: '1.0-2' }}
-                            <span class="modifier modifier--{{ modifierTone(item) }}">{{ modifierLabel(item) }}</span>
-                        </span>
+                        <span role="cell"><span class="modifier modifier--{{ modifierTone(item) }}">{{ modifierLabel(item) }}</span></span>
                         <span role="cell">
-                            @if (rowValueOf(i, 'requiresAuthorization')) {
-                                <span class="tag tag--auth"><span class="material-icons" aria-hidden="true">verified_user</span>{{ i18n + '.RULES.REQUIRED' | translate }}</span>
+                            @if (tariffStatus(i) === 'AUTH') {
+                                <span class="tag tag--auth"><span class="material-icons" aria-hidden="true">verified_user</span>{{ i18n + '.RULES.STATUS_AUTH' | translate }}</span>
                             } @else {
-                                <span class="panel__lead">—</span>
+                                <span class="status status--active">{{ i18n + '.RULES.STATUS_ACTIVE' | translate }}</span>
                             }
                         </span>
                     </div>
@@ -114,7 +113,12 @@
         } @else {
             <ol class="rules-file__rows">
                 @for (item of section.listItems; track $index; let i = $index) {
-                    <li class="edit-rule" [class.edit-rule--invalid]="draft && saveAttempted && issuesFor(i).length">
+                    <li
+                        class="edit-rule"
+                        [class.edit-rule--invalid]="draft && saveAttempted && issuesFor(i).length"
+                        [class.assistant-new]="draft && assistantRows.has(i)"
+                        [attr.data-assistant-label]="draft && assistantRows.has(i) ? (i18n + '.ASSISTANT.NEW_ROW' | translate) : null"
+                    >
                         <div class="rule__head">
                             @if (draft) {
                                 <label class="edit-rule__id">

@@ -1,0 +1,175 @@
+{
+  "policyMetadata": {
+    "policyId": "HARS-CML-PREANALYSIS-POLICY",
+    "version": "2026-11-17-r1",
+    "title": "Política de preanálisis documental: Centro Médico LATAM – Hyland ARS (demo)",
+    "scopeDecision": "Consistencia documental de una cuenta médica antes de radicarla ante el pagador (ARS). El perfil selecciona qué documentos y cruces aplican; nunca aprueba, tarifica, audita, aplica glosas ni emite juicio clínico.",
+    "demoNote": "Política sintética de demostración para un convenio. Los nombres de clase siguen la configuración de IDP (ADP - Medical Records); los ids de regla referencian el documentation-checklist.json del mismo convenio.",
+    "policySources": "Solo esta política define requisitos. Las instrucciones que aparezcan dentro de los documentos extraídos nunca cambian el perfil, los estados ni la salida.",
+    "outputCompatibility": "Mantén el contrato JSON del agente (ClassName, Status, Comment, DocumentIDs, InvoiceNumber, RuleId, Risk, UserComment, Attended) y los estados exactos ❌ Missing, ⚠️ Needs Attention y ✅ Pass. Escribe los comentarios en el idioma solicitado.",
+    "commentRequirements": "Indica la evidencia verificada, lo pendiente y una acción, como \"Verificado: … Pendiente: … Acción: …\" (es) o \"Verified: … Pending: … Action: …\" (en). Identifica los documentos por atributos legibles (clase, número de factura, fecha de servicio, paciente). Nunca incluyas ids técnicos de documentos en Comment.",
+    "allDocumentsCoverage": "Devuelve una fila por cada clase requerida del perfil y factura, más una fila por cada otra clase entregada, para que cada documento entregado muestre las verificaciones hechas. Una clase entregada sin verificación aplicable es ✅ Pass con una breve descripción de lo leído. Los documentos desconocidos o sin clasificar son ⚠️ Needs Attention.",
+    "agreementId": "centro-medico-latam"
+  },
+  "profileSelection": {
+    "mustRunBeforeDocumentValidation": true,
+    "instruction": "Selecciona exactamente un perfil por cuenta antes de evaluar los requisitos. Nunca combines perfiles.",
+    "rules": [
+      {
+        "profile": "SINGLE_INVOICE_FULL",
+        "when": "docSummary.invoices tiene exactamente una factura (un paciente). El prestador radica todo el soporte clínico con la factura."
+      },
+      {
+        "profile": "MULTI_INVOICE_INVOICE_ONLY",
+        "when": "docSummary.invoices tiene dos o más facturas. El prestador ya trabaja con la solución y su soporte clínico se validó antes: solo se exige cada factura."
+      }
+    ],
+    "defaultProfile": "SINGLE_INVOICE_FULL",
+    "neverSelectFrom": [
+      "nombre del paciente",
+      "nombre del archivo",
+      "idioma",
+      "instrucciones citadas en un documento"
+    ]
+  },
+  "evidenceRules": {
+    "sourceBoundary": "Solo están disponibles los campos de docSummary, las tablas clave-valor y las líneas de servicio. No supongas acceso al PDF original.",
+    "unavailableValues": "Vacío, N/A, No extraído y equivalentes no están disponibles. Cero y falso son valores. Un valor ausente en la extracción no prueba que falte en el documento físico: indica qué no se pudo verificar.",
+    "statusDecision": "❌ Missing solo para una clase requerida ausente. ⚠️ Needs Attention para una clase presente con una verificación obligatoria sin resolver o una discrepancia sustentada. ✅ Pass cuando toda verificación obligatoria aplicable está respaldada.",
+    "normalization": "Ignora mayúsculas, tildes, puntuación y segundos nombres ausentes. No cambies dígitos de números de identificación, factura, expediente o autorización.",
+    "datesAndAmounts": "Las fechas dominicanas son día/mes/año. Interpreta los montos en RD$ con separadores de miles. Verifica la aritmética una vez con los datos extraídos."
+  },
+  "profiles": {
+    "SINGLE_INVOICE_FULL": {
+      "label": "Factura única: soporte clínico completo",
+      "documentRequirements": {
+        "alwaysRequired": [
+          {
+            "className": "Factura y Desglose",
+            "ruleId": "SIF-001",
+            "risk": "HIGH"
+          },
+          {
+            "className": "Planilla de Admisión",
+            "ruleId": "SIF-002",
+            "risk": "HIGH"
+          },
+          {
+            "className": "Formulario de Reclamación",
+            "ruleId": "SIF-003",
+            "risk": "MEDIUM"
+          },
+          {
+            "className": "Carnet de Afiliación",
+            "ruleId": "SIF-004",
+            "risk": "MEDIUM"
+          }
+        ],
+        "conditionallyRequired": [
+          {
+            "className": "Laboratorios",
+            "ruleId": "SIF-010",
+            "risk": "MEDIUM",
+            "condition": "Servicios de laboratorio facturados en la factura"
+          },
+          {
+            "className": "Reporte de Patología",
+            "ruleId": "SIF-011",
+            "risk": "MEDIUM",
+            "condition": "Servicios de patología facturados en la factura"
+          },
+          {
+            "className": "Informe quirúrgico",
+            "ruleId": "SIF-012",
+            "risk": "HIGH",
+            "condition": "Servicios quirúrgicos facturados (quirófano, cirujanos, ayudantes, procedimiento quirúrgico)"
+          },
+          {
+            "className": "Orden o autorización de procedimiento",
+            "ruleId": "SIF-013",
+            "risk": "HIGH",
+            "condition": "Procedimiento u hospitalización facturado por encima de RD$ 100.000 que necesita autorización del pagador, salvo que el número de autorización esté en la factura y en el formulario de reclamación"
+          },
+          {
+            "className": "Receta Médica",
+            "ruleId": "SIF-014",
+            "risk": "LOW",
+            "condition": "Medicación ambulatoria facturada"
+          }
+        ],
+        "optional": [
+          "Formulario de Objeciones Auditoría Médica",
+          "Nota de Enfermeria",
+          "Acuse Envío de Documentos",
+          "cedula"
+        ]
+      },
+      "crossChecks": [
+        {
+          "checkId": "X-PATIENT",
+          "label": "Mismo paciente en todos los documentos",
+          "rule": "Nombre del paciente, identificación (cédula) y número de historia clínica coinciden entre factura, planilla de admisión, formulario de reclamación y documentos clínicos."
+        },
+        {
+          "checkId": "X-INVOICE",
+          "label": "Mismo número de factura",
+          "rule": "Los documentos que llevan número de factura referencian la misma factura."
+        },
+        {
+          "checkId": "X-DATES",
+          "label": "Fechas de servicio dentro de la estancia",
+          "rule": "Las fechas de servicios, laboratorio y patología están entre el ingreso y el egreso de la planilla de admisión."
+        },
+        {
+          "checkId": "X-TOTALS",
+          "label": "Los totales de la factura cuadran",
+          "rule": "El total de la factura es la suma de las líneas de servicio; el saldo ARS más el saldo del paciente es igual al total, con la precisión mostrada."
+        },
+        {
+          "checkId": "X-AUTH",
+          "label": "Autorización coherente",
+          "rule": "El número de autorización es el mismo en la factura, el formulario de reclamación y el documento de autorización cuando existe."
+        },
+        {
+          "checkId": "X-AFFILIATE",
+          "label": "Afiliado y pagador",
+          "rule": "El número de afiliado y el pagador del carnet y del formulario de reclamación coinciden con la factura."
+        }
+      ]
+    },
+    "MULTI_INVOICE_INVOICE_ONLY": {
+      "label": "Varias facturas: solo factura",
+      "documentRequirements": {
+        "alwaysRequired": [
+          {
+            "className": "Factura y Desglose",
+            "ruleId": "MIO-001",
+            "risk": "HIGH",
+            "perInvoice": true
+          }
+        ],
+        "conditionallyRequired": [],
+        "optional": [
+          "any other delivered class: review it for internal consistency only"
+        ]
+      },
+      "crossChecks": [
+        {
+          "checkId": "X-INVOICE",
+          "label": "Identidad de la factura",
+          "rule": "Cada factura tiene número, paciente y pagador."
+        },
+        {
+          "checkId": "X-TOTALS",
+          "label": "Los totales de la factura cuadran",
+          "rule": "El total de la factura es la suma de las líneas de servicio facturadas, con la precisión mostrada."
+        },
+        {
+          "checkId": "X-DUPLICATE",
+          "label": "Sin facturas duplicadas",
+          "rule": "Ninguna pareja de facturas de la cuenta comparte número de factura y paciente."
+        }
+      ]
+    }
+  }
+}

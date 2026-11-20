@@ -1,0 +1,88 @@
+{
+  "kind": "medical-records.agreement",
+  "schemaVersion": 1,
+  "agreementId": "hospital-general-hyland-latam",
+  "version": "2026-11-17-r1",
+  "updatedAt": "2026-11-17T00:00:00.000Z",
+  "status": "ACTIVE",
+  "demoNote": "Convenio sintético de demostración: prestador, contrato y montos son inventados. Sin datos reales de contratos, pacientes ni afiliados.",
+  "providerAliases": [
+    "HG HYLAND LATAM",
+    "Hospital General Hyland"
+  ],
+  "general": {
+    "providerName": "Hospital General HYLAND LATAM",
+    "providerDisplayName": "Hospital General HYLAND LATAM",
+    "agreementBadge": "CONVENIO MARCO",
+    "contractId": "CONV-DEMO-HARS-HGHL-2026",
+    "payer": "Hyland ARS",
+    "planName": "Plan Hospitalario Ampliado (demo)",
+    "legalRepresentative": "Representante legal (demo)",
+    "contractType": "Paquete hospitalario",
+    "effectiveFrom": "2026-01-01",
+    "effectiveTo": "2026-12-31",
+    "jurisdiction": "República Dominicana",
+    "capitationBase": 0,
+    "capitationCurrency": "DOP",
+    "capitationPeriod": "mo",
+    "budgetTotal": 42000000,
+    "billedYtd": 0,
+    "pendingApproval": 0,
+    "budgetCurrency": "DOP"
+  },
+  "contacts": [
+    {
+      "id": "hghl-contact-1",
+      "name": "Fernando Contreras",
+      "role": "Coordinación del convenio",
+      "email": "fernando.contreras@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "hghl-contact-2",
+      "name": "Mauricio Valdez",
+      "role": "Auditoría médica",
+      "email": "mauricio.valdez@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "hghl-contact-3",
+      "name": "Larissa Trentin",
+      "role": "Facturación",
+      "email": "larissa.trentin@hyland.com",
+      "phone": ""
+    }
+  ],
+  "documents": {
+    "primaryDocument": {
+      "title": "Contrato de prestación de servicios Hospital General HYLAND LATAM – Hyland ARS (demo)",
+      "status": "Active",
+      "contractId": "CONV-DEMO-HARS-HGHL-2026",
+      "expiresAt": "2026-12-31",
+      "repositoryId": "",
+      "repositoryNodeId": "",
+      "mimeType": "application/pdf"
+    },
+    "relatedFiles": [
+      {
+        "id": "hghl-annex-1",
+        "title": "Anexo tarifario 2026 (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      },
+      {
+        "id": "hghl-annex-2",
+        "title": "Manual de radicación y soportes (demo)",
+        "category": "TECHNICAL_ANNEXES",
+        "sizeLabel": "—",
+        "updatedAt": "2026-01-01"
+      }
+    ],
+    "historicalVersions": []
+  },
+  "knowledgeDiscovery": {
+    "url": "",
+    "label": ""
+  }
+}

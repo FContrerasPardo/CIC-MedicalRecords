@@ -14,8 +14,8 @@
     "providerName": "Centro Medico LATAM",
     "providerDisplayName": "Centro Médico LATAM",
     "agreementBadge": "MASTER AGREEMENT",
-    "contractId": "CONV-DEMO-ARSP-CML-2026",
-    "payer": "ARS Primera",
+    "contractId": "CONV-DEMO-HARS-CML-2026",
+    "payer": "Hyland ARS",
     "planName": "Plan Básico (demo)",
     "legalRepresentative": "Representante legal (demo)",
     "contractType": "Evento",
@@ -30,11 +30,34 @@
     "pendingApproval": 0,
     "budgetCurrency": "DOP"
   },
+  "contacts": [
+    {
+      "id": "cml-contact-1",
+      "name": "Fernando Contreras",
+      "role": "Agreement coordination",
+      "email": "fernando.contreras@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "cml-contact-2",
+      "name": "Mauricio Valdez",
+      "role": "Medical audit",
+      "email": "mauricio.valdez@hyland.com",
+      "phone": ""
+    },
+    {
+      "id": "cml-contact-3",
+      "name": "Larissa Trentin",
+      "role": "Billing",
+      "email": "larissa.trentin@hyland.com",
+      "phone": ""
+    }
+  ],
   "documents": {
     "primaryDocument": {
-      "title": "Contrato de prestación de servicios Centro Médico LATAM – ARS Primera (demo)",
+      "title": "Contrato de prestación de servicios Centro Médico LATAM – Hyland ARS (demo)",
       "status": "Active",
-      "contractId": "CONV-DEMO-ARSP-CML-2026",
+      "contractId": "CONV-DEMO-HARS-CML-2026",
       "expiresAt": "2026-12-31",
       "repositoryId": "",
       "repositoryNodeId": "",
@@ -57,5 +80,9 @@
       }
     ],
     "historicalVersions": []
+  },
+  "knowledgeDiscovery": {
+    "url": "",
+    "label": ""
   }
 }

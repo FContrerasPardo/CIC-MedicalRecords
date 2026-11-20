@@ -27,7 +27,8 @@ export class ProcessVariablesService {
         private readonly appConfigService: AppConfigService
     ) {}
 
-    fetchVariables(processInstanceId: string): Observable<Record<string, unknown>> {
+    /** `fresh`: skip the short shared cache (polling of a running process); the new answer replaces it. */
+    fetchVariables(processInstanceId: string, options: { fresh?: boolean } = {}): Observable<Record<string, unknown>> {
         const appName = resolveDeployedAppName(this.appConfigService);
         if (!appName || !processInstanceId) {
             return of({});
@@ -37,10 +38,11 @@ export class ProcessVariablesService {
         // share one request per instance for a short time instead of downloading the batchState repeatedly.
         const cacheKey = `${appName}|${processInstanceId}`;
         const cached = this.variablesCache.get(cacheKey);
-        if (cached && Date.now() - cached.at < VARIABLES_CACHE_TTL_MS) {
+        if (cached && !options.fresh && Date.now() - cached.at < VARIABLES_CACHE_TTL_MS) {
             return cached.value$;
         }
         const value$ = this.requestVariables(appName, processInstanceId).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+        this.variablesCache.delete(cacheKey);
         if (this.variablesCache.size >= VARIABLES_CACHE_LIMIT) {
             const oldest = this.variablesCache.keys().next().value;
             if (oldest !== undefined) {

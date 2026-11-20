@@ -1,11 +1,38 @@
+// Above the side drawers of the pages (z-index 1001) that can open it.
 .viewer-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 1100;
     display: grid;
     place-items: center;
     padding: 24px;
     background: rgba(11, 28, 48, 0.55);
+}
+
+// Docked next to an open side drawer: the drawer stays visible on the right.
+.viewer-backdrop--docked {
+    right: var(--viewer-dock-right, 0);
+    padding: 16px;
+
+    .viewer {
+        height: min(92vh, 960px);
+    }
+}
+
+// Narrow screens: full screen over the drawer.
+@media (max-width: 720px) {
+    .viewer-backdrop,
+    .viewer-backdrop--docked {
+        right: 0;
+        padding: 0;
+    }
+
+    .viewer,
+    .viewer-backdrop--docked .viewer {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
 }
 
 .viewer {

@@ -55,7 +55,7 @@ describe('agreement store (Appdata per agreement)', () => {
             { agreementId: 'a', providerName: 'a', payer: '', status: 'DRAFT', updatedAt: null },
         ]);
         expect(parseAgreementsIndex('{ broken')).toBeNull();
-        const next = upsertIndexEntry(seed, { agreementId: 'nuevo', providerName: 'Nuevo', payer: 'ARS Primera', status: 'DRAFT', updatedAt: null }, now);
+        const next = upsertIndexEntry(seed, { agreementId: 'nuevo', providerName: 'Nuevo', payer: 'Hyland ARS', status: 'DRAFT', updatedAt: null }, now);
         expect(next.agreements.length).toBe(3);
         expect(next.updatedAt).toBe('2026-11-18T10:00:00.000Z');
         const replaced = upsertIndexEntry(next, { ...next.agreements[2], status: 'ACTIVE' }, now);
@@ -108,7 +108,7 @@ describe('agreement store (Appdata per agreement)', () => {
     it('duplicates an agreement under a new id and provider, as a draft', () => {
         const source = Object.fromEntries(AGREEMENT_FILE_KINDS.map((kind) => [kind, agreementTemplateFile('hospital-general-hyland-latam', kind)]));
         const copy = duplicateAgreementFiles(source, { agreementId: 'clinica-demo-norte', providerName: 'Clinica Demo Norte' }, now);
-        expect(Object.keys(copy).length).toBe(7);
+        expect(Object.keys(copy).length).toBe(AGREEMENT_FILE_KINDS.length);
         expect(copy.agreement?.['status']).toBe('DRAFT');
         expect((copy.agreement?.['general'] as Record<string, unknown>)['providerName']).toBe('Clinica Demo Norte');
         expect(copy.tariffAgreement?.['provider']).toBe('Clinica Demo Norte');

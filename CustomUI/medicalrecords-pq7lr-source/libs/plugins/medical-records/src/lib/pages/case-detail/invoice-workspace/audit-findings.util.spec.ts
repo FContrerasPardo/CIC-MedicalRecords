@@ -11,6 +11,7 @@ import {
     parseAuditState,
     parseProviderComments,
     proposeGlosa,
+    removeIntakeFindings,
     responsesForFinding,
     setFindingStatus,
     sortAuditQueue,
@@ -83,6 +84,11 @@ describe('audit-findings.util', () => {
             expect(result.amount).toBe(2500);
             expect(result.description).toBe('MRI — Missing Support');
         });
+
+        it('takes Price x Quantity as amount when the row has no Total', () => {
+            const result = fromIntakeService(INVOICE, { id: 'svc-2', serviceCode: 'S-201', description: 'Synthetic lab', quantity: '3', price: '1.200,50', total: null, supportStatus: 'Supported', missingDocuments: [], alerts: [] });
+            expect(result.amount).toBe(3601.5);
+        });
     });
 
     describe('addFinding', () => {
@@ -107,6 +113,36 @@ describe('audit-findings.util', () => {
             const other = addFinding(first, finding({ id: 'f2', origin: 'codingIntegrity', sourceRef: 'CI-1', description: 'Invalid code' }));
             expect(other.added).toBe(true);
             expect(other.record.findings.length).toBe(2);
+        });
+    });
+
+    describe('removeIntakeFindings', () => {
+        const record = () => ({
+            ...emptyAuditRecord(),
+            findings: [finding(), finding({ id: 'f2', origin: 'codingIntegrity', sourceRef: 'CI-1', description: 'Invalid code' }), finding({ id: 'f3', sourceRef: 's3', description: 'Other gap' })],
+            glosas: [
+                { findingId: 'f1', invoiceKey: INVOICE, reason: 'Synthetic reason', serviceCode: 'S-100', objectedAmount: 100, comment: null },
+                { findingId: 'f2', invoiceKey: INVOICE, reason: 'Synthetic reason', serviceCode: 'S-100', objectedAmount: 50, comment: null },
+            ],
+        });
+
+        it('removes intake findings and their proposed glosas', () => {
+            const next = removeIntakeFindings(record(), ['f1']);
+            expect(next.findings.map((item) => item.id)).toEqual(['f2', 'f3']);
+            expect(next.glosas.map((glosa) => glosa.findingId)).toEqual(['f2']);
+        });
+
+        it('never removes agent findings', () => {
+            const base = record();
+            const next = removeIntakeFindings(base, ['f2']);
+            expect(next).toBe(base);
+            expect(removeIntakeFindings(base, ['f2', 'f3']).findings.map((item) => item.id)).toEqual(['f1', 'f2']);
+        });
+
+        it('returns the same record when nothing matches', () => {
+            const base = record();
+            expect(removeIntakeFindings(base, [])).toBe(base);
+            expect(removeIntakeFindings(base, ['unknown'])).toBe(base);
         });
     });
 

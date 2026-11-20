@@ -65,7 +65,8 @@ function buildSubtitle(
         parts.push(`Insurer: ${batchContext.insurer}`);
     }
 
-    const accountId = stringify(variables['accountId']) ?? stringify(variables['medicalAccountId']);
+    const accountId =
+        stringify(variables['MedRec']) ?? stringify(variables['MedRecNum']) ?? stringify(variables['accountId']) ?? stringify(variables['medicalAccountId']);
     if (accountId) {
         parts.push(`Account: ${accountId}`);
     }

@@ -1,3 +1,5 @@
+import { activeProcessMapping, ProcessMapping, processRoleOf } from '../../../dashboard/definitions/process-mapping';
+
 /**
  * Contract of the "Document Upload" start form of the `medical-records` process
  * (`document-upload-tricp`). Field IDs come from the Automate export; `MedRecNum` and `Email`
@@ -5,6 +7,7 @@
  * The account always goes to our ARS, so the payer is not asked.
  */
 export const RADICATION_START_FORM = {
+    /** Label for the technical view only: the root is chosen by the process mapping (key first). */
     processName: 'medical-records',
     formKey: 'form-dff85f23-5d64-4f3c-944d-d0762d52e4c7',
     fields: {
@@ -204,15 +207,78 @@ export interface RadicationDefinitionCandidate {
     version?: number | string | null;
 }
 
+/** Why a deployed definition was (not) chosen for the radication; shown in the technical view. */
+export type RadicationDefinitionVerdict = 'CHOSEN' | 'OLDER_VERSION' | 'NAME_ONLY' | 'SUBPROCESS' | 'OTHER_PROCESS' | 'NO_START_FORM';
+
+export interface RadicationDefinitionSelection<T extends RadicationDefinitionCandidate> {
+    /** The root process of the mapping, latest version; `null` when it is not deployed (never another process). */
+    definition: T | null;
+    /** How the chosen definition matched: its name, its key, or nothing. */
+    matchedBy: 'name' | 'key' | null;
+    /** One verdict per deployed definition, in the order received. */
+    candidates: Array<{ name: string; key: string; version: number; formKey: string; verdict: RadicationDefinitionVerdict }>;
+}
+
+const trimmed = (value: unknown): string => (value === null || value === undefined ? '' : String(value).trim());
+const versionOf = (value: unknown): number => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
 /**
- * Process started by the radication. Several processes can share the start form (e.g. "Document AI
- * Process" and "medical-records"), so the medical-records process wins, as with the native "New
- * medical account" button; the form key alone is only a fallback.
+ * Process started by the radication: ALWAYS the root process of the central mapping
+ * (`dashboard/definitions/process-mapping.ts`), latest version. The definition KEY is tried first
+ * (`Process_1777481415500`, stable while Automate shows another name such as «Radicación»); the
+ * names are a fallback used only when no deployed definition matches by key. Subprocesses of the
+ * mapping are excluded explicitly and there is no fallback by form key: several definitions share
+ * the start form, so "the first" or "the latest with that form" could start "Document AI Process".
+ * Without a match the definition is `null` and nothing is started.
  */
-export function pickRadicationDefinition<T extends RadicationDefinitionCandidate>(definitions: readonly T[]): T | null {
-    const byProcess = definitions.filter(
-        (candidate) => candidate?.name === RADICATION_START_FORM.processName || candidate?.key === RADICATION_START_FORM.processName
-    );
-    const pool = byProcess.length ? byProcess : definitions.filter((candidate) => candidate?.formKey === RADICATION_START_FORM.formKey);
-    return pool.reduce<T | null>((best, candidate) => (!best || Number(candidate.version) > Number(best.version) ? candidate : best), null);
+export function selectRadicationDefinition<T extends RadicationDefinitionCandidate>(
+    definitions: readonly (T | null | undefined)[] | null | undefined,
+    mapping: ProcessMapping = activeProcessMapping()
+): RadicationDefinitionSelection<T> {
+    const rows = (definitions ?? [])
+        .filter((candidate): candidate is T => !!candidate && typeof candidate === 'object')
+        .map((candidate) => {
+            const name = trimmed(candidate.name);
+            const key = trimmed(candidate.key);
+            const formKey = trimmed(candidate.formKey);
+            const match = processRoleOf({ key, name }, mapping);
+            let verdict: RadicationDefinitionVerdict;
+            if (match && match.role !== 'root') {
+                verdict = 'SUBPROCESS';
+            } else if (!match) {
+                verdict = 'OTHER_PROCESS';
+            } else {
+                verdict = formKey ? 'OLDER_VERSION' : 'NO_START_FORM';
+            }
+            return { candidate, name, key, formKey, version: versionOf(candidate.version), matchedBy: match?.matchedBy ?? null, verdict: verdict as RadicationDefinitionVerdict };
+        });
+    const eligible = rows.filter((row) => row.verdict === 'OLDER_VERSION');
+    // Key first: name-only matches count only when no deployed root matches by key.
+    const byKey = eligible.filter((row) => row.matchedBy === 'key');
+    const pool = byKey.length ? byKey : eligible;
+    let chosen: (typeof rows)[number] | null = null;
+    for (const row of pool) {
+        if (!chosen || row.version > chosen.version) {
+            chosen = row;
+        }
+    }
+    if (byKey.length) {
+        eligible.filter((row) => row.matchedBy === 'name').forEach((row) => (row.verdict = 'NAME_ONLY'));
+    }
+    if (chosen) {
+        chosen.verdict = 'CHOSEN';
+    }
+    return {
+        definition: chosen?.candidate ?? null,
+        matchedBy: chosen?.matchedBy ?? null,
+        candidates: rows.map(({ name, key, version, formKey, verdict }) => ({ name, key, version, formKey, verdict })),
+    };
+}
+
+/** The `medical-records` definition to start, or `null` (see `selectRadicationDefinition`). */
+export function pickRadicationDefinition<T extends RadicationDefinitionCandidate>(definitions: readonly (T | null | undefined)[] | null | undefined): T | null {
+    return selectRadicationDefinition(definitions).definition;
 }

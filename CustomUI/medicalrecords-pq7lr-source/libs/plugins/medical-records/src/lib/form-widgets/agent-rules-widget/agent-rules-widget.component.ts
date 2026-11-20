@@ -78,7 +78,7 @@ export class AgentRulesWidgetComponent extends WidgetComponent implements OnInit
 
     activeMainTab: AgentRulesMainTab = 'general';
     activeAiSubTab: AgentRulesAiSubTab = 'Intake';
-    activePayerId = 'ars-primera';
+    activePayerId = 'hyland-ars';
     payerSearchTerm = '';
     ruleSearchTerm = '';
     showOnlyIssues = false;

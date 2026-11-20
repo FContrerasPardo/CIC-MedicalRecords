@@ -1,0 +1,113 @@
+<section class="process-list-scope">
+    <h3>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PROCESS_TITLE' | translate }}</h3>
+    <p class="process-list-scope__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.PROCESS_INTRO' | translate }}</p>
+
+    <label class="dashboard-form-field">
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.ROOT_PROCESS' | translate }}</span>
+        <select class="dashboard-form-control" [ngModel]="selectedRootKey" (ngModelChange)="onRootChange($event)">
+            <ng-container *ngIf="deployedDefinitions.length; else catalogRootOptions">
+                <option *ngIf="selectedRootKeyMissing" [value]="selectedRootKey">{{ selectedRootKey }}</option>
+                <option *ngFor="let definition of deployedDefinitions" [value]="definition.key">
+                    {{ formatDeployedDefinition(definition) }}
+                </option>
+            </ng-container>
+            <ng-template #catalogRootOptions>
+                <option *ngFor="let entry of processCatalog" [value]="entry.key">
+                    {{ entry.labelKey | translate }}
+                </option>
+            </ng-template>
+        </select>
+    </label>
+    <p class="process-list-scope__hint" *ngIf="deployedDefinitions.length">
+        {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.ROOT_PROCESS_HINT' | translate }}
+    </p>
+    <p class="process-list-scope__hint" *ngIf="usesMappingRoot; else customRoot">
+        {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.ROOT_FROM_MAPPING' | translate }}
+    </p>
+    <ng-template #customRoot>
+        <button type="button" class="process-list-scope__link" (click)="useMappingRoot()">
+            {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.USE_MAPPING_ROOT' | translate }}
+        </button>
+    </ng-template>
+
+    <div class="process-list-scope__warning" role="status" *ngIf="configuredRootCheck as check">
+        <p>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.NOT_DEPLOYED_KEY' | translate: { configured: configuredRootIdentifier } }}</p>
+        <ng-container *ngIf="check.equivalent; else noRootEquivalent">
+            <p>
+                {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.EQUIVALENT_DEFINITION' | translate: { definition: formatDeployedDefinition(check.equivalent) } }}
+            </p>
+            <button type="button" class="btn-ghost-sm" (click)="useEquivalentDefinition(check.equivalent)">
+                {{ 'MEDICAL_RECORDS.PROCESS_CATALOG.USE_EQUIVALENT' | translate }}
+            </button>
+        </ng-container>
+        <ng-template #noRootEquivalent>
+            <p>{{ 'MEDICAL_RECORDS.PROCESS_CATALOG.NO_EQUIVALENT' | translate }}</p>
+        </ng-template>
+    </div>
+
+    <label class="process-list-scope__check">
+        <input type="checkbox" [checked]="includeSubprocessTasks" (change)="setIncludeSubprocessTasks($any($event.target).checked)" />
+        <span>{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.INCLUDE_SUBPROCESSES' | translate }}</span>
+    </label>
+    <ng-container *ngIf="includeSubprocessTasks">
+        <ng-container *ngIf="subprocessOptions.length; else noSubprocesses">
+            <p class="process-list-scope__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.SUBPROCESSES_HINT' | translate }}</p>
+            <div class="process-list-scope__chips">
+                <button
+                    type="button"
+                    class="process-list-scope__chip"
+                    *ngFor="let subprocess of subprocessOptions"
+                    [class.process-list-scope__chip--active]="isSubprocessIncluded(subprocess)"
+                    [attr.aria-pressed]="isSubprocessIncluded(subprocess)"
+                    (click)="toggleSubprocess(subprocess)"
+                >
+                    {{ definitionLabel(subprocess) }}
+                </button>
+            </div>
+        </ng-container>
+        <ng-template #noSubprocesses>
+            <p class="process-list-scope__hint">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.NO_SUBPROCESSES' | translate }}</p>
+        </ng-template>
+    </ng-container>
+
+    <div class="process-list-scope__variables">
+        <span class="process-list-scope__label">{{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLES' | translate }}</span>
+        <p class="process-list-scope__hint">
+            {{
+                (usesDefaultVariables
+                    ? 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLES_DEFAULT_HINT'
+                    : 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLES_HINT'
+                ) | translate
+            }}
+        </p>
+        <div class="process-list-scope__chips">
+            <span
+                class="process-list-scope__chip process-list-scope__chip--variable"
+                *ngFor="let variable of effectiveVariables"
+                [class.process-list-scope__chip--default]="usesDefaultVariables"
+            >
+                {{ variable }}
+                <button
+                    type="button"
+                    class="process-list-scope__chip-remove"
+                    [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLE_REMOVE' | translate: { name: variable }"
+                    (click)="removeVariable(variable)"
+                >
+                    <span class="material-icons" aria-hidden="true">close</span>
+                </button>
+            </span>
+        </div>
+        <input
+            type="text"
+            class="dashboard-form-control"
+            [(ngModel)]="variableDraft"
+            [placeholder]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLE_ADD_PLACEHOLDER' | translate"
+            [attr.aria-label]="'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLE_ADD_PLACEHOLDER' | translate"
+            (keydown.enter)="$event.preventDefault(); addVariable()"
+            (blur)="addVariable()"
+        />
+        <button type="button" class="process-list-scope__link" *ngIf="!usesDefaultVariables" (click)="resetVariables()">
+            {{ 'MEDICAL_RECORDS.DASHBOARD_BUILDER.OPEN_TASKS_OPTIONS.VARIABLES_RESET' | translate }}
+        </button>
+    </div>
+</section>

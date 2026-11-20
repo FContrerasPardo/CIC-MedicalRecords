@@ -15,7 +15,7 @@ export interface DiagnosticFieldSummary {
     samples?: string[];
 }
 
-export type DiagnosticProbeKind = 'process-list' | 'process-variables' | 'open-tasks' | 'data-plan' | 'radication';
+export type DiagnosticProbeKind = 'process-list' | 'process-variables' | 'open-tasks' | 'data-plan' | 'radication' | 'agreements';
 
 /**
  * Structured detail of a probe, shown as a table when the probe is expanded (as CIC-Fin's

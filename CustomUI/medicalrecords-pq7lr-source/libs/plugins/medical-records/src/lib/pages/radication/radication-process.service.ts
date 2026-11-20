@@ -39,8 +39,9 @@ import {
     resolveIntakeOutcome,
     sameFindingComments,
 } from './utils/radication-intake.util';
-import { RADICATION_PROCESS_NAMES, RADICATION_TASK_NAMES, RadicationRuntimeItem, RadicationRuntimeSnapshot, RadicationServiceTask } from './utils/radication-progress.util';
-import { buildRadicationStartPayload, RADICATION_START_FORM, RadicationStartErrorCode, resolveStartOutcome, pickRadicationDefinition } from './utils/radication-start.util';
+import { RADICATION_PROCESS_ROLES, RADICATION_TASK_NAMES, RadicationRuntimeItem, RadicationRuntimeSnapshot, RadicationServiceTask } from './utils/radication-progress.util';
+import { describeProcessMapping, activeProcessMappingSource, matchesProcessRole, rootProcessKey } from '../../dashboard/definitions/process-mapping';
+import { buildRadicationStartPayload, RADICATION_START_FORM, RadicationStartErrorCode, resolveStartOutcome, selectRadicationDefinition } from './utils/radication-start.util';
 
 /** Reference sent to the form's "Attach file" field: a native pending document or an HxCS document. */
 export type RadicationDocument = Document | PendingDocument;
@@ -386,7 +387,7 @@ export class RadicationProcessService {
             .filter(
                 (child) =>
                     !!child.id &&
-                    (childName(child) ?? '').trim().toLowerCase() === RADICATION_PROCESS_NAMES.extraction.toLowerCase() &&
+                    matchesProcessRole(child, RADICATION_PROCESS_ROLES.extraction) &&
                     String(child.status).toUpperCase() === 'RUNNING'
             )
             .sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? '')))[0];
@@ -394,7 +395,7 @@ export class RadicationProcessService {
 
         const snapshot: RadicationRuntimeSnapshot = {
             processStatus: process?.entry?.status ?? null,
-            childProcesses: childList.map((child): RadicationRuntimeItem => ({ id: child.id, name: childName(child), status: child.status })),
+            childProcesses: childList.map((child): RadicationRuntimeItem => ({ id: child.id, name: childName(child), key: child.processDefinitionKey, status: child.status })),
             tasks: taskList.map((task): RadicationRuntimeItem => ({ id: task.id, name: task.name, status: task.status })),
             serviceTasks: serviceTasks?.ok ? serviceTasks.tasks : null,
         };
@@ -736,8 +737,31 @@ export class RadicationProcessService {
     }
 
     private async resolveDefinition(appName: string): Promise<{ key: string; formKey: string; version: number }> {
+        const started = Date.now();
         const definitions = await firstValueFrom(this.startProcess.getProcessDefinitions(appName));
-        const definition = pickRadicationDefinition(definitions);
+        const selection = selectRadicationDefinition(definitions);
+        const definition = selection.definition;
+        const chosen = selection.candidates.find((candidate) => candidate.verdict === 'CHOSEN');
+        // Which definition starts the radication and why; subprocesses sharing the start form are listed as excluded.
+        this.record(
+            'definition',
+            `select root process (key ${rootProcessKey()}, mapping ${activeProcessMappingSource()}) among ${selection.candidates.length} deployed definition(s)`,
+            !!chosen,
+            Date.now() - started,
+            chosen
+                ? `chosen ${chosen.name || '?'} · key=${chosen.key} · version=${chosen.version} · matched by ${selection.matchedBy} (key first, name fallback), latest version, subprocesses excluded`
+                : `no root definition (mapping keys or names) with a start form: nothing started`,
+            {
+                rows: [
+                    ...selection.candidates.map((candidate) => ({
+                        name: `${candidate.name || '?'} · ${candidate.key || '?'} · v${candidate.version}`,
+                        detail: `${candidate.verdict}${candidate.formKey ? ` · formKey=${candidate.formKey}` : ' · no start form'}`,
+                    })),
+                    ...describeProcessMapping().map((line) => ({ name: 'mapping', detail: line })),
+                ],
+                error: chosen ? undefined : 'DEFINITION_NOT_FOUND',
+            }
+        );
         if (!definition?.key || !definition.formKey) {
             throw new RadicationStartFailure('DEFINITION_NOT_FOUND');
         }

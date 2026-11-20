@@ -10,12 +10,11 @@ import { Subscription } from 'rxjs';
 import { ChecklistLoadResult } from '../agreements/checklist/documentation-checklist-repository.service';
 import { DEFAULT_DOCUMENTATION_CHECKLIST, parseDocumentationChecklist } from '../agreements/checklist/documentation-checklist.util';
 import { AgreementRepositoryService } from '../agreements/store/agreement-repository.service';
-import { normalizeProviderName } from '../agreements/store/agreement-store.util';
+import { agreementAliases, normalizeProviderName, resolveAgreementForProvider } from '../agreements/store/agreement-store.util';
 import { mapBatchStateToCaseDocuments, parseBatchState } from '../case-detail/batch-state-case-detail.provider';
 import { CaseDocument } from '../case-detail/case-detail.model';
 import { CaseDocumentViewerComponent } from '../case-detail/case-document-viewer.component';
 import { buildCaseAccountView, CaseAccountView, CaseInvoiceOption } from '../case-detail/utils/case-invoice.util';
-import { buildCaseQueryParams, CASE_ROUTE_COMMANDS } from '../case-detail/utils/case-navigation.util';
 import { RadicationDocument, RadicationProcessService, RadicationStartFailure, RadicationStepErrorCode, RadicationStepFailure } from './radication-process.service';
 import { RadicationStageArtComponent } from './radication-stage-art.component';
 import { provideMockExternalVerificationAdapters } from './external-checks/external-verification.adapters';
@@ -24,7 +23,20 @@ import { AutomateErrorDetail, describeAutomateError, StartFieldCheck } from './u
 import { buildProviderFindingComments, MAX_COMMENT_LENGTH, parseProviderFindingComments, PROVIDER_FINDING_COMMENTS_VARIABLE, ProviderFindingComments } from './utils/radication-intake.util';
 import { generateRadicationNumber, isValidRadicationNumber } from './utils/radication-number.util';
 import { PolicySource } from './policy/preanalysis-policy-repository.service';
-import { buildPolicyView, parsePreanalysisPolicy, PolicyView, PreanalysisPolicy } from './utils/radication-policy.util';
+import { RadicationPolicyDialogComponent } from './policy/radication-policy-dialog.component';
+import { buildPolicyView, chooseLocalizedPolicy, PolicyView, PreanalysisPolicy } from './utils/radication-policy.util';
+import { AgreementContentLanguage, resolveContentLanguage } from '../agreements/store/agreement-locale.util';
+import { agreementTemplateFile, templateAgreementsIndex, templateTranslations } from '../agreements/store/agreement-templates';
+import {
+    agreementDisplayName,
+    buildProviderOptions,
+    buildRequiredDocumentsSummary,
+    chooseLocalizedChecklist,
+    defaultProviderOption,
+    ProviderOption,
+    ProviderOptionDetails,
+    RequiredDocumentsSummary,
+} from './utils/radication-provider.util';
 import { buildRadicationPreanalysis, PreanalysisFinding, PreanalysisStatus, RadicationPreanalysis } from './utils/radication-preanalysis.util';
 import {
     agentReviewStatus,
@@ -34,7 +46,6 @@ import {
     parseAgentReview,
     receivedDocumentRows,
     agentRuleViews,
-    isDeliveredRow,
     reviewTableRows,
     PREANALYSIS_RESULT_VARIABLE,
 } from './utils/radication-agent-review.util';
@@ -58,14 +69,21 @@ import {
     RadicationUploadItem,
     validateRadicationDraft,
 } from './utils/radication-start.util';
+import {
+    canVisitRadicationStep,
+    furthestStep,
+    RADICATION_STEPS,
+    RadicationStep,
+    radicationStepIndex,
+    RadicationStepperState,
+    RadicationStepState,
+    radicationStepState,
+} from './utils/radication-steps.util';
 
 const I18N = 'MEDICAL_RECORDS.RADICATION';
 const POLL_INTERVAL_MS = 4000;
 const POLL_LIMIT = 150;
 
-/** The four steps of the pre-radication, as CIC-Fin's loan application (upload → processing → review → confirmation). */
-export type RadicationStep = 'upload' | 'processing' | 'review' | 'summary';
-export const RADICATION_STEPS: readonly RadicationStep[] = ['upload', 'processing', 'review', 'summary'];
 
 /**
  * One row of the review table: a finding of the agent's pre-analysis (`preanalysisResult`) or, when
@@ -76,6 +94,13 @@ export interface RadicationReviewRow {
     agent: AgentReviewRow | null;
     documents: CaseDocument[];
 }
+
+/** Auto-save state of one row's comment. */
+type CommentSaveState = 'saving' | 'saved' | 'error';
+
+const COMMENT_DEBOUNCE_MS = 1200;
+/** Pause on the completed consolidation stage before the review opens. */
+const CONSOLIDATION_PAUSE_MS = 900;
 
 /** A new account, or more documents for the account already radicated. */
 type UploadMode = 'new' | 'more';
@@ -129,6 +154,7 @@ interface RadicationUpload extends RadicationUploadItem {
         TranslateModule,
         RadicationStageArtComponent,
         RadicationExternalChecksComponent,
+        RadicationPolicyDialogComponent,
         CaseDocumentViewerComponent,
     ],
     // v1: simulated external systems only (no HTTP); a real integration replaces its adapter.
@@ -150,17 +176,49 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     readonly steps = RADICATION_STEPS;
     readonly maxCommentLength = MAX_COMMENT_LENGTH;
     readonly accept = RADICATION_ACCEPTED_EXTENSIONS.map((extension) => `.${extension}`).join(',');
-    readonly caseRoute: string[] = [...CASE_ROUTE_COMMANDS];
     readonly fileIssues: RadicationIssue[] = ['FILE_TYPE', 'FILE_SIZE', 'FILE_DUPLICATE', 'UPLOADS_PENDING', 'UPLOADS_FAILED'];
 
-    step: RadicationStep = 'upload';
+    private currentStep: RadicationStep = 'upload';
+    /** Furthest step reached: the stepper opens it and every step before it. */
+    reachedStep: RadicationStep = 'upload';
+
+    /** Current step; entering a step also makes it reachable from the stepper. */
+    get step(): RadicationStep {
+        return this.currentStep;
+    }
+
+    set step(value: RadicationStep) {
+        this.currentStep = value;
+        this.reachedStep = furthestStep(this.reachedStep, value);
+    }
+
+    /**
+     * A processing round runs (after the start or new documents) until the review is ready. Its
+     * polling goes on even when the user looks at another step from the stepper.
+     */
+    private processingRound = false;
+    /**
+     * The round may open the review by itself (the user stayed on, or came back to, the processing
+     * step). Leaving it from the stepper disarms it. The review never moves to the summary by itself.
+     */
+    private autoAdvance = false;
     uploadMode: UploadMode = 'new';
-    /** Where "Back" returns from a "more documents" upload: the review or the summary that opened it. */
-    uploadReturnStep: RadicationStep = 'summary';
+    /** Documents sent with the account (every round), shown read only when going back to step 1. */
+    sentUploads: RadicationUploadItem[] = [];
 
     /** Generated when the form opens and shown read only, like CIC-Fin's application number. */
     radicationNumber = '';
     providerName = '';
+    /** Providers of the agreements index; `failed` falls back to the free-text field with a notice. */
+    providerOptions: ProviderOption[] = [];
+    providerOptionsState: 'loading' | 'ready' | 'failed' = 'loading';
+    /** Agreement of the provider chosen in step 1 (selector, or the free text matched in the index). */
+    selectedAgreementId: string | null = null;
+    /** Documents the chosen provider's agreement requires (UI language), and its load. */
+    requirements: RequiredDocumentsSummary | null = null;
+    requirementsState: 'idle' | 'loading' | 'ready' | 'empty' = 'idle';
+    requirementsAgreementName: string | null = null;
+    private requirementsToken = 0;
     email = '';
     uploads: RadicationUpload[] = [];
     submitAttempted = false;
@@ -184,6 +242,14 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     /** Invoices for the simulated external verifications; replaced once `batchState` is read. */
     externalChecksContext: ExternalChecksContext | null = null;
     private accountContextRequested = false;
+    /** The account's invoices were read (or could not be): the external verifications may start with them. */
+    accountContextReady = false;
+    /** Every external verification showed its result (animation included). */
+    externalChecksDone = false;
+    /** The review data (agent result, checklist) is loaded while Intake is open. */
+    reviewDataReady = false;
+    /** Consolidation finished: the review opens after a short pause. */
+    consolidated = false;
 
     checklistResult: ChecklistLoadResult | null = null;
     preanalysis: RadicationPreanalysis | null = null;
@@ -196,10 +262,19 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     agentTableAvailable = true;
     /** Document open in the viewer. */
     viewerDocument: CaseDocument | null = null;
-    /** Pre-analysis policy (Appdata file or bundled copy) and its view for this account's review. */
+    /**
+     * Pre-analysis policy shown for this account's review, in the UI language
+     * (`preanalysis-policy.<lang>.json`, else the base translated, else the bundled template in that language).
+     * The Automate agent keeps reading the base file.
+     */
     policy: PreanalysisPolicy | null = null;
     policySource: PolicySource | null = null;
     policyView: PolicyView | null = null;
+    /** Some policy texts are shown in the base language (no version in the UI language). */
+    policyBaseLanguageShown = false;
+    /** Agreement whose policy is shown, and the latest load (a newer language or agreement wins). */
+    private policyAgreementId: string | null = null;
+    private policyLoadToken = 0;
     /** Agreement whose checklist and policy apply: matched by the account's provider name, else the default one. */
     agreementId: string | null = null;
     agreementName: string | null = null;
@@ -211,7 +286,15 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     /** findingId → comment typed by the provider. */
     comments: Record<string, string> = {};
     savedComments: Record<string, string> = {};
-    savingComments = false;
+    /** Auto-save state and error detail per finding id. */
+    commentSaveState: Record<string, CommentSaveState> = {};
+    commentSaveError: Record<string, string | null> = {};
+    private commentTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    /** Saves run one after another (the Intake form is saved whole). */
+    private saveQueue: Promise<void> = Promise.resolve();
+    /** Invoice keys the review table is filtered by; empty = all. */
+    selectedInvoiceKeys = new Set<string>();
+    policyDialogOpen = false;
     deciding = false;
     /** The provider radicated the account (Intake completed with "continue"). */
     intakeCompleted = false;
@@ -226,6 +309,14 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.radicationNumber = generateRadicationNumber({ date: new Date() });
         void this.loadAgreementRules();
+        void this.loadProviderOptions();
+        // The policy and the step-1 requirements are shown in the UI language: reload them when it changes.
+        this.subscriptions.add(
+            this.translate.onLangChange.subscribe(() => {
+                void this.loadLocalizedPolicy();
+                void this.loadRequirements(this.selectedAgreementId);
+            })
+        );
         void this.inspectForm();
         const resumed = this.route.snapshot.queryParamMap.get('process');
         if (resumed) {
@@ -237,24 +328,180 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         this.destroyed = true;
         this.subscriptions.unsubscribe();
         this.stopPolling();
+        this.commentTimers.forEach((timer) => clearTimeout(timer));
+        this.commentTimers.clear();
     }
 
     // ── Stepper ──────────────────────────────────────────────────────────────
 
     stepIndex(step: RadicationStep = this.step): number {
-        return RADICATION_STEPS.indexOf(step);
+        return radicationStepIndex(step);
     }
 
-    stepState(step: RadicationStep): 'done' | 'active' | 'pending' {
-        if (step === 'summary' && this.radicated) {
-            return 'done';
+    /** While a processing round runs (new documents included), the review and summary wait for it. */
+    private get availableStep(): RadicationStep {
+        return this.processingRound && this.stepIndex(this.reachedStep) > this.stepIndex('processing') ? 'processing' : this.reachedStep;
+    }
+
+    private get stepperState(): RadicationStepperState {
+        return { current: this.step, reached: this.availableStep, radicated: this.radicated, busy: this.sending || this.deciding };
+    }
+
+    stepState(step: RadicationStep): RadicationStepState {
+        return radicationStepState(step, this.stepperState);
+    }
+
+    canVisitStep(step: RadicationStep): boolean {
+        return canVisitRadicationStep(step, this.stepperState);
+    }
+
+    /**
+     * Stepper navigation: shows a step already reached, as it is. Nothing is restarted or sent; step 1
+     * shows the documents already sent in read only. Only coming back to "Process" while its round
+     * still runs lets the review open by itself again.
+     */
+    goToStep(step: RadicationStep): void {
+        if (!this.canVisitStep(step)) {
+            return;
         }
-        const current = this.stepIndex();
-        const index = this.stepIndex(step);
-        return index < current ? 'done' : index === current ? 'active' : 'pending';
+        this.autoAdvance = step === 'processing' && this.processingRound;
+        this.step = step;
+        if (step === 'processing' && this.processingRound) {
+            // Resumes the round's polling and the consolidation that may have finished meanwhile.
+            this.maybeConsolidate();
+            this.refresh();
+        }
+    }
+
+    /** Step 1 after the account was sent: the documents sent, read only (the account is not restarted). */
+    get uploadLocked(): boolean {
+        return !!this.processInstanceId;
+    }
+
+    /** Back to the furthest step reached, from the read-only step 1. */
+    returnToFlow(): void {
+        this.goToStep(this.availableStep);
     }
 
     // ── Step 1: load ─────────────────────────────────────────────────────────
+
+    /** The chosen option of the selector (`null` without one or in free-text mode). */
+    get selectedProvider(): ProviderOption | null {
+        return this.providerOptions.find((option) => option.agreementId === this.selectedAgreementId) ?? null;
+    }
+
+    /**
+     * Providers of the agreements index (provider name and the aliases of each `agreement.json`).
+     * With a single agreement it is preselected. If the index cannot be read, or lists no provider,
+     * the field goes back to free text with a notice. Only a help for the provider: the ARS confirms
+     * the agreement with the provider extracted from the invoice.
+     */
+    private async loadProviderOptions(): Promise<void> {
+        this.providerOptionsState = 'loading';
+        try {
+            const entries = (await this.agreementRepository.loadIndex()).index.agreements;
+            const language = this.contentLanguage();
+            const files = await Promise.all(entries.map((entry) => this.agreementRepository.loadLocalizedFile(entry.agreementId, 'agreement', language).catch(() => null)));
+            const details: Record<string, ProviderOptionDetails> = {};
+            entries.forEach((entry, position) => {
+                const content = files[position]?.content ?? agreementTemplateFile(entry.agreementId, 'agreement', language);
+                const general = (content['general'] ?? {}) as Record<string, unknown>;
+                details[entry.agreementId] = {
+                    aliases: agreementAliases(content),
+                    contractId: typeof general['contractId'] === 'string' ? general['contractId'] : null,
+                    payer: typeof general['payer'] === 'string' ? general['payer'] : null,
+                };
+            });
+            if (this.destroyed) {
+                return;
+            }
+            this.providerOptions = buildProviderOptions(entries, details);
+            this.providerOptionsState = this.providerOptions.length ? 'ready' : 'failed';
+        } catch {
+            if (this.destroyed) {
+                return;
+            }
+            this.providerOptions = [];
+            this.providerOptionsState = 'failed';
+        }
+        this.applyDefaultProvider();
+    }
+
+    /** Preselects the only agreement of a new radication. */
+    private applyDefaultProvider(): void {
+        const option = defaultProviderOption(this.providerOptions);
+        if (option && this.uploadMode === 'new' && !this.selectedAgreementId && !this.providerName.trim()) {
+            this.selectProvider(option.agreementId);
+        }
+    }
+
+    selectProvider(agreementId: string | null): void {
+        const option = this.providerOptions.find((candidate) => candidate.agreementId === agreementId) ?? null;
+        this.selectedAgreementId = option?.agreementId ?? null;
+        this.providerName = option?.providerName ?? '';
+        void this.loadRequirements(this.selectedAgreementId);
+    }
+
+    /** Free-text fallback: the typed name is matched as the review does (bundled index, aliases included). */
+    onFreeTextProvider(): void {
+        if (this.uploadMode !== 'new') {
+            return;
+        }
+        const entries = templateAgreementsIndex().agreements;
+        const aliases = Object.fromEntries(entries.map((entry) => [entry.agreementId, agreementAliases(agreementTemplateFile(entry.agreementId, 'agreement'))]));
+        const resolution = this.providerName.trim() ? resolveAgreementForProvider(entries, this.providerName, aliases) : null;
+        this.selectedAgreementId = resolution?.matched ? (resolution.entry?.agreementId ?? null) : null;
+        void this.loadRequirements(this.selectedAgreementId);
+    }
+
+    /**
+     * Checklist and pre-analysis policy of the agreement in the UI language, with the review's order:
+     * the language version, else the base translated, else the bundled template. Without an
+     * agreement the card invites the provider to choose one.
+     */
+    private async loadRequirements(agreementId: string | null): Promise<void> {
+        const token = ++this.requirementsToken;
+        if (!agreementId) {
+            this.requirements = null;
+            this.requirementsAgreementName = null;
+            this.requirementsState = 'idle';
+            return;
+        }
+        this.requirementsState = 'loading';
+        const language = this.contentLanguage();
+        const translations = templateTranslations();
+        const choose = async <T>(kind: 'preanalysisPolicy' | 'documentationChecklist', pick: (input: Parameters<typeof chooseLocalizedChecklist>[0]) => T): Promise<T> => {
+            const template = agreementTemplateFile(agreementId, kind, language);
+            try {
+                const file = await this.agreementRepository.loadLocalizedFile(agreementId, kind, language);
+                return pick({
+                    language,
+                    variant: file.localized ? file.content : file.variantDocumentId ? null : undefined,
+                    base: file.missingLanguage ? file.content : null,
+                    template,
+                    translations,
+                });
+            } catch {
+                return pick({ language, base: null, template, translations });
+            }
+        };
+        const [policy, checklist] = await Promise.all([
+            choose('preanalysisPolicy', (input) => chooseLocalizedPolicy(input).policy),
+            choose('documentationChecklist', (input) => chooseLocalizedChecklist(input)),
+        ]);
+        if (token !== this.requirementsToken || this.destroyed) {
+            return;
+        }
+        const option = this.providerOptions.find((candidate) => candidate.agreementId === agreementId);
+        const entry = templateAgreementsIndex().agreements.find((candidate) => candidate.agreementId === agreementId);
+        this.requirementsAgreementName = option ? agreementDisplayName(option) : entry ? agreementDisplayName({ ...entry, contractId: '' }) : agreementId;
+        this.requirements = buildRequiredDocumentsSummary(policy, checklist);
+        this.requirementsState = this.requirements ? 'ready' : 'empty';
+    }
+
+    private contentLanguage(): AgreementContentLanguage {
+        return resolveContentLanguage(this.translate.currentLang || this.translate.defaultLang);
+    }
 
     get issues(): RadicationIssue[] {
         const provider = this.uploadMode === 'more' ? this.providerName || '—' : this.providerName;
@@ -345,7 +592,10 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
                 void this.router.navigate([], { relativeTo: this.route, queryParams: { process: this.processInstanceId }, queryParamsHandling: 'merge', replaceUrl: true });
             }
             this.documentsSent += documents.length;
-            this.reviewUploadOpen = false;
+            this.sentUploads = [
+                ...this.sentUploads,
+                ...this.uploads.filter((upload) => !!upload.document).map(({ name, size, source }): RadicationUploadItem => ({ name, size, source, status: 'uploaded' })),
+            ];
             this.goProcessing();
         } catch (error) {
             console.error('[medical-records] radication submit failed', error);
@@ -374,8 +624,95 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
 
     // ── Step 2: process ──────────────────────────────────────────────────────
 
+    /**
+     * Stages as shown: the pre-analysis is done only when the agent finished and every external
+     * verification showed its result; then "Consolidation / Ready for review" (the Intake stage) runs and
+     * completes only once the review data is loaded. The review cannot open before that.
+     */
     get processingStages(): RadicationStageView[] {
-        return (this.progress?.stages ?? []).filter((stage) => RADICATION_PROCESSING_STAGES.includes(stage.key));
+        return (this.progress?.stages ?? [])
+            .filter((stage) => RADICATION_PROCESSING_STAGES.includes(stage.key))
+            .map((stage) => ({ key: stage.key, state: this.displayedStageState(stage) }));
+    }
+
+    /** The pre-analysis agent finished in the runtime (the external verifications may still be running). */
+    get preanalysisRuntimeDone(): boolean {
+        return this.progress?.stages.find((stage) => stage.key === 'preanalysis')?.state === 'done';
+    }
+
+    /** Label of a processing stage: the Intake stage is shown as the consolidation. */
+    stageLabelKey(stage: RadicationStageView): string {
+        return stage.key === 'intake' ? `${I18N}.PROVIDER_FLOW.CONSOLIDATION` : `${I18N}.PROGRESS.${stage.key.toUpperCase()}`;
+    }
+
+    stageHintKey(stage: RadicationStageView): string {
+        if (stage.key === 'intake') {
+            return `${I18N}.PROVIDER_FLOW.CONSOLIDATION_HINT`;
+        }
+        if (stage.key === 'preanalysis' && this.preanalysisRuntimeDone && !this.externalChecksDone) {
+            return `${I18N}.PROVIDER_FLOW.WAITING_CHECKS`;
+        }
+        return `${I18N}.PROGRESS.${stage.key.toUpperCase()}_HINT`;
+    }
+
+    onExternalChecksSettled(): void {
+        // Emitted from the child's effect: update the page outside that change detection pass.
+        setTimeout(() => {
+            if (this.destroyed) {
+                return;
+            }
+            this.externalChecksDone = true;
+            this.maybeConsolidate();
+        });
+    }
+
+    private displayedStageState(stage: RadicationStageView): RadicationStageState {
+        if (stage.state === 'error') {
+            return 'error';
+        }
+        if (stage.key === 'preanalysis' && stage.state === 'done') {
+            return this.externalChecksDone ? 'done' : 'active';
+        }
+        if (stage.key === 'intake') {
+            if (this.consolidated) {
+                return 'done';
+            }
+            return this.preanalysisRuntimeDone && this.externalChecksDone ? 'active' : 'pending';
+        }
+        return stage.state;
+    }
+
+    /**
+     * Consolidation completes when the verifications finished and the agent's result is loaded; then,
+     * after a short pause, the review becomes available and opens if the user is on the processing step.
+     */
+    private maybeConsolidate(): void {
+        if (!this.processingRound || this.consolidated || !this.reviewDataReady || !this.externalChecksDone) {
+            return;
+        }
+        this.consolidated = true;
+        setTimeout(() => {
+            if (!this.destroyed && this.processingRound && this.consolidated) {
+                this.reviewReached();
+            }
+        }, CONSOLIDATION_PAUSE_MS);
+    }
+
+    /**
+     * Ends the processing round: the review is reachable from the stepper and keeps its upload zone
+     * ready for more documents of the same account. It opens only when the round may advance (the
+     * user is on "Process"); this is the only automatic step change, and never goes past the review.
+     */
+    private reviewReached(): void {
+        this.processingRound = false;
+        this.uploadMode = 'more';
+        this.uploads = [];
+        this.submitAttempted = false;
+        this.reachedStep = furthestStep(this.reachedStep, 'review');
+        if (this.autoAdvance && this.step === 'processing') {
+            this.step = 'review';
+        }
+        this.autoAdvance = false;
     }
 
     /** IDP sub-steps from the running service tasks; without runtime detail, the three animated together. */
@@ -428,16 +765,45 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     }
 
     get allRowsExpanded(): boolean {
-        return this.reviewRows.length > 0 && this.reviewRows.every((row) => this.expandedRows.has(row.finding.id));
+        const rows = this.visibleReviewRows;
+        return rows.length > 0 && rows.every((row) => this.expandedRows.has(row.finding.id));
     }
 
     toggleAllRows(): void {
-        this.expandedRows = this.allRowsExpanded ? new Set() : new Set(this.reviewRows.map((row) => row.finding.id));
+        this.expandedRows = this.allRowsExpanded ? new Set() : new Set(this.visibleReviewRows.map((row) => row.finding.id));
     }
 
-    /** A delivered document with no requirement (page "received" row or agent RuleId DELIVERED). */
-    isDelivered(row: RadicationReviewRow): boolean {
-        return !!row.agent && isDeliveredRow(row.agent);
+    // Invoice / patient filter: one or several cards; none selected = every row.
+
+    /** Rows of the selected invoices; account-level rows (no invoice) only show without a filter. */
+    get visibleReviewRows(): RadicationReviewRow[] {
+        if (!this.selectedInvoiceKeys.size) {
+            return this.reviewRows;
+        }
+        return this.reviewRows.filter((row) => !!row.finding.invoiceKey && this.selectedInvoiceKeys.has(row.finding.invoiceKey));
+    }
+
+    isInvoiceSelected(key: string): boolean {
+        return this.selectedInvoiceKeys.has(key);
+    }
+
+    toggleInvoiceFilter(key: string): void {
+        const next = new Set(this.selectedInvoiceKeys);
+        if (next.has(key)) {
+            next.delete(key);
+        } else {
+            next.add(key);
+        }
+        this.selectedInvoiceKeys = next;
+    }
+
+    clearInvoiceFilter(): void {
+        this.selectedInvoiceKeys = new Set();
+    }
+
+    /** Findings that do not comply, per invoice (shown on its filter card). */
+    invoiceOpenCount(key: string): number {
+        return this.reviewRows.filter((row) => row.finding.invoiceKey === key && this.rowStatus(row) !== 'pass').length;
     }
 
     /** Status of a review row: the agent's, or missing/attention for a checklist finding. */
@@ -468,26 +834,9 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         return (this.account?.invoices.length ?? 0) <= 1;
     }
 
-    /** Inline "Add documents" block of the review (CIC-Fin's review upload): same account, Intake "more-documents". */
-    reviewUploadOpen = false;
-
-    openReviewUpload(): void {
-        this.uploadMode = 'more';
-        this.uploadReturnStep = 'review';
-        this.uploads = [];
-        this.submitAttempted = false;
-        this.clearErrors();
-        this.reviewUploadOpen = true;
-    }
-
-    closeReviewUpload(): void {
-        this.reviewUploadOpen = false;
-        this.uploads = [];
-        this.submitAttempted = false;
-    }
-
-    get reviewUploadReady(): boolean {
-        return this.uploads.length > 0 && this.uploads.every((upload) => upload.status === 'uploaded');
+    /** Status column: only "Compliant" or "Non-compliant"; "Needs attention" does not comply. */
+    rowCompliant(row: RadicationReviewRow): boolean {
+        return this.rowStatus(row) === 'pass';
     }
 
     /** Assistant summary: rows per status. */
@@ -507,6 +856,9 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
 
     /** Opens a row from the assistant and scrolls to it. */
     focusRow(row: RadicationReviewRow): void {
+        if (!this.visibleReviewRows.includes(row)) {
+            this.clearInvoiceFilter();
+        }
         this.expandedRows = new Set([...this.expandedRows, row.finding.id]);
         setTimeout(() => document.getElementById('review-row-' + row.finding.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
     }
@@ -538,37 +890,103 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         return section.kind === 'general' ? null : `${I18N}.REVIEW.COMMENT_${section.kind.toUpperCase()}`;
     }
 
+    // Comments save themselves: after a pause in typing, when the field loses focus and before Continue.
+    // Each row shows "Saving…", "Saved" or its error with a retry, instead of a save button.
+
+    /** The typed comment differs from the saved one. */
+    commentDirty(row: RadicationReviewRow): boolean {
+        return (this.comments[row.finding.id] ?? '').trim() !== (this.savedComments[row.finding.id] ?? '');
+    }
+
+    onCommentChange(row: RadicationReviewRow): void {
+        const id = row.finding.id;
+        this.clearCommentTimer(id);
+        if (this.commentSaveState[id] && this.commentSaveState[id] !== 'saving') {
+            const next = { ...this.commentSaveState };
+            delete next[id];
+            this.commentSaveState = next;
+        }
+        this.commentTimers.set(
+            id,
+            setTimeout(() => void this.autoSaveComment(row), COMMENT_DEBOUNCE_MS)
+        );
+    }
+
+    onCommentBlur(row: RadicationReviewRow): void {
+        void this.autoSaveComment(row);
+    }
+
+    retryComment(row: RadicationReviewRow): void {
+        void this.autoSaveComment(row);
+    }
+
+    /** Queues the row's save when its comment changed; resolves `false` when it could not be saved. */
+    autoSaveComment(row: RadicationReviewRow): Promise<boolean> {
+        this.clearCommentTimer(row.finding.id);
+        if (!this.processInstanceId || !this.commentDirty(row)) {
+            return Promise.resolve(true);
+        }
+        const run = this.saveQueue.then(() => this.saveRowComment(row));
+        this.saveQueue = run.then(
+            () => undefined,
+            () => undefined
+        );
+        return run;
+    }
+
+    /** Saves every pending comment (Continue waits for it); `false` when one failed. */
+    async flushComments(): Promise<boolean> {
+        const pending = this.reviewRows.filter((row) => this.commentDirty(row) || this.commentTimers.has(row.finding.id));
+        const results = await Promise.all(pending.map((row) => this.autoSaveComment(row)));
+        await this.saveQueue;
+        return results.every(Boolean) && !this.reviewRows.some((row) => this.commentSaveState[row.finding.id] === 'error');
+    }
+
     /**
      * Saves one row's comment. Agent rows are annotated in the Intake table `DataTable0hznuv`
-     * (CIC-Fin pattern); without that field, or for checklist rows, every comment is saved in
-     * `providerFindingComments`.
+     * (CIC-Fin pattern); without that field, for checklist rows, or when the comment was
+     * cleared, every comment is saved in `providerFindingComments`.
      */
-    async saveRowComment(row: RadicationReviewRow): Promise<void> {
-        const text = (this.comments[row.finding.id] ?? '').trim();
-        if (!text || !this.processInstanceId || this.savingComments) {
-            return;
+    private async saveRowComment(row: RadicationReviewRow): Promise<boolean> {
+        const id = row.finding.id;
+        if (!this.processInstanceId || !this.commentDirty(row)) {
+            return true;
         }
-        if (!row.agent || row.agent.received || !this.agentTableAvailable) {
-            await this.saveComments();
-            return;
-        }
-        this.savingComments = true;
-        this.clearErrors();
+        const text = (this.comments[id] ?? '').trim();
+        this.commentSaveState = { ...this.commentSaveState, [id]: 'saving' };
+        this.commentSaveError = { ...this.commentSaveError, [id]: null };
         try {
-            await this.radication.saveAgentReviewComment(this.processInstanceId, row.agent.raw, text);
-            row.agent = { ...row.agent, userComment: text, attended: true, raw: { ...row.agent.raw, UserComment: text, Attended: true } };
-            this.savedComments = { ...this.savedComments, [row.finding.id]: text };
-        } catch (error) {
-            if (error instanceof RadicationStepFailure && error.code === 'REVIEW_TABLE_MISSING') {
-                // Recorded in the technical view; the comments keep their previous home.
-                this.agentTableAvailable = false;
-                this.savingComments = false;
-                await this.saveComments();
-                return;
+            if (row.agent && !row.agent.received && this.agentTableAvailable && text) {
+                try {
+                    await this.radication.saveAgentReviewComment(this.processInstanceId, row.agent.raw, text);
+                    row.agent = { ...row.agent, userComment: text, attended: true, raw: { ...row.agent.raw, UserComment: text, Attended: true } };
+                    this.savedComments = { ...this.savedComments, [id]: text };
+                } catch (error) {
+                    if (!(error instanceof RadicationStepFailure && error.code === 'REVIEW_TABLE_MISSING')) {
+                        throw error;
+                    }
+                    // Recorded in the technical view; the comments keep their previous home.
+                    this.agentTableAvailable = false;
+                    await this.persistAllComments();
+                }
+            } else {
+                await this.persistAllComments();
             }
-            this.setStepError(error);
-        } finally {
-            this.savingComments = false;
+            this.commentSaveState = { ...this.commentSaveState, [id]: 'saved' };
+            return true;
+        } catch (error) {
+            const code = error instanceof RadicationStepFailure ? error.code : 'INTAKE_FAILED';
+            this.commentSaveState = { ...this.commentSaveState, [id]: 'error' };
+            this.commentSaveError = { ...this.commentSaveError, [id]: `${I18N}.STEP_ERRORS.${code}` };
+            return false;
+        }
+    }
+
+    private clearCommentTimer(id: string): void {
+        const timer = this.commentTimers.get(id);
+        if (timer) {
+            clearTimeout(timer);
+            this.commentTimers.delete(id);
         }
     }
 
@@ -584,22 +1002,50 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
     }
 
     /** Saves every typed comment (the whole `providerFindingComments` payload), as CIC-Fin's `saveReviewComment`. */
-    async saveComments(): Promise<void> {
+    private async persistAllComments(): Promise<void> {
         const payload = this.commentsPayload();
-        if (!payload || !this.processInstanceId || this.savingComments) {
+        if (!payload || !this.processInstanceId) {
             return;
         }
-        this.savingComments = true;
-        this.clearErrors();
-        try {
-            await this.radication.saveFindingComments(this.processInstanceId, payload);
-            this.savedComments = Object.fromEntries(payload.comments.map((item) => [item.findingId, item.comment]));
-        } catch (error) {
-            this.setStepError(error);
-        } finally {
-            this.savingComments = false;
-        }
+        await this.radication.saveFindingComments(this.processInstanceId, payload);
+        this.savedComments = Object.fromEntries(payload.comments.map((item) => [item.findingId, item.comment]));
     }
+
+    /**
+     * Continue of the review: saves the pending comments; with new documents loaded, sends them
+     * (Intake "more-documents") and processes the account again; otherwise goes to the confirmation.
+     */
+    async continueFromReview(): Promise<void> {
+        if (!this.preanalysis || this.deciding || this.sending) {
+            return;
+        }
+        if (this.reviewReadOnly) {
+            // Intake already completed: nothing to save or send, only the summary to show.
+            this.step = 'summary';
+            return;
+        }
+        this.clearErrors();
+        this.commentsBlocked = false;
+        this.deciding = true;
+        let saved = false;
+        try {
+            saved = await this.flushComments();
+        } finally {
+            this.deciding = false;
+        }
+        if (!saved) {
+            this.commentsBlocked = true;
+            return;
+        }
+        if (this.uploads.length) {
+            await this.submit();
+            return;
+        }
+        this.step = 'summary';
+    }
+
+    /** Continue stopped because a comment could not be saved (the row shows why). */
+    commentsBlocked = false;
 
     // ── Step 4: summary (decision, then radicated account) ───────────────────
 
@@ -608,14 +1054,12 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         return this.intakeCompleted || !!this.progress?.afterIntake;
     }
 
-    /** Back to step 1 on the same account: only documents, provider and number stay. */
-    loadMoreDocuments(returnStep: RadicationStep = 'summary'): void {
-        this.uploadReturnStep = returnStep;
-        this.uploadMode = 'more';
-        this.uploads = [];
-        this.submitAttempted = false;
-        this.clearErrors();
-        this.step = 'upload';
+    /**
+     * The account already left Intake (radicated here, or past Intake in Automate, e.g. a reopened
+     * account): the review is shown read only, with a notice; comments and documents are closed.
+     */
+    get reviewReadOnly(): boolean {
+        return this.radicated;
     }
 
     /** Radicates the account: completes Intake with "continue" and the comments. */
@@ -637,8 +1081,34 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         }
     }
 
-    get caseQueryParams(): Record<string, string> {
-        return this.processInstanceId ? buildCaseQueryParams({ processInstanceId: this.processInstanceId }) : {};
+    /** Total billed of the account: the account's own total, else the sum of its invoices; `null` without amounts. */
+    get accountTotal(): number | null {
+        if (this.account?.account.totalBilled != null) {
+            return this.account.account.totalBilled;
+        }
+        const amounts = (this.account?.invoices ?? []).map((invoice) => invoice.totalBilled).filter((value): value is number => value !== null);
+        return amounts.length ? amounts.reduce((sum, value) => sum + value, 0) : null;
+    }
+
+    /** Amount in Dominican pesos: "RD$ 12,345.60" (thousands separators, 2 decimals). */
+    formatAmount(value: number | null | undefined): string {
+        if (value === null || value === undefined || !Number.isFinite(value)) {
+            return '—';
+        }
+        return `RD$ ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    /** Date in the language the page is shown in (the date pipe would use the app's English locale). */
+    formatDateTime(value: Date | null): string {
+        if (!value) {
+            return '—';
+        }
+        const language = this.translate.currentLang || this.translate.defaultLang || 'es';
+        try {
+            return new Intl.DateTimeFormat(language, { dateStyle: 'medium', timeStyle: 'short' }).format(value);
+        } catch {
+            return value.toISOString();
+        }
     }
 
     get summaryStatus(): 'pending' | 'received' | 'in-analysis' | 'error' {
@@ -656,12 +1126,18 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         this.stopPolling();
         this.radicationNumber = generateRadicationNumber({ date: new Date() });
         this.providerName = '';
+        this.selectedAgreementId = null;
+        void this.loadRequirements(null);
         this.email = '';
         this.uploads = [];
         this.submitAttempted = false;
         this.uploadMode = 'new';
-        this.uploadReturnStep = 'summary';
+        this.applyDefaultProvider();
         this.step = 'upload';
+        this.reachedStep = 'upload';
+        this.processingRound = false;
+        this.autoAdvance = false;
+        this.sentUploads = [];
         this.processInstanceId = null;
         this.progress = null;
         this.externalChecksContext = null;
@@ -675,6 +1151,13 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
         this.viewerDocument = null;
         this.comments = {};
         this.savedComments = {};
+        this.commentSaveState = {};
+        this.commentSaveError = {};
+        this.commentTimers.forEach((timer) => clearTimeout(timer));
+        this.commentTimers.clear();
+        this.commentsBlocked = false;
+        this.selectedInvoiceKeys = new Set();
+        this.policyDialogOpen = false;
         this.intakeCompleted = false;
         this.documentsSent = 0;
         this.radicatedAt = null;
@@ -721,20 +1204,57 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
             this.checklistResult = checklist
                 ? { checklist, source: resolved.checklist.source, documentId: resolved.checklist.documentId, modifiedAt: resolved.checklist.modifiedAt }
                 : null;
-            this.policy = parsePreanalysisPolicy(resolved.policy.content);
-            this.policySource = this.policy ? resolved.policy.source : null;
             this.agreementId = resolved.entry?.agreementId ?? null;
             this.agreementName = resolved.entry?.providerName ?? null;
             this.agreementMatched = resolved.matched;
+            // `resolved.policy` is the base file (English) the agent reads; the page shows the UI language version.
+            this.policyAgreementId = resolved.policy.agreementId;
+            await this.loadLocalizedPolicy();
+            return;
         } catch {
             if (this.agreementRulesKey !== key) {
                 return;
             }
             this.agreementRulesLoad = null;
             this.checklistResult = null;
+            this.policyAgreementId = null;
             this.policy = null;
             this.policySource = null;
+            this.policyBaseLanguageShown = false;
         }
+        this.updatePolicyView();
+    }
+
+    /** The agreement's policy in the UI language (es/en/pt; others fall back to English), reloaded on language change. */
+    private async loadLocalizedPolicy(): Promise<void> {
+        const agreementId = this.policyAgreementId;
+        if (!agreementId) {
+            return;
+        }
+        const token = ++this.policyLoadToken;
+        const language: AgreementContentLanguage = resolveContentLanguage(this.translate.currentLang || this.translate.defaultLang);
+        const template = agreementTemplateFile(agreementId, 'preanalysisPolicy', language);
+        let choice = chooseLocalizedPolicy({ language, base: null, template, translations: templateTranslations() });
+        let fromAppdata = false;
+        try {
+            const file = await this.agreementRepository.loadLocalizedFile(agreementId, 'preanalysisPolicy', language);
+            choice = chooseLocalizedPolicy({
+                language,
+                variant: file.localized ? file.content : file.variantDocumentId ? null : undefined,
+                base: file.missingLanguage ? file.content : null,
+                template,
+                translations: templateTranslations(),
+            });
+            fromAppdata = choice.origin !== 'template';
+        } catch {
+            // Appdata unreachable: the bundled template in the UI language.
+        }
+        if (token !== this.policyLoadToken || this.destroyed) {
+            return;
+        }
+        this.policy = choice.policy;
+        this.policySource = choice.policy ? (fromAppdata ? 'appdata' : 'default') : null;
+        this.policyBaseLanguageShown = choice.baseLanguageShown;
         this.updatePolicyView();
     }
 
@@ -774,14 +1294,32 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
 
     private goProcessing(): void {
         this.step = 'processing';
+        this.processingRound = true;
+        this.autoAdvance = true;
         this.progress = deriveRadicationProgress({ processStatus: 'RUNNING', childProcesses: [], tasks: [] });
         this.externalChecksContext = { seed: this.radicationNumber || null, invoiceCount: 1 };
         this.accountContextRequested = false;
+        this.accountContextReady = false;
+        this.externalChecksDone = false;
+        this.reviewDataReady = false;
+        this.consolidated = false;
+        this.selectedInvoiceKeys = new Set();
+        this.uploads = [];
+        this.submitAttempted = false;
         this.refresh();
     }
 
     /** Once IDP finished: the account's invoices from `batchState`, for the external verifications. */
     private async loadAccountContext(): Promise<void> {
+        try {
+            await this.readAccountContext();
+        } finally {
+            // With or without invoices, the verifications start now, so step 2 shows what step 3 lists.
+            this.accountContextReady = true;
+        }
+    }
+
+    private async readAccountContext(): Promise<void> {
         if (!this.processInstanceId) {
             return;
         }
@@ -827,20 +1365,27 @@ export class RadicationPageComponent implements OnInit, OnDestroy {
             return;
         }
         const preanalysisStage = this.progress?.stages.find((stage) => stage.key === 'preanalysis');
-        if (this.step === 'processing' && !this.accountContextRequested && (preanalysisStage?.state === 'active' || preanalysisStage?.state === 'done')) {
+        if (this.processingRound && !this.accountContextRequested && (preanalysisStage?.state === 'active' || preanalysisStage?.state === 'done')) {
             this.accountContextRequested = true;
             void this.loadAccountContext();
         }
-        if (this.step === 'processing' && this.progress?.intakeReady) {
-            await this.loadPreanalysis();
-            this.step = 'review';
+        if (this.processingRound && this.progress?.intakeReady) {
+            // The review opens only after consolidation: agent result loaded and verifications finished.
+            if (!this.reviewDataReady) {
+                await this.loadPreanalysis();
+                this.reviewDataReady = true;
+            }
+            this.maybeConsolidate();
             return;
         }
-        if (this.step === 'processing' && this.progress?.afterIntake) {
+        if (this.processingRound && this.progress?.afterIntake) {
+            // Automate already passed Intake (e.g. a reopened account): the review opens read only,
+            // with a notice; it never jumps to the summary by itself.
             await this.loadPreanalysis();
-            this.step = 'summary';
+            this.reviewDataReady = true;
+            this.reviewReached();
         }
-        const waiting = this.step === 'processing' || (this.step === 'summary' && this.intakeCompleted && !this.progress?.afterIntake && !this.progress?.failed);
+        const waiting = this.processingRound || (this.intakeCompleted && !this.progress?.afterIntake && !this.progress?.failed);
         if (waiting && !this.progress?.failed && this.polls < POLL_LIMIT) {
             this.schedulePoll(POLL_INTERVAL_MS);
         }

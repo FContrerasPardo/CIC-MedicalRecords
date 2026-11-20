@@ -1,14 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import {
     deriveExternalCheckRows,
+    deriveValidationStates,
     EXTERNAL_CHECKS_NO_DATA_KEY,
+    ExternalValidationState,
     ExternalCheckDefinition,
     ExternalCheckRow,
     externalChecksFor,
+    externalChecksSettled,
     ExternalVerificationChannel,
     ExternalVerificationKey,
     ExternalVerificationQuery,
@@ -27,7 +30,6 @@ export interface ExternalChecksContext {
 }
 
 const TICK_MS = 250;
-const MAX_ISSUES_SHOWN = 3;
 
 /**
  * External verifications shown while the pre-analysis runs. Ported from CIC-Fin's
@@ -36,7 +38,9 @@ const MAX_ISSUES_SHOWN = 3;
  * generalized per `docs/propuesta-preanalisis-interoperabilidad.md` §2:
  * - systems per channel (`externalChecksFor`), or explicit `checks`;
  * - results from the adapters under `EXTERNAL_VERIFICATION_ADAPTERS` (mock, synthetic, no HTTP in v1);
- * - row states `querying | ok | alert | inconsistency | no_response` and a "Simulated" badge;
+ * - row states `querying | ok | no_response`; every simulated check ends verified (no alerts in the demo);
+ * - per system, the validation types it runs (affiliation on the service date, prior authorization,
+ *   agreed tariff…), checked one by one while the row queries;
  * - `holdUntil`: the last row stays querying until it is true (the pre-analysis finished).
  * No localStorage: the result is derived again from the invoice numbers.
  */
@@ -48,7 +52,6 @@ const MAX_ISSUES_SHOWN = 3;
     template: `
         <section class="external-checks" [attr.aria-label]="'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.TITLE' | translate">
             <p class="ec-title" role="heading" aria-level="3">{{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.TITLE' | translate }}</p>
-            <p class="detail">{{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.NOTICE' | translate }}</p>
             <div class="checks" aria-live="polite">
                 @for (row of rows(); track row.definition.key) {
                     <div class="check" [attr.data-state]="row.state" [class.done]="row.state !== 'querying'">
@@ -62,9 +65,6 @@ const MAX_ISSUES_SHOWN = 3;
                             <div class="line">
                                 <strong>{{ row.definition.labelKey | translate }}</strong>
                                 <span class="tags">
-                                    @if (row.definition.mode === 'simulated') {
-                                        <span class="badge">{{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.SIMULATED' | translate }}</span>
-                                    }
                                     <span class="state state--{{ row.state }}">
                                         <mat-icon aria-hidden="true">{{ stateIcon(row) }}</mat-icon>{{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.STATE.' + row.state.toUpperCase() | translate }}
                                         @if (row.result?.checkedAt; as at) {
@@ -73,22 +73,22 @@ const MAX_ISSUES_SHOWN = 3;
                                     </span>
                                 </span>
                             </div>
+                            @if (row.definition.validationKeys.length) {
+                                <ul class="validations">
+                                    @for (validationKey of row.definition.validationKeys; track validationKey; let index = $index) {
+                                        @let validationState = validationStates(row)[index];
+                                        <li class="validation" [attr.data-state]="validationState">
+                                            <mat-icon aria-hidden="true">{{ validationIcon(validationState) }}</mat-icon>
+                                            <span>{{ validationKey | translate }}</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
                             @if (row.result; as result) {
-                                @if (issuesOf(result).length) {
-                                    <ul class="issues">
-                                        @for (item of issuesOf(result).slice(0, maxIssues); track item.invoiceNumber) {
-                                            <li class="detail">
-                                                {{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.INVOICE' | translate: { invoice: item.invoiceNumber } }} ·
-                                                {{ item.detailKey | translate }}
-                                            </li>
-                                        }
-                                    </ul>
-                                } @else {
-                                    <span class="detail">
-                                        {{ (result.items[0]?.detailKey ?? noDataKey) | translate }} ·
-                                        {{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.CHECKED' | translate: { count: result.items.length } }}
-                                    </span>
-                                }
+                                <span class="detail">
+                                    {{ (result.items[0]?.detailKey ?? noDataKey) | translate }} ·
+                                    {{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.CHECKED' | translate: { count: result.items.length } }}
+                                </span>
                             } @else {
                                 <span class="detail">{{ 'MEDICAL_RECORDS.RADICATION.EXTERNAL_CHECKS.QUERYING_DETAIL' | translate: { count: invoices().length } }}</span>
                             }
@@ -118,24 +118,23 @@ const MAX_ISSUES_SHOWN = 3;
             .info { display: grid; gap: 2px; min-width: 0; }
             .info strong { font-size: 13px; color: var(--ab-ink, #202554); }
             .detail { font-size: 11px; line-height: 1.35; color: var(--ab-muted, #5b6b70); }
-            .issues { display: grid; gap: 1px; margin: 0; padding: 0; list-style: none; }
-            .badge { padding: 1px 6px; border: 1px dashed var(--ab-line, #d0d5dd); border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ab-muted, #5b6b70); }
+            .validations { display: grid; gap: 2px; margin: 2px 0 0; padding: 0; list-style: none; }
+            .validation { display: flex; align-items: flex-start; gap: 5px; font-size: 12px; line-height: 16px; color: var(--ab-muted, #5b6b70); transition: color 200ms ease, opacity 200ms ease; }
+            .validation mat-icon { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 1px; font-size: 14px; line-height: 14px; }
+            .validation[data-state='pending'] { opacity: 0.55; }
+            .validation[data-state='checking'] { color: var(--ab-accent-text, #5146b8); font-weight: 600; }
+            .validation[data-state='checking'] mat-icon { animation: spin 1.3s linear infinite; }
+            .validation[data-state='ok'] mat-icon { color: var(--ab-ok-text, #1c875f); }
             .state { display: inline-flex; align-items: center; gap: 4px; min-height: 20px; font-size: 12px; font-weight: 700; color: var(--ab-muted, #5b6b70); }
             .state mat-icon { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; font-size: 15px; line-height: 15px; }
             .state time { margin-inline-start: 2px; font-weight: 400; color: var(--ab-muted, #5b6b70); }
             .state--ok { color: var(--ab-ok-text, #1c875f); }
-            .state--alert { color: var(--ab-warn-text, #b54708); }
-            .state--inconsistency { color: var(--ab-error-text, #b42318); }
             .state--querying mat-icon { animation: spin 1.3s linear infinite; }
             .check.done .target { animation: none; }
             .check.done .packet { animation: none; opacity: 0; }
             .check.done .link { opacity: 0.55; }
             .check[data-state='ok'] .target { background: var(--ab-soft-green, #e7f6ee); color: var(--ab-ok-text, #1c875f); }
             .check[data-state='ok'] .link { background: var(--ab-ok-text, #1c875f); }
-            .check[data-state='alert'] .target { background: var(--ab-soft-warn, #fffaeb); color: var(--ab-warn-text, #b54708); }
-            .check[data-state='alert'] .link { background: var(--ab-warn-text, #b54708); }
-            .check[data-state='inconsistency'] .target { background: var(--ab-soft-error, #fef3f2); color: var(--ab-error-text, #b42318); }
-            .check[data-state='inconsistency'] .link { background: var(--ab-error-text, #b42318); }
             .check[data-state='no_response'] .target { color: var(--ab-muted, #5b6b70); }
             .check[data-state='no_response'] .link { background: repeating-linear-gradient(90deg, var(--ab-muted, #5b6b70) 0 4px, transparent 4px 10px); }
             @keyframes packet-out { 0% { left: 0; opacity: 0; } 8% { opacity: 1; } 40% { left: calc(100% - 10px); opacity: 1; } 46%, 100% { left: calc(100% - 10px); opacity: 0; } }
@@ -143,7 +142,7 @@ const MAX_ISSUES_SHOWN = 3;
             @keyframes target-pulse { 0%, 36%, 56%, 100% { box-shadow: 0 0 0 0 transparent; } 46% { box-shadow: 0 0 0 7px var(--ab-brand-glow, rgba(81, 70, 184, 0.18)); } }
             @keyframes spin { to { transform: rotate(360deg); } }
             @media (prefers-reduced-motion: reduce) {
-                .target, .packet, .state--querying mat-icon { animation: none; }
+                .target, .packet, .state--querying mat-icon, .validation[data-state='checking'] mat-icon { animation: none; }
             }
         `,
     ],
@@ -157,8 +156,9 @@ export class RadicationExternalChecksComponent {
     readonly context = input<ExternalChecksContext | null>(null);
     /** The last row stays querying until this is true (e.g. the pre-analysis stage is done). */
     readonly holdUntil = input(true);
+    /** Emitted once, when every row shows its result (its animation finished). */
+    readonly settled = output<void>();
 
-    readonly maxIssues = MAX_ISSUES_SHOWN;
     readonly noDataKey = EXTERNAL_CHECKS_NO_DATA_KEY;
 
     private readonly adapters = inject(EXTERNAL_VERIFICATION_ADAPTERS, { optional: true }) ?? [];
@@ -184,6 +184,16 @@ export class RadicationExternalChecksComponent {
             untracked(() => this.query(definitions, query));
         });
 
+        // Tells the page the verifications are over, so the next stage can start.
+        let announced = false;
+        effect(() => {
+            const rows = this.rows();
+            if (!announced && rows.length && externalChecksSettled(rows)) {
+                announced = true;
+                untracked(() => this.settled.emit());
+            }
+        });
+
         // Animation clock: runs until the slowest row's time passed; results and `holdUntil` resolve the rest.
         const timer = setInterval(() => {
             const elapsed = Date.now() - this.startedAt;
@@ -198,18 +208,19 @@ export class RadicationExternalChecksComponent {
         });
     }
 
-    issuesOf(result: ExternalVerificationResult) {
-        return result.items.filter((item) => item.status !== 'ok');
+    /** Validation types of a row at the current animation time. */
+    validationStates(row: ExternalCheckRow): ExternalValidationState[] {
+        return deriveValidationStates(row, this.elapsed());
+    }
+
+    validationIcon(state: ExternalValidationState): string {
+        return state === 'ok' ? 'check_circle' : state === 'checking' ? 'autorenew' : 'radio_button_unchecked';
     }
 
     stateIcon(row: ExternalCheckRow): string {
         switch (row.state) {
             case 'ok':
                 return 'check_circle';
-            case 'alert':
-                return 'warning_amber';
-            case 'inconsistency':
-                return 'error_outline';
             case 'no_response':
                 return 'portable_wifi_off';
             default:

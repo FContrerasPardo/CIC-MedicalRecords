@@ -4,15 +4,19 @@
     <nav class="flow-stepper" [attr.aria-label]="i18n + '.STEPS.ARIA' | translate">
         <ol>
             @for (item of steps; track item; let index = $index) {
-                <li [class]="'flow-stepper__item flow-stepper__item--' + stepState(item)" [attr.aria-current]="item === step ? 'step' : null">
-                    <span class="flow-stepper__marker" aria-hidden="true">
-                        @if (stepState(item) === 'done') {
-                            <mat-icon>check</mat-icon>
-                        } @else {
-                            {{ index + 1 }}
-                        }
-                    </span>
-                    <span class="flow-stepper__label">{{ i18n + '.STEPS.' + (item | uppercase) | translate }}</span>
+                <li [class]="'flow-stepper__item flow-stepper__item--' + stepState(item)">
+                    <!-- Reached steps can be shown again; future steps stay disabled. -->
+                    <button type="button" class="flow-stepper__button" [disabled]="item !== step && !canVisitStep(item)"
+                        [attr.aria-current]="item === step ? 'step' : null" (click)="goToStep(item)">
+                        <span class="flow-stepper__marker" aria-hidden="true">
+                            @if (stepState(item) === 'done') {
+                                <mat-icon>check</mat-icon>
+                            } @else {
+                                {{ index + 1 }}
+                            }
+                        </span>
+                        <span class="flow-stepper__label">{{ i18n + '.STEPS.' + (item | uppercase) | translate }}</span>
+                    </button>
                 </li>
             }
         </ol>
@@ -22,89 +26,109 @@
         <!-- 1 · Load -->
         @case ('upload') {
             <section class="flow-layout">
-                <div class="flow-card">
-                    <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 1, total: steps.length } }}</div>
-                    <h1>{{ (uploadMode === 'more' ? i18n + '.MORE.TITLE' : i18n + '.TITLE') | translate }}</h1>
-                    <p class="intro">{{ (uploadMode === 'more' ? i18n + '.MORE.LEAD' : i18n + '.LEAD') | translate }}</p>
-                    <div class="product-meta">
-                        <p class="product-context">{{ i18n + '.EYEBROW' | translate }}</p>
-                        <span class="application-number" [attr.aria-label]="i18n + '.RESULT.NUMBER' | translate">{{ radicationNumber }}</span>
-                    </div>
+                <div class="flow-card upload-card">
+                    <!-- Left column: fixed rhythm; notes and errors live in reserved slots, the list grows downwards. -->
+                    <div class="upload-main">
+                        <div class="step-label">{{ i18n + '.STEP_OF' | translate: { current: 1, total: steps.length } }}</div>
+                        <h1>{{ i18n + '.TITLE' | translate }}</h1>
+                        <p class="intro">{{ (uploadLocked ? i18n + '.FORM.LOCKED_NOTICE' : i18n + '.LEAD') | translate }}</p>
+                        <div class="product-meta">
+                            <p class="product-context">{{ i18n + '.EYEBROW' | translate }}</p>
+                            <span class="application-number" [attr.aria-label]="i18n + '.RESULT.NUMBER' | translate">{{ radicationNumber }}</span>
+                        </div>
 
-                    <div class="details-grid">
-                        <label>
-                            {{ i18n + '.FORM.PROVIDER' | translate }}
-                            <input name="provider" [(ngModel)]="providerName" autocomplete="organization" [readonly]="uploadMode === 'more'"
-                                [attr.aria-invalid]="hasIssue('PROVIDER_REQUIRED')" />
-                            @if (hasIssue('PROVIDER_REQUIRED')) {
-                                <span class="field-error" role="alert">{{ i18n + '.ISSUES.PROVIDER_REQUIRED' | translate }}</span>
-                            }
-                        </label>
-                        <label>
-                            {{ i18n + '.FORM.EMAIL' | translate }}
-                            <input name="email" type="email" [(ngModel)]="email" autocomplete="email" placeholder="name@example.com" [readonly]="uploadMode === 'more'"
-                                [attr.aria-invalid]="hasIssue('EMAIL_INVALID')" />
-                            @if (hasIssue('EMAIL_INVALID')) {
-                                <span class="field-error" role="alert">{{ i18n + '.ISSUES.EMAIL_INVALID' | translate }}</span>
-                            }
-                        </label>
-                    </div>
-
-                    <div class="accepted-card">
-                        <h2>{{ i18n + '.FORM.ACCEPTED' | translate }}</h2>
-                        <div class="accepted-columns">
-                            <div class="accepted-group">
-                                <div class="accepted-heading">
-                                    <span class="accepted-icon"><mat-icon aria-hidden="true">receipt_long</mat-icon></span>
-                                    <strong>{{ i18n + '.FORM.ACCEPTED_INVOICES' | translate }}</strong>
-                                </div>
-                                <div class="accepted-item"><mat-icon aria-hidden="true">description</mat-icon><span>{{ i18n + '.FORM.ACCEPTED_INVOICES_HINT' | translate }}</span></div>
-                            </div>
-                            <div class="accepted-group">
-                                <div class="accepted-heading">
-                                    <span class="accepted-icon"><mat-icon aria-hidden="true">fact_check</mat-icon></span>
-                                    <strong>{{ i18n + '.FORM.ACCEPTED_SUPPORTS' | translate }}</strong>
-                                </div>
-                                @for (document of (checklistResult?.checklist?.rules?.[0]?.requiredDocuments ?? []) | slice: 0 : 4; track document) {
-                                    <div class="accepted-item"><mat-icon aria-hidden="true">task</mat-icon><span>{{ document }}</span></div>
+                        <div class="details-grid">
+                            <label>
+                                {{ i18n + '.FORM.PROVIDER' | translate }}
+                                @if (uploadLocked || uploadMode === 'more' || providerOptionsState === 'failed') {
+                                    <input name="provider" [(ngModel)]="providerName" autocomplete="organization" [readonly]="uploadLocked || uploadMode === 'more'"
+                                        (change)="onFreeTextProvider()" [attr.aria-invalid]="hasIssue('PROVIDER_REQUIRED')" aria-describedby="radication-provider-slot" />
+                                } @else {
+                                    <select name="provider" class="provider-select" [ngModel]="selectedAgreementId" (ngModelChange)="selectProvider($event)"
+                                        [disabled]="providerOptionsState === 'loading'" [attr.aria-busy]="providerOptionsState === 'loading'"
+                                        [attr.aria-invalid]="hasIssue('PROVIDER_REQUIRED')" aria-describedby="radication-provider-slot">
+                                        <option [ngValue]="null" disabled>{{ (providerOptionsState === 'loading' ? i18n + '.FORM.PROVIDER_LOADING' : i18n + '.FORM.PROVIDER_PLACEHOLDER') | translate }}</option>
+                                        @for (option of providerOptions; track option.agreementId) {
+                                            <option [ngValue]="option.agreementId">{{ option.providerName }}</option>
+                                        }
+                                    </select>
                                 }
-                            </div>
-                        </div>
-                    </div>
-
-                    <label class="drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
-                        (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
-                        (dragleave)="dragging = false" (drop)="onDrop($event)">
-                        <mat-icon aria-hidden="true">cloud_upload</mat-icon>
-                        <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
-                        <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
-                        <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
-                    </label>
-                    @if (uploads.length) {
-                        <div class="upload-list" aria-live="polite">
-                            @for (upload of uploads; track upload.key) {
-                                <div class="upload-row">
-                                    <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
-                                    <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
-                                    <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
-                                    @if (upload.status === 'error' && upload.file) {
-                                        <button type="button" (click)="retryUpload(upload)" [attr.aria-label]="i18n + '.UPLOAD.RETRY' | translate: { name: upload.name }"><mat-icon>refresh</mat-icon></button>
+                                <!-- Reserved height: the alias note, the free-text notice or the error replace each other without moving the form. -->
+                                <span class="field-slot" id="radication-provider-slot">
+                                    @if (hasIssue('PROVIDER_REQUIRED')) {
+                                        <span class="field-error" role="alert">{{ i18n + '.ISSUES.PROVIDER_REQUIRED' | translate }}</span>
+                                    } @else if (!uploadLocked && uploadMode === 'new' && providerOptionsState === 'failed') {
+                                        <span class="field-note" role="status">{{ i18n + '.FORM.PROVIDER_FREE_TEXT' | translate }}</span>
+                                    } @else if (!uploadLocked && uploadMode === 'new' && selectedProvider?.aliases?.length) {
+                                        <span class="field-note" [title]="selectedProvider?.aliases?.join(', ') ?? ''">{{ i18n + '.FORM.PROVIDER_ALIASES' | translate: { aliases: selectedProvider?.aliases?.join(', ') } }}</span>
                                     }
-                                    <button type="button" (click)="removeUpload(upload)" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
+                                </span>
+                            </label>
+                            <label>
+                                {{ i18n + '.FORM.EMAIL' | translate }}
+                                <input name="email" type="email" [(ngModel)]="email" autocomplete="email" placeholder="name@example.com" [readonly]="uploadLocked || uploadMode === 'more'"
+                                    [attr.aria-invalid]="hasIssue('EMAIL_INVALID')" aria-describedby="radication-email-slot" />
+                                <span class="field-slot field-slot--single" id="radication-email-slot">
+                                    @if (hasIssue('EMAIL_INVALID')) {
+                                        <span class="field-error" role="alert">{{ i18n + '.ISSUES.EMAIL_INVALID' | translate }}</span>
+                                    }
+                                </span>
+                            </label>
+                        </div>
+
+                        @if (uploadLocked) {
+                            <!-- The account was already sent: its documents, read only. -->
+                            <h2 class="sent-heading">{{ i18n + '.FORM.LOCKED_SENT' | translate }}</h2>
+                            @if (sentUploads.length) {
+                                <div class="upload-list">
+                                    @for (upload of sentUploads; track $index) {
+                                        <div class="upload-row">
+                                            <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
+                                            <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
+                                            <small>{{ i18n + '.UPLOAD.UPLOADED' | translate }}</small>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <p class="field-note">{{ i18n + '.FORM.LOCKED_EARLIER' | translate }}</p>
+                            }
+                        } @else {
+                            <label class="drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
+                                (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
+                                (dragleave)="dragging = false" (drop)="onDrop($event)">
+                                <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+                                <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
+                                <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
+                                <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
+                            </label>
+                            @if (uploads.length) {
+                                <div class="upload-list" aria-live="polite">
+                                    @for (upload of uploads; track upload.key) {
+                                        <div class="upload-row">
+                                            <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
+                                            <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
+                                            <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
+                                            @if (upload.status === 'error' && upload.file) {
+                                                <button type="button" (click)="retryUpload(upload)" [attr.aria-label]="i18n + '.UPLOAD.RETRY' | translate: { name: upload.name }"><mat-icon>refresh</mat-icon></button>
+                                            }
+                                            <button type="button" (click)="removeUpload(upload)" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
+                                        </div>
+                                    }
                                 </div>
                             }
-                        </div>
-                    }
+                        }
                     <div class="upload-messages">
-                    @for (issue of fileIssues; track issue) {
-                        @if (hasIssue(issue)) {
-                            <p class="error-message" role="alert">{{ i18n + '.ISSUES.' + issue | translate }}</p>
+                    @if (!uploadLocked) {
+                        @for (issue of fileIssues; track issue) {
+                            @if (hasIssue(issue)) {
+                                <p class="error-message" role="alert">{{ i18n + '.ISSUES.' + issue | translate }}</p>
+                            }
+                        }
+                        @if (hasIssue('DOCUMENTS_REQUIRED')) {
+                            <p class="error-message" role="alert">{{ i18n + '.ISSUES.DOCUMENTS_REQUIRED' | translate }}</p>
                         }
                     }
-                    @if (hasIssue('DOCUMENTS_REQUIRED')) {
-                        <p class="error-message" role="alert">{{ i18n + '.ISSUES.DOCUMENTS_REQUIRED' | translate }}</p>
-                    }
-                    @if (uploadMode === 'new' && !startError && formFieldIssues.length) {
+                    @if (!uploadLocked && uploadMode === 'new' && !startError && formFieldIssues.length) {
                         <div class="notice notice--warn" role="status">
                             <mat-icon aria-hidden="true">warning_amber</mat-icon>
                             <div>
@@ -147,16 +171,87 @@
                         </div>
                     }
                     </div>
+                    </div>
+                    <div class="accepted-card">
+                        <h2>{{ i18n + '.FORM.ACCEPTED' | translate }}</h2>
+                        <div class="accepted-columns">
+                            <div class="accepted-group">
+                                <div class="accepted-heading">
+                                    <span class="accepted-icon"><mat-icon aria-hidden="true">receipt_long</mat-icon></span>
+                                    <strong>{{ i18n + '.FORM.ACCEPTED_INVOICES' | translate }}</strong>
+                                </div>
+                                <div class="accepted-item"><mat-icon aria-hidden="true">description</mat-icon><span>{{ i18n + '.FORM.ACCEPTED_INVOICES_HINT' | translate }}</span></div>
+                            </div>
+                            <div class="accepted-group">
+                                <div class="accepted-heading">
+                                    <span class="accepted-icon"><mat-icon aria-hidden="true">fact_check</mat-icon></span>
+                                    <strong>{{ i18n + '.FORM.ACCEPTED_SUPPORTS' | translate }}</strong>
+                                </div>
+                                <div class="requirements" aria-live="polite" [attr.aria-busy]="requirementsState === 'loading'">
+                                    @switch (requirementsState) {
+                                        @case ('idle') {
+                                            <p class="requirements-note">{{ i18n + '.FORM.REQUIREMENTS_CHOOSE' | translate }}</p>
+                                        }
+                                        @case ('loading') {
+                                            <p class="requirements-note requirements-note--loading"><mat-icon aria-hidden="true">hourglass_empty</mat-icon>{{ i18n + '.FORM.REQUIREMENTS_LOADING' | translate }}</p>
+                                        }
+                                        @case ('empty') {
+                                            <p class="requirements-note">{{ i18n + '.FORM.REQUIREMENTS_EMPTY' | translate }}</p>
+                                        }
+                                        @default {
+                                            @if (requirementsAgreementName) {
+                                                <p class="requirements-agreement">{{ i18n + '.FORM.REQUIREMENTS_AGREEMENT' | translate: { name: requirementsAgreementName } }}</p>
+                                            }
+                                            <p class="requirements-profile">{{ i18n + '.FORM.REQUIREMENTS_SINGLE' | translate }}</p>
+                                            @if (requirements?.multiInvoiceDocuments?.length) {
+                                                <p class="requirements-profile">{{ i18n + '.FORM.REQUIREMENTS_MULTI' | translate: { documents: requirements?.multiInvoiceDocuments?.join(', ') } }}</p>
+                                            }
+                                            @if (requirements?.always?.length) {
+                                                <h3 class="requirements-heading">{{ i18n + '.FORM.REQUIREMENTS_ALWAYS' | translate }}</h3>
+                                                <ul class="requirements-list">
+                                                    @for (document of requirements?.always ?? []; track document.className) {
+                                                        <li class="accepted-item"><mat-icon aria-hidden="true">task</mat-icon><span>{{ document.className }}</span></li>
+                                                    }
+                                                </ul>
+                                            }
+                                            @if (requirements?.conditional?.length) {
+                                                <h3 class="requirements-heading">{{ i18n + '.FORM.REQUIREMENTS_CONDITIONAL' | translate }}</h3>
+                                                <ul class="requirements-list">
+                                                    @for (document of requirements?.conditional ?? []; track document.className) {
+                                                        <li class="accepted-item"><mat-icon aria-hidden="true">rule</mat-icon>
+                                                            <span>{{ document.className }}@if (document.condition) {<small [title]="document.conditionFull ?? ''"> · {{ document.condition }}</small>}</span>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                            @if (requirements?.optional?.length) {
+                                                <h3 class="requirements-heading">{{ i18n + '.FORM.REQUIREMENTS_OPTIONAL' | translate }}</h3>
+                                                <ul class="requirements-list">
+                                                    @for (document of requirements?.optional ?? []; track document) {
+                                                        <li class="accepted-item"><mat-icon aria-hidden="true">add_circle_outline</mat-icon><span>{{ document }}</span></li>
+                                                    }
+                                                </ul>
+                                            }
+                                        }
+                                    }
+                                    <p class="requirements-confirm">{{ i18n + '.FORM.REQUIREMENTS_CONFIRM' | translate }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="upload-actions">
-                        @if (uploadMode === 'more') {
-                            <button mat-button type="button" class="review-back-action" (click)="step = uploadReturnStep" [disabled]="sending">
-                                <mat-icon>arrow_back</mat-icon>{{ i18n + '.ACTIONS.BACK' | translate }}
+                        @if (uploadLocked) {
+                            <button mat-flat-button color="primary" class="continue-button" type="button" (click)="returnToFlow()">
+                                {{ i18n + '.FORM.LOCKED_RETURN' | translate }}
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        } @else {
+                            <button mat-flat-button color="primary" class="continue-button" type="button" [disabled]="sending" (click)="submit()">
+                                {{ (sending ? i18n + '.SENDING.BUTTON' : i18n + '.FORM.SUBMIT') | translate }}
+                                <mat-icon>arrow_forward</mat-icon>
                             </button>
                         }
-                        <button mat-flat-button color="primary" class="continue-button" type="button" [disabled]="sending" (click)="submit()">
-                            {{ (sending ? i18n + '.SENDING.BUTTON' : uploadMode === 'more' ? i18n + '.MORE.SUBMIT' : i18n + '.FORM.SUBMIT') | translate }}
-                            <mat-icon>arrow_forward</mat-icon>
-                        </button>
                     </div>
                 </div>
                 <aside class="assistant-card">
@@ -193,12 +288,12 @@
                                         </div>
                                         <div class="stage-body">
                                             <div class="stage-head">
-                                                <h2>{{ i18n + '.PROGRESS.' + (stage.key | uppercase) | translate }}</h2>
+                                                <h2>{{ stageLabelKey(stage) | translate }}</h2>
                                                 <span class="stage-count">{{ i18n + '.PROGRESS.STATE_' + (stage.state | uppercase) | translate }}</span>
                                             </div>
                                             <div class="stage-details">
                                                 <div class="stage-details-inner">
-                                                    <p>{{ i18n + '.PROGRESS.' + (stage.key | uppercase) + '_HINT' | translate }}</p>
+                                                    <p>{{ stageHintKey(stage) | translate }}</p>
                                                     @if (stage.key === 'extraction' && stage.state === 'active') {
                                                         <ul class="stage-substates stage-substates--idp-trio">
                                                             @for (substep of idpSubsteps; track substep.key) {
@@ -280,8 +375,11 @@
                                                                 </li>
                                                             }
                                                         </ul>
-                                                        @if (stage.key === 'preanalysis') {
-                                                            <medical-records-radication-external-checks channel="provider" [context]="externalChecksContext" [holdUntil]="stage.state === 'done'" />
+                                                        <!-- The verifications run inside the pre-analysis with the account's invoices and all finish
+                                                             (last one released when the agent is done) before the consolidation starts. -->
+                                                        @if (stage.key === 'preanalysis' && accountContextReady) {
+                                                            <medical-records-radication-external-checks channel="provider" [context]="externalChecksContext"
+                                                                [holdUntil]="preanalysisRuntimeDone" (settled)="onExternalChecksSettled()" />
                                                         }
                                                     } @else if (stage.key === 'radicated') {
                                                         <medical-records-radication-stage-art [stage]="stage.key" [state]="stage.state" />
@@ -330,6 +428,12 @@
                         </div>
                     </div>
                     <p class="intro">{{ i18n + '.REVIEW.LEAD' | translate }}</p>
+                    @if (reviewReadOnly) {
+                        <div class="notice notice--warn" role="status">
+                            <mat-icon aria-hidden="true">lock_outline</mat-icon>
+                            <div><strong>{{ i18n + '.REVIEW.READ_ONLY' | translate }}</strong></div>
+                        </div>
+                    }
                     @if (preanalysis) {
                         <section class="review-invoices" [attr.aria-label]="i18n + '.REVIEW.INVOICES' | translate">
                             @if ((account?.invoices.length ?? 0) === 1) {
@@ -340,23 +444,32 @@
                                         <span>{{ invoice.patientName || '—' }}</span>
                                         <span>{{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}</span>
                                         @if (invoice.totalBilled !== null) {
-                                            <span>{{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}</span>
+                                            <span>{{ formatAmount(invoice.totalBilled) }}</span>
                                         }
                                     </div>
                                 }
                             } @else if (account?.invoices.length) {
-                                <div class="review-invoice-cards">
+                                <!-- Invoice / patient cards filter the table: one or several; "All" clears the filter. -->
+                                <div class="review-invoice-cards" role="group" [attr.aria-label]="i18n + '.PROVIDER_FLOW.FILTER_ARIA' | translate">
+                                    <button type="button" class="review-invoice-filter review-invoice-filter--all" [attr.aria-pressed]="!selectedInvoiceKeys.size"
+                                        (click)="clearInvoiceFilter()">
+                                        <small>{{ i18n + '.PROVIDER_FLOW.FILTER_HINT' | translate }}</small>
+                                        <strong>{{ i18n + '.PROVIDER_FLOW.FILTER_ALL' | translate }}</strong>
+                                        <span>{{ i18n + '.PROVIDER_FLOW.FILTER_COUNT' | translate: { count: reviewRows.length } }}</span>
+                                    </button>
                                     @for (invoice of account?.invoices ?? []; track invoice.key) {
-                                        <article>
+                                        <button type="button" class="review-invoice-filter" [attr.aria-pressed]="isInvoiceSelected(invoice.key)"
+                                            (click)="toggleInvoiceFilter(invoice.key)">
                                             <small>{{ i18n + '.REVIEW.INVOICE' | translate }} {{ invoice.invoiceNumber || '—' }}</small>
                                             <strong>{{ invoice.patientName || '—' }}</strong>
                                             <span>
                                                 {{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}
                                                 @if (invoice.totalBilled !== null) {
-                                                    · {{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}
+                                                    · {{ formatAmount(invoice.totalBilled) }}
                                                 }
+                                                · {{ i18n + '.PROVIDER_FLOW.FILTER_OPEN' | translate: { count: invoiceOpenCount(invoice.key) } }}
                                             </span>
-                                        </article>
+                                        </button>
                                     }
                                 </div>
                             } @else {
@@ -377,7 +490,7 @@
                                     <span role="columnheader">{{ i18n + '.REVIEW.STATUS' | translate }}</span>
                                     <span role="columnheader">{{ i18n + '.REVIEW.ACTIONS' | translate }}</span>
                                 </div>
-                                @for (row of reviewRows; track row.finding.id; let index = $index) {
+                                @for (row of visibleReviewRows; track row.finding.id; let index = $index) {
                                     <div class="review-table-row" role="row" [id]="'review-row-' + row.finding.id" [attr.data-status]="rowStatus(row)" [class.review-table-row--open]="isExpanded(row)">
                                         <div class="review-document-name" role="cell">
                                             <button type="button" class="review-row-toggle" (click)="toggleRow(row)" [attr.aria-expanded]="isExpanded(row)"
@@ -451,28 +564,37 @@
                                             <div class="review-user-action">
                                                 <label [for]="'finding-comment-' + index">{{ i18n + '.COMMENTS.LABEL' | translate }}</label>
                                                 <textarea [id]="'finding-comment-' + index" rows="2" [maxlength]="maxCommentLength" [(ngModel)]="comments[row.finding.id]"
-                                                    [disabled]="savingComments || deciding" [placeholder]="i18n + '.COMMENTS.PLACEHOLDER' | translate"></textarea>
-                                                <button mat-stroked-button type="button" (click)="saveRowComment(row)"
-                                                    [disabled]="savingComments || deciding || !(comments[row.finding.id] ?? '').trim() || commentAttended(row.finding)">
-                                                    {{ (savingComments ? i18n + '.COMMENTS.SAVING' : i18n + '.REVIEW.SAVE_COMMENT') | translate }}
-                                                </button>
-                                                @if (commentAttended(row.finding)) {
-                                                    <span class="review-user-attended">{{ i18n + '.COMMENTS.SAVED' | translate }}</span>
-                                                }
+                                                    (ngModelChange)="onCommentChange(row)" (blur)="onCommentBlur(row)"
+                                                    [disabled]="reviewReadOnly || deciding || sending" [placeholder]="i18n + '.COMMENTS.PLACEHOLDER' | translate"
+                                                    [attr.aria-describedby]="'finding-comment-state-' + index"></textarea>
+                                                <!-- Auto-save: state per row instead of a save button; a retry only when saving failed. -->
+                                                <span class="review-comment-state" [id]="'finding-comment-state-' + index" aria-live="polite"
+                                                    [attr.data-state]="commentSaveState[row.finding.id] ?? (commentAttended(row.finding) ? 'saved' : null)">
+                                                    @if (commentSaveState[row.finding.id] === 'saving') {
+                                                        <mat-icon aria-hidden="true">autorenew</mat-icon>{{ i18n + '.COMMENTS.SAVING' | translate }}
+                                                    } @else if (commentSaveState[row.finding.id] === 'error') {
+                                                        <mat-icon aria-hidden="true">error_outline</mat-icon>
+                                                        <span role="alert">{{ i18n + '.PROVIDER_FLOW.SAVE_ERROR' | translate }} {{ (commentSaveError[row.finding.id] ?? '') | translate }}</span>
+                                                        <button mat-button type="button" (click)="retryComment(row)">{{ i18n + '.PROVIDER_FLOW.SAVE_RETRY' | translate }}</button>
+                                                    } @else if (commentAttended(row.finding)) {
+                                                        <mat-icon aria-hidden="true">cloud_done</mat-icon>{{ i18n + '.COMMENTS.SAVED' | translate }}
+                                                    } @else {
+                                                        {{ i18n + '.PROVIDER_FLOW.AUTOSAVE_NOTE' | translate }}
+                                                    }
+                                                </span>
                                             </div>
+                                            } @else if (commentSaveState[row.finding.id] === 'error') {
+                                                <span class="review-comment-state" data-state="error" role="alert">
+                                                    <mat-icon aria-hidden="true">error_outline</mat-icon>{{ i18n + '.PROVIDER_FLOW.SAVE_ERROR' | translate }}
+                                                </span>
                                             } @else if (commentAttended(row.finding)) {
                                                 <span class="review-user-attended">{{ i18n + '.COMMENTS.SAVED' | translate }}</span>
                                             }
                                         </div>
-                                        <span class="review-cell review-status" role="cell" [class.review-status-warning]="row.agent ? row.agent.status !== 'pass' : row.finding.risk !== 'LOW'"
+                                        <!-- Only Compliant / Non-compliant: "needs attention" does not comply; the risk is not shown. -->
+                                        <span class="review-cell review-status" role="cell" [class.review-status-warning]="!rowCompliant(row)"
                                             [attr.data-label]="i18n + '.REVIEW.STATUS' | translate">
-                                            @if (isDelivered(row) && rowStatus(row) === 'pass') {
-                                                {{ i18n + '.REVIEW.RECEIVED' | translate }}
-                                            } @else if (row.agent) {
-                                                {{ i18n + '.REVIEW.AGENT_STATUS.' + (row.agent.status | uppercase) | translate }} · {{ i18n + '.RISK.' + row.agent.risk | translate }}
-                                            } @else {
-                                                {{ i18n + '.RISK.' + row.finding.risk | translate }}
-                                            }
+                                            {{ (rowCompliant(row) ? i18n + '.PROVIDER_FLOW.COMPLIANT' : i18n + '.PROVIDER_FLOW.NON_COMPLIANT') | translate }}
                                         </span>
                                         <div class="review-cell review-cell-action" role="cell" [attr.data-label]="i18n + '.REVIEW.ACTIONS' | translate">
                                             @for (document of row.documents; track $index) {
@@ -486,6 +608,8 @@
                                             }
                                         </div>
                                     </div>
+                                } @empty {
+                                    <p class="review-filter-empty" role="row"><span role="cell">{{ i18n + '.PROVIDER_FLOW.FILTER_EMPTY' | translate }}</span></p>
                                 }
                             </div>
                         } @else {
@@ -505,55 +629,57 @@
                             </div>
                         </div>
                     }
-                    @if (reviewUploadOpen) {
-                        <div class="review-upload" aria-live="polite">
-                            <div class="review-upload-heading">
-                                <div>
-                                    <h2>{{ i18n + '.MORE.TITLE' | translate }}</h2>
-                                    <p>{{ i18n + '.MORE.LEAD' | translate }}</p>
-                                </div>
-                            </div>
-                            <label class="drop-zone review-drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
-                                (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
-                                (dragleave)="dragging = false" (drop)="onDrop($event)">
-                                <mat-icon aria-hidden="true">cloud_upload</mat-icon>
-                                <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
-                                <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
-                                <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
-                            </label>
-                            @if (uploads.length) {
-                                <div class="upload-list">
-                                    @for (upload of uploads; track upload.key) {
-                                        <div class="upload-row">
-                                            <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
-                                            <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
-                                            <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
-                                            <button type="button" (click)="removeUpload(upload)" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            <div class="review-upload-actions">
-                                <button mat-button type="button" (click)="closeReviewUpload()" [disabled]="sending">{{ i18n + '.ACTIONS.BACK' | translate }}</button>
-                                <button mat-flat-button color="primary" type="button" [disabled]="sending || !reviewUploadReady" (click)="submit()">
-                                    <mat-icon>send</mat-icon>{{ (sending ? i18n + '.SENDING.BUTTON' : i18n + '.MORE.SUBMIT') | translate }}
-                                </button>
+                    <!-- While Intake is open: documents added here are sent on Continue (Intake "more-documents") and processed again. -->
+                    @if (!reviewReadOnly) {
+                    <div class="review-upload" aria-live="polite">
+                        <div class="review-upload-heading">
+                            <div>
+                                <h2>{{ i18n + '.PROVIDER_FLOW.UPLOAD_TITLE' | translate }}</h2>
+                                <p>{{ i18n + '.PROVIDER_FLOW.UPLOAD_LEAD' | translate }}</p>
                             </div>
                         </div>
+                        <label class="drop-zone review-drop-zone" [class.dragging]="dragging" role="button" tabindex="0" (click)="$event.preventDefault(); openPicker()"
+                            (keydown.enter)="openPicker()" (keydown.space)="$event.preventDefault(); openPicker()" (dragover)="onDragOver($event)"
+                            (dragleave)="dragging = false" (drop)="onDrop($event)">
+                            <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+                            <strong>{{ i18n + '.FORM.DOCUMENTS' | translate }}</strong>
+                            <span>{{ i18n + '.FORM.DOCUMENTS_HINT' | translate }}</span>
+                            <input #fileInput type="file" multiple tabindex="-1" aria-hidden="true" [accept]="accept" (change)="onFilesSelected($event)" />
+                        </label>
+                        @if (uploads.length) {
+                            <div class="upload-list">
+                                @for (upload of uploads; track upload.key) {
+                                    <div class="upload-row">
+                                        <mat-icon aria-hidden="true">{{ upload.source === 'repository' ? 'folder_open' : 'description' }}</mat-icon>
+                                        <span [title]="upload.name">{{ upload.name }}@if (upload.size !== null) { <em>· {{ formatSize(upload.size) }}</em>}</span>
+                                        <small [class.error]="upload.status === 'error'">{{ i18n + '.UPLOAD.' + (upload.status === 'uploaded' ? 'UPLOADED' : upload.status === 'error' ? 'ERROR' : 'UPLOADING') | translate }}</small>
+                                        @if (upload.status === 'error' && upload.file) {
+                                            <button type="button" (click)="retryUpload(upload)" [attr.aria-label]="i18n + '.UPLOAD.RETRY' | translate: { name: upload.name }"><mat-icon>refresh</mat-icon></button>
+                                        }
+                                        <button type="button" (click)="removeUpload(upload)" [disabled]="sending" [attr.aria-label]="i18n + '.FORM.REMOVE' | translate: { name: upload.name }"><mat-icon>close</mat-icon></button>
+                                    </div>
+                                }
+                            </div>
+                            <p class="review-upload-note">{{ i18n + '.PROVIDER_FLOW.UPLOAD_PENDING' | translate: { count: uploads.length } }}</p>
+                        }
+                        @for (issue of fileIssues; track issue) {
+                            @if (hasIssue(issue)) {
+                                <p class="error-message" role="alert">{{ i18n + '.ISSUES.' + issue | translate }}</p>
+                            }
+                        }
+                    </div>
                     }
-                    <div class="review-actions">
-                        <button mat-button type="button" class="review-back-action" [routerLink]="caseRoute" [queryParams]="caseQueryParams">
-                            <mat-icon>open_in_new</mat-icon>{{ i18n + '.RESULT.OPEN_ARS' | translate }}
-                        </button>
+                    @if (commentsBlocked) {
+                        <div class="notice notice--error" role="alert">
+                            <mat-icon aria-hidden="true">error_outline</mat-icon>
+                            <div><strong>{{ i18n + '.PROVIDER_FLOW.COMMENTS_BLOCKED' | translate }}</strong></div>
+                        </div>
+                    }
+                    <!-- Step 3 has no Back: the documents already sent cannot be edited; more documents go through the zone above. -->
+                    <div class="review-actions review-actions--end">
                         <div class="review-decision-actions">
-                            <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="savingComments || deciding || !processInstanceId || reviewUploadOpen" (click)="openReviewUpload()">
-                                <mat-icon>upload_file</mat-icon>{{ i18n + '.REVIEW.ADD_DOCUMENTS' | translate }}
-                            </button>
-                            <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="!commentCount || !commentsDirty || savingComments" (click)="saveComments()">
-                                <mat-icon>save</mat-icon>{{ (savingComments ? i18n + '.COMMENTS.SAVING' : i18n + '.COMMENTS.SAVE') | translate }}
-                            </button>
-                            <button mat-flat-button color="primary" type="button" class="review-continue-action" [disabled]="!preanalysis || savingComments" (click)="step = 'summary'">
-                                {{ i18n + '.ACTIONS.CONTINUE' | translate }}<mat-icon>arrow_forward</mat-icon>
+                            <button mat-flat-button color="primary" type="button" class="review-continue-action" [disabled]="!preanalysis || deciding || sending" (click)="continueFromReview()">
+                                {{ (sending ? i18n + '.SENDING.BUTTON' : deciding ? i18n + '.COMMENTS.SAVING' : i18n + '.ACTIONS.CONTINUE') | translate }}<mat-icon>arrow_forward</mat-icon>
                             </button>
                         </div>
                     </div>
@@ -606,46 +732,22 @@
                                     }
                                 </small>
                             </p>
-                            <details class="review-policy__section" open>
-                                <summary>{{ i18n + '.POLICY.REQUIRED' | translate }} · {{ policyInfo.required.length }}</summary>
-                                <ul>
-                                    @for (item of policyInfo.required; track item.className) {
-                                        <li [attr.data-status]="item.status">
-                                            <mat-icon aria-hidden="true">{{ item.status === 'found' ? 'task_alt' : item.status === 'missing' ? 'report' : 'warning_amber' }}</mat-icon>
-                                            <span>{{ item.className }}</span>
-                                            <small>{{ i18n + '.POLICY.STATUS.' + (item.status | uppercase) | translate }}</small>
-                                        </li>
-                                    }
-                                </ul>
-                            </details>
-                            @if (policyInfo.conditional.length) {
-                                <details class="review-policy__section">
-                                    <summary>{{ i18n + '.POLICY.CONDITIONAL' | translate }} · {{ policyInfo.conditional.length }}</summary>
-                                    <ul>
-                                        @for (item of policyInfo.conditional; track item.className) {
-                                            <li [attr.data-status]="item.status" [title]="item.condition ?? ''">
-                                                <mat-icon aria-hidden="true">{{ item.status === 'found' ? 'task_alt' : item.status === 'missing' ? 'report' : item.status === 'attention' ? 'warning_amber' : 'radio_button_unchecked' }}</mat-icon>
-                                                <span>{{ item.className }}</span>
-                                                <small>{{ i18n + '.POLICY.STATUS.' + (item.status | uppercase) | translate }}</small>
-                                            </li>
-                                        }
-                                    </ul>
-                                </details>
+                            @if (policyBaseLanguageShown) {
+                                <p class="review-policy__language"><mat-icon aria-hidden="true">translate</mat-icon>{{ i18n + '.POLICY.LANGUAGE_FALLBACK' | translate }}</p>
                             }
-                            @if (policyInfo.crossChecks.length) {
-                                <details class="review-policy__section">
-                                    <summary>{{ i18n + '.POLICY.CROSS_CHECKS' | translate }} · {{ policyInfo.crossChecks.length }}</summary>
-                                    <ul>
-                                        @for (check of policyInfo.crossChecks; track check.checkId) {
-                                            <li [title]="check.rule">
-                                                <mat-icon aria-hidden="true">rule</mat-icon>
-                                                <span>{{ check.label }}</span>
-                                            </li>
-                                        }
-                                    </ul>
-                                </details>
-                            }
+                            <!-- Compact: counts here, the plain-language explanation in the dialog. -->
+                            <p class="review-policy__counts">
+                                {{ i18n + '.PROVIDER_FLOW.POLICY_COUNTS' | translate: { required: policyInfo.required.length, conditional: policyInfo.conditional.length, checks: policyInfo.crossChecks.length } }}
+                            </p>
+                            <button mat-stroked-button type="button" class="review-policy__open" aria-haspopup="dialog" (click)="policyDialogOpen = true">
+                                <mat-icon>visibility</mat-icon>{{ i18n + '.PROVIDER_FLOW.POLICY_VIEW' | translate }}
+                            </button>
                         </section>
+                        @if (policyDialogOpen) {
+                            <medical-records-radication-policy-dialog [policy]="policyInfo" [source]="policySource" [agreementName]="agreementName"
+                                [agreementMatched]="agreementMatched" [baseLanguageShown]="policyBaseLanguageShown" [invoiceCount]="account?.invoices?.length ?? 0"
+                                (closed)="policyDialogOpen = false" />
+                        }
                     }
                 </aside>
             </section>
@@ -670,7 +772,11 @@
                                     </article>
                                     <article><small>{{ i18n + '.SUMMARY.STATUS' | translate }}</small><strong>{{ i18n + '.SUMMARY.STATUS_' + (summaryStatus | uppercase) | translate }}</strong></article>
                                     <article><small>{{ i18n + '.FORM.PROVIDER' | translate }}</small><strong>{{ providerName || account?.account?.provider || '—' }}</strong></article>
-                                    <article><small>{{ i18n + '.SUMMARY.DATE' | translate }}</small><strong>{{ radicatedAt ? (radicatedAt | date: 'medium') : '—' }}</strong></article>
+                                    <article><small>{{ i18n + '.SUMMARY.DATE' | translate }}</small><strong>{{ formatDateTime(radicatedAt) }}</strong></article>
+                                    <article class="confirmation-amount">
+                                        <small>{{ i18n + '.PROVIDER_FLOW.ACCOUNT_TOTAL' | translate }}</small>
+                                        <strong>{{ formatAmount(accountTotal) }}</strong>
+                                    </article>
                                 </div>
                             </section>
                             <section class="confirmation-section">
@@ -678,14 +784,10 @@
                                 <div class="confirmation-grid">
                                     @for (invoice of account?.invoices ?? []; track invoice.key) {
                                         <article>
-                                            <small>{{ invoice.invoiceNumber || '—' }}</small>
+                                            <small>{{ i18n + '.REVIEW.INVOICE' | translate }} {{ invoice.invoiceNumber || '—' }}</small>
                                             <strong>{{ invoice.patientName || '—' }}</strong>
-                                            <span>
-                                                {{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}
-                                                @if (invoice.totalBilled !== null) {
-                                                    · {{ invoice.totalBilled | number: '1.0-2' }} {{ invoice.currency }}
-                                                }
-                                            </span>
+                                            <span>{{ i18n + '.SUMMARY.INVOICE_DOCS' | translate: { count: invoice.documentCount } }}</span>
+                                            <span class="confirmation-amount-line">{{ i18n + '.PROVIDER_FLOW.INVOICE_AMOUNT' | translate }} <strong>{{ formatAmount(invoice.totalBilled) }}</strong></span>
                                         </article>
                                     } @empty {
                                         <article><small>{{ i18n + '.SUMMARY.INVOICES' | translate }}</small><strong>—</strong></article>
@@ -720,19 +822,15 @@
                             @if (radicated) {
                                 <button mat-button type="button" class="confirmation-back-action" (click)="reset()"><mat-icon>add</mat-icon>{{ i18n + '.RESULT.NEW' | translate }}</button>
                                 <div class="review-decision-actions">
-                                    <button mat-stroked-button type="button" [routerLink]="caseRoute" [queryParams]="caseQueryParams">{{ i18n + '.RESULT.OPEN_ARS' | translate }}</button>
                                     <button mat-flat-button color="primary" type="button" class="confirmation-continue-action" [routerLink]="['/medical-records']">
                                         {{ i18n + '.SUMMARY.ARS_DASHBOARD' | translate }}<mat-icon>dashboard</mat-icon>
                                     </button>
                                 </div>
                             } @else {
-                                <button mat-button type="button" class="confirmation-back-action" [disabled]="deciding" (click)="step = 'review'">
+                                <button mat-button type="button" class="confirmation-back-action" [disabled]="deciding" (click)="goToStep('review')">
                                     {{ i18n + '.ACTIONS.BACK' | translate }}
                                 </button>
                                 <div class="review-decision-actions">
-                                    <button mat-stroked-button type="button" class="review-reprocess-action" [disabled]="deciding" (click)="loadMoreDocuments()">
-                                        <mat-icon>upload_file</mat-icon>{{ i18n + '.DECISION.MORE' | translate }}
-                                    </button>
                                     <button mat-flat-button color="primary" type="button" class="confirmation-continue-action" [disabled]="deciding" (click)="continueToSummary()">
                                         {{ (deciding ? i18n + '.DECISION.SENDING' : i18n + '.DECISION.CONTINUE') | translate }}<mat-icon>arrow_forward</mat-icon>
                                     </button>

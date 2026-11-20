@@ -1,3 +1,4 @@
+import { rootProcessKey } from '../../definitions/process-mapping';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +8,8 @@ import { DEFAULT_PROCESS_STATUSES } from '../../utils/dashboard-data-source.util
 import { DashboardContainerLayoutMode, DashboardProcessListOptions, DashboardWidgetConfig, ProcessListOpenTarget } from '../../definitions/dashboard-widget.model';
 import { DashboardBuilderAppearancePanelComponent } from '../dashboard-builder-appearance-panel/dashboard-builder-appearance-panel.component';
 import { DashboardBuilderDataBindingComponent } from '../dashboard-builder-data-binding/dashboard-builder-data-binding.component';
+import { DashboardBuilderProcessListPreviewComponent } from '../dashboard-builder-process-list-preview/dashboard-builder-process-list-preview.component';
+import { DashboardBuilderProcessListScopeComponent } from '../dashboard-builder-process-list-scope/dashboard-builder-process-list-scope.component';
 import { DashboardGaugeWidgetComponent } from '../widgets/dashboard-gauge-widget/dashboard-gauge-widget.component';
 import { DashboardChartWidgetComponent } from '../widgets/dashboard-chart-widget/dashboard-chart-widget.component';
 import { DashboardLinkCardWidgetComponent } from '../widgets/dashboard-link-card-widget/dashboard-link-card-widget.component';
@@ -33,6 +36,8 @@ import { DashboardTaskStatusSummaryWidgetComponent } from '../widgets/dashboard-
         TranslateModule,
         DashboardBuilderAppearancePanelComponent,
         DashboardBuilderDataBindingComponent,
+        DashboardBuilderProcessListPreviewComponent,
+        DashboardBuilderProcessListScopeComponent,
         DashboardChartWidgetComponent,
         DashboardMetricWidgetComponent,
         DashboardGaugeWidgetComponent,
@@ -93,7 +98,7 @@ export class DashboardBuilderWidgetEditorModalComponent implements OnInit {
             ...this.widget,
             dataSource: 'process',
             processQuery: {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: false,
                 metricScope: 'root',
                 ...this.widget.processQuery,

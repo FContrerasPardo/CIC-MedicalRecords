@@ -1,3 +1,4 @@
+import { rootProcessKey } from '../definitions/process-mapping';
 import { inject, Injectable } from '@angular/core';
 import { AppConfigService } from '@alfresco/adf-core';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, from, Observable } from 'rxjs';
@@ -49,6 +50,7 @@ import {
     DEFAULT_LAYOUT_FILE_NAME,
     normalizeLayoutFileName,
 } from '../mappers/dashboard-layout-document.mapper';
+import { ProcessMappingService } from './process-mapping.service';
 import { DashboardPeriodService } from './dashboard-period.service';
 // Demo template ("Reset demo layout"): the ARS control center built in the builder, versioned with the plugin.
 import demoLayoutTemplate from '../definitions/demo-layout.template.json';
@@ -161,7 +163,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         span: 'full',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: true,
             metricScope: 'tree',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
@@ -211,7 +213,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         gaugeMode: 'ratio',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: false,
             metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
@@ -266,7 +268,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         span: 'wide',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: true,
             metricScope: 'tree',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
@@ -386,7 +388,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         // demoValue is only shown when the process query fails; the origin chip then reads "error".
         demoValue: '0',
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: false,
             metricScope: 'root',
             status: ['RUNNING'],
@@ -422,7 +424,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         icon: 'account_tree',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: false,
             metricScope: 'root',
             status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],
@@ -457,7 +459,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         icon: 'task_alt',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: false,
             metricScope: 'root',
             status: ['COMPLETED'],
@@ -492,7 +494,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         icon: 'pending_actions',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: true,
             metricScope: 'tree',
             status: ['RUNNING', 'SUSPENDED'],
@@ -527,7 +529,7 @@ const DEFAULT_WIDGETS: Record<DashboardWidgetId, DashboardWidgetConfig> = {
         icon: 'cancel',
 
         processQuery: {
-            processDefinitionKey: 'medical-records',
+            processDefinitionKey: rootProcessKey(),
             includeSubprocesses: true,
             metricScope: 'tree',
             status: ['CANCELLED'],
@@ -670,6 +672,7 @@ export class DashboardLayoutService {
     private readonly repository = inject(DashboardLayoutRepositoryService);
 
     private readonly periodService = inject(DashboardPeriodService);
+    private readonly processMappingService = inject(ProcessMappingService);
 
     private readonly appConfigService = inject(AppConfigService);
 
@@ -1311,7 +1314,7 @@ export class DashboardLayoutService {
                 gaugeUnit: '%',
 
                 processQuery: {
-                    processDefinitionKey: 'medical-records',
+                    processDefinitionKey: rootProcessKey(),
                     includeSubprocesses: true,
                     metricScope: 'tree',
                     status: ['COMPLETED'],
@@ -1510,6 +1513,7 @@ export class DashboardLayoutService {
             widgets: normalizedWidgets,
             theme: resolveTheme(stored.theme ?? defaults.theme),
             dateRange: stored.dateRange ?? defaults.dateRange,
+            ...(stored.processMapping ? { processMapping: stored.processMapping } : {}),
             layoutSourceDocumentId: stored.layoutSourceDocumentId ?? null,
         };
 
@@ -1643,6 +1647,8 @@ export class DashboardLayoutService {
     }
 
     private applyLayoutPreferences(layout: DashboardLayoutState): void {
+        // Process mapping override saved with the layout (absent = code defaults).
+        this.processMappingService.applyLayoutOverride(layout.processMapping);
         this.suppressDateRangeAutoPersist = true;
 
         try {
@@ -1793,7 +1799,7 @@ export class DashboardLayoutService {
                     processDefinitionKey:
                         normalized.processQuery?.processDefinitionKey ??
                         normalized.processQuery?.processDefinitionName ??
-                        'medical-records',
+                        rootProcessKey(),
                 };
             }
         }
@@ -1924,7 +1930,7 @@ export class DashboardLayoutService {
             widget.helperTooltip = 'Live count from Automate for COMPLETED status.';
             widget.comparisonPeriod = 'previous_week';
             widget.processQuery = {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: true,
                 metricScope: 'tree',
                 status: ['COMPLETED'],
@@ -1942,7 +1948,7 @@ export class DashboardLayoutService {
             widget.comparisonPeriod = 'previous_week';
             widget.positive = false;
             widget.processQuery = {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: true,
                 metricScope: 'tree',
                 status: ['RUNNING', 'SUSPENDED'],
@@ -1961,7 +1967,7 @@ export class DashboardLayoutService {
             widget.comparisonPeriod = 'previous_week';
             widget.positive = false;
             widget.processQuery = {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: true,
                 metricScope: 'tree',
                 status: ['CANCELLED'],

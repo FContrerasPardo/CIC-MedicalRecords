@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,7 +29,7 @@ import { CASE_ROUTE_COMMANDS, CaseTabTarget, buildCaseQueryParams } from '../../
 import { ListEntry, buildListEntries } from '../../../../pages/case-detail/utils/case-grouping.util';
 import { isPatientCaseTask } from '../../../../pages/case-detail/utils/case-validation-map.util';
 import { buildCaseAccountView } from '../../../../pages/case-detail/utils/case-invoice.util';
-import { accountSearchText } from '../../../../pages/case-detail/utils/case-account-validation.util';
+import { accountSearchText, ACCOUNT_REFERENCE_VARIABLES } from '../../../../pages/case-detail/utils/case-account-validation.util';
 import { parseBatchState } from '../../../../pages/case-detail/batch-state-case-detail.provider';
 
 @Component({
@@ -39,7 +39,7 @@ import { parseBatchState } from '../../../../pages/case-detail/batch-state-case-
     templateUrl: './dashboard-process-list-widget.component.html',
     styleUrls: ['./dashboard-process-list-widget.component.scss'],
 })
-export class DashboardProcessListWidgetComponent implements OnInit, OnDestroy {
+export class DashboardProcessListWidgetComponent implements OnInit, OnChanges, OnDestroy {
     @Input({ required: true }) config!: DashboardWidgetConfig;
     @Output() itemSelected = new EventEmitter<ProcessAttentionItem>();
 
@@ -68,6 +68,9 @@ export class DashboardProcessListWidgetComponent implements OnInit, OnDestroy {
         this.state$ = this.taskQueryService.state$;
     }
 
+    /** Cache key of the scope the list is bound to (root + subprocesses of the widget, or the mapping). */
+    private boundScopeKey: string | null = null;
+
     /** Compact one-line rows under a column header (default) instead of stacked cards. */
     get isTableDisplay(): boolean {
         return this.options.display !== 'cards';
@@ -77,8 +80,14 @@ export class DashboardProcessListWidgetComponent implements OnInit, OnDestroy {
         return { ...DEFAULT_PROCESS_LIST_OPTIONS, ...this.config?.processListOptions };
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['config']) {
+            this.bindScope();
+        }
+    }
+
     ngOnInit(): void {
-        this.taskQueryService.loadAttentionItems();
+        this.bindScope();
         this.crossFilterSubscription = this.crossFilterService.selection$.subscribe((selection) => {
             this.crossFilterSelection = selection;
             this.clearSelection();
@@ -96,7 +105,23 @@ export class DashboardProcessListWidgetComponent implements OnInit, OnDestroy {
 
     retry(): void {
         this.clearSelection();
-        this.taskQueryService.loadAttentionItems();
+        this.taskQueryService.loadAttentionItems(this.config?.processListOptions);
+    }
+
+    /**
+     * Binds the list to the shared state of its scope and loads it when the scope changes (the root
+     * and subprocesses chosen in the builder; the process mapping when nothing is configured).
+     */
+    private bindScope(): void {
+        const options = this.config?.processListOptions;
+        const key = this.taskQueryService.scopeKey(options);
+        if (key === this.boundScopeKey) {
+            return;
+        }
+        this.boundScopeKey = key;
+        this.clearSelection();
+        this.state$ = this.taskQueryService.stateFor(options);
+        this.taskQueryService.loadAttentionItems(options);
     }
 
     /**
@@ -165,7 +190,11 @@ export class DashboardProcessListWidgetComponent implements OnInit, OnDestroy {
         let text = this.accountSearchCache.get(variables);
         if (text === undefined) {
             const view = buildCaseAccountView(parseBatchState(variables['batchState']));
-            text = accountSearchText([view.account.provider, view.account.payer], view.invoices);
+            // The radication number (`MedRecNum`) and other account references are searchable too.
+            const references = ACCOUNT_REFERENCE_VARIABLES.map((name) => variables[name]).map((value) =>
+                value === null || value === undefined ? null : String(value).trim()
+            );
+            text = accountSearchText([...references, view.account.provider, view.account.payer], view.invoices);
             this.accountSearchCache.set(variables, text);
         }
         return text;

@@ -1,3 +1,4 @@
+import { rootProcessKey } from '../dashboard/definitions/process-mapping';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { DashboardDateRange, DashboardWidgetConfig } from '../dashboard/definitions/dashboard-widget.model';
@@ -54,7 +55,7 @@ export class MedicalAccountsProcessService {
             type: 'metric',
             dataSource: 'process',
             processQuery: {
-                processDefinitionKey: 'medical-records',
+                processDefinitionKey: rootProcessKey(),
                 includeSubprocesses: false,
                 metricScope: 'root',
                 status: [...DEFAULT_PROCESS_STATUSES],

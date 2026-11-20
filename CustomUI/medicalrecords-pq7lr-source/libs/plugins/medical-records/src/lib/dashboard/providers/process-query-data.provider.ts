@@ -17,8 +17,10 @@ import {
     ProcessListRequestSortingModel,
 } from '@alfresco/adf-process-services-cloud';
 import { catchError, forkJoin, map, Observable, of, shareReplay, switchMap } from 'rxjs';
-import { resolveProcessDefinitionKeys } from '../definitions/dashboard-process-catalog';
+import { ProcessDefinitionFilter, resolveProcessDefinitionFilter } from '../definitions/dashboard-process-catalog';
+import { activeProcessMappingSource } from '../definitions/process-mapping';
 import {
+    classifyRowsByProcessDefinitions,
     filterRowsByProcessStatus,
     normalizeProcessStatusFilter,
     shouldClientFilterProcessStatus,
@@ -87,7 +89,8 @@ export class ProcessQueryDataProvider {
 
         const processQuery = config.processQuery ?? {};
         const maxItems = pageSize ?? config.tablePageSize ?? 25;
-        const definitionNames = this.resolveDefinitionNamesForWidget(config);
+        const definitionFilter = this.resolveDefinitionFilterForWidget(config);
+        const definitionNames = definitionFilter.names;
         const sorting = new ProcessListRequestSortingModel({
             orderBy: 'startDate',
             direction: 'DESC',
@@ -109,6 +112,7 @@ export class ProcessQueryDataProvider {
             appName,
             status: request.status,
             definitionNames,
+            definitionKeys: definitionFilter.keys,
             maxItems,
             skipCount,
             variableKeys,
@@ -119,14 +123,14 @@ export class ProcessQueryDataProvider {
         return this.cachedProcessList(cacheKey, request).pipe(
             map((response) => {
                 const totalCount = response?.list?.pagination?.totalItems ?? response?.list?.entries?.length ?? 0;
-                const rows = filterRowsByProcessStatus(
-                    this.mapProcessEntries(response?.list?.entries ?? []),
-                    processQuery.status
-                );
+                // The Query service filters by definition NAME only; the rows are then checked by KEY
+                // (or name) through the mapping, so instances of a renamed root are never dropped.
+                const classified = classifyRowsByProcessDefinitions(this.mapProcessEntries(response?.list?.entries ?? []), definitionFilter.keys);
+                const rows = filterRowsByProcessStatus(classified.rows, processQuery.status);
                 if (this.diagnostics.enabled()) {
                     this.diagnostics.record({
                         kind: 'process-list',
-                        label: `${(request.status ?? []).join('+') || 'ALL'} · ${definitionNames.join(', ') || '*'} · skip ${skipCount} · max ${maxItems}`,
+                        label: `${(request.status ?? []).join('+') || 'ALL'} · names ${definitionNames.join(', ') || '*'} · keys ${definitionFilter.keys.join(', ') || '*'} · mapping ${definitionFilter.source} · accepted by key ${classified.byKey} / by name ${classified.byName}${classified.dropped ? ` / dropped ${classified.dropped}` : ''} · skip ${skipCount} · max ${maxItems}`,
                         durationMs: Math.round(performance.now() - started),
                         cacheHit,
                         totalCount,
@@ -241,7 +245,7 @@ export class ProcessQueryDataProvider {
             return existing;
         }
         const started = performance.now();
-        const baseConfig = this.planQueryConfig(plan.definitions, plan.statuses);
+        const baseConfig = this.planQueryConfig(plan.queryNames, plan.statuses, undefined, plan.definitions);
         const dataset$ = this.fetchRowsPageUntilDate(
             baseConfig,
             0,
@@ -310,7 +314,7 @@ export class ProcessQueryDataProvider {
         );
     }
 
-    private planQueryConfig(definitions: string[], statuses: string[] | null, variableKeys?: string[]): DashboardWidgetConfig {
+    private planQueryConfig(definitions: string[], statuses: string[] | null, variableKeys?: string[], definitionKeys?: string[]): DashboardWidgetConfig {
         return {
             id: '__data-plan__',
             type: 'table',
@@ -319,6 +323,7 @@ export class ProcessQueryDataProvider {
             dataSource: 'process',
             processQuery: {
                 definitionNames: definitions,
+                ...(definitionKeys?.length ? { definitionKeys } : {}),
                 ...(statuses ? { status: statuses } : {}),
                 ...(variableKeys?.length ? { variableKeys } : {}),
                 includeProcessVariables: false,
@@ -405,13 +410,16 @@ export class ProcessQueryDataProvider {
         );
     }
 
-    /** Uses processQuery config (metricScope, subprocess selection, status) or the planner's explicit names. */
-    private resolveDefinitionNamesForWidget(config: DashboardWidgetConfig): string[] {
+    /**
+     * Names sent to the Query service and keys checked on the returned rows: from processQuery
+     * (metricScope, subprocess selection) through the central mapping, or the planner's explicit union.
+     */
+    private resolveDefinitionFilterForWidget(config: DashboardWidgetConfig): ProcessDefinitionFilter {
         const explicit = config.processQuery?.definitionNames?.filter(Boolean);
         if (explicit?.length) {
-            return explicit;
+            return { names: explicit, keys: config.processQuery?.definitionKeys?.filter(Boolean) ?? [], source: activeProcessMappingSource() };
         }
-        return resolveProcessDefinitionKeys(config.processQuery ?? {});
+        return resolveProcessDefinitionFilter(config.processQuery ?? {});
     }
 
     /** Variables returned inline by the process list, as `var_<name>` columns. */

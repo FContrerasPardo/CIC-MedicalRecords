@@ -1,3 +1,4 @@
+import { rootProcessKey } from '../../dashboard/definitions/process-mapping';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -599,7 +600,7 @@ export class DashboardBuilderShellComponent implements OnInit, AfterViewInit, On
             merged.contentQuery = undefined;
             if (!merged.processQuery) {
                 merged.processQuery = {
-                    processDefinitionKey: 'medical-records',
+                    processDefinitionKey: rootProcessKey(),
                     includeSubprocesses: true,
                     metricScope: merged.type === 'table' ? 'tree' : 'root',
                     status: ['RUNNING', 'COMPLETED', 'SUSPENDED'],

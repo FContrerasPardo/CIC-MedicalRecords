@@ -1,3 +1,5 @@
+import { ProcessMappingOverride } from './process-mapping';
+
 export type DashboardWidgetType =
     | 'metric'
     | 'chart'
@@ -110,7 +112,24 @@ export interface DashboardProcessListOptions {
     variables?: string[];
     /** `table`: compact rows under a column header (default); `cards`: stacked case cards. */
     display?: 'table' | 'cards';
+    /**
+     * Root process whose open tasks are listed, by definition KEY. Empty = the root of the process
+     * mapping. Legacy names resolve through the mapping.
+     */
+    rootProcessKey?: string;
+    /** Deployed name of `rootProcessKey` (Query service filter when the key is not in the mapping). */
+    rootProcessName?: string;
+    /** Also list tasks of the called subprocesses (AgentMesh, Document AI...). Default: true. */
+    includeSubprocessTasks?: boolean;
+    /** Subprocess definition keys whose tasks are listed. Undefined = every subprocess of the root in the mapping. */
+    includedSubprocessKeys?: string[];
 }
+
+/** Process scope fields: absent by default (the mapping decides), so new widgets do not persist them. */
+export type DashboardProcessListScopeOptions = Pick<
+    DashboardProcessListOptions,
+    'rootProcessKey' | 'rootProcessName' | 'includeSubprocessTasks' | 'includedSubprocessKeys'
+>;
 
 export type ProcessListOpenTarget = 'task' | 'subprocess' | 'macroProcess';
 
@@ -235,6 +254,8 @@ export interface DashboardProcessQueryConfig {
     includeProcessVariables?: boolean;
     /** Data planner only: explicit process definition names (union of the layout's widgets). */
     definitionNames?: string[];
+    /** Data planner only: canonical definition keys of the union (client-side row filter). */
+    definitionKeys?: string[];
     /** Data planner only: variables returned inline by the process list (`processDefinitionKey/name`). */
     variableKeys?: string[];
 }
@@ -407,6 +428,11 @@ export interface DashboardLayoutState {
     layoutSourceDocumentId?: string | null;
     /** Global dashboard date filter persisted with layout JSON in Appdata/Dashboards. */
     dateRange?: DashboardDateRangePreference;
+    /**
+     * Optional override of the central process mapping (`definitions/process-mapping.ts`): keys and
+     * names per role. Saved with the layout; absent = code defaults.
+     */
+    processMapping?: ProcessMappingOverride;
     /** @deprecated v7 flat order — migrated into pages[].containers[].widgetIds */
     widgetOrder?: DashboardWidgetId[];
     /** @deprecated v7 KPI strip — migrated into a kpi-strip container */
@@ -503,7 +529,7 @@ export interface DashboardTableWidgetData {
     source: DashboardDataSource;
 }
 
-export const DEFAULT_PROCESS_LIST_OPTIONS: Required<DashboardProcessListOptions> = {
+export const DEFAULT_PROCESS_LIST_OPTIONS: Required<Omit<DashboardProcessListOptions, keyof DashboardProcessListScopeOptions>> = {
     showSearch: true,
     showRefresh: true,
     showBulkActions: true,

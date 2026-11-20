@@ -5,6 +5,9 @@ import {
     accountAuditSignals,
     accountBilledAmount,
     accountStage,
+    ACCOUNT_STAGES,
+    accountStageLabelKey,
+    normalizeAccountStage,
     accountMissingDocuments,
     addDerivedFields,
     reconciliationHours,
@@ -183,12 +186,23 @@ describe('dashboard-audit-fields util (amounts, stages, agents)', () => {
         expect([closed['calc_inAuditAmount'], closed['calc_observedAmount']]).toEqual(['0', '0']);
     });
 
+    it('has no rules stage and maps the legacy rules stage to agent analysis', () => {
+        expect(ACCOUNT_STAGES).toEqual(['1_RECEIVED', '2_INTAKE', '4_AGENTS', '5_AUDIT', '6_CLOSED']);
+        expect(ACCOUNT_STAGES.map(accountStageLabelKey).some((key) => key.includes('RULES'))).toBe(false);
+        expect(normalizeAccountStage('3_RULES')).toBe('4_AGENTS');
+        expect(normalizeAccountStage('2_INTAKE')).toBe('2_INTAKE');
+        expect(normalizeAccountStage('X')).toBeNull();
+        const out = addDerivedFields({ status: 'RUNNING', var_batchState: JSON.stringify({ documents: [] }) }, ['calc_stage'], null);
+        expect(out['calc_stage']).toBe('MEDICAL_RECORDS.DASHBOARD.ACCOUNT_STAGE.STAGE_4_AGENTS');
+    });
+
     it('infers the stage from status and variables', () => {
         expect(accountStage({ status: 'COMPLETED' })).toBe('6_CLOSED');
         expect(accountStage({ status: 'CANCELLED' })).toBeNull();
         expect(accountStage({ status: 'RUNNING' })).toBe('1_RECEIVED');
         expect(accountStage({ status: 'RUNNING', var_batchState: JSON.stringify({ documents: [{ id: 'd', extractionReviewStatus: 'ReviewRequired' }] }) })).toBe('2_INTAKE');
-        expect(accountStage({ status: 'RUNNING', var_batchState: JSON.stringify({ documents: [] }) })).toBe('3_RULES');
+        // The former rules stage (IDP reviewed, no agent result yet) shows as agent analysis.
+        expect(accountStage({ status: 'RUNNING', var_batchState: JSON.stringify({ documents: [] }) })).toBe('4_AGENTS');
         expect(accountStage({ status: 'RUNNING', var_codingIntegrityResult: '{"a":1}' })).toBe('4_AGENTS');
         expect(
             accountStage({ status: 'RUNNING', var_codingIntegrityResult: '{"a":1}', var_complianceAlertResult: '{"a":1}', var_financialVarianceResult: '{"a":1}' })

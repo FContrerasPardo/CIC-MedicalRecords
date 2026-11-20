@@ -224,6 +224,10 @@
         [attr.role]="isTableDisplay ? 'table' : null"
         *ngIf="!state.loading && !state.error && state.items.length"
     >
+        <p class="attention-state attention-state--empty" role="status" *ngIf="!listEntries(state.items).length">
+            {{ 'MEDICAL_RECORDS.PROCESS_LIST.NO_MATCHES' | translate }}
+        </p>
+
 
         <label class="attention-select-all" *ngIf="options.showBulkActions && !isTableDisplay">
 

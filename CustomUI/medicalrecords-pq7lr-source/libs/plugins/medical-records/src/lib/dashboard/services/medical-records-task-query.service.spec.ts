@@ -13,14 +13,19 @@ describe('MedicalRecordsTaskQueryService', () => {
         expect(source).toContain('IdentityUserService');
         expect(source).toContain('assignee');
         expect(source).not.toContain('processDefinitionName: [this.processDefinitionKey]');
-        expect(source).toContain("processDefinitionKey = 'medical-records'");
+        // Roots by the central process mapping: every known root name to the Query service, key checked on the client.
+        expect(source).toContain('processDefinitionName: [definitionName]');
+        expect(source).toContain('matchProcessIdentity(record, scope.root)');
     });
 
     it('resolves medical-records roots and filters subprocess tasks client-side', () => {
         expect(source).toContain('ProcessListCloudService');
         expect(source).toContain('fetchProcessList');
         expect(source).toContain('fetchMedicalRecordsRootIds');
-        expect(source).toContain('matchesMedicalRecordsTask(entry, rootIds)');
+        expect(source).toContain('classifyMedicalRecordsTask(task, roots.ids, scope)');
+        // One shared state per scope: the cache key depends on the widget configuration.
+        expect(source).toContain('stateFor');
+        expect(source).toContain('taskQueryScopeKey');
     });
 
     it('loads process variables from rootProcessInstanceId when present', () => {
@@ -30,6 +35,6 @@ describe('MedicalRecordsTaskQueryService', () => {
         expect(source).toContain('AppConfigService');
         expect(source).toContain('rootProcessInstanceId');
         expect(source).toContain('mapTaskToAttentionItem');
-        expect(source).toContain('matchesMedicalRecordsTask');
+        expect(source).toContain('classifyMedicalRecordsTask');
     });
 });

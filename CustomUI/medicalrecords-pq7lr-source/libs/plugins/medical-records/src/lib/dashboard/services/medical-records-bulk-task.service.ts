@@ -141,7 +141,8 @@ export class MedicalRecordsBulkTaskService {
                 );
             }),
             switchMap((bulkResult) => {
-                this.taskQueryService.loadAttentionItems();
+                // Every open-tasks scope loaded so far (each list widget may use its own root/subprocesses).
+                this.taskQueryService.reloadAll();
                 return of(bulkResult);
             })
         );

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,12 +21,22 @@ import {
     ValueFieldFormat,
 } from '../../definitions/dashboard-widget.model';
 import {
+    catalogSubprocessKeys,
     DASHBOARD_PROCESS_CATALOG,
     DashboardProcessCatalogEntry,
     defaultIncludedSubprocessKeys,
     findProcessCatalogEntry,
     resolveProcessDefinitionKeys,
+    resolveProcessRootKey,
 } from '../../definitions/dashboard-process-catalog';
+import { canonicalProcessKey, normalizeProcessIdentifier, rootProcessKey } from '../../definitions/process-mapping';
+import { ProcessMappingService } from '../../services/process-mapping.service';
+import {
+    checkConfiguredProcess,
+    ConfiguredProcessCheck,
+    DeployedProcessDefinition,
+    formatDeployedDefinition,
+} from '../../utils/process-definition-options.util';
 import {
     CONTENT_QUERY_PRESETS,
     ContentQueryPreset,
@@ -79,6 +89,10 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     readonly xLabelFormats: ChartXLabelFormat[] = ['auto', 'full'];
     readonly fieldKindFilters: Array<DashboardFieldKind | 'all'> = ['all', 'date', 'number', 'category', 'json'];
 
+    /** Deployed process definitions (latest version per key) for the root and subprocess selectors. */
+    deployedDefinitions: DeployedProcessDefinition[] = [];
+
+    private readonly processMappingService = inject(ProcessMappingService);
     private fieldsQueryFingerprint = '';
     private fieldsRequestId = 0;
 
@@ -88,6 +102,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit(): void {
+        this.processMappingService.deployedDefinitions().subscribe((definitions) => (this.deployedDefinitions = definitions));
         this.emitProcessChartBindingFixIfNeeded();
         this.refreshFields(true);
     }
@@ -109,13 +124,50 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
         return findProcessCatalogEntry(this.selectedProcessKey);
     }
 
+    /** Canonical root key: legacy names stored by older layouts resolve through the process mapping. */
     get selectedProcessKey(): string {
-        return (
-            this.widget.processQuery?.processDefinitionKey ??
-            this.widget.processQuery?.processDefinitionName ??
-            this.processCatalog[0]?.key ??
-            'medical-records'
-        );
+        return resolveProcessRootKey(this.widget.processQuery ?? {});
+    }
+
+    /** Root process as stored in the widget (key, or a legacy name). */
+    get configuredProcessIdentifier(): string {
+        return (this.widget.processQuery?.processDefinitionKey ?? this.widget.processQuery?.processDefinitionName ?? '').trim();
+    }
+
+    /** Warning when the stored root is not a deployed key (legacy name or removed definition). */
+    get configuredProcessCheck(): ConfiguredProcessCheck | null {
+        const configured = this.configuredProcessIdentifier;
+        if (!configured || !this.deployedDefinitions.length) {
+            return null;
+        }
+        const check = checkConfiguredProcess(configured, this.deployedDefinitions);
+        return check.storedByKey ? null : check;
+    }
+
+    /** The selected root key is not among the deployed definitions (kept as an extra option). */
+    get selectedProcessKeyMissing(): boolean {
+        const selected = normalizeProcessIdentifier(this.selectedProcessKey);
+        return !this.deployedDefinitions.some((definition) => normalizeProcessIdentifier(definition.key) === selected);
+    }
+
+    /** Subprocess keys offered for the selected root (mapping roles). */
+    get subprocessOptions(): string[] {
+        return catalogSubprocessKeys(this.selectedProcessCatalogEntry);
+    }
+
+    formatDeployedDefinition(definition: DeployedProcessDefinition): string {
+        return formatDeployedDefinition(definition);
+    }
+
+    /** Subprocess chip label: the deployed definition (name · key · version) or the key. */
+    subprocessLabel(key: string): string {
+        const wanted = normalizeProcessIdentifier(key);
+        const deployed = this.deployedDefinitions.find((definition) => normalizeProcessIdentifier(definition.key) === wanted);
+        return deployed ? formatDeployedDefinition(deployed) : key;
+    }
+
+    useEquivalentDefinition(definition: DeployedProcessDefinition): void {
+        this.onProcessCatalogChange(definition.key);
     }
 
     get processMetricScope(): 'root' | 'tree' {
@@ -126,7 +178,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     get includedSubprocessKeys(): string[] {
         const configured = this.widget.processQuery?.includedSubprocessDefinitionKeys;
         if (configured !== undefined) {
-            return configured;
+            return configured.map((key) => canonicalProcessKey(key));
         }
         if (this.processMetricScope === 'tree') {
             return defaultIncludedSubprocessKeys(this.selectedProcessKey);
@@ -415,7 +467,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
             if (!this.widget.processQuery) {
                 const entry = this.processCatalog[0];
                 patch.processQuery = {
-                    processDefinitionKey: entry?.key ?? 'medical-records',
+                    processDefinitionKey: entry?.key ?? rootProcessKey(),
                     includeSubprocesses: entry?.defaultIncludeSubprocesses ?? true,
                     metricScope: this.isTableWidget ? 'tree' : entry?.defaultMetricScope ?? 'root',
                     status: [...(entry?.defaultStatus ?? ['RUNNING', 'COMPLETED', 'SUSPENDED'])],
@@ -454,9 +506,9 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
     }
 
     applyProcessPreset(preset: ProcessQueryPreset): void {
-        const entry = findProcessCatalogEntry(preset.processDefinitionKey ?? preset.processDefinitionName);
+        const processKey = canonicalProcessKey(preset.processDefinitionKey ?? preset.processDefinitionName);
+        const entry = findProcessCatalogEntry(processKey);
         const current = this.widget.processQuery ?? {};
-        const processKey = preset.processDefinitionKey ?? preset.processDefinitionName;
         const metricScope = this.isTableWidget ? 'tree' : entry?.defaultMetricScope ?? 'root';
         this.patchWidget({
             dataSource: 'process',
@@ -464,7 +516,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
             processQuery: {
                 ...current,
                 processDefinitionKey: processKey,
-                processDefinitionName: processKey,
+                processDefinitionName: this.deployedNameOf(processKey),
                 includeSubprocesses: entry?.defaultIncludeSubprocesses ?? true,
                 metricScope,
                 includedSubprocessDefinitionKeys:
@@ -479,6 +531,12 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
         return status?.length ? status.join(', ') : DEFAULT_PROCESS_STATUSES.join(', ');
     }
 
+    /** Name of a deployed key (stored next to the key: Query service filter for unmapped processes). */
+    private deployedNameOf(key: string): string {
+        const wanted = normalizeProcessIdentifier(key);
+        return this.deployedDefinitions.find((definition) => normalizeProcessIdentifier(definition.key) === wanted)?.name || key;
+    }
+
     onProcessCatalogChange(processDefinitionKey: string): void {
         const entry = findProcessCatalogEntry(processDefinitionKey);
         const current = this.widget.processQuery ?? {};
@@ -487,7 +545,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
             processQuery: {
                 ...current,
                 processDefinitionKey,
-                processDefinitionName: processDefinitionKey,
+                processDefinitionName: this.deployedNameOf(processDefinitionKey),
                 includeSubprocesses: entry?.defaultIncludeSubprocesses ?? true,
                 metricScope,
                 includedSubprocessDefinitionKeys:
@@ -521,9 +579,10 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
 
     toggleSubprocessDefinition(subprocessKey: string): void {
         const current = this.widget.processQuery ?? {};
-        const base =
+        const base = (
             current.includedSubprocessDefinitionKeys ??
-            (this.processMetricScope === 'tree' ? defaultIncludedSubprocessKeys(this.selectedProcessKey) : []);
+            (this.processMetricScope === 'tree' ? defaultIncludedSubprocessKeys(this.selectedProcessKey) : [])
+        ).map((key) => canonicalProcessKey(key));
         const next = base.includes(subprocessKey)
             ? base.filter((key) => key !== subprocessKey)
             : [...base, subprocessKey];
@@ -1009,7 +1068,7 @@ export class DashboardBuilderDataBindingComponent implements OnInit, OnChanges {
             if (!merged.processQuery) {
                 const entry = this.processCatalog[0];
                 merged.processQuery = {
-                    processDefinitionKey: entry?.key ?? 'medical-records',
+                    processDefinitionKey: entry?.key ?? rootProcessKey(),
                     includeSubprocesses: entry?.defaultIncludeSubprocesses ?? true,
                     metricScope: this.isTableWidget ? 'tree' : entry?.defaultMetricScope ?? 'root',
                     status: [...(entry?.defaultStatus ?? ['RUNNING', 'COMPLETED', 'SUSPENDED'])],

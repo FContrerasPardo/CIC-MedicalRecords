@@ -1113,12 +1113,12 @@
           "argumentField": "calc_stage",
           "valueAggregation": "count",
           "bucketOrder": "label",
-          "maxBuckets": 6
+          "maxBuckets": 5
         },
         "chart": {
           "xField": "calc_stage",
           "yAggregation": "count",
-          "maxBuckets": 6,
+          "maxBuckets": 5,
           "bucketOrder": "label"
         },
         "chartDisplayMode": "progress-bars"

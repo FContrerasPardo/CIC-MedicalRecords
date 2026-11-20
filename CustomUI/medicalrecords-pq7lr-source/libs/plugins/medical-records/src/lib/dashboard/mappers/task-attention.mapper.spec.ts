@@ -21,7 +21,7 @@ describe('mapTaskToAttentionItem', () => {
                             name: 'Invoice.pdf',
                             fields: [
                                 { name: 'Patient Name', value: 'Maria Daniela Martinez' },
-                                { name: 'Insurance Plan', value: 'ARS Primera' },
+                                { name: 'Insurance Plan', value: 'Hyland ARS' },
                             ],
                             extractionReviewStatus: 'ReviewRequired',
                         },
@@ -34,7 +34,7 @@ describe('mapTaskToAttentionItem', () => {
 
         expect(item.title).toContain('Maria Daniela Martinez');
         expect(item.subtitle).toContain('Intake Review');
-        expect(item.subtitle).toContain('ARS Primera');
+        expect(item.subtitle).toContain('Hyland ARS');
         expect(item.subtitle).toContain('ACC-2026-8901');
         expect(item.nativeReference.taskId).toBe('task-123');
         expect(item.nativeReference.taskProcessName).toBe('medical-records-app');

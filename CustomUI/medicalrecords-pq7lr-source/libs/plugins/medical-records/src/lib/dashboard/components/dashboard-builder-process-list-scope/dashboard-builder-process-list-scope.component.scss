@@ -1,0 +1,121 @@
+:host {
+    display: block;
+}
+
+.process-list-scope {
+    display: grid;
+    gap: 10px;
+
+    h3 {
+        margin: 0;
+    }
+}
+
+.process-list-scope__hint {
+    margin: 0;
+    color: #5d6778;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.process-list-scope__label {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.process-list-scope__warning {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+    padding: 8px 10px;
+    border-left: 3px solid var(--dash-warning, #b7791f);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--dash-warning, #b7791f) 10%, transparent);
+    font-size: 12px;
+
+    p {
+        margin: 0;
+    }
+}
+
+.process-list-scope__check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #424752;
+}
+
+.process-list-scope__variables {
+    display: grid;
+    gap: 6px;
+}
+
+.process-list-scope__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.process-list-scope__chip {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    border: 1px solid rgba(110, 51, 255, 0.18);
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #667085;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.process-list-scope__chip--active {
+    background: rgba(110, 51, 255, 0.12);
+    border-color: rgba(110, 51, 255, 0.35);
+    color: var(--dash-accent, #6e33ff);
+}
+
+.process-list-scope__chip--variable {
+    cursor: default;
+    padding-right: 4px;
+    color: var(--dash-accent, #6e33ff);
+}
+
+.process-list-scope__chip--default {
+    border-style: dashed;
+    color: #667085;
+}
+
+.process-list-scope__chip-remove {
+    appearance: none;
+    display: inline-flex;
+    border: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 12px;
+    }
+}
+
+.process-list-scope__link {
+    appearance: none;
+    justify-self: start;
+    border: 0;
+    padding: 0;
+    background: none;
+    color: var(--dash-accent, #6e33ff);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+}

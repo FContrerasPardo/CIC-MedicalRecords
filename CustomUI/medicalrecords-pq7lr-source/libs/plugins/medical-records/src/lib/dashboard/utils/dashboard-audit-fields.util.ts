@@ -254,9 +254,30 @@ export function accountBilledAmount(row: Record<string, unknown>, ctx: ProviderV
     return numberOf(child(parseJsonObject(row['var_financialVarianceResult']), 'analyzedTotals')?.['invoiceTotal']);
 }
 
-/** Stages of the ARS flow, in order; stored as translation keys with the order in the key. */
-export const ACCOUNT_STAGES = ['1_RECEIVED', '2_INTAKE', '3_RULES', '4_AGENTS', '5_AUDIT', '6_CLOSED'] as const;
+/**
+ * Stages of the ARS flow, in order; stored as translation keys with the order in the key. The ids
+ * keep their original numbers (no `3`) so translation keys, saved `case-progress.json` files and
+ * dashboard buckets stay stable after the rules stage was removed (2026-11-17): the agreement
+ * rules are reviewed in the agreements viewer, not as an account stage.
+ */
+export const ACCOUNT_STAGES = ['1_RECEIVED', '2_INTAKE', '4_AGENTS', '5_AUDIT', '6_CLOSED'] as const;
 export type AccountStage = (typeof ACCOUNT_STAGES)[number];
+
+/**
+ * Stages that no longer exist and where they show now. `3_RULES` (IDP output reviewed, agents not
+ * answered yet) sat between intake and agents: the intake is already passed, so the account shows
+ * in the next valid stage, agent analysis, which waits for the agents.
+ */
+export const LEGACY_ACCOUNT_STAGES: Readonly<Record<string, AccountStage>> = { '3_RULES': '4_AGENTS' };
+
+/** A stored stage id (current or legacy) as a current stage; null when unknown. */
+export function normalizeAccountStage(value: unknown): AccountStage | null {
+    const id = String(value ?? '');
+    if ((ACCOUNT_STAGES as readonly string[]).includes(id)) {
+        return id as AccountStage;
+    }
+    return Object.prototype.hasOwnProperty.call(LEGACY_ACCOUNT_STAGES, id) ? LEGACY_ACCOUNT_STAGES[id] : null;
+}
 
 export function accountStageLabelKey(stage: AccountStage): string {
     return `MEDICAL_RECORDS.DASHBOARD.ACCOUNT_STAGE.STAGE_${stage}`;
@@ -265,7 +286,8 @@ export function accountStageLabelKey(stage: AccountStage): string {
 /**
  * Stage of an account INFERRED from its process status and variables (the open task is not part of
  * the process rows): completed → closed; all three agent results → audit; some → agents;
- * IDP output already reviewed → rules; IDP output needing review → intake; nothing yet → received.
+ * IDP output needing review → intake; IDP output already reviewed → agents (former rules stage,
+ * see LEGACY_ACCOUNT_STAGES); nothing yet → received.
  */
 export function accountStage(row: Record<string, unknown>, ctx: ProviderVariableContext = AUDIT_DEFAULT_CONTEXT): AccountStage | null {
     const status = String(row['status'] ?? '').toUpperCase();
@@ -286,7 +308,7 @@ export function accountStage(row: Record<string, unknown>, ctx: ProviderVariable
     if (!batch) {
         return '1_RECEIVED';
     }
-    return rowIdentity(row, ctx).reviewRequired ? '2_INTAKE' : '3_RULES';
+    return rowIdentity(row, ctx).reviewRequired ? '2_INTAKE' : '4_AGENTS';
 }
 
 const AGENT_KEYS: Record<(typeof AUDIT_AGENT_VARIABLES)[number], string> = {

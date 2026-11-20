@@ -933,3 +933,139 @@
         margin-top: 8px;
     }
 }
+
+/* Account stages (same as the account stepper): completed, current, pending. */
+.stage-chip {
+    &--s1_RECEIVED {
+        background: #eef0f6;
+        color: #344054;
+    }
+
+    &--s2_INTAKE {
+        background: #e8f1ff;
+        color: #1d4ed8;
+    }
+
+    &--s4_AGENTS {
+        background: #f1ebff;
+        color: #5b21b6;
+    }
+
+    &--s5_AUDIT {
+        background: #fff4e5;
+        color: #9a4b00;
+    }
+
+    &--s6_CLOSED {
+        background: #e6f8f2;
+        color: #047857;
+    }
+}
+
+ol.account-steps {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+        display: inline-flex;
+    }
+}
+
+.step-icon {
+    &--current {
+        border-color: var(--mr-primary, #00478d);
+        background: color-mix(in srgb, var(--mr-primary, #00478d) 10%, transparent);
+        color: var(--mr-primary, #00478d);
+
+        .step-icon__badge {
+            background: var(--mr-primary, #00478d);
+
+            .material-icons {
+                animation: stage-current-spin 2.4s linear infinite;
+            }
+        }
+    }
+
+    &:disabled {
+        cursor: default;
+
+        &:hover {
+            transform: none;
+            box-shadow: none;
+        }
+    }
+}
+
+@keyframes stage-current-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .step-icon--current .step-icon__badge .material-icons {
+        animation: none;
+    }
+}
+
+/* Patient sub-card: findings identified, colored by the highest severity reported. */
+.finding-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: #eef0f6;
+    color: #475467;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 13px;
+    }
+
+    &--ok {
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    &--warn {
+        border-color: #fedf89;
+        background: #fffaeb;
+        color: #b54708;
+    }
+
+    &--low {
+        background: #eff4ff;
+        color: #1d4ed8;
+    }
+
+    &--medium {
+        background: #fffaeb;
+        color: #b54708;
+    }
+
+    &--high {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+    &--critical {
+        background: #b42318;
+        color: #fff;
+    }
+
+    &:hover {
+        border-color: currentColor;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--mr-primary, #00478d);
+    }
+}

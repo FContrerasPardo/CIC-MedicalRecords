@@ -126,6 +126,9 @@
             [provider]="account?.provider ?? null"
             [accountReference]="accountReference"
             [initialTab]="initialTab"
+            [initialSubTab]="initialSubTab"
+            [invoices]="invoices"
+            (patientRequested)="selectInvoice($event)"
         ></medical-records-invoice-workspace>
     }
 </section>

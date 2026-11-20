@@ -1,3 +1,5 @@
+import { billedRowAmount } from '../../../form-widgets/intake-account-widget/batch-state-billing-fields';
+
 /**
  * Invoice audit workspace model (#147). Pure module: no Angular imports.
  *
@@ -206,6 +208,8 @@ export interface IntakeServiceLike {
     serviceCode: string | null;
     cup?: string | null;
     description: string | null;
+    quantity?: string | null;
+    price?: string | null;
     total: string | null;
     supportStatus: string;
     missingDocuments: string[];
@@ -228,9 +232,22 @@ export function fromIntakeService(invoiceKey: string, service: IntakeServiceLike
         severity: null,
         status: 'open',
         comment: text(comment),
-        amount: num(service.total),
+        amount: billedRowAmount(service),
         sourceRef: service.id,
     };
+}
+
+/** Status of the audit finding that already covers each intake service (deduplicated like `addFinding`), by service id. */
+export function intakeFindingStatusById(invoiceKey: string, services: readonly IntakeServiceLike[], record: InvoiceAuditRecord): Record<string, FindingStatus> {
+    const status: Record<string, FindingStatus> = {};
+    for (const service of services) {
+        const probe = addFinding(record, fromIntakeService(invoiceKey, service));
+        const found = probe.added ? undefined : record.findings.find((finding) => finding.id === probe.existingId);
+        if (found) {
+            status[service.id] = found.status;
+        }
+    }
+    return status;
 }
 
 export interface ProviderComment {
@@ -308,6 +325,23 @@ export function setFindingStatus(record: InvoiceAuditRecord, findingId: string, 
         findings: record.findings.map((finding) =>
             finding.id === findingId ? { ...finding, status, comment: comment === undefined ? finding.comment : text(comment) } : finding
         ),
+    };
+}
+
+/**
+ * Deletes findings the analyst created from the intake (origin `intake`) and their proposed
+ * glosas. Agent, provider or other findings are never deleted here: they are dismissed instead.
+ * Returns the same record when nothing was removed.
+ */
+export function removeIntakeFindings(record: InvoiceAuditRecord, findingIds: readonly string[]): InvoiceAuditRecord {
+    const ids = new Set(record.findings.filter((finding) => finding.origin === 'intake' && findingIds.includes(finding.id)).map((finding) => finding.id));
+    if (!ids.size) {
+        return record;
+    }
+    return {
+        ...record,
+        findings: record.findings.filter((finding) => !ids.has(finding.id)),
+        glosas: record.glosas.filter((glosa) => !ids.has(glosa.findingId)),
     };
 }
 

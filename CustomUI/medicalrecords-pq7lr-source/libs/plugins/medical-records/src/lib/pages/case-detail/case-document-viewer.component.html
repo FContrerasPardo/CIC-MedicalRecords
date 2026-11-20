@@ -1,4 +1,4 @@
-<div class="viewer-backdrop" (click)="close()">
+<div class="viewer-backdrop" [class.viewer-backdrop--docked]="!!dockRight" [style.--viewer-dock-right]="dockRight" (click)="close()">
     <section
         class="viewer"
         role="dialog"
@@ -12,7 +12,7 @@
                 <h2 id="case-viewer-title">{{ title | translate }}</h2>
                 <p>{{ document.categoryKey | translate }}@if (document.mimeType) { · {{ document.mimeType }} }</p>
             </div>
-            <button type="button" class="viewer__close" (click)="close()">
+            <button #closeButton type="button" class="viewer__close" (click)="close()">
                 <span class="material-icons" aria-hidden="true">close</span>{{ 'MEDICAL_RECORDS.CASE_DETAIL.VIEWER.CLOSE' | translate }}
             </button>
         </header>

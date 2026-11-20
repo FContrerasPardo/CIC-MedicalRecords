@@ -888,29 +888,6 @@ $border: var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
     }
 }
 
-// Phase labels between tab groups ---------------------------------------------------------------
-
-.ws-tabs {
-    align-items: center;
-}
-
-.ws-tabs__phase {
-    margin-left: 10px;
-    padding: 2px 8px;
-    border-left: 1px solid $border;
-    color: var(--mr-muted, #5b6474);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-
-    &:first-child {
-        margin-left: 0;
-        border-left: 0;
-    }
-}
-
 // Embedded widgets get the full panel width ---------------------------------------------------------
 
 .ws-panel--flush {
@@ -922,31 +899,6 @@ $border: var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
         border: 1px solid $border;
         border-radius: 12px;
         background: var(--mr-surface, #fff);
-    }
-}
-
-.ws-intake-list {
-    display: grid;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px 12px;
-        padding: 8px 12px;
-        border: 1px solid $border;
-        border-radius: 10px;
-        font-size: 13px;
-    }
-
-    &__main {
-        display: grid;
-        flex: 1 1 260px;
-        min-width: 0;
     }
 }
 
@@ -1203,5 +1155,305 @@ $border: var(--mr-border-subtle, rgba(194, 198, 212, 0.35));
 
     .ws-queue__list {
         max-height: 40vh;
+    }
+}
+
+// Progression (Control Center stages) ------------------------------------------------------------
+
+.ws-steps-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 6px 12px;
+    border: 1px solid $border;
+    border-radius: 12px;
+    background: var(--mr-surface, #fff);
+
+    &__meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        color: var(--mr-muted, #5b6474);
+        font-size: 12px;
+    }
+
+    &__pct {
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__save {
+        color: var(--mr-success-text, #1e6b34);
+        font-size: 16px;
+    }
+
+    &__memory {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+
+        .material-icons {
+            font-size: 15px;
+        }
+    }
+}
+
+.ws-stepper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ws-step {
+    display: inline-flex;
+    align-items: center;
+
+    & + &::before {
+        content: '';
+        width: 18px;
+        height: 2px;
+        margin: 0 2px;
+        border-radius: 2px;
+        background: $border;
+    }
+
+    &--completed + &::before,
+    &--completed + .ws-step::before {
+        background: var(--mr-success-text, #1e6b34);
+    }
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 30px;
+        padding: 0 8px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: none;
+        color: var(--mr-on-surface-variant, #424752);
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &--static {
+            cursor: default;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        &:not(.ws-step__btn--static):hover {
+            background: var(--mr-surface-hover, #f0f3f8);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--mr-primary, #0b57d0);
+            outline-offset: 1px;
+        }
+    }
+
+    &__icon {
+        font-size: 17px;
+    }
+
+    &--pending .ws-step__icon {
+        color: var(--mr-muted, #8a93a3);
+    }
+
+    &--in_progress .ws-step__icon {
+        color: var(--mr-primary, #0b57d0);
+    }
+
+    &--completed .ws-step__icon {
+        color: var(--mr-success-text, #1e6b34);
+    }
+
+    &--error .ws-step__icon,
+    &--error .ws-step__label {
+        color: var(--mr-danger-text, #a50e0e);
+    }
+
+    &--current .ws-step__label {
+        color: var(--mr-heading, #0b1c30);
+        font-weight: 700;
+    }
+
+    &--active .ws-step__btn {
+        border-color: var(--mr-primary, #0b57d0);
+        background: var(--mr-primary-container, #e8f0fe);
+        color: var(--mr-primary, #0b57d0);
+    }
+}
+
+.ws-thin-bar {
+    position: relative;
+    display: inline-block;
+    width: 90px;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--mr-surface-muted, #eef1f6);
+
+    span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        border-radius: inherit;
+        background: var(--mr-success-text, #1e6b34);
+    }
+}
+
+.ws-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--mr-muted, #5b6474);
+    cursor: pointer;
+
+    .material-icons {
+        font-size: 17px;
+    }
+
+    &:hover {
+        border-color: var(--mr-border, rgba(194, 198, 212, 0.55));
+        color: var(--mr-primary, #0b57d0);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--mr-primary, #0b57d0);
+        outline-offset: 1px;
+    }
+}
+
+// Automate gate and account progress -------------------------------------------------------------
+
+.ws-step--locked .ws-step__btn {
+    cursor: not-allowed;
+    opacity: 0.55;
+
+    &:hover {
+        background: none;
+    }
+}
+
+.ws-step--processing .ws-step__icon {
+    color: var(--mr-primary, #0b57d0);
+    animation: ws-loading-spin 2.4s linear infinite;
+}
+
+.ws-panel__foot {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.ws-patient-step {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin-right: auto;
+    color: var(--mr-on-surface-variant, #424752);
+    font-size: 12.5px;
+
+    .material-icons {
+        font-size: 17px;
+        color: var(--mr-primary, #0b57d0);
+    }
+}
+
+.ws-auto-note,
+.ws-partial {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    > span:nth-child(2) {
+        flex: 1;
+    }
+}
+
+.ws-wait {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    padding: 36px 16px;
+    text-align: center;
+
+    h3 {
+        color: var(--mr-heading, #0b1c30);
+        font-size: 16px;
+    }
+
+    p {
+        max-width: 520px;
+        color: var(--mr-muted, #5b6474);
+        font-size: 13px;
+    }
+}
+
+// Copied from pages/radication/_cic-fin-loan-application.scss (`.loading-orbit`, CIC-Fin loan application)
+// with the plugin tokens instead of the `--ab-*` ones and a material-icons span instead of mat-icon.
+.ws-loading-orbit {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--mr-primary-container, #e8f0fe);
+    color: var(--mr-primary, #0b57d0);
+    animation: ws-loading-pulse 1.8s ease-in-out infinite;
+
+    .material-icons {
+        animation: ws-loading-spin 2.4s linear infinite;
+    }
+
+    &--small {
+        flex: 0 0 auto;
+        width: 24px;
+        height: 24px;
+        animation: none;
+
+        .material-icons {
+            font-size: 16px;
+        }
+    }
+}
+
+@keyframes ws-loading-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(11, 87, 208, 0.22);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(11, 87, 208, 0.08);
+    }
+}
+
+@keyframes ws-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ws-loading-orbit,
+    .ws-loading-orbit .material-icons,
+    .ws-step--processing .ws-step__icon {
+        animation: none;
     }
 }

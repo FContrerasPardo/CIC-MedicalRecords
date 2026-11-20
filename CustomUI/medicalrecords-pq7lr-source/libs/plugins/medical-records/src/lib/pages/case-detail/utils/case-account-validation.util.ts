@@ -97,7 +97,7 @@ export function aggregateAccountValidations(accountSteps: readonly ValidationSte
  * Variables that carry the account identifier, by priority. `MedRecNum` is the radication number
  * the provider sends in the start form; the others are older or alternative names.
  */
-export const ACCOUNT_REFERENCE_VARIABLES = ['MedRecNum', 'accountId', 'medicalAccountId', 'radicationId'] as const;
+export const ACCOUNT_REFERENCE_VARIABLES = ['MedRec', 'MedRecNum', 'accountId', 'medicalAccountId', 'radicationId'] as const;
 
 /** Identifier shown for the account: radication number/account variable, the single invoice, else the process. */
 export function resolveAccountReference(

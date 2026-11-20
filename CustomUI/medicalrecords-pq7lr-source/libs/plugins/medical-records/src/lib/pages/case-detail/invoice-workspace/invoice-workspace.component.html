@@ -22,7 +22,7 @@
             </div>
             <div>
                 <dt>{{ i18n + '.HEADER.STAGE' | translate }}</dt>
-                <dd>{{ i18n + '.STAGE.' + activePhase | translate }}</dd>
+                <dd>{{ 'MEDICAL_RECORDS.DASHBOARD.ACCOUNT_STAGE.STAGE_' + stepper.current | translate }}</dd>
             </div>
         </dl>
         <button type="button" class="ws-counter" (click)="goTo('audit')" [attr.aria-label]="i18n + '.COUNTER_ARIA' | translate: { count: activeCount }">
@@ -42,92 +42,174 @@
         }
     </header>
 
-    <div class="ws-tabs" role="tablist" [attr.aria-label]="i18n + '.TABS_ARIA' | translate" (keydown)="onTabKeydown($event)">
-        @for (tab of tabs; track tab.id; let index = $index) {
-            @if (startsPhase(index)) {
-                <span class="ws-tabs__phase" aria-hidden="true">{{ i18n + '.PHASE.' + tab.phase | translate }}</span>
-            }
-            <button
-                type="button"
-                role="tab"
-                class="ws-tabs__tab"
-                [id]="'ws-tab-' + tab.id"
-                [attr.aria-selected]="activeTab === tab.id"
-                [attr.aria-controls]="'ws-panel-' + tab.id"
-                [attr.tabindex]="activeTab === tab.id ? 0 : -1"
-                (click)="selectTab(tab.id)"
-            >
-                <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>{{ tab.label ?? (tab.labelKey ?? '' | translate) }}
-                @if (tab.id === 'audit' && activeCount) {
-                    <span class="ws-badge">{{ activeCount }}</span>
-                }
-            </button>
-        }
-    </div>
-
-    <!-- Intake: the intake widget embedded for this invoice -->
-    <section class="ws-panel ws-panel--flush" role="tabpanel" id="ws-panel-intake" aria-labelledby="ws-tab-intake" [hidden]="activeTab !== 'intake'" tabindex="0">
-        @if (intakeField) {
-            <medical-records-intake-account-widget
-                [field]="intakeField"
-                [embedded]="true"
-                [documentIds]="invoice?.documentIds ?? null"
-                (documentRequested)="onDocumentRequested($event)"
-            ></medical-records-intake-account-widget>
-        }
-
-        <section class="ws-block" aria-labelledby="ws-intake-audit-title">
-            <header class="ws-panel__head">
-                <div>
-                    <h3 id="ws-intake-audit-title">{{ i18n + '.INTAKE.TO_AUDIT_TITLE' | translate }}</h3>
-                    <p>{{ i18n + '.INTAKE.TO_AUDIT_LEAD' | translate }}</p>
-                </div>
-                @if (requestedDocuments.size) {
-                    <span class="ws-pill ws-pill--warn" role="status" [title]="i18n + '.SIMULATED' | translate">
-                        {{ i18n + '.INTAKE.REQUESTED_COUNT' | translate: { count: requestedDocuments.size } }}
-                    </span>
-                }
-            </header>
-            @if (!pendingIntake.length) {
-                <p class="ws-empty">{{ i18n + '.INTAKE.ALL_COMPLETE' | translate }}</p>
-            } @else {
-                <ul class="ws-intake-list">
-                    @for (service of pendingIntake; track service.id) {
-                        <li>
-                            <div class="ws-intake-list__main">
-                                <strong>{{ service.description ?? service.cup ?? service.serviceCode ?? '—' }}</strong>
-                                <span class="ws-sub">
-                                    {{ service.cup ?? service.serviceCode ?? '' }}
-                                    @if (service.missingDocuments.length) {
-                                        · {{ i18n + '.INTAKE.MISSING' | translate }}: {{ service.missingDocuments.join(', ') }}
-                                    }
-                                </span>
-                            </div>
-                            <span class="ws-tone" [ngClass]="'ws-tone--' + service.tone">{{ service.supportStatus }}</span>
-                            @if (statusOf(fromIntake(service)); as status) {
-                                <span class="ws-status" [ngClass]="'ws-status--' + status">{{ i18n + '.STATUS.' + status.toUpperCase() | translate }}</span>
-                            } @else {
-                                <button type="button" class="ws-btn ws-btn--small" (click)="registerIntake(service)">
-                                    <span class="material-icons" aria-hidden="true">flag</span>{{ i18n + '.ACTIONS.REGISTER' | translate }}
-                                </button>
+    <!-- Progression: the Control Center stages of the account; detailed tabs only for the active phase -->
+    <nav class="ws-steps-bar" [attr.aria-label]="i18n + '.PROGRESS.ARIA' | translate">
+        <ol class="ws-stepper">
+            @for (step of stepper.steps; track step.stage) {
+                <li
+                    class="ws-step"
+                    [ngClass]="'ws-step--' + step.status"
+                    [class.ws-step--current]="step.current"
+                    [class.ws-step--active]="step.phase === activePhase"
+                    [class.ws-step--locked]="step.availability === 'locked'"
+                    [class.ws-step--processing]="step.availability === 'processing'"
+                >
+                    @if (step.phase) {
+                        <button
+                            type="button"
+                            class="ws-step__btn"
+                            (click)="openStep(step)"
+                            [disabled]="step.availability === 'locked'"
+                            [attr.aria-current]="step.phase === activePhase ? 'step' : null"
+                            [title]="step.availability === 'ready' ? '' : (i18n + '.PROGRESS.AVAILABILITY.' + step.availability.toUpperCase() | translate)"
+                        >
+                            <span class="material-icons ws-step__icon" aria-hidden="true">{{ stepIcon(step) }}</span>
+                            <span class="ws-step__label">{{ step.labelKey | translate }}</span>
+                            <span class="ws-sr">{{ i18n + '.PROGRESS.STATUS.' + step.status.toUpperCase() | translate }}</span>
+                            @if (step.availability !== 'ready') {
+                                <span class="ws-sr">{{ i18n + '.PROGRESS.AVAILABILITY.' + step.availability.toUpperCase() | translate }}</span>
                             }
-                        </li>
+                        </button>
+                    } @else {
+                        <span class="ws-step__btn ws-step__btn--static">
+                            <span class="material-icons ws-step__icon" aria-hidden="true">{{ stepIcon(step) }}</span>
+                            <span class="ws-step__label">{{ step.labelKey | translate }}</span>
+                            <span class="ws-sr">{{ i18n + '.PROGRESS.STATUS.' + step.status.toUpperCase() | translate }}</span>
+                        </span>
                     }
-                </ul>
+                </li>
             }
-            <p class="ws-note">{{ i18n + '.INTAKE.NOTE' | translate }}</p>
+        </ol>
+        <span class="ws-steps-bar__meta">
+            <span class="ws-steps-bar__pct">{{ stepper.percent }}%</span>
+            <span class="ws-thin-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="stepper.percent" [attr.aria-label]="i18n + '.PROGRESS.PERCENT' | translate">
+                <span [style.width.%]="stepper.percent"></span>
+            </span>
+            @if (progressPersistence === 'repository') {
+                <span class="material-icons ws-steps-bar__save" [title]="i18n + '.PROGRESS.SAVED' | translate" aria-hidden="true">cloud_done</span>
+                <span class="ws-sr">{{ i18n + '.PROGRESS.SAVED' | translate }}</span>
+            } @else if (progressPersistence === 'memory') {
+                <span class="ws-steps-bar__memory" role="status" [title]="i18n + '.PROGRESS.MEMORY_HINT' | translate">
+                    <span class="material-icons" aria-hidden="true">cloud_off</span>{{ i18n + '.PROGRESS.MEMORY' | translate }}
+                </span>
+            }
+            @if (!diagnosticsEnabled) {
+                <button type="button" class="ws-icon-btn" (click)="enableDiagnostics()" [attr.aria-label]="i18n + '.PROGRESS.DIAGNOSTICS' | translate" [title]="i18n + '.PROGRESS.DIAGNOSTICS' | translate">
+                    <span class="material-icons" aria-hidden="true">troubleshoot</span>
+                </button>
+            }
+        </span>
+    </nav>
+
+    @if (autoAdvanceNotice) {
+        <p class="ws-note ws-note--info ws-auto-note" role="status">
+            <span class="material-icons" aria-hidden="true">fast_forward</span>
+            <span>{{ i18n + '.ACCOUNT_PROGRESS.AUTO_ADVANCED' | translate: { from: (autoAdvanceNotice.fromKey | translate), to: (autoAdvanceNotice.toKey | translate) } }}</span>
+            <button type="button" class="ws-icon-btn" (click)="autoAdvanceNotice = null" [attr.aria-label]="i18n + '.ACCOUNT_PROGRESS.DISMISS' | translate">
+                <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+        </p>
+    }
+
+    <!-- Automate has not delivered the active phase yet: loading scene instead of empty content -->
+    @if (contentHidden) {
+        <section class="ws-panel ws-wait" role="status" aria-live="polite" [attr.aria-label]="i18n + '.WAIT.' + activePhase + '_TITLE' | translate">
+            <medical-records-radication-stage-art [stage]="waitArt" state="active" />
+            <span class="ws-loading-orbit" aria-hidden="true"><span class="material-icons">autorenew</span></span>
+            <h3>{{ i18n + '.WAIT.' + activePhase + '_TITLE' | translate }}</h3>
+            <p>{{ i18n + '.WAIT.' + (activeAvailability === 'locked' ? 'LOCKED' : activePhase + '_HINT') | translate }}</p>
+            @if (pollFailed) {
+                <p class="ws-note">{{ i18n + '.WAIT.POLL_FAILED' | translate }}</p>
+            }
         </section>
+    }
+
+    @if (phaseTabs.length > 1 && !contentHidden) {
+        <div class="ws-tabs" role="tablist" [attr.aria-label]="i18n + '.TABS_ARIA' | translate" (keydown)="onTabKeydown($event)">
+            @for (tab of phaseTabs; track tab.id) {
+                <button
+                    type="button"
+                    role="tab"
+                    class="ws-tabs__tab"
+                    [id]="'ws-tab-' + tab.id"
+                    [attr.aria-selected]="activeTab === tab.id"
+                    [attr.aria-controls]="'ws-panel-' + tab.id"
+                    [attr.tabindex]="activeTab === tab.id ? 0 : -1"
+                    (click)="selectTab(tab.id)"
+                >
+                    <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>{{ tab.label ?? (tab.labelKey ?? '' | translate) }}
+                </button>
+            }
+        </div>
+    }
+
+    <!-- Intake: compact intake of this invoice -->
+    <section class="ws-panel ws-panel--flush" role="region" id="ws-panel-intake" [attr.aria-label]="i18n + '.TABS.INTAKE' | translate" [hidden]="contentHidden || activeTab !== 'intake'" tabindex="-1">
+        <medical-records-case-intake-panel
+            [services]="intakeServices"
+            [documents]="intakeDocuments"
+            [reviewedIds]="reviewedIds"
+            [findingStatus]="intakeFindingStatus"
+            [registrations]="progress.registrations"
+            [requestedDocuments]="requestedDocuments"
+            [auditFindings]="record.findings"
+            [analysisFindings]="analysisFindings"
+            (registered)="onIntakeRegistered($event)"
+            (reviewedChange)="onReviewedChange($event)"
+            (documentRequested)="onDocumentRequested($event)"
+            (findingDeleted)="onIntakeFindingDeleted($event)"
+            (findingDismissed)="onIntakeFindingDismissed($event)"
+        ></medical-records-case-intake-panel>
         <div class="ws-panel__foot">
-            <button type="button" class="ws-btn ws-btn--primary" (click)="goTo('analysis')">
-                {{ i18n + '.ACTIONS.CONTINUE' | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+            <ng-container *ngTemplateOutlet="patientProgressTpl; context: { $implicit: 'INTAKE' }"></ng-container>
+            <!-- Bulk review: services of this patient, and patients of the account, without intake warnings -->
+            @if (servicesWithoutWarningsToReview.length; as serviceCount) {
+                <button type="button" class="ws-btn ws-btn--ghost" (click)="markServicesWithoutWarningsReviewed()">
+                    <span class="material-icons" aria-hidden="true">done_all</span>{{ i18n + '.ACCOUNT_PROGRESS.MARK_SERVICES_CLEAN' | translate: { count: serviceCount } }}
+                </button>
+            }
+            @if (patientOrder.length > 1 && patientsWithoutWarnings.length) {
+                <button type="button" class="ws-btn ws-btn--ghost" (click)="markPatientsWithoutWarningsReviewed()">
+                    <span class="material-icons" aria-hidden="true">group_add</span>{{ i18n + '.ACCOUNT_PROGRESS.MARK_PATIENTS_CLEAN' | translate: { count: patientsWithoutWarnings.length } }}
+                </button>
+            }
+            @if (isPhaseCompleted('INTAKE')) {
+                <button type="button" class="ws-btn ws-btn--ghost" (click)="reopenPhase('INTAKE')">
+                    <span class="material-icons" aria-hidden="true">undo</span>{{ i18n + '.PROGRESS.REOPEN' | translate }}
+                </button>
+            }
+            <button type="button" class="ws-btn ws-btn--primary" (click)="completePhase('INTAKE')">
+                {{ (continuesToPatient('INTAKE') ? i18n + '.ACCOUNT_PROGRESS.NEXT_PATIENT' : i18n + '.PROGRESS.COMPLETE_INTAKE') | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
             </button>
         </div>
     </section>
 
+    <!-- Account progress: this patient's position and the patients still pending in the stage -->
+    <ng-template #patientProgressTpl let-phase>
+        @if (patientOrder.length > 1) {
+            <span class="ws-patient-step" role="status">
+                <span class="material-icons" aria-hidden="true">group</span>
+                <strong>{{ i18n + '.ACCOUNT_PROGRESS.PATIENT_POSITION' | translate: { index: patientIndex, total: patientOrder.length } }}</strong>
+                <span class="ws-sub">{{ i18n + '.ACCOUNT_PROGRESS.PENDING_PATIENTS' | translate: { count: pendingPatientCount(phase) } }}</span>
+            </span>
+        }
+    </ng-template>
+
     <!-- Analysis: consolidated widget (score + the three agents); per-agent tabs hold the detail -->
-    <section class="ws-panel ws-panel--flush" role="tabpanel" id="ws-panel-analysis" aria-labelledby="ws-tab-analysis" [hidden]="activeTab !== 'analysis'" tabindex="0">
+    <section class="ws-panel ws-panel--flush" role="tabpanel" id="ws-panel-analysis" aria-labelledby="ws-tab-analysis" [hidden]="contentHidden || activeTab !== 'analysis'" tabindex="0">
         @if (invoiceCount > 1) {
             <p class="ws-note ws-note--info" role="note">{{ i18n + '.AGENT.ACCOUNT_SCOPE' | translate: { count: invoiceCount } }}</p>
+        }
+        @if (agentResultsUnavailable) {
+            <p class="ws-note ws-note--info ws-partial" role="status">
+                <span class="material-icons" aria-hidden="true">hourglass_empty</span>
+                {{ i18n + '.WAIT.AGENTS_TASK_OPEN' | translate: { task: agentMeshTaskName ?? '—' } }}
+            </p>
+        } @else if (inferredStage === '4_AGENTS' && agentsAnswered < agents.length) {
+            <p class="ws-note ws-note--info ws-partial" role="status">
+                <span class="ws-loading-orbit ws-loading-orbit--small" aria-hidden="true"><span class="material-icons">autorenew</span></span>
+                {{ i18n + '.WAIT.AGENTS_PARTIAL' | translate: { count: agentsAnswered, total: agents.length } }}
+            </p>
         }
         <ul class="ws-agent-links" [attr.aria-label]="i18n + '.ANALYSIS.AGENTS_ARIA' | translate">
             @for (agent of agents; track agent.tab.id) {
@@ -167,7 +249,7 @@
             role="tabpanel"
             [id]="'ws-panel-' + agent.tab.id"
             [attr.aria-labelledby]="'ws-tab-' + agent.tab.id"
-            [hidden]="activeTab !== agent.tab.id"
+            [hidden]="contentHidden || activeTab !== agent.tab.id"
             tabindex="0"
         >
             <header class="ws-agent">
@@ -250,15 +332,16 @@
                 </ul>
             }
             <div class="ws-panel__foot">
-                <button type="button" class="ws-btn ws-btn--primary" (click)="goTo('audit')">
-                    {{ i18n + '.ACTIONS.CONTINUE_AUDIT' | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
+                <ng-container *ngTemplateOutlet="patientProgressTpl; context: { $implicit: 'ANALYSIS' }"></ng-container>
+                <button type="button" class="ws-btn ws-btn--primary" (click)="completePhase('ANALYSIS')">
+                    {{ (continuesToPatient('ANALYSIS') ? i18n + '.ACCOUNT_PROGRESS.NEXT_PATIENT' : i18n + '.ACTIONS.CONTINUE_AUDIT') | translate }}<span class="material-icons" aria-hidden="true">arrow_forward</span>
                 </button>
             </div>
         </section>
     }
 
     <!-- Audit and glosas: ARS audit plus communication with the provider -->
-    <section class="ws-panel" role="tabpanel" id="ws-panel-audit" aria-labelledby="ws-tab-audit" [hidden]="activeTab !== 'audit'" tabindex="0">
+    <section class="ws-panel" role="region" id="ws-panel-audit" [attr.aria-label]="i18n + '.TABS.AUDIT' | translate" [hidden]="contentHidden || activeTab !== 'audit'" tabindex="-1">
         <header class="ws-panel__head">
             <div>
                 <h3>{{ i18n + '.AUDIT.TITLE' | translate }}</h3>
@@ -542,6 +625,19 @@
                 <p class="ws-status ws-status--accepted" role="status">{{ i18n + '.COMM.NOTIFIED_NOTE' | translate }}</p>
             }
         </section>
+        <div class="ws-panel__foot">
+            <ng-container *ngTemplateOutlet="patientProgressTpl; context: { $implicit: 'AUDIT' }"></ng-container>
+            @if (isPhaseCompleted('AUDIT')) {
+                <button type="button" class="ws-btn ws-btn--ghost" (click)="reopenPhase('AUDIT')">
+                    <span class="material-icons" aria-hidden="true">undo</span>{{ i18n + '.PROGRESS.REOPEN' | translate }}
+                </button>
+            } @else {
+                <button type="button" class="ws-btn ws-btn--primary" (click)="completePhase('AUDIT')">
+                    <span class="material-icons" aria-hidden="true">task_alt</span
+                    >{{ (continuesToPatient('AUDIT') ? i18n + '.ACCOUNT_PROGRESS.NEXT_PATIENT' : i18n + '.PROGRESS.COMPLETE_AUDIT') | translate }}
+                </button>
+            }
+        </div>
     </section>
 </section>
 

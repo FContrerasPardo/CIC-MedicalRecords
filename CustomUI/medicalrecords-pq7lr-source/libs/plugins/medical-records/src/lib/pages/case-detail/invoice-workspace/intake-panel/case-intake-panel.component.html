@@ -1,0 +1,575 @@
+<div class="ip">
+    <!-- Indicator strip -->
+    <dl class="ip-kpis" [attr.aria-label]="i18n + '.KPI.ARIA' | translate">
+        <div>
+            <dt><span class="material-icons" aria-hidden="true">description</span>{{ i18n + '.KPI.DOCUMENTS' | translate }}</dt>
+            <dd>{{ kpis.documents }}</dd>
+        </div>
+        <div>
+            <dt><span class="material-icons" aria-hidden="true">list_alt</span>{{ i18n + '.KPI.SERVICES' | translate }}</dt>
+            <dd>{{ kpis.services }}</dd>
+        </div>
+        <div class="ip-kpis--ok">
+            <dt><span class="material-icons" aria-hidden="true">task_alt</span>{{ i18n + '.KPI.SUPPORTED' | translate }}</dt>
+            <dd>{{ kpis.supported }}</dd>
+        </div>
+        <div [class.ip-kpis--warn]="kpis.unsupported > 0">
+            <dt><span class="material-icons" aria-hidden="true">link_off</span>{{ i18n + '.KPI.UNSUPPORTED' | translate }}</dt>
+            <dd>{{ kpis.unsupported }}</dd>
+        </div>
+        <div class="ip-kpis__readiness">
+            <dt><span class="material-icons" aria-hidden="true">speed</span>{{ i18n + '.KPI.READINESS' | translate }}</dt>
+            <dd>
+                {{ kpis.readiness }}%
+                <span class="ip-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="kpis.readiness" [attr.aria-label]="i18n + '.KPI.READINESS' | translate">
+                    <span [style.width.%]="kpis.readiness"></span>
+                </span>
+            </dd>
+        </div>
+    </dl>
+
+    <div class="ip-layout">
+        <!-- Left: Service Explorer -->
+        <section class="ip-block ip-main" aria-labelledby="ip-services-title">
+            <header class="ip-block__head">
+                <h3 id="ip-services-title"><span class="material-icons" aria-hidden="true">receipt</span>{{ i18n + '.SERVICES.TITLE' | translate }}</h3>
+                <span class="ip-block__tools">
+                    <span class="ip-muted" role="status">{{ i18n + '.SERVICES.VISIBLE' | translate: { count: visibleServices.length, total: services.length } }}</span>
+                    <button type="button" class="ip-icon-btn" (click)="setAllCollapsed(false)" [attr.aria-label]="i18n + '.SERVICES.EXPAND_ALL' | translate" [title]="i18n + '.SERVICES.EXPAND_ALL' | translate">
+                        <span class="material-icons" aria-hidden="true">unfold_more</span>
+                    </button>
+                    <button type="button" class="ip-icon-btn" (click)="setAllCollapsed(true)" [attr.aria-label]="i18n + '.SERVICES.COLLAPSE_ALL' | translate" [title]="i18n + '.SERVICES.COLLAPSE_ALL' | translate">
+                        <span class="material-icons" aria-hidden="true">unfold_less</span>
+                    </button>
+                </span>
+            </header>
+
+            <!-- Compact filter bar -->
+            <div class="ip-toolbar" role="search" [attr.aria-label]="i18n + '.FILTER.ARIA' | translate">
+                <label class="ip-search">
+                    <span class="material-icons" aria-hidden="true">search</span>
+                    <span class="ip-sr">{{ i18n + '.FILTER.SEARCH' | translate }}</span>
+                    <input type="search" [(ngModel)]="search" [placeholder]="i18n + '.FILTER.SEARCH_PLACEHOLDER' | translate" maxlength="120" />
+                </label>
+                <label class="ip-select">
+                    <span class="ip-sr">{{ i18n + '.FILTER.DOCUMENT' | translate }}</span>
+                    <select [ngModel]="documentId" (ngModelChange)="setDocument($event)" [title]="i18n + '.FILTER.DOCUMENT' | translate">
+                        <option value="">{{ i18n + '.FILTER.ALL_DOCUMENTS' | translate }}</option>
+                        @for (document of documents; track document.id) {
+                            <option [value]="document.id">{{ document.className }} ({{ linkedCount(document) }})</option>
+                        }
+                    </select>
+                </label>
+                <label class="ip-select">
+                    <span class="ip-sr">{{ i18n + '.FILTER.GROUP' | translate }}</span>
+                    <select [(ngModel)]="groupKey" [title]="i18n + '.FILTER.GROUP' | translate">
+                        <option value="">{{ i18n + '.FILTER.ALL_GROUPS' | translate }}</option>
+                        @for (option of groupOptions; track option.key) {
+                            <option [value]="option.key">{{ option.label ?? (i18n + '.GROUP.NONE' | translate) }} ({{ option.count }})</option>
+                        }
+                    </select>
+                </label>
+                @if (hasActiveFilters) {
+                    <button type="button" class="ip-btn ip-btn--ghost" (click)="clearFilters()">
+                        <span class="material-icons" aria-hidden="true">filter_alt_off</span>{{ i18n + '.FILTER.CLEAR' | translate }}
+                    </button>
+                }
+                <div class="ip-filters" role="group" [attr.aria-label]="i18n + '.FILTER.STATUS' | translate">
+                    @for (option of filters; track option) {
+                        <button type="button" class="ip-chip" [class.ip-chip--on]="filter === option" [attr.aria-pressed]="filter === option" (click)="setFilter(option)">
+                            {{ filterLabelKey(option) | translate }} <span>{{ countFor(option) }}</span>
+                        </button>
+                    }
+                    @if (filter === 'withWarnings') {
+                        <label class="ip-select ip-select--compact">
+                            <span class="ip-sr">{{ i18n + '.FILTER.WARNING_REASON' | translate }}</span>
+                            <select [(ngModel)]="warningReason" [title]="i18n + '.FILTER.WARNING_REASON' | translate">
+                                <option value="">{{ i18n + '.FILTER.ALL_REASONS' | translate }} ({{ warningCount('') }})</option>
+                                @for (reason of warningReasons; track reason) {
+                                    <option [value]="reason">{{ warningLabelKey(reason) | translate }} ({{ warningCount(reason) }})</option>
+                                }
+                            </select>
+                        </label>
+                    }
+                    @if (visibleServices.length) {
+                        <button type="button" class="ip-btn ip-btn--ghost ip-select-visible" (click)="selectAllVisible()" [disabled]="allVisibleSelected">
+                            <span class="material-icons" aria-hidden="true">select_all</span>{{ i18n + '.FILTER.SELECT_VISIBLE' | translate: { count: visibleServices.length } }}
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @if (focus) {
+                <p class="ip-linked" [class.ip-linked--warn]="focus.kind === 'missing'" role="status">
+                    <span class="material-icons" aria-hidden="true">{{ focus.kind === 'missing' ? 'report' : 'flag' }}</span>
+                    {{ (focus.kind === 'missing' ? i18n + '.SERVICES.FOCUS_MISSING' : i18n + '.SERVICES.FOCUS_FINDING') | translate: { count: focus.ids.size, label: focus.label } }}
+                    <button type="button" class="ip-icon-btn" (click)="clearFocus()" [attr.aria-label]="i18n + '.SERVICES.CLEAR_LINKED' | translate" [title]="i18n + '.SERVICES.CLEAR_LINKED' | translate">
+                        <span class="material-icons" aria-hidden="true">close</span>
+                    </button>
+                </p>
+            }
+            @if (linkedDocument) {
+                <p class="ip-linked" role="status">
+                    <span class="material-icons" aria-hidden="true">link</span>
+                    {{ i18n + '.SERVICES.LINKED_TO' | translate: { document: linkedDocument.className } }}
+                    <button type="button" class="ip-icon-btn" (click)="clearLinked()" [attr.aria-label]="i18n + '.SERVICES.CLEAR_LINKED' | translate" [title]="i18n + '.SERVICES.CLEAR_LINKED' | translate">
+                        <span class="material-icons" aria-hidden="true">close</span>
+                    </button>
+                </p>
+            }
+
+            <!-- Selection and comment: sticky over the explorer while scrolling -->
+            @if (selected.size) {
+                <div class="ip-bulk" role="region" [attr.aria-label]="i18n + '.BULK.ARIA' | translate">
+                    <strong>{{ i18n + '.BULK.SELECTED' | translate: { count: selected.size } }}</strong>
+                    <label class="ip-bulk__comment">
+                        <span class="ip-sr">{{ i18n + '.BULK.COMMENT' | translate }}</span>
+                        <input type="text" [(ngModel)]="bulkComment" [placeholder]="i18n + '.BULK.COMMENT' | translate" maxlength="500" (keydown.enter)="registerSelected()" />
+                    </label>
+                    <span class="ip-seg" role="radiogroup" [attr.aria-label]="i18n + '.BULK.KIND' | translate">
+                        <label [class.ip-seg--on]="bulkKind === 'finding'">
+                            <input type="radio" name="ip-bulk-kind" value="finding" [(ngModel)]="bulkKind" />{{ i18n + '.KIND.FINDING' | translate }}
+                        </label>
+                        <label [class.ip-seg--on]="bulkKind === 'remediation'">
+                            <input type="radio" name="ip-bulk-kind" value="remediation" [(ngModel)]="bulkKind" />{{ i18n + '.KIND.REMEDIATION' | translate }}
+                        </label>
+                    </span>
+                    <button type="button" class="ip-btn ip-btn--primary" (click)="registerSelected()">
+                        <span class="material-icons" aria-hidden="true">flag</span>{{ i18n + '.BULK.REGISTER' | translate }}
+                    </button>
+                    <button type="button" class="ip-btn" (click)="markSelectedReviewed()">
+                        <span class="material-icons" aria-hidden="true">done_all</span>{{ i18n + '.BULK.MARK_REVIEWED' | translate }}
+                    </button>
+                    <button type="button" class="ip-btn ip-btn--ghost" (click)="clearSelection()">{{ i18n + '.BULK.CLEAR' | translate }}</button>
+                </div>
+            }
+
+            @if (!services.length) {
+                <p class="ip-empty">{{ i18n + '.SERVICES.EMPTY' | translate }}</p>
+            } @else {
+                <div class="ip-table-wrap">
+                    <table class="ip-table">
+                        <thead>
+                            <tr>
+                                <th class="ip-col-check">
+                                    <input
+                                        type="checkbox"
+                                        [checked]="allVisibleSelected"
+                                        [indeterminate]="someVisibleSelected"
+                                        (change)="toggleAllVisible()"
+                                        [attr.aria-label]="i18n + '.SERVICES.SELECT_ALL' | translate"
+                                    />
+                                </th>
+                                <th>{{ i18n + '.FIELD.DATE' | translate }}</th>
+                                <th>{{ i18n + '.FIELD.CUP' | translate }}</th>
+                                <th>{{ i18n + '.FIELD.DESCRIPTION' | translate }}</th>
+                                <th class="ip-num">{{ i18n + '.FIELD.QUANTITY' | translate }}</th>
+                                <th class="ip-num">{{ i18n + '.FIELD.UNIT_PRICE' | translate }}</th>
+                                <th class="ip-num">{{ i18n + '.FIELD.TOTAL' | translate }}</th>
+                                <th>{{ i18n + '.SERVICES.SUPPORT' | translate }}</th>
+                                <th>{{ i18n + '.SERVICES.AUDIT' | translate }}</th>
+                                <th class="ip-col-actions"><span class="ip-sr">{{ i18n + '.SERVICES.ACTIONS' | translate }}</span></th>
+                            </tr>
+                        </thead>
+                        @for (group of visibleGroups; track group.key) {
+                            <tbody class="ip-group" [class.ip-group--collapsed]="isCollapsed(group)">
+                                <tr class="ip-group__head" [class.ip-row--selected]="groupSelected(group)">
+                                    <td class="ip-col-check">
+                                        <input
+                                            type="checkbox"
+                                            [checked]="groupSelected(group)"
+                                            [indeterminate]="groupPartlySelected(group)"
+                                            (change)="toggleGroup(group)"
+                                            [attr.aria-label]="i18n + '.GROUP.SELECT' | translate: { group: group.label ?? (i18n + '.GROUP.NONE' | translate) }"
+                                        />
+                                    </td>
+                                    <td colspan="9">
+                                        <button
+                                            type="button"
+                                            class="ip-group__toggle"
+                                            (click)="toggleCollapsed(group)"
+                                            [attr.aria-expanded]="!isCollapsed(group)"
+                                            [attr.aria-label]="i18n + '.GROUP.TOGGLE' | translate: { group: group.label ?? (i18n + '.GROUP.NONE' | translate) }"
+                                        >
+                                            <span class="material-icons" aria-hidden="true">{{ isCollapsed(group) ? 'chevron_right' : 'expand_more' }}</span>
+                                            <strong class="ip-group__name">{{ group.label ?? (i18n + '.GROUP.NONE' | translate) }}</strong>
+                                            <span class="ip-chip">{{ i18n + '.GROUP.ITEMS' | translate: { count: group.services.length } }}</span>
+                                            @if (group.subtotal !== null) {
+                                                <span class="ip-group__subtotal">{{ i18n + '.GROUP.ITEMS_SUM' | translate }} <strong>{{ group.subtotal | number: '1.2-2' }}</strong></span>
+                                            }
+                                            @if (group.billedSubtotal !== null) {
+                                                <span class="ip-group__subtotal">{{ i18n + '.GROUP.BILLED_SUBTOTAL' | translate }} <strong>{{ group.billedSubtotal | number: '1.2-2' }}</strong></span>
+                                            }
+                                            @if (group.subtotalMismatch) {
+                                                <span class="ip-group__mismatch" [title]="i18n + '.GROUP.SUBTOTAL_MISMATCH' | translate">
+                                                    <span class="material-icons" aria-hidden="true">info</span>
+                                                    <span class="ip-sr">{{ i18n + '.GROUP.SUBTOTAL_MISMATCH' | translate }}</span>
+                                                </span>
+                                            }
+                                            <span class="ip-support" [class.ip-support--ok]="!group.unsupported">
+                                                <span class="ip-dot" aria-hidden="true"></span>
+                                                {{ group.unsupported ? (i18n + '.GROUP.UNSUPPORTED' | translate: { count: group.unsupported }) : (i18n + '.GROUP.SUPPORTED' | translate) }}
+                                            </span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @if (!isCollapsed(group)) {
+                                    @for (service of group.services; track service.id) {
+                                        <tr [class.ip-row--selected]="selected.has(service.id)" [class.ip-row--open]="drawerService?.id === service.id">
+                                            <td class="ip-col-check">
+                                                <input
+                                                    type="checkbox"
+                                                    [checked]="selected.has(service.id)"
+                                                    (change)="toggle(service)"
+                                                    [attr.aria-label]="i18n + '.SERVICES.SELECT' | translate: { service: service.description ?? service.cup ?? service.serviceCode ?? service.id }"
+                                                />
+                                            </td>
+                                            <td class="ip-nowrap">{{ service.serviceDate ?? '—' }}</td>
+                                            <td class="ip-nowrap"><code>{{ service.cup ?? service.serviceCode ?? '—' }}</code></td>
+                                            <td class="ip-desc">
+                                                @let rowWarnings = warningsOf(service);
+                                                @if (rowWarnings.length) {
+                                                    <span class="ip-warning" [title]="warningText(rowWarnings)">
+                                                        <span class="material-icons" aria-hidden="true">error_outline</span>
+                                                        <span class="ip-sr">{{ warningText(rowWarnings) }}</span>
+                                                    </span>
+                                                }
+                                                <button type="button" class="ip-link" (click)="openDrawer(service)">{{ service.description ?? service.serviceCode ?? '—' }}</button>
+                                            </td>
+                                            @let amount = amountsOf(service);
+                                            <td class="ip-num">
+                                                @if (amount.quantityAssumed) {
+                                                    <span class="ip-derived" [title]="i18n + '.AMOUNTS.QUANTITY_ASSUMED' | translate">1<span class="ip-sr"> ({{ i18n + '.AMOUNTS.QUANTITY_ASSUMED' | translate }})</span></span>
+                                                } @else {
+                                                    {{ amount.quantity | number: '1.0-2' }}
+                                                }
+                                            </td>
+                                            <td class="ip-num">{{ amount.price !== null ? (amount.price | number: '1.2-2') : '—' }}</td>
+                                            <td class="ip-num">
+                                                @if (amount.total === null) {
+                                                    <span class="ip-muted">—</span>
+                                                } @else if (amount.totalComputed) {
+                                                    <span class="ip-derived" [title]="i18n + '.AMOUNTS.TOTAL_COMPUTED' | translate">{{ amount.total | number: '1.2-2' }}<span class="ip-sr"> ({{ i18n + '.AMOUNTS.TOTAL_COMPUTED' | translate }})</span></span>
+                                                } @else {
+                                                    {{ amount.total | number: '1.2-2' }}
+                                                }
+                                            </td>
+                                            <td class="ip-nowrap">
+                                                <span class="ip-support" [class.ip-support--ok]="isSupported(service)" [title]="service.missingDocuments.join(', ')">
+                                                    <span class="ip-dot" aria-hidden="true"></span>
+                                                    {{ service.presentDocuments.length }}/{{ service.requiredDocuments.length }}
+                                                </span>
+                                            </td>
+                                            <td class="ip-nowrap">
+                                                @if (findingStatus[service.id]; as status) {
+                                                    <span class="ip-status" [ngClass]="'ip-status--' + status">{{ statusLabelKey(status) | translate }}</span>
+                                                } @else if (reviewedIds.has(service.id)) {
+                                                    <span class="ip-status ip-status--reviewed">{{ i18n + '.SERVICES.REVIEWED' | translate }}</span>
+                                                } @else {
+                                                    <span class="ip-muted">—</span>
+                                                }
+                                            </td>
+                                            <td class="ip-col-actions">
+                                                <button type="button" class="ip-icon-btn" (click)="toggleReviewed(service)" [class.ip-icon-btn--on]="reviewedIds.has(service.id)" [attr.aria-pressed]="reviewedIds.has(service.id)" [attr.aria-label]="i18n + '.ACTIONS.MARK_REVIEWED' | translate" [title]="i18n + '.ACTIONS.MARK_REVIEWED' | translate">
+                                                    <span class="material-icons" aria-hidden="true">done</span>
+                                                </button>
+                                                <button type="button" class="ip-icon-btn" (click)="registerOne(service)" [disabled]="!!findingStatus[service.id]" [attr.aria-label]="i18n + '.ACTIONS.REGISTER' | translate" [title]="i18n + '.ACTIONS.REGISTER' | translate">
+                                                    <span class="material-icons" aria-hidden="true">flag</span>
+                                                </button>
+                                                <button type="button" class="ip-icon-btn" (click)="openDrawer(service)" [attr.aria-label]="i18n + '.ACTIONS.DETAIL' | translate" [title]="i18n + '.ACTIONS.DETAIL' | translate">
+                                                    <span class="material-icons" aria-hidden="true">open_in_new</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        } @empty {
+                            <tbody>
+                                <tr>
+                                    <td colspan="10" class="ip-empty">{{ i18n + '.SERVICES.NO_MATCH' | translate }}</td>
+                                </tr>
+                            </tbody>
+                        }
+                    </table>
+                </div>
+            }
+        </section>
+
+        <!-- Right column, sticky: Document Control Center + Findings -->
+        <aside class="ip-side">
+            <section class="ip-block" aria-labelledby="ip-documents-title">
+                <header class="ip-block__head">
+                    <h3 id="ip-documents-title"><span class="material-icons" aria-hidden="true">folder_open</span>{{ i18n + '.DOCUMENTS.TITLE' | translate }}</h3>
+                </header>
+
+                @if (pendingClasses.length) {
+                    <div class="ip-pending" role="group" [attr.aria-label]="i18n + '.DOCUMENTS.PENDING' | translate">
+                        <span class="ip-pending__label"><span class="material-icons" aria-hidden="true">report</span>{{ i18n + '.DOCUMENTS.PENDING' | translate }}</span>
+                        <ul class="ip-missing">
+                            @for (pending of pendingClasses; track pending.label) {
+                                <li class="ip-missing__item" [class.ip-missing__item--on]="isFocused('missing', pending.label)">
+                                    <button
+                                        type="button"
+                                        class="ip-missing__main"
+                                        (click)="focusMissing(pending)"
+                                        [attr.aria-pressed]="isFocused('missing', pending.label)"
+                                        [title]="i18n + '.DOCUMENTS.SHOW_MISSING' | translate: { document: pending.label }"
+                                    >
+                                        <span class="material-icons ip-missing__icon" aria-hidden="true">error_outline</span>
+                                        <span class="ip-missing__text">
+                                            <strong>{{ pending.label }}</strong>
+                                            <span>{{ i18n + '.DOCUMENTS.REQUIRED_BY' | translate: { count: pending.count } }}</span>
+                                        </span>
+                                        <span class="ip-missing__count">{{ pending.count }}</span>
+                                    </button>
+                                    @if (requestedDocuments.has(pending.label)) {
+                                        <span class="material-icons ip-missing__requested" [title]="i18n + '.DOCUMENTS.REQUESTED' | translate" aria-hidden="true">schedule_send</span>
+                                        <span class="ip-sr">{{ i18n + '.DOCUMENTS.REQUESTED' | translate }}</span>
+                                    } @else {
+                                        <button type="button" class="ip-icon-btn" (click)="requestDocument(pending.label)" [attr.aria-label]="i18n + '.DOCUMENTS.REQUEST' | translate: { document: pending.label }" [title]="i18n + '.DOCUMENTS.REQUEST_HINT' | translate">
+                                            <span class="material-icons" aria-hidden="true">outgoing_mail</span>
+                                        </button>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                } @else if (services.length) {
+                    <p class="ip-ok-note"><span class="material-icons" aria-hidden="true">task_alt</span>{{ i18n + '.DOCUMENTS.ALL_SUPPORTED' | translate }}</p>
+                }
+
+                @if (!documents.length) {
+                    <p class="ip-empty">{{ i18n + '.DOCUMENTS.EMPTY' | translate }}</p>
+                } @else {
+                    <ul class="ip-docs">
+                        @for (document of documents; track document.id) {
+                            <li [class.ip-docs--linked]="documentId === document.id">
+                                <span class="material-icons ip-docs__icon" aria-hidden="true">{{ document.mimeType?.includes('pdf') ? 'picture_as_pdf' : 'insert_drive_file' }}</span>
+                                <span class="ip-docs__main">
+                                    <strong>{{ document.className }}</strong>
+                                    <span class="ip-muted">{{ document.name }}</span>
+                                </span>
+                                <span class="ip-docs__count" [title]="i18n + '.DOCUMENTS.LINKED_COUNT' | translate: { count: linkedCount(document) }">
+                                    <span class="material-icons" aria-hidden="true">list_alt</span>{{ linkedCount(document) }}
+                                </span>
+                                <button type="button" class="ip-icon-btn" (click)="view(document)" [disabled]="!document.repositoryNodeId" [attr.aria-label]="i18n + '.DOCUMENTS.VIEW' | translate: { document: document.className }" [title]="i18n + '.DOCUMENTS.VIEW' | translate: { document: document.className }">
+                                    <span class="material-icons" aria-hidden="true">visibility</span>
+                                </button>
+                                <button type="button" class="ip-icon-btn" [class.ip-icon-btn--on]="documentId === document.id" [attr.aria-pressed]="documentId === document.id" (click)="showLinked(document)" [attr.aria-label]="i18n + '.DOCUMENTS.SHOW_SERVICES' | translate: { document: document.className }" [title]="i18n + '.DOCUMENTS.SHOW_SERVICES' | translate: { document: document.className }">
+                                    <span class="material-icons" aria-hidden="true">link</span>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+                <p class="ip-note">{{ 'MEDICAL_RECORDS.INVOICE_WORKSPACE.INTAKE.NOTE' | translate }}</p>
+            </section>
+
+            <section class="ip-block" aria-labelledby="ip-findings-title">
+                <header class="ip-block__head">
+                    <h3 id="ip-findings-title"><span class="material-icons" aria-hidden="true">flag</span>{{ i18n + '.FINDINGS.TITLE' | translate }}</h3>
+                    <span class="ip-chip">{{ findings.length }}</span>
+                </header>
+                @if (!findings.length) {
+                    <p class="ip-empty">{{ i18n + '.FINDINGS.EMPTY' | translate }}</p>
+                } @else {
+                    <ul class="ip-findings">
+                        @for (entry of findings; track entry.id) {
+                            <li class="ip-findings__item" [class.ip-findings__item--action]="!!actionOf(entry)">
+                                <button
+                                    type="button"
+                                    class="ip-finding"
+                                    [class.ip-finding--on]="isFocused('finding', entry.id)"
+                                    [class.ip-finding--analysis]="entry.source === 'analysis'"
+                                    (click)="focusFinding(entry)"
+                                    [disabled]="!entry.serviceIds.length"
+                                    [attr.aria-pressed]="isFocused('finding', entry.id)"
+                                >
+                                    <span class="ip-finding__meta">
+                                        <span class="ip-chip" [class.ip-chip--warn]="entry.kind === 'finding'" [class.ip-chip--ok]="entry.kind === 'remediation'">
+                                            {{ (entry.kind ? i18n + '.KIND.' + entry.kind.toUpperCase() : i18n + '.FINDINGS.SOURCE.ANALYSIS') | translate }}
+                                        </span>
+                                        <span class="ip-muted">{{ originLabelKey(entry) | translate }}</span>
+                                        @if (entry.status) {
+                                            <span class="ip-status" [ngClass]="'ip-status--' + entry.status">{{ statusLabelKey(entry.status) | translate }}</span>
+                                        }
+                                    </span>
+                                    <strong class="ip-finding__title">{{ entry.title || (i18n + '.FINDINGS.UNTITLED' | translate) }}</strong>
+                                    @if (entry.comment) {
+                                        <span class="ip-finding__comment">{{ entry.comment }}</span>
+                                    }
+                                    <span class="ip-finding__foot">
+                                        <span class="ip-finding__count">
+                                            <span class="material-icons" aria-hidden="true">list_alt</span>
+                                            {{ entry.serviceIds.length ? (i18n + '.FINDINGS.ITEMS' | translate: { count: entry.serviceIds.length }) : (i18n + '.FINDINGS.NO_ITEMS' | translate) }}
+                                        </span>
+                                        @if (entry.at) {
+                                            <span class="ip-muted">{{ entry.at | date: 'short' }}</span>
+                                        }
+                                    </span>
+                                </button>
+                                @if (actionOf(entry) === 'delete') {
+                                    <button type="button" class="ip-icon-btn ip-findings__action" (click)="startConfirm(entry)" [attr.aria-expanded]="isConfirming(entry)" [attr.aria-label]="i18n + '.FINDINGS.DELETE' | translate" [title]="i18n + '.FINDINGS.DELETE' | translate">
+                                        <span class="material-icons" aria-hidden="true">delete_outline</span>
+                                    </button>
+                                } @else if (actionOf(entry) === 'dismiss') {
+                                    <button type="button" class="ip-icon-btn ip-findings__action" (click)="startConfirm(entry)" [attr.aria-expanded]="isConfirming(entry)" [attr.aria-label]="i18n + '.FINDINGS.DISMISS' | translate" [title]="i18n + '.FINDINGS.DISMISS' | translate">
+                                        <span class="material-icons" aria-hidden="true">block</span>
+                                    </button>
+                                }
+                                @if (confirming && isConfirming(entry)) {
+                                    <form class="ip-confirm" role="group" [attr.aria-label]="(confirming.action === 'delete' ? i18n + '.FINDINGS.DELETE' : i18n + '.FINDINGS.DISMISS') | translate" (ngSubmit)="confirmAction(entry)">
+                                        @if (confirming.action === 'delete') {
+                                            <p class="ip-confirm__text">{{ (entry.source === 'registration' ? i18n + '.FINDINGS.DELETE_CONFIRM_REGISTRATION' : i18n + '.FINDINGS.DELETE_CONFIRM') | translate }}</p>
+                                        } @else {
+                                            <label class="ip-confirm__field">
+                                                <span>{{ i18n + '.FINDINGS.DISMISS_JUSTIFICATION' | translate }}</span>
+                                                <textarea name="justification" rows="2" maxlength="500" required [(ngModel)]="confirming.text"></textarea>
+                                            </label>
+                                        }
+                                        <span class="ip-confirm__actions">
+                                            <button type="button" class="ip-btn ip-btn--ghost" (click)="cancelConfirm()">{{ i18n + '.FINDINGS.CANCEL' | translate }}</button>
+                                            @if (confirming.action === 'delete') {
+                                                <button type="submit" class="ip-btn ip-btn--danger">
+                                                    <span class="material-icons" aria-hidden="true">delete_outline</span>{{ i18n + '.FINDINGS.DELETE' | translate }}
+                                                </button>
+                                            } @else {
+                                                <button type="submit" class="ip-btn ip-btn--primary" [disabled]="!confirming.text.trim()">{{ i18n + '.FINDINGS.DISMISS' | translate }}</button>
+                                            }
+                                        </span>
+                                    </form>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+        </aside>
+    </div>
+</div>
+
+<!-- Service detail drawer -->
+@if (drawerService; as service) {
+    <div class="ip-drawer-backdrop" (click)="closeDrawer()"></div>
+    <aside class="ip-drawer" role="dialog" aria-modal="true" aria-labelledby="ip-drawer-title">
+        <header class="ip-drawer__head">
+            <div>
+                <span class="ip-eyebrow">{{ i18n + '.DRAWER.TITLE' | translate }}</span>
+                <h3 id="ip-drawer-title">{{ service.description ?? service.cup ?? service.serviceCode ?? '—' }}</h3>
+            </div>
+            <span class="ip-drawer__nav">
+                <button type="button" class="ip-icon-btn" (click)="moveDrawer(-1)" [disabled]="drawerIndex <= 0" [attr.aria-label]="i18n + '.DRAWER.PREVIOUS' | translate" [title]="i18n + '.DRAWER.PREVIOUS' | translate">
+                    <span class="material-icons" aria-hidden="true">chevron_left</span>
+                </button>
+                <button type="button" class="ip-icon-btn" (click)="moveDrawer(1)" [disabled]="drawerIndex < 0 || drawerIndex >= visibleServices.length - 1" [attr.aria-label]="i18n + '.DRAWER.NEXT' | translate" [title]="i18n + '.DRAWER.NEXT' | translate">
+                    <span class="material-icons" aria-hidden="true">chevron_right</span>
+                </button>
+                <button type="button" class="ip-icon-btn" (click)="closeDrawer()" [attr.aria-label]="i18n + '.DRAWER.CLOSE' | translate" [title]="i18n + '.DRAWER.CLOSE' | translate">
+                    <span class="material-icons" aria-hidden="true">close</span>
+                </button>
+            </span>
+        </header>
+
+        <div class="ip-drawer__body">
+            <dl class="ip-fields">
+                @for (field of drawerFields; track field.label) {
+                    <div>
+                        <dt>{{ field.labelKey ?? '' | translate }}</dt>
+                        @if (field.amount === undefined) {
+                            <dd>{{ field.value }}</dd>
+                        } @else if (field.mark === 'assumed') {
+                            <dd><span class="ip-derived">{{ field.amount | number: '1.0-2' }}</span> <small class="ip-derived__note">{{ i18n + '.AMOUNTS.QUANTITY_ASSUMED' | translate }}</small></dd>
+                        } @else if (field.mark === 'computed') {
+                            <dd><span class="ip-derived">{{ field.amount | number: '1.2-2' }}</span> <small class="ip-derived__note">{{ i18n + '.AMOUNTS.TOTAL_COMPUTED' | translate }}</small></dd>
+                        } @else {
+                            <dd>{{ field.amount | number: (field.label === 'QUANTITY' ? '1.0-2' : '1.2-2') }}</dd>
+                        }
+                    </div>
+                }
+            </dl>
+
+            @if (service.extractedFields?.length) {
+                <h4 class="ip-subtitle">{{ i18n + '.DRAWER.EXTRACTED' | translate }}</h4>
+                <table class="ip-table ip-table--kv">
+                    <tbody>
+                        @for (field of service.extractedFields ?? []; track $index) {
+                            <tr>
+                                <th scope="row">{{ field.label }}</th>
+                                <td>{{ field.value }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <h4 class="ip-subtitle">{{ i18n + '.DRAWER.SUPPORT' | translate }}</h4>
+            <p class="ip-support-line">
+                @for (label of service.presentDocuments; track label) {
+                    <span class="ip-chip ip-chip--ok"><span class="material-icons ip-chip__icon" aria-hidden="true">check</span>{{ label }}</span>
+                }
+                @for (label of service.missingDocuments; track label) {
+                    <span class="ip-chip ip-chip--warn"><span class="material-icons ip-chip__icon" aria-hidden="true">remove</span>{{ label }}</span>
+                }
+                @if (!service.requiredDocuments.length) {
+                    <span class="ip-muted">—</span>
+                }
+            </p>
+
+            <h4 class="ip-subtitle">{{ i18n + '.DRAWER.DOCUMENTS' | translate }}</h4>
+            @if (!drawerDocuments.length) {
+                <p class="ip-empty">{{ i18n + '.DRAWER.NO_DOCUMENTS' | translate }}</p>
+            } @else {
+                <ul class="ip-docs ip-docs--small">
+                    @for (document of drawerDocuments; track document.id) {
+                        <li>
+                            <span class="material-icons ip-docs__icon" aria-hidden="true">{{ document.id === service.sourceDocumentId ? 'receipt_long' : 'attach_file' }}</span>
+                            <span class="ip-docs__main">
+                                <strong>{{ document.className }}</strong>
+                                <span class="ip-muted">{{ (document.id === service.sourceDocumentId ? i18n + '.DRAWER.SOURCE_DOC' : i18n + '.DRAWER.SUPPORT_DOC') | translate }}</span>
+                            </span>
+                            <button type="button" class="ip-icon-btn" (click)="view(document)" [disabled]="!document.repositoryNodeId" [attr.aria-label]="i18n + '.DOCUMENTS.VIEW' | translate: { document: document.className }" [title]="i18n + '.DOCUMENTS.VIEW' | translate: { document: document.className }">
+                                <span class="material-icons" aria-hidden="true">visibility</span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <h4 class="ip-subtitle">{{ i18n + '.DRAWER.AUDIT' | translate }}</h4>
+            @if (findingStatus[service.id]; as status) {
+                <p><span class="ip-status" [ngClass]="'ip-status--' + status">{{ 'MEDICAL_RECORDS.INVOICE_WORKSPACE.STATUS.' + status.toUpperCase() | translate }}</span></p>
+            }
+            @for (registration of registrationsOf(service.id); track registration.id) {
+                <p class="ip-reg">
+                    <span class="ip-chip">{{ i18n + '.KIND.' + registration.kind.toUpperCase() | translate }}</span>
+                    <span class="ip-muted">{{ registration.at | date: 'short' }}</span>
+                    @if (registration.comment) {
+                        <span class="ip-reg__comment">{{ registration.comment }}</span>
+                    }
+                </p>
+            }
+            <label class="ip-drawer__comment">
+                <span>{{ i18n + '.BULK.COMMENT' | translate }}</span>
+                <textarea rows="2" [(ngModel)]="drawerComment" maxlength="500"></textarea>
+            </label>
+        </div>
+
+        <footer class="ip-drawer__foot">
+            <button type="button" class="ip-btn" (click)="toggleReviewed(service)" [attr.aria-pressed]="reviewedIds.has(service.id)">
+                <span class="material-icons" aria-hidden="true">{{ reviewedIds.has(service.id) ? 'check_box' : 'check_box_outline_blank' }}</span>{{ i18n + '.ACTIONS.MARK_REVIEWED' | translate }}
+            </button>
+            <span class="ip-drawer__spacer"></span>
+            <button type="button" class="ip-btn" (click)="registerFromDrawer('remediation')">
+                <span class="material-icons" aria-hidden="true">build</span>{{ i18n + '.KIND.REMEDIATION' | translate }}
+            </button>
+            <button type="button" class="ip-btn ip-btn--primary" (click)="registerFromDrawer('finding')">
+                <span class="material-icons" aria-hidden="true">flag</span>{{ i18n + '.KIND.FINDING' | translate }}
+            </button>
+        </footer>
+    </aside>
+}
+
+@if (viewerDocument) {
+    <medical-records-case-document-viewer [document]="viewerDocument" [dockRight]="drawerService ? drawerWidth : null" (closed)="viewerDocument = null" />
+}

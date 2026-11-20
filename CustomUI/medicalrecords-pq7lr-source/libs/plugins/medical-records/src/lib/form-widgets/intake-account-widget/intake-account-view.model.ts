@@ -91,6 +91,26 @@ export interface IntakeAccountServiceItemViewModel {
     tone: IntakeAccountTone;
     hasReviewRequired: boolean;
     hasLowConfidence: boolean;
+    /** IDP document the billed row was read from. */
+    sourceDocumentId?: string;
+    /** Every extracted cell of the billed row (IDP label and value), in table order. */
+    extractedFields?: Array<{ label: string; value: string }>;
+    /** Service group of the billed row (section header or group text of the "Servicio" column); null when none. */
+    serviceGroup?: IntakeServiceGroupRef | null;
+}
+
+/** Service group a billed row belongs to; rows of the same group share `key`. */
+export interface IntakeServiceGroupRef {
+    /** `section:<code>` for a group (subtotal) row, `service:<normalized text>` for a group text. */
+    key: string;
+    /** 3-digit code of a section header (e.g. "300"); null for a group text. */
+    code: string | null;
+    /** Display name, e.g. "300 HABITACION" or "02-CONSUL CONSULTA E INTERNCONSULTA". */
+    label: string;
+    /** Position of the first row of the group in its table (keeps the invoice order). */
+    order: number;
+    /** Billed subtotal of the group rows of this code (a repeated amount counts once); null when none. */
+    billedSubtotal?: number | null;
 }
 
 export interface IntakeAccountDocumentHighlightViewModel {

@@ -86,3 +86,28 @@ export function resolveWorkspaceTab(target: CaseTabTarget | null | undefined): W
     }
     return pickKnown(tab, WORKSPACE_TAB_IDS) ?? LEGACY_TABS[tab] ?? null;
 }
+
+/** Sub-section of the intake that shows the Findings panel (registrations, manual and audit findings). */
+export const INTAKE_FINDINGS_SUB = 'findings';
+
+/**
+ * Target of a patient chip in the Control Center: the account opens on THAT patient. Once the
+ * account reached the audit, the audit and glosas tab (it is per patient); before, the intake of
+ * the patient with the Findings panel in view.
+ */
+export function patientChipTarget(accountStageReached: string | null, invoiceKey: string): CaseTabTarget {
+    return accountStageReached === '5_AUDIT' || accountStageReached === '6_CLOSED'
+        ? { tab: 'audit', invoice: invoiceKey }
+        : { tab: 'intake', subTab: INTAKE_FINDINGS_SUB, invoice: invoiceKey };
+}
+
+/**
+ * Patient (invoice key) to open: the one in the URL when it belongs to the account, else the last
+ * one the analyst worked on (case-progress.json `lastInvoiceKey`); null when neither applies.
+ */
+export function resolveInitialInvoiceKey(requested: string | null | undefined, lastInvoiceKey: string | null | undefined, keys: readonly string[]): string | null {
+    if (requested && keys.includes(requested)) {
+        return requested;
+    }
+    return lastInvoiceKey && keys.includes(lastInvoiceKey) ? lastInvoiceKey : null;
+}

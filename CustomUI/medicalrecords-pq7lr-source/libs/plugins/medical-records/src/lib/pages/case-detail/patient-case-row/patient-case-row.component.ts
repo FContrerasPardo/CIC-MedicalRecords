@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { extractBatchContext } from '../../../dashboard/mappers/attention-batch-context';
 import { ProcessAttentionItem } from '../../../dashboard/definitions/process-attention.model';
 import { PatientCaseGroup } from '../utils/case-grouping.util';
-import { CaseTabTarget } from '../utils/case-navigation.util';
+import { CaseTabTarget, patientChipTarget } from '../utils/case-navigation.util';
 import { countByState, deriveValidationMap, ValidationStep } from '../utils/case-validation-map.util';
 import { buildCaseAccountView, CaseInvoiceOption } from '../utils/case-invoice.util';
 import {
@@ -17,6 +17,13 @@ import {
 } from '../utils/case-account-validation.util';
 import { AccountSummary } from '../../../dashboard/utils/dashboard-provider-group.util';
 import { parseBatchState } from '../batch-state-case-detail.provider';
+import { accountStageLabelKey } from '../../../dashboard/utils/dashboard-audit-fields.util';
+import { mapBatchStateToIntakeForDocuments } from '../../../form-widgets/intake-account-widget/batch-state.mapper';
+import { ACCOUNT_STAGE_ICONS, buildCaseStepper, CaseProgress, CaseStep, CaseStepper, inferCaseStage, tabOfPhase } from '../utils/case-progress.util';
+import { PatientFindingSignal, patientFindingSignals, patientIntakeWarningCount } from '../utils/case-patient-signal.util';
+import { emptyAuditRecord, parseAuditState } from '../invoice-workspace/audit-findings.util';
+import { INVOICE_AUDIT_STATE_VARIABLE } from '../invoice-workspace/invoice-audit-store.service';
+import { CaseProgressRepositoryService } from '../invoice-workspace/case-progress-repository.service';
 
 const STEP_LABEL_KEYS: Record<ValidationStep['key'], string> = {
     documents: 'MEDICAL_RECORDS.CASE_DETAIL.STEPS.DOCUMENTS',
@@ -84,6 +91,7 @@ export class PatientCaseRowComponent {
         this.patientRows = derivePatientValidations(this.steps, account.invoices, readSummaryPatients(primary.processVariables['accountSummary']));
         this.accountSteps = aggregateAccountValidations(this.steps, this.patientRows);
         this.openStepKey = null;
+        this.buildAccountStage(primary.processVariables, account.invoices);
         this.applySearch();
     }
     get group(): PatientCaseGroup {
@@ -145,6 +153,86 @@ export class PatientCaseRowComponent {
     counts = { executed: 0, pending: 0, blocking: 0 };
 
     private _group!: PatientCaseGroup;
+    private readonly progressRepository = inject(CaseProgressRepositoryService);
+    private stageToken = 0;
+
+    /**
+     * Stages of the ACCOUNT, the same the account stepper shows (Control Center `accountStage`
+     * plus the analyst progress in case-progress.json when it can be read). Shown only in the account
+     * row; the patient sub-cards show the patient's findings instead (no repeated stages).
+     */
+    stageStepper: CaseStepper = buildCaseStepper(null, null);
+    /** Findings identified per patient (invoice key), with the highest severity. */
+    patientSignals: Record<string, PatientFindingSignal> = {};
+
+    private buildAccountStage(variables: Record<string, unknown>, invoices: CaseInvoiceOption[]): void {
+        const inferred = inferCaseStage(variables);
+        this.stageStepper = buildCaseStepper(null, inferred);
+        this.buildSignals(variables, invoices, null);
+        const processInstanceId = this._group.primary.nativeReference?.rootProcessInstanceId ?? this._group.primary.nativeReference?.processInstanceId ?? null;
+        const token = ++this.stageToken;
+        void this.progressRepository.peekProgress(variables, variables['batchState'], processInstanceId).then((progress) => {
+            if (progress && token === this.stageToken) {
+                this.stageStepper = buildCaseStepper(progress, inferred);
+                // The analyst's registrations (case-progress.json) are findings of the patient too.
+                this.buildSignals(variables, invoices, progress);
+            }
+        });
+    }
+
+    /** Findings (registered) and warnings (observed) per patient; see patientFindingSignals. */
+    private buildSignals(variables: Record<string, unknown>, invoices: CaseInvoiceOption[], progress: CaseProgress | null): void {
+        const batchState = parseBatchState(variables['batchState']);
+        const services = new Map(
+            invoices.map((option) => [option.key, batchState && option.documentIds.length ? mapBatchStateToIntakeForDocuments(batchState, option.documentIds).services : []])
+        );
+        const audit = parseAuditState(variables[INVOICE_AUDIT_STATE_VARIABLE]);
+        const signals = patientFindingSignals(invoices, variables, audit, (invoice) => services.get(invoice.key) ?? [], {
+            registrations: progress?.registrations ?? [],
+            // Reviewed or remediated services do not count as warnings (same rule as the invoice workspace).
+            warningsOf: (invoice) => patientIntakeWarningCount(invoice.key, services.get(invoice.key) ?? [], audit.invoices[invoice.key] ?? emptyAuditRecord(), progress),
+        });
+        this.patientSignals = Object.fromEntries(signals.map((signal) => [signal.key, signal]));
+    }
+
+    /**
+     * Patient chip: opens the account on THAT patient, in the audit once the account reached it,
+     * else in the intake with the Findings panel in view.
+     */
+    openPatientSignal(invoiceKey: string, event: Event): void {
+        event.stopPropagation();
+        this.openStepKey = null;
+        this.openCase.emit(patientChipTarget(this.stageStepper.current, invoiceKey));
+    }
+
+    stageIcon(step: CaseStep): string {
+        return ACCOUNT_STAGE_ICONS[step.stage];
+    }
+
+    /** Row state classes reused for the stages: completed, current (in progress), pending, error. */
+    stageState(step: CaseStep): string {
+        return step.status === 'completed' ? 'executed' : step.status === 'error' ? 'blocking' : step.status === 'in_progress' ? 'current' : 'pending';
+    }
+
+    stageStatusKey(step: CaseStep): string {
+        return 'MEDICAL_RECORDS.INVOICE_WORKSPACE.PROGRESS.STATUS.' + step.status.toUpperCase();
+    }
+
+    stageBadgeIcon(step: CaseStep): string {
+        return step.status === 'completed' ? 'check' : step.status === 'error' ? 'priority_high' : step.status === 'in_progress' ? 'autorenew' : 'more_horiz';
+    }
+
+    /** A stage opens its workspace phase; stages owned by the process or not reached yet do not. */
+    openStage(step: CaseStep, event: Event): void {
+        event.stopPropagation();
+        if (step.phase && step.availability !== 'locked') {
+            this.openCase.emit({ tab: tabOfPhase(step.phase) });
+        }
+    }
+
+    signalOf(key: string): PatientFindingSignal | null {
+        return this.patientSignals[key] ?? null;
+    }
 
     toggleStep(step: AccountValidationStepView, event: Event): void {
         event.stopPropagation();
@@ -182,9 +270,9 @@ export class PatientCaseRowComponent {
         return STEP_ICONS[step.key];
     }
 
-    /** Current stage of the account (most advanced open task). */
+    /** Current stage of the ACCOUNT, the same as the account stepper (not the open task type). */
     get stageKey(): string {
-        return this.taskTypeKey(this._group.primary);
+        return accountStageLabelKey(this.stageStepper.current);
     }
 
     get caseSelected(): boolean {
